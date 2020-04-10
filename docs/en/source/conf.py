@@ -32,7 +32,8 @@ release = '0.3'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-'recommonmark'
+'recommonmark',
+'docxbuilder'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
