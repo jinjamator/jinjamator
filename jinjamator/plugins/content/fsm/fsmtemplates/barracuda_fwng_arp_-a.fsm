@@ -1,0 +1,14 @@
+Value Required ADDRESS (\d+\.\d+\.\d+\.\d+)
+Value MAC (\S+)
+Value INTERFACE (\S+)
+Value TYPE (\S+)
+Value HOSTNAME (\S+)
+
+#? (192.0.2.35) at 00:00:5e:00:53:35 [ether] on bond1.100
+#? (192.0.2.177) at <incomplete> on bond1.200
+#host01.example.com (198.51.100.63) at 00:00:5e:00:53:63 [ether] on bond1.300
+
+Start
+  ^${HOSTNAME}\s+\(${ADDRESS}\)\s+at\s+${MAC}\s+\[${TYPE}\]\s+on\s+${INTERFACE}$$ -> Record
+  ^.*$$
+  ^. -> Error

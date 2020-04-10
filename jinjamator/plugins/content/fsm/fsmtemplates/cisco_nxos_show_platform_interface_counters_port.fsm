@@ -1,0 +1,18 @@
+Value RX_FCS_ERR (\d+)
+Value Required RX_CRCERR (\d+)
+Value Required RX_INRANGEERR (\d+)
+Value Required TX_FRM_ERROR (\d+)
+Value RX_ANY_ERR (\d+)
+
+
+
+Start
+  ^IF -> Start_record
+
+Start_record
+  ^\s+RX_FCS_ERR\s+${RX_FCS_ERR}
+  ^\s+RX_CRCERR\s+${RX_CRCERR}
+  ^\s+RX_INRANGEERR\s+${RX_INRANGEERR}
+  ^\s+TX_FRM_ERROR\s+${TX_FRM_ERROR}
+  ^\s+RX_ANY_ERR\s+${RX_ANY_ERR}
+  ^$$ -> Record
