@@ -1,0 +1,23 @@
+Value MAC ([0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\.[0-9a-fA-F]{4})
+Value TYPE (\w+)
+Value VLAN (\w+)
+Value PORTS (\S+)
+Value AGE (\S+)
+
+Start
+  ^Destination\s+Address\s+Address\s+Type\s+VLAN\s+Destination\s+Port -> TYPE1
+  ^\s+vlan\s+mac address\s+type\s+learn\s+age\s+ports -> TYPE2
+  ^\s+vlan\s+mac address\s+type\s+protocols\s+port -> TYPE3
+  ^Vlan\s+Mac Address\s+Type\s+Ports -> TYPE4
+
+TYPE1
+  ^${MAC}\s+${TYPE}\s+${VLAN}\s+${PORTS} -> Record
+
+TYPE2
+  ^[\*|\s]\s+${VLAN}\s+${MAC}\s+${TYPE}\s+\S+\s+${AGE}+\s+${PORTS} -> Record
+
+TYPE3
+  ^\s+${VLAN}\s+${MAC}\s+${TYPE}\s+\S+\s+${PORTS} -> Record
+
+TYPE4
+  ^\s+${VLAN}\s+${MAC}\s+${TYPE}\s+${PORTS} -> Record

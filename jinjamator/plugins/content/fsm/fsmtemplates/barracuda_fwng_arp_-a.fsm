@@ -1,0 +1,14 @@
+Value Required ADDRESS (\d+\.\d+\.\d+\.\d+)
+Value MAC (\S+)
+Value INTERFACE (\S+)
+Value TYPE (\S+)
+Value HOSTNAME (\S+)
+
+#? (172.18.30.35) at bc:30:5b:cf:8b:3d [ether] on bond1.730
+#? (172.18.97.177) at <incomplete> on bond1.598
+#atgrzea0107.avl01.avlcorp.lan (10.12.40.63) at 00:0b:ab:79:17:77 [ether] on bond1.45
+
+Start
+  ^${HOSTNAME}\s+\(${ADDRESS}\)\s+at\s+${MAC}\s+\[${TYPE}\]\s+on\s+${INTERFACE}$$ -> Record
+  ^.*$$
+  ^. -> Error

@@ -1,0 +1,152 @@
+<section id='timeline-template'>
+  <div class="row">
+        <div class="col-md-12">
+          <!-- The time line -->
+          <ul class="timeline">
+          </ul>
+        </div>
+        <!-- /.col -->
+  </div>
+</section>
+<section id='timeline-label-template'>
+<!-- timeline time label -->
+<li class="time-label">
+  <span class="">
+    n/a
+  </span>
+</li>
+<!-- /.timeline-label -->
+</section>
+<section id='timeline-content-template'>
+<!-- timeline item -->
+<li class='timeline-item-list-item'>
+  <i class="timeline-icon fa"></i>
+
+  <div class="timeline-item">
+    <span class="time"><i class="fa fa-clock-o"></i>n/a</span>
+
+    <h3 class="timeline-header">n/a</h3>
+
+    <div class="timeline-body">
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#overview" data-toggle="tab" id='nav_overview'>Overview</a></li>
+          <li><a href="#configuration" data-toggle="tab" id='nav_configuration'>Configuration</a></li>
+          <li><a href="#raw_log" data-toggle="tab" id='nav_raw_log'>Raw Log</a></li>
+          
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="overview">
+            <div class="table-responsive">
+              <table class="table">
+                <tbody><tr>
+                  <th nowrap>Loglevel:</th>
+                  <td id='log_level'>n/a</td>
+                  <th></th>
+                  <td width='90%'></td>
+                </tr>
+                <tr>
+                  <th nowrap>Output Plugin:</th>
+                  <td id='output_plugin'>n/a</td>
+                  <th></th>
+                  <td width='90%'></td>
+                </tr>
+                <!-- <tr>
+                  <th nowrap>Parent Task:</th>
+                  <td id='parent_task'>n/a</td>
+                  <th nowrap>Current Task:</th>
+                  <td width='90%' id='current_task'>n/a</td>
+                </tr> -->
+                <tr>
+                  <th nowrap>Parent Tasklet:</th>
+                  <td nowrap id='parent_tasklet'>n/a</td>
+                  <th nowrap>Current Tasklet:</th>
+                  <td width='90%' id='current_tasklet'>n/a</td>
+                </tr>
+                <tr>
+                  <th nowrap>Console Output:</th>
+                  <td colspan="3" id='console_output'><pre>n/a</pre></td>
+                  
+                </tr>
+                <tr>
+                  <th nowrap>Full Message:</th>
+                  <td colspan="3" id='full_message'><pre>n/a</pre></td>
+                  
+                </tr>
+                
+              </tbody></table>
+          </div>
+          </div>
+          <!-- /.tab-pane -->
+          <div class="tab-pane" id="configuration">
+            n/a
+          </div>
+          <!-- /.tab-pane -->
+          <div class="tab-pane" id="raw_log">
+            n/a
+          </div>
+          <!-- /.tab-pane -->
+        </div>
+        <!-- /.tab-content -->
+      </div>
+    </div>
+  </div>
+</li>
+<!-- END timeline item -->
+</section>
+<section id='timeline-overview-box-template'>
+  <div id='timeline_overview' class="box box-default color-palette-box">
+    <div id='timeline-overview-box-header' class="box-header with-border">
+      <h3 class="box-title"><i class="fa fa-tag"></i> Overview:</h3>
+    </div>
+    <div class="box-body">
+        <div class="table-responsive">
+            <table class="table">
+              <tbody>
+              <tr>
+                <th nowrap>Job ID:</th>
+                <td nowrap colspan='2' id='job_id'>n/a</td>
+                <th></th>
+              </tr>
+              <tr>
+                  <th nowrap>Job Path:</th>
+                  <td nowrap colspan='2' id='job_path'>n/a</td>
+                  <th></th>
+              </tr>  
+              <tr>
+                <th nowrap>Job Status:</th>
+                <td nowrap><span id='job_status'>n/a</span></td>
+                <th></th>
+                <td width='90%'></td>
+              </tr>
+              <tr>
+                  <th nowrap>Logseverity:</th>
+                  <td><select  id='log_severity' class="form-control" onchange='set_timeline_loglevel(this.options[this.selectedIndex].value);'>
+                      <option>ERROR</option>
+                      <option>WARNING</option>
+                      <option selected>INFO</option>
+                      <option>DEBUG</option>
+                    </select></td>
+                  <th></th>
+                  <td width='90%'></td>
+                </tr>
+                <tr>
+                    <th></th>
+                    <td></td>
+                    <th></th>
+                    <td width='90%' align="right">        
+                      
+                        <button type="button" class="btn btn-default" onclick="clone_job($('#job_id').html())">Clone</button>
+                        <button type="button" class="btn btn-default" onclick="undo_job($('#job_id').html())">Undo</button>
+                      
+                    </td>
+                  </tr>
+      
+            </tbody></table>
+
+        </div>
+
+    </div>
+  </div>
+</section>
+  

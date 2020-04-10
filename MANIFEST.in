@@ -1,0 +1,4 @@
+include */README.md
+include */LICENSE
+recursive-include jinjamator/daemon/web *
+recursive-include jinjamator/plugins *
