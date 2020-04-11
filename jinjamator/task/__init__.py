@@ -96,7 +96,8 @@ class JinjamatorTask(object):
         self._schema_extensions = []
 
     def load(self, path):
-
+        self.task_base_dir = path
+        
         self._log.debug(f"---------------- load task: {path} ----------------")
 
         search_paths = self.configuration.get("global_tasks_base_dirs", [])
@@ -124,9 +125,10 @@ class JinjamatorTask(object):
             raise ValueError(f"cannot load path {path}")
 
         global_ldr = init_loader(self)
-        for content_plugin_dir in self.configuration[
-            "global_content_plugins_base_dirs"
-        ]:
+        for content_plugin_dir in self.configuration.get(
+            "global_content_plugins_base_dirs",
+            []
+        ):
             global_ldr.load(f"{content_plugin_dir}")
 
         self.setup_jinja2()
@@ -702,4 +704,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             )
 
             results[tasklet] = retval
+            if self.configuration["task_run_mode"] == 'background':
+                self._log.tasklet_result('{0}'.format(retval)) # this submits the result via celery
         return results
