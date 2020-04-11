@@ -290,7 +290,13 @@ USAGE
             for arg in vars(self._args):
                 self._cfg[arg] = getattr(self._args, arg)
 
-            self._cfg["taskdir"] = os.path.abspath(self._cfg["taskdir"])
+            if self._cfg["taskdir"]:
+                self._cfg["taskdir"] = os.path.abspath(self._cfg["taskdir"])
+
+            for index,global_tasks_base_dir in enumerate(self._cfg['global_tasks_base_dirs']):
+                self._cfg['global_tasks_base_dirs'][index] = os.path.abspath(global_tasks_base_dir)
+
+            
         except Exception as e:
             raise (e)
 
@@ -332,20 +338,7 @@ USAGE
             app.config["UPLOAD_FOLDER"] = os.path.join(
                 self._cfg["jinjamator_base_directory"], "var/uploads"
             )
-            if len(self._cfg["global_tasks_base_dirs"]) == 0:
-                self._cfg["global_tasks_base_dirs"] = [
-                    "{0}{1}tasks/vendor".format(
-                        self._cfg["jinjamator_base_directory"], os.path.sep
-                    )
-                ]
-            else:
-                tmp = []
-                for path in self._cfg["global_tasks_base_dirs"]:
-                    for gpath in glob(path):
-                        if gpath not in tmp:
-                            tmp.append(gpath)
-                self._cfg["global_tasks_base_dirs"] = tmp
-
+ 
             if len(self._cfg["global_environments_base_dirs"]) == 0:
                 self._cfg["global_environments_base_dirs"] = [
                     "{0}{1}environments".format(
