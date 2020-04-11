@@ -28,7 +28,7 @@ import tempfile
 from jinjamator.plugin_loader.output import load_output_plugin
 
 __version__ = "0.4.1"
-__updated__ = "10.05.2020"
+__updated__ = "11.05.2020"
 __date__ = "22.07.2019"
 __author__ = "Wilhelm Putz"
 
