@@ -124,7 +124,8 @@ def api_list_environments():
 def api_list_tasks():
     response = {"tasks": []}
     for directory in app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"]:
-        for item in glob.glob("{0}/**/*.*".format(directory), recursive=True):
+        tasks=glob.glob("{0}/**/*.py".format(directory), recursive=True) + glob.glob("{0}/**/*.j2".format(directory), recursive=True)
+        for item in tasks:
             append = True
             for dir_chunk in os.path.dirname(item).split(os.path.sep):
                 if dir_chunk.startswith("."):
