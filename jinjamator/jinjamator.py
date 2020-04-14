@@ -293,10 +293,13 @@ USAGE
             if self._cfg["taskdir"]:
                 self._cfg["taskdir"] = os.path.abspath(self._cfg["taskdir"])
 
-            for index,global_tasks_base_dir in enumerate(self._cfg['global_tasks_base_dirs']):
-                self._cfg['global_tasks_base_dirs'][index] = os.path.abspath(global_tasks_base_dir)
+            for index, global_tasks_base_dir in enumerate(
+                self._cfg["global_tasks_base_dirs"]
+            ):
+                self._cfg["global_tasks_base_dirs"][index] = os.path.abspath(
+                    global_tasks_base_dir
+                )
 
-            
         except Exception as e:
             raise (e)
 
@@ -338,7 +341,7 @@ USAGE
             app.config["UPLOAD_FOLDER"] = os.path.join(
                 self._cfg["jinjamator_base_directory"], "var/uploads"
             )
- 
+
             if len(self._cfg["global_environments_base_dirs"]) == 0:
                 self._cfg["global_environments_base_dirs"] = [
                     "{0}{1}environments".format(
