@@ -1,3 +1,17 @@
+# Copyright 2019 Wilhelm Putz
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import sys
 import os
 
@@ -15,6 +29,8 @@ from collections import defaultdict
 def tree():
     return defaultdict(tree)
 
+class SSHConfigurationError(Exception):
+    pass
 
 def send_config_set(
         self,
@@ -100,7 +116,7 @@ def send_config_set(
                     new_output = self.read_until_pattern(pattern=pattern)
                     output += new_output
                 if 'Error:' in output:
-                    raise ValueError(output)                
+                    raise SSHConfigurationError(output)                
 
         if exit_config_mode:
             output += self.exit_config_mode()
