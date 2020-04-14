@@ -208,6 +208,9 @@ class excel(outputPluginBase):
         if self._parent.configuration.get("order_header"):
             keys = natsorted(keys)
 
+        if not wb_data:
+            self._log.error('Excel output plugin got no data from task, did you return anything? Refusing to generate an empty file')
+            return False
         data = []
         if self._parent.configuration.get("columns"):
 
