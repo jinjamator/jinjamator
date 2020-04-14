@@ -8,6 +8,9 @@ from colorama import Fore, Style
 
 tests = []
 
+
+apic_url, apic_username, apic_password, ssh_host, ssh_username, ssh_password
+
 for tasklet_path in glob(
     f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.*", recursive=True):
     task_path = os.path.dirname(tasklet_path)

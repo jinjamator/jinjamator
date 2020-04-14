@@ -12,6 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apic_url: https://sandboxapicdc.cisco.com/
-apic_username: admin
-apic_password: ciscopsdt
+data = cisco.nxos.query("show inventory")
+return "OK"
