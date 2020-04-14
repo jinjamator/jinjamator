@@ -194,14 +194,17 @@ class excel(outputPluginBase):
             except ValueError:
                 pass
 
+        wb_data = []
+        
         if isinstance(data, dict):
             wb_data = flatten(data)
             keys = list(wb_data.keys())
         elif isinstance(data, list):
-            wb_data = []
             for line in data:
                 wb_data.append(flatten(line))
             keys = list(wb_data[0].keys())
+        
+            
         if self._parent.configuration.get("order_header"):
             keys = natsorted(keys)
 
