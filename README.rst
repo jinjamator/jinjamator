@@ -8,14 +8,13 @@ Features
 -----------------
 
 Jinjamator currently has following features:
-    * render jinja2 templates to configuration
     * run tasks written in python3
     * run tasks written in jinja2
-    * register functions via content plugin system for python3 and jinja2 tasks, to have the same syntax in both.
+    * register functions via content plugin system for python3 and jinja2 tasks, to have the same functionality.
     * run standalone as CLI application
-    * run as REST API daemon automatically exporting tasks via REST API
-    * automatic gathering of required user inputs
-    * automatic validation of user inputs
+    * run as REST API daemon, exporting tasks via REST API
+    * gathering of required user inputs, determined by code inspection
+    * validation of user inputs
     * log everthing to a database (daemon mode only, CLI is on roadmap)
     * support of different (customer) environments
     * distributed operation (daemon mode only)
@@ -28,7 +27,7 @@ Content Plugins
 -----------------
 
 * cisco.aci (query apic)
-* ssh (run ssh commands and get response)
+* ssh (run commands via ssh)
 * fsm (parse ssh outputs to objects via textfsm)
 * log
 
@@ -41,6 +40,7 @@ Output Plugins
 * console (print data to stdout)
 * excel (create a xlsx from task data)
 * apic (push data to cisco ACI)
+* null (supress output)
 
 Many more to come.
 
@@ -62,6 +62,8 @@ Roadmap
 
 Selected Roadmap items:
     * create documentation ;)
+    * refactor frontend webapp
+    * include AAA for the API
     * run ansible playbooks as tasks
     * run powershell code
 
