@@ -16,6 +16,6 @@ from jinjamator.plugin_loader.content import py_load_plugins
 
 
 def query(command, **kwargs):
-    py_load_plugins(globals())    
-    kwargs['device_type']='cisco_nxos'
+    py_load_plugins(globals())
+    kwargs["device_type"] = "cisco_nxos"
     return ssh.query(command, **kwargs)
