@@ -195,7 +195,7 @@ class excel(outputPluginBase):
                 pass
 
         wb_data = []
-        
+
         if isinstance(data, dict):
             wb_data = flatten(data)
             keys = list(wb_data.keys())
@@ -203,13 +203,14 @@ class excel(outputPluginBase):
             for line in data:
                 wb_data.append(flatten(line))
             keys = list(wb_data[0].keys())
-        
-            
+
         if self._parent.configuration.get("order_header"):
             keys = natsorted(keys)
 
         if not wb_data:
-            self._log.error('Excel output plugin got no data from task, did you return anything? Refusing to generate an empty file')
+            self._log.error(
+                "Excel output plugin got no data from task, did you return anything? Refusing to generate an empty file"
+            )
             return False
         data = []
         if self._parent.configuration.get("columns"):
