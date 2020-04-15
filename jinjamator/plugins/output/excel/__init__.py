@@ -20,13 +20,10 @@ import json
 import errno
 import json
 import xmltodict
-from collections import OrderedDict
+
 from flatten_json import flatten
 from natsort import natsorted
-from openpyxl import Workbook, load_workbook
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
-from openpyxl.utils import column_index_from_string, get_column_letter
-from openpyxl.utils.cell import coordinate_from_string
+from jinjamator.tools.xlsx_tools import XLSXWriter
 
 
 class excel(outputPluginBase):
@@ -36,12 +33,6 @@ class excel(outputPluginBase):
             dest="output_filename_prefix",
             help="destination file name prefix [default: %(default)s]",
             default="",
-        )
-        self._parent._parser.add_argument(
-            "--excel-output-file-suffix",
-            dest="output_filename_suffix",
-            help="destination file name suffix [default: %(default)s]",
-            default="xlsx",
         )
         self._parent._parser.add_argument(
             "--excel-output-directory",
@@ -87,163 +78,42 @@ class excel(outputPluginBase):
     def connect(self, **kwargs):
         pass
 
-    def optimize_column_widths(self, ws):
-        column_widths = []
-        for row in ws.iter_rows():
-            for i, cell in enumerate(row):
-                try:
-                    length = len(cell.value)
-                except TypeError:
-                    length = 0
-                if len(column_widths) > i:
-                    if length > column_widths[i]:
-                        column_widths[i] = length
-                else:
-                    column_widths += [length]
-
-        for i, column_width in enumerate(column_widths):
-            ws.column_dimensions[get_column_letter(i + 1)].width = column_width + 2
-
-    def get_workbook(self, outputPath, append=False, overwrite=False):
-        if os.path.isfile(outputPath) and append:
-            self._log.info("appending to %s" % outputPath)
-            return load_workbook(outputPath)
-        if os.path.isfile(outputPath) and overwrite:
-            self._log.info("overwriting %s" % outputPath)
-            return Workbook()
-        if not os.path.isfile(outputPath):
-            self._log.info("creating new file %s" % outputPath)
-            return Workbook()
-        else:
-            self._log.error(
-                "destination path %s already exists and neither append or overwrite specified"
-                % outputPath
-            )
-            exit(2)
-
-    def results_to_worksheet(self, data, header, wb, sheet_name, freeze, mergeMode):
-        fill = PatternFill(fill_type="solid", start_color="FF000000")
-        font = Font(color="FFFFFFFF", bold=True)
-        border = Border(
-            bottom=Side(border_style="thin", color="FF000000"),
-            left=Side(border_style="thin", color="FF000000"),
-            right=Side(border_style="thin", color="FF000000"),
-        )
-
-        if mergeMode:
-            try:
-                ws = wb[sheet_name[:30]]
-            except BaseException:
-                ws = wb.create_sheet(title=sheet_name[:30], index=0)
-                ws.append(header)
-                for i in range(1, len(header) + 1):
-                    ws.cell(row=1, column=i).fill = fill
-                    ws.cell(row=1, column=i).font = font
-        else:
-            ws = wb.create_sheet(title=sheet_name[:30], index=0)
-            ws.append(header)
-            for i in range(1, len(header) + 1):
-                ws.cell(row=1, column=i).fill = fill
-                ws.cell(row=1, column=i).font = font
-        row = ws.max_row + 1
-
-        for line in data:
-            col = 1
-            if row % 2 == 0:
-                fill = PatternFill(fill_type="solid", start_color="FFCFCFCF")
-            else:
-                fill = PatternFill(fill_type="solid", start_color="FFEDEDED")
-            for item in line.values():
-                try:
-                    txt = float(item)
-                except ValueError:
-                    txt = item
-                cell = ws.cell(row=row, column=col, value=txt)
-                cell.fill = fill
-                cell.border = border
-                col = col + 1
-            row = row + 1
-
-        ws.freeze_panes = freeze
-        self.optimize_column_widths(ws)
-        ws.auto_filter.ref = ws.dimensions
-
-        return ws
-
     def process(self, data, **kwargs):
         try:
-            os.mkdir(self._parent.configuration._data["output_directory"])
+            os.mkdir(self._parent.configuration.get("output_directory", "./"))
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
             pass
-        dest = "{0}/{1}{2}.{3}".format(
-            self._parent.configuration._data["output_directory"],
-            self._parent.configuration._data["output_filename_prefix"],
+        dest = "{0}/{1}{2}.xlsx".format(
+            self._parent.configuration.get("output_directory", "./"),
+            self._parent.configuration.get("output_filename_prefix", ""),
             kwargs["template_path"].replace(os.path.sep, "_"),
-            self._parent.configuration._data["output_filename_suffix"],
         )
 
-        if isinstance(data, str):
-            try:
-                data = json.loads(data)
-            except ValueError:
-                pass
-            try:
-                data = xmltodict.parse(data)
-            except ValueError:
-                pass
-
-        wb_data = []
-
-        if isinstance(data, dict):
-            wb_data = flatten(data)
-            keys = list(wb_data.keys())
-        elif isinstance(data, list):
-            for line in data:
-                wb_data.append(flatten(line))
-            keys = list(wb_data[0].keys())
-
-        if self._parent.configuration.get("order_header"):
-            keys = natsorted(keys)
-
-        if not wb_data:
-            self._log.error(
-                "Excel output plugin got no data from task, did you return anything? Refusing to generate an empty file"
-            )
-            return False
-        data = []
         if self._parent.configuration.get("columns"):
-
-            for row in wb_data:
-                new_row = OrderedDict()
-                for column in self._parent.configuration.get("columns").split(":"):
-                    try:
-                        new_row[column] = row[column]
-                    except KeyError:
-                        new_row[column] = ""
-
-                data.append(new_row)
-            keys = self._parent.configuration.get("columns").split(":")
+            column_order = self._parent.configuration.get("columns").split(":")
         else:
-            data = wb_data
+            column_order = False
 
-        for rename in self._parent.configuration.get("rename_columns"):
+        rename_columns = []
+
+        for rename in self._parent.configuration.get("rename_columns", []):
             tmp = rename.split(":")
             old = tmp.pop(0)
             new = ":".join(tmp)
-            for i, val in enumerate(keys):
-                if val == old:
-                    keys[i] = new
-        wb = Workbook()
-        self.results_to_worksheet(
-            data,
-            keys,
-            wb,
-            "results",
-            self._parent.configuration._data["freeze_pane_cell"],
-            False,
-        )
-        wb.save(dest)
+            rename_columns.append((old, new))
 
+        writer = XLSXWriter(
+            dest,
+            overwrite=True,
+            append_sheet=False,
+            column_order=column_order,
+            rename_columns=rename_columns,
+        )
+
+        writer.create_sheet_from_data(
+            data, self._parent.configuration.get("sheet_name", "sheet 1")
+        )
+        writer.save()
         self._log.info("sucessfully written file: {0}".format(dest))

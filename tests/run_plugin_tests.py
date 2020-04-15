@@ -1,6 +1,6 @@
 #!/usr/bin/env -S jinjamator -t
 from glob import glob
-import os,sys, logging
+import os, sys, logging
 from colorama import init
 
 init()
@@ -43,13 +43,12 @@ for test in tests:
             print(Style.RESET_ALL, end="")
     except:
         print(f"\t{os.path.basename(tasklet_path)}", end=" ")
-        print(Fore.RED + 'NOT OK')
+        print(Fore.RED + "NOT OK")
         failed += 1
         print(Style.RESET_ALL, end="")
 
-print(f'Failed tests: {failed}')
+print(f"Failed tests: {failed}")
 if failed:
     sys.exit(1)
 else:
     sys.exit(0)
-    

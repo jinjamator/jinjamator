@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from jinjamator.tools.xlsx_tools import XLSXReader, XLSXWriter
+data = [
+    ["val1 col1", "val1 col2"],
+    ["val2 col1", "val2 col2"],
+    ["val3 col1", "val3 col2"],
+    ["val4 col1", "val4 col2"],
+    ["val5 col1", "val5 col2"],
+]
 
-import os
+# force excel as output plugin
+self.parent.load_output_plugin(
+    "excel", self.parent.configuration.get("global_output_plugins_base_dirs")
+)
 
-
-def load(path, **kwargs):
-    if not os.path.isabs(path):
-        path = os.path.join(self._parent.task_base_dir, path)
-    xlsx = XLSXtoDict(
-        path, kwargs.get("work_sheet_name", "Sheet1"), kwargs.get("cache", True)
-    )
-    xlsx.parse_header(kwargs.get("header_lines", 1))
-    xlsx.parse_data()
-    return xlsx.data
+return data
