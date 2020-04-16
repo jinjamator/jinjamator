@@ -21,7 +21,7 @@ from flask import url_for, jsonify, request, send_from_directory, render_templat
 from celery import current_app
 from jinjamator.external.celery.backends.database.models import Task as DB_Job
 from jinjamator.external.celery.backends.database.models import JobLog
-
+from jinjamator.tools.docutils_helper import get_section_from_task_doc
 from collections import defaultdict
 from time import sleep
 import glob
@@ -111,9 +111,9 @@ def get_static_content(path):
 def api_list_environments():
     response = {"environments": []}
     for directory in app.config["JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES"]:
-
+        log.debug(directory)
         for path in glob.glob("{0}/**/sites/*/".format(directory), recursive=True):
-            tmp = path.split(os.path.sep)
+            tmp = path.split(os.path.sep), 
             response["environments"].append(
                 {"path": path, "name": "{}-{}".format(tmp[-4], tmp[-2])}
             )
@@ -123,22 +123,27 @@ def api_list_environments():
 @app.route("/api/tasks", methods=["GET"])
 def api_list_tasks():
     response = {"tasks": []}
+    added_tasks = []
     for directory in app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"]:
-        tasks = glob.glob("{0}/**/*.py".format(directory), recursive=True) + glob.glob(
-            "{0}/**/*.j2".format(directory), recursive=True
-        )
+        tasks = glob.glob(f"{directory}/**/*.py", recursive=True) + glob.glob(f"{directory}/**/*.j2", recursive=True)
         for item in tasks:
             append = True
-            for dir_chunk in os.path.dirname(item).split(os.path.sep):
+            for dir_chunk in os.path.dirname(item.replace(directory,'')).split(os.path.sep): # filter out hidden directories
                 if dir_chunk.startswith("."):
                     append = False
             if append:
-                dir_name = os.path.dirname(item)
-                if dir_name not in response["tasks"] and os.path.isfile(
+                dir_name = os.path.dirname(item.replace(directory,''))[1:]
+                task_data = {
+                    'path': dir_name,
+                    'base_dir': directory,
+                    'description': get_section_from_task_doc(os.path.join(directory,dir_name))
+                }
+                if dir_name not in added_tasks and os.path.isfile(
                     item
-                ):  # this is not the final solution, we should filter on filetypes aswell
+                ):  
                     if "__pycache__" not in dir_name:
-                        response["tasks"].append(dir_name)
+                        added_tasks.append(dir_name)
+                        response["tasks"].append(task_data)
     return jsonify(response)
 
 
