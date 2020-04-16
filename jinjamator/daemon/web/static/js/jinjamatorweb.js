@@ -395,7 +395,7 @@ function list_tasks(parent) {
         table_data = '<div class="box-body"><table id="task_list" class="table table-bordered table-hover">\
          <thead><tr><th>Task</th><th width="60%">Description</th><th width="1%">Actions</th></tr></thead>'
         data.tasks.forEach(function(value, index, array) {
-            table_data += '<tr><td>' + value + '</td><td width="60%">not implemented yet</td>\
+            table_data += '<tr><td>' + value.path + '</td><td width="60%">' + value.description + '</td>\
             <td align="right" width="1%" style="white-space:nowrap;">\
             <div class="icon">\
             <a href="#" class="fa fa-calendar schedule-href">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
