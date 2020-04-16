@@ -319,86 +319,74 @@ USAGE
             )
 
         if self._cfg["daemonize"]:
-            if os.path.isfile("/proc/version"):
-                # Attempt to screen out WSL users, since it is currently (01.04.2020) known to be broken.
-                try:
-                    with open("/proc/version", "r") as o:
-                        txt = o.read()
-                        if "MICROSOFT" in txt.upper():
-                            self._log.error(
-                                "Running jinjamator daemon mode in WSL currently is not supported, and will corrupt sqlite databases. See https://github.com/microsoft/WSL/issues/2395"
-                            )
-                            sys.exit(1)
-                except Exception as e:
-                    self._log.error(e)
-            from jinjamator.daemon import app
+            from jinjamator.daemon import run as app_run
+            app_run(self._cfg)
+            # if os.path.isfile("/proc/version"):
+            #     # Attempt to screen out WSL users, since it is currently (01.04.2020) known to be broken.
+            #     try:
+            #         with open("/proc/version", "r") as o:
+            #             txt = o.read()
+            #             if "MICROSOFT" in txt.upper():
+            #                 self._log.error(
+            #                     "Running jinjamator daemon mode in WSL currently is not supported, and will corrupt sqlite databases. See https://github.com/microsoft/WSL/issues/2395"
+            #                 )
+            #                 sys.exit(1)
+            #     except Exception as e:
+            #         self._log.error(e)
+            # from jinjamator.daemon import app
 
-            app.config["CELERY_BROKER_URL"] = self._cfg["celery_broker"]
-            app.config["CELERY_RESULT_BACKEND"] = self._cfg["celery_result_backend"]
-            app.config["SQLALCHEMY_DATABASE_URI"] = self._cfg["celery_result_backend"]
-            app.config["JINJAMATOR_BASE_DIRECTORY"] = self._cfg[
-                "jinjamator_base_directory"
-            ]
-            app.config["UPLOAD_FOLDER"] = os.path.join(
-                self._cfg["jinjamator_base_directory"], "var/uploads"
-            )
 
-            if len(self._cfg["global_environments_base_dirs"]) == 0:
-                self._cfg["global_environments_base_dirs"] = [
-                    "{0}{1}environments".format(
-                        self._cfg["jinjamator_base_directory"], os.path.sep
-                    )
-                ]
-            app.config["JINJAMATOR_GLOBAL_DEFAULTS"] = self._cfg["global_defaults"]
-            app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"] = self._cfg[
-                "global_tasks_base_dirs"
-            ]
-            app.config["JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES"] = self._cfg[
-                "global_environments_base_dirs"
-            ]
-            app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"] = self._cfg[
-                "global_output_plugins_base_dirs"
-            ]
-            app.config["JINJAMATOR_CONTENT_PLUGINS_BASE_DIRS"] = self._cfg[
-                "global_content_plugins_base_dirs"
-            ]
+    
+            # app.config["JINJAMATOR_GLOBAL_DEFAULTS"] = self._cfg["global_defaults"]
+            # app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"] = self._cfg[
+            #     "global_tasks_base_dirs"
+            # ]
+            # app.config["JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES"] = self._cfg[
+            #     "global_environments_base_dirs"
+            # ]
+            # app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"] = self._cfg[
+            #     "global_output_plugins_base_dirs"
+            # ]
+            # app.config["JINJAMATOR_CONTENT_PLUGINS_BASE_DIRS"] = self._cfg[
+            #     "global_content_plugins_base_dirs"
+            # ]
 
-            from jinjamator.daemon import views
+            # from jinjamator.daemon import views
 
-            if not self._cfg["no_worker"]:
-                self._cfg["no_worker"] = True
+            # if not self._cfg["no_worker"]:
+            #     self._cfg["no_worker"] = True
 
-                if "WERKZEUG_RUN_MAIN" not in os.environ.keys():
-                    pid = os.fork()
-                    if pid == 0:
-                        from celery import Celery
+            #     if "WERKZEUG_RUN_MAIN" not in os.environ.keys():
+            #         pid = os.fork()
+            #         if pid == 0:
+            #             from celery import Celery
 
-                        queue = Celery("jinjamator", broker=self._cfg["celery_broker"])
-                        queue.start(
-                            argv=[
-                                "celery",
-                                "worker",
-                                "-c",
-                                "8",
-                                "--max-tasks-per-child",
-                                "1",
-                                "-b",
-                                self._cfg["celery_broker"],
-                                "-B",
-                                "-s",
-                                self._cfg["celery_beat_database"],
-                            ]
-                        )
-                        sys.exit(0)
-                    else:
-                        if not self._cfg["just_worker"]:
-                            app.run(debug=True, host="0.0.0.0")
-                        os.waitpid(pid, 0)
-                else:
+            #             queue = Celery("jinjamator", broker=self._cfg["celery_broker"])
+            #             queue.start(
+            #                 argv=[
+            #                     "celery",
+            #                     "worker",
+            #                     "-c",
+            #                     "8",
+            #                     "--max-tasks-per-child",
+            #                     "1",
+            #                     "-b",
+            #                     self._cfg["celery_broker"],
+            #                     "-B",
+            #                     "-s",
+            #                     self._cfg["celery_beat_database"],
+            #                 ]
+            #             )
+            #             sys.exit(0)
+            #         else:
+            #             if not self._cfg["just_worker"]:
+            #                 app.run(debug=True, host="0.0.0.0")
+            #             os.waitpid(pid, 0)
+            #     else:
 
-                    app.run(debug=True, host="0.0.0.0")
-            else:
-                app.run(debug=True, host="0.0.0.0")
+            #         app.run(debug=True, host="0.0.0.0")
+            # else:
+            #     app.run(debug=True, host="0.0.0.0")
 
         else:
             # add legacy task execution code here

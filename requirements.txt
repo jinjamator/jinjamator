@@ -28,3 +28,4 @@ python-magic
 dotty_dict
 pymssql
 docutils
+flask-restx
