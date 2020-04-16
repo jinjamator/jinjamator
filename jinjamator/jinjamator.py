@@ -26,9 +26,10 @@ import logging
 from glob import glob
 import tempfile
 from jinjamator.plugin_loader.output import load_output_plugin
+from jinjamator.tools.version import version,updated
 
-__version__ = "0.4.2"
-__updated__ = "11.05.2020"
+__version__ = version
+__updated__ = updated
 __date__ = "22.07.2019"
 __author__ = "Wilhelm Putz"
 
