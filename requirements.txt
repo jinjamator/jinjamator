@@ -27,3 +27,4 @@ flask-sqlalchemy
 python-magic
 dotty_dict
 pymssql
+docutils
