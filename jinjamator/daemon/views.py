@@ -136,7 +136,7 @@ def api_list_tasks():
                 task_data = {
                     'path': dir_name,
                     'base_dir': directory,
-                    'description': get_section_from_task_doc(os.path.join(directory,dir_name))
+                    'description': get_section_from_task_doc(os.path.join(directory,dir_name)) or 'no description'
                 }
                 if dir_name not in added_tasks and os.path.isfile(
                     item
