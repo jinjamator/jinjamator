@@ -33,4 +33,3 @@ task_info = api.model('task_info',{
 tasks =  api.model(
     'List of tasks', { 'tasks':fields.List(fields.Nested(task_info)) }
 )
-

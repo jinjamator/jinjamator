@@ -387,9 +387,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         schema_settings = self.load_schema_yaml(self.task_base_dir + "/schema.yaml")
 
         schema = tree()
-        schema["schema"]["title"] = (
-            "Create Job for: <strong>" + self.task_base_dir + "</strong>"
-        )
+        schema["schema"]["title"] = self.task_base_dir
+            
+        
         schema["schema"]["type"] = "object"
         schema["view"]["wizard"] = {
             "title": "Welcome to the Wizard",
@@ -552,7 +552,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             "title"
         ] = "Output Plugin Parameters"
         schema["schema"]["properties"]["output_plugin_parameters"]["type"] = "array"
-
+        schema["schema"]["properties"]["output_plugin_parameters"]["items"] = []
         schema["schema"]["properties"]["custom_parameters"]["required"] = False
         schema["view"]["wizard"]["bindings"]["custom_parameters"] = 3
         schema["view"]["wizard"]["bindings"]["output_plugin_parameters"] = 3
@@ -562,6 +562,8 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
 
         schema["schema"]["properties"]["best_effort"]["title"] = "Best Effort"
         schema["schema"]["properties"]["best_effort"]["type"] = "boolean"
+        schema["schema"]["properties"]["best_effort"]["description"] = "Should jinjamator ignore fatal errors of tasklets for this instance?"
+        schema["schema"]["properties"]["best_effort"]["default"] = False
         # schema['options']['fields']['best_effort']['order']=''
 
         try:

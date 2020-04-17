@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, jsonify
 from jinjamator.daemon.api.restx import api
-from jinjamator.daemon.api.endpoints.environments import ns as environments_namespace
-from jinjamator.daemon.api.endpoints.tasks import ns as tasks_namespace
+from jinjamator.daemon.api.endpoints.environments import ns as environments_namespace, discover_environments
+from jinjamator.daemon.api.endpoints.tasks import ns as tasks_namespace, discover_tasks
 
 import logging
+
+
 app = Flask(__name__)
 log = logging.getLogger()
-
 
 def configure(flask_app, configuration):
     flask_app.url_map.strict_slashes = False
@@ -48,13 +49,19 @@ def initialize(flask_app, cfg):
     api.init_app(blueprint)
     api.add_namespace(environments_namespace)
     api.add_namespace(tasks_namespace)
-    # api.add_namespace(blog_categories_namespace)
     flask_app.register_blueprint(blueprint)
 
-    # db.init_app(flask_app)
+
+
+
+
+
 
 
 def run(cfg):
     initialize(app, cfg)
+    discover_environments(app)
+    discover_tasks(app)
+    
     log.info('>>>>> Starting development server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
     app.run(debug=True, host="0.0.0.0")
