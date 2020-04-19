@@ -53,7 +53,7 @@ def discover_tasks(app):
                         try:
                             task = JinjamatorTask()
                             log.debug(app.config["JINJAMATOR_FULL_CONFIGURATION"])
-                            task.configuration.merge_dict(app.config["JINJAMATOR_FULL_CONFIGURATION"])
+                            task._configuration.merge_dict(app.config["JINJAMATOR_FULL_CONFIGURATION"])
                             task.load(os.path.join(task_info['base_dir'],task_info['path']))
                             with app.app_context():
                                 data=json.loads(jsonify(task.get_jsonform_schema()['schema']).data.decode('utf-8'))
@@ -73,9 +73,7 @@ def discover_tasks(app):
                                     environment_site = args.get('preload-defaults-from-site')
                                     relative_task_path=request.endpoint.replace('api.','')
                                     task = JinjamatorTask()
-                                    task.configuration._data['global_tasks_base_dirs'] = app.config['JINJAMATOR_TASKS_BASE_DIRECTORIES']
-                                    task.configuration._data['global_environments_base_dirs'] = app.config['JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES']
-                                    task.configuration._data['global_content_plugins_base_dirs'] = app.config['JINJAMATOR_CONTENT_PLUGINS_BASE_DIRS']
+                                    task._configuration.merge_dict(app.config["JINJAMATOR_FULL_CONFIGURATION"])
                                     
 
                                     if environment_site:
@@ -122,37 +120,6 @@ class TaskList(Resource):
         response = { 'tasks': [] }
         for k,v in available_tasks_by_path.items():
             response['tasks'].append(v)
-        # added_tasks = []
-        # for tasks_base_dir in app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"]:            
-        #     for file_ext in ['py','j2']:
-                
-        #         for tasklet_path in glob.glob( os.path.join(tasks_base_dir,'**',f'*.{file_ext}'), recursive=True):
-        #             append = True
-        #             log.info(f'------------------------------------- {tasklet_path} ')
-        #             task_dir = os.path.dirname(tasklet_path)
-        #             log.info(f'------------------------------------- {task_dir} ')
-
-                    
-                    
-        #             for dir_chunk in os.path.dirname(task_dir.replace(tasks_base_dir,'')).split(os.path.sep): # filter out hidden directories
-        #                 if dir_chunk.startswith(".") or dir_chunk in ['__pycache__']:
-        #                     append = False
-        #                     break
-                    
-        #             if append:
-        #                 dir_name = os.path.dirname(task_dir.replace(tasks_base_dir,''))[1:]
-        #                 task_id = xxhash.xxh64(task_dir).hexdigest()
-        #                 task = {
-        #                         'id':task_id,
-        #                         'path': dir_name,
-        #                         'base_dir': tasks_base_dir,
-        #                         'description': get_section_from_task_doc(task_dir) or 'no description'
-                            
-        #                 }
-        #                 if task_id not in added_tasks:                    
-        #                     available_tasks_by_id[task_id]=task
-        #                     available_tasks_by_path[dir_name]=task
-        #                     response['tasks'].append(task)
         
         return response
 
