@@ -79,15 +79,16 @@ class JinjamatorTask(object):
 
         self._tasklets = []
         self.configuration = TaskConfiguration()
-        self.configuration["jinjamator_base_directory"] = os.sep.join(
+        self._configuration = TaskConfiguration()
+        self._configuration["jinjamator_base_directory"] = os.sep.join(
             os.path.dirname(__file__).split(os.sep)[:-2]
         )
         self._supported_file_types = ("*.j2", "*.py")
         self.j2_environment = None
         self._undefined_vars = []
         self._default_values = {}
-        self.configuration["task_run_mode"] = run_mode
-        if self.configuration["task_run_mode"] == "background":
+        self._configuration["task_run_mode"] = run_mode
+        if self._configuration["task_run_mode"] == "background":
             sys.stdout = self._stdout = StringIO()
         else:
             self._stdout = sys.stdout
@@ -100,16 +101,16 @@ class JinjamatorTask(object):
 
         self._log.debug(f"---------------- load task: {path} ----------------")
 
-        search_paths = self.configuration.get("global_tasks_base_dirs", [])
+        search_paths = self._configuration.get("global_tasks_base_dirs", [])
 
         self._log.debug(f"task search paths are: {search_paths}")
 
         if not os.path.isabs(path):
             for global_base_dir in search_paths:
-                tried_path = f"{global_base_dir}{os.path.sep}{path}"
+                tried_path = os.path.join(global_base_dir,path)
                 if os.path.exists(tried_path):
-                    path = tried_path
-                    self._log.debug(f"resolved path to {path}")
+                    self._log.debug(f"resolved path to {tried_path}")
+                    path=tried_path
                     break
 
         if os.path.isfile(path):
@@ -125,7 +126,7 @@ class JinjamatorTask(object):
             raise ValueError(f"cannot load path {path}")
 
         global_ldr = init_loader(self)
-        for content_plugin_dir in self.configuration.get(
+        for content_plugin_dir in self._configuration.get(
             "global_content_plugins_base_dirs", []
         ):
             global_ldr.load(f"{content_plugin_dir}")
@@ -140,6 +141,8 @@ class JinjamatorTask(object):
             self._log.debug("loaded {0}/defaults.yaml".format(path))
             for var in self._undefined_vars:
                 if var in self.configuration._data:
+                    self._undefined_vars.remove(var)
+                if var in self._configuration._data:
                     self._undefined_vars.remove(var)
 
         except FileNotFoundError:
@@ -166,6 +169,7 @@ class JinjamatorTask(object):
         )
         self.j2_environment.globals["parent"] = self
         self.j2_environment.globals["configuration"] = self.configuration._data
+        self.j2_environment.globals["_configuration"] = self._configuration._data
         self.j2_environment.trim_blocks = True
         self.j2_environment.lstrip_blocks = True
 
@@ -179,6 +183,7 @@ class JinjamatorTask(object):
         for undef_var in list(j2_meta.find_undeclared_variables(parsed_content)):
             if (
                 undef_var not in self.configuration._data
+                and undef_var not in self._configuration._data
                 and undef_var not in self.j2_environment.globals.keys()
                 and undef_var not in self._undefined_vars
             ):
@@ -241,13 +246,13 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             self.configuration["undo"] = False
         if var_name == "best_effort":
             self.configuration["best_effort"] = False
-        if self.configuration["task_run_mode"] == "background":
+        if self._configuration["task_run_mode"] == "background":
             raise KeyError(
                 "undefined variable found {0} and running in background -> cannot proceed".format(
                     var_name
                 )
             )
-        elif self.configuration["task_run_mode"] == "interactive":
+        elif self._configuration["task_run_mode"] == "interactive":
             if "pass" in var_name.lower():
                 self.configuration[var_name] = getpass("{0}:".format(var_name))
             else:
@@ -271,7 +276,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         else:
             raise Exception(
                 "run mode {0} not implemented".format(
-                    self.configuration["task_run_mode"]
+                    self._configuration["task_run_mode"]
                 )
             )
 
@@ -414,8 +419,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         undefined_vars = self.get_undefined_task_variables()
 
         tmp = copy.deepcopy(self.configuration._data)
-        del tmp["task_run_mode"]
-        del tmp["jinjamator_base_directory"]
 
         diff = dictdiffer.diff(self._default_values, tmp)
 
@@ -617,7 +620,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
 
     def run(self):
         if len(self._undefined_vars) > 0:
-            if self.configuration["task_run_mode"] == "background":
+            if self._configuration["task_run_mode"] == "background":
                 raise Exception(
                     "cannot run task because of undefined variables: {0}".format(
                         self._undefined_vars
@@ -668,6 +671,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 setattr(module, "__file__", tasklet)
                 setattr(module.jinjaTask, "parent", self)
                 setattr(module.jinjaTask, "configuration", self.configuration._data)
+                setattr(module.jinjaTask, "_configuration", self._configuration._data)
                 module._log = self._log
                 try:
                     retval = module.jinjaTask().__run__()
@@ -709,7 +713,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             )
 
             results[tasklet] = retval
-            if self.configuration["task_run_mode"] == "background":
+            if self._configuration["task_run_mode"] == "background":
                 self._log.tasklet_result(
                     "{0}".format(retval)
                 )  # this submits the result via celery
