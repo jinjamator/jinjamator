@@ -396,6 +396,7 @@ USAGE
             if self._cfg["global_defaults"]:
                 task.configuration.merge_yaml(self._cfg["global_defaults"])
             task.configuration.merge_dict(self._cfg)
+            task._configuration.merge_dict(self._cfg)
 
             task.load_output_plugin(
                 self._cfg["output_plugin"], self._cfg["global_output_plugins_base_dirs"]

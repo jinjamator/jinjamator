@@ -456,17 +456,17 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                     schema["schema"]["properties"][var]["format"] = "password"
                 schema["view"]["wizard"]["bindings"][var] = 1
 
-        if not undefined_vars and not external_vars.keys():
-            no_required_vars = {}
-            schema["schema"]["properties"]["no_required_vars"][
-                "title"
-            ] = "Task has no undefined variables"
-            schema["schema"]["properties"]["no_required_vars"]["type"] = "string"
-            schema["schema"]["properties"]["no_required_vars"]["description"] = ""
-            schema["schema"]["properties"]["no_required_vars"]["required"] = False
-            schema["schema"]["properties"]["no_required_vars"]["default"] = ""
-            schema["options"]["fields"]["no_required_vars"]["readonly"] = True
-            schema["view"]["wizard"]["bindings"]["no_required_vars"] = 1
+        # if not undefined_vars and not external_vars.keys():
+        #     no_required_vars = {}
+        #     schema["schema"]["properties"]["no_required_vars"][
+        #         "title"
+        #     ] = "Task has no undefined variables"
+        #     schema["schema"]["properties"]["no_required_vars"]["type"] = "string"
+        #     schema["schema"]["properties"]["no_required_vars"]["description"] = ""
+        #     schema["schema"]["properties"]["no_required_vars"]["required"] = False
+        #     schema["schema"]["properties"]["no_required_vars"]["default"] = ""
+        #     schema["options"]["fields"]["no_required_vars"]["readonly"] = True
+        #     schema["view"]["wizard"]["bindings"]["no_required_vars"] = 1
 
         if self._default_values:
             builder = SchemaBuilder()
@@ -485,28 +485,28 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 enhanced = self.enhance_schema(self._default_values[k], k)
                 m.merge(schema["schema"]["properties"][k], enhanced)
 
-        else:
-            schema["schema"]["properties"]["no_default_vars"][
-                "title"
-            ] = "Task has no default variables"
-            schema["schema"]["properties"]["no_default_vars"]["type"] = "string"
-            schema["schema"]["properties"]["no_default_vars"]["description"] = ""
-            schema["schema"]["properties"]["no_default_vars"]["required"] = False
-            schema["schema"]["properties"]["no_default_vars"]["default"] = ""
-            schema["options"]["fields"]["no_default_vars"]["readonly"] = True
-            schema["view"]["wizard"]["bindings"]["no_default_vars"] = 2
+        # else:
+        #     schema["schema"]["properties"]["no_default_vars"][
+        #         "title"
+        #     ] = "Task has no default variables"
+        #     schema["schema"]["properties"]["no_default_vars"]["type"] = "string"
+        #     schema["schema"]["properties"]["no_default_vars"]["description"] = ""
+        #     schema["schema"]["properties"]["no_default_vars"]["required"] = False
+        #     schema["schema"]["properties"]["no_default_vars"]["default"] = ""
+        #     schema["options"]["fields"]["no_default_vars"]["readonly"] = True
+        #     schema["view"]["wizard"]["bindings"]["no_default_vars"] = 2
 
         schema["view"]["parent"] = "bootstrap-edit-horizontal"
 
-        schema["schema"]["properties"]["task"]["type"] = "string"
-        schema["schema"]["properties"]["task"]["default"] = self.task_base_dir
-        schema["schema"]["properties"]["task"]["required"] = True
-        schema["options"]["fields"]["task"]["type"] = "hidden"
+        # schema["schema"]["properties"]["task"]["type"] = "string"
+        # schema["schema"]["properties"]["task"]["default"] = self.task_base_dir
+        # schema["schema"]["properties"]["task"]["required"] = True
+        # schema["options"]["fields"]["task"]["type"] = "hidden"
 
-        schema["schema"]["properties"]["jinjamator_job_id"]["type"] = "string"
-        schema["schema"]["properties"]["jinjamator_job_id"]["default"] = uuid.uuid4()
-        schema["schema"]["properties"]["jinjamator_job_id"]["required"] = True
-        schema["options"]["fields"]["jinjamator_job_id"]["type"] = "hidden"
+        # schema["schema"]["properties"]["jinjamator_job_id"]["type"] = "string"
+        # schema["schema"]["properties"]["jinjamator_job_id"]["default"] = uuid.uuid4()
+        # schema["schema"]["properties"]["jinjamator_job_id"]["required"] = True
+        # schema["options"]["fields"]["jinjamator_job_id"]["type"] = "hidden"
 
         schema["schema"]["properties"]["output_plugin"]["title"] = "Output Plugin"
         schema["schema"]["properties"]["output_plugin"]["type"] = "string"
@@ -530,55 +530,60 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         schema["view"]["wizard"]["bindings"]["undo"] = 3
         schema["view"]["wizard"]["bindings"]["best_effort"] = 3
 
-        schema["schema"]["properties"]["custom_parameters"][
-            "title"
-        ] = "Custom Variables"
-        schema["schema"]["properties"]["custom_parameters"]["type"] = "array"
-        schema["schema"]["properties"]["custom_parameters"][
-            "description"
-        ] = "add custom variable definitions for this run"
-        schema["schema"]["properties"]["custom_parameters"]["items"]["type"] = "object"
-        schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-            "key"
-        ]["title"] = "Variable Name"
-        schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-            "key"
-        ]["type"] = "string"
-        schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-            "key"
-        ]["required"] = True
+        # schema["schema"]["properties"]["custom_parameters"][
+        #     "title"
+        # ] = "Custom Variables"
+        # schema["schema"]["properties"]["custom_parameters"]["type"] = "array"
+        # schema["schema"]["properties"]["custom_parameters"][
+        #     "description"
+        # ] = "add custom variable definitions for this run"
+        # schema["schema"]["properties"]["custom_parameters"]["items"]["type"] = "object"
+        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
+        #     "key"
+        # ]["title"] = "Variable Name"
+        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
+        #     "key"
+        # ]["type"] = "string"
+        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
+        #     "key"
+        # ]["required"] = True
 
-        schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-            "value"
-        ]["title"] = "Value"
-        schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-            "value"
-        ]["type"] = "string"
+        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
+        #     "value"
+        # ]["title"] = "Value"
+        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
+        #     "value"
+        # ]["type"] = "string"
 
-        schema["schema"]["properties"]["output_plugin_parameters"][
-            "title"
-        ] = "Output Plugin Parameters"
-        schema["schema"]["properties"]["output_plugin_parameters"]["type"] = "array"
-        schema["schema"]["properties"]["output_plugin_parameters"]["items"] = []
-        schema["schema"]["properties"]["custom_parameters"]["required"] = False
-        schema["view"]["wizard"]["bindings"]["custom_parameters"] = 3
-        schema["view"]["wizard"]["bindings"]["output_plugin_parameters"] = 3
+        # schema["schema"]["properties"]["output_plugin_parameters"][
+        #     "title"
+        # ] = "Output Plugin Parameters"
+        # schema["schema"]["properties"]["output_plugin_parameters"]["type"] = "array"
+        # schema["schema"]["properties"]["output_plugin_parameters"]["items"] = []
+        # schema["schema"]["properties"]["custom_parameters"]["required"] = False
+        # schema["view"]["wizard"]["bindings"]["custom_parameters"] = 3
+        # schema["view"]["wizard"]["bindings"]["output_plugin_parameters"] = 3
+
+
+        # schema["schema"]["properties"]["best_effort"]["title"] = "Best Effort"
+        # schema["schema"]["properties"]["best_effort"]["type"] = "boolean"
+        # schema["schema"]["properties"]["best_effort"]["description"] = "Should jinjamator ignore fatal errors of tasklets for this instance?"
+        # schema["schema"]["properties"]["best_effort"]["default"] = False
+        # schema['options']['fields']['best_effort']['order']=''
+
+        # try:
+        #     schema["schema"]["properties"]["undo"]["default"] = bool(
+        #         strtobool(self.configuration._data["undo"])
+        #     )
+        # except:
 
         schema["schema"]["properties"]["undo"]["title"] = "Undo"
         schema["schema"]["properties"]["undo"]["type"] = "boolean"
+        schema["schema"]["properties"]["undo"]["default"] = False
+        schema["schema"]["properties"]["undo"]["description"] = "Flags instance as undo run. This will reverse the tasklet execution order. If properly implemented by the task, it should undo all changes."
 
-        schema["schema"]["properties"]["best_effort"]["title"] = "Best Effort"
-        schema["schema"]["properties"]["best_effort"]["type"] = "boolean"
-        schema["schema"]["properties"]["best_effort"]["description"] = "Should jinjamator ignore fatal errors of tasklets for this instance?"
-        schema["schema"]["properties"]["best_effort"]["default"] = False
-        # schema['options']['fields']['best_effort']['order']=''
 
-        try:
-            schema["schema"]["properties"]["undo"]["default"] = bool(
-                strtobool(self.configuration._data["undo"])
-            )
-        except:
-            schema["schema"]["properties"]["undo"]["default"] = False
+
         schema["options"]["fields"]["undo"][
             "helper"
         ] = "Run Task in undo mode if supported"
@@ -631,9 +636,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                     self.handle_undefined_var(var)
 
         schema = self.get_jsonform_schema()["schema"]
-        del schema["properties"]["custom_parameters"]
-        del schema["properties"]["output_plugin"]
-        del schema["properties"]["task"]
+        # del schema["properties"]["custom_parameters"]
+        # del schema["properties"]["output_plugin"]
+        # del schema["properties"]["task"]
 
         # validate_jsonschema(instance=self.configuration._data, schema=schema)
         # validate_jsonschema(instance=self.configuration._data, schema=self._output_plugin.get_json_schema(self.configuration._data)['schema'])
