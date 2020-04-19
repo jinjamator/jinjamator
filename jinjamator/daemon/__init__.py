@@ -16,11 +16,12 @@ from flask import Flask, Blueprint, jsonify
 from jinjamator.daemon.api.restx import api
 from jinjamator.daemon.api.endpoints.environments import ns as environments_namespace, discover_environments
 from jinjamator.daemon.api.endpoints.tasks import ns as tasks_namespace, discover_tasks
+from jinjamator.daemon.webui import webui as webui_blueprint
 
 import logging
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='./webui/static')
 log = logging.getLogger()
 
 def configure(flask_app, configuration):
@@ -41,15 +42,18 @@ def configure(flask_app, configuration):
     flask_app.config["JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES"] = configuration.get("global_environments_base_dirs")
     flask_app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"] = configuration.get("global_output_plugins_base_dirs")
     flask_app.config["JINJAMATOR_CONTENT_PLUGINS_BASE_DIRS"] = configuration.get("global_content_plugins_base_dirs")
+    flask_app.config["JINJAMATOR_FULL_CONFIGURATION"]=configuration
 
 def initialize(flask_app, cfg):
     configure(flask_app,cfg)
 
-    blueprint = Blueprint('api', __name__, url_prefix='/api')
-    api.init_app(blueprint)
+    api_blueprint = Blueprint('api', __name__, url_prefix='/api/')
+    
+    api.init_app(api_blueprint)
     api.add_namespace(environments_namespace)
     api.add_namespace(tasks_namespace)
-    flask_app.register_blueprint(blueprint)
+    flask_app.register_blueprint(api_blueprint)
+    flask_app.register_blueprint(webui_blueprint)
 
 
 

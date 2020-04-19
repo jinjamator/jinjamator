@@ -454,6 +454,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 schema["view"]["wizard"]["bindings"][var] = 1
 
         if not undefined_vars and not external_vars.keys():
+            no_required_vars = {}
             schema["schema"]["properties"]["no_required_vars"][
                 "title"
             ] = "Task has no undefined variables"
@@ -473,6 +474,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
 
             for k, v in builder.to_schema()["properties"].items():
                 schema["schema"]["properties"][k] = v
+                schema["schema"]["properties"][k]['default'] = self._default_values[k]
+                schema["schema"]["properties"][k]['required'] = True
+                
                 schema["view"]["wizard"]["bindings"][k] = 2
                 schema["data"][k] = self._default_values[k]
                 enhanced = self.enhance_schema(self._default_values[k], k)
