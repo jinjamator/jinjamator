@@ -23,7 +23,7 @@ data = {
 # force excel as output plugin
 
 self.parent.load_output_plugin(
-    "excel", self.parent.configuration.get("global_output_plugins_base_dirs")
+    "excel", self.parent._configuration.get("global_output_plugins_base_dirs")
 )
 
 return data
