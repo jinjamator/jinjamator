@@ -32,7 +32,7 @@ def run(command, **kwargs):
     }
 
     cfg = {}
-    for var_name in ["host", "username", "password", "port", "device_type", "fast_cli"]:
+    for var_name in ["host", "username", "password", "port", "device_type"]:
         cfg[var_name] = (
             kwargs.get(var_name)
             or self._parent.configuration.get(f"ssh_{var_name}")
