@@ -47,11 +47,12 @@ class Program(object):
         self._program_shortdesc = __import__("__main__").__doc__.split("\n")[1]
         self._program_date = str(__date__)
         self._program_author = __author__
-        self._cfg = {}
-        self._cfg["jinjamator_user_directory"] = os.path.sep.join(
+        self._configuration = {}
+        self.configuration = {}
+        self._configuration["jinjamator_user_directory"] = os.path.sep.join(
             [os.path.expanduser("~"), ".jinjamator"]
         )
-        self._cfg["jinjamator_base_directory"] = os.path.dirname(
+        self._configuration["jinjamator_base_directory"] = os.path.dirname(
             os.path.realpath(__file__)
         )
         self._output_plugin = None
@@ -81,13 +82,13 @@ class Program(object):
         self._parser.add_argument(
             "-t",
             "--task-dir",
-            dest="taskdir",
+            dest="_taskdir",
             help="task directory with task descriptions",
         )
         self._parser.add_argument(
             "-v",
             "--verbose",
-            dest="verbose",
+            dest="_verbose",
             action="count",
             help="set verbosity level [default: ERROR]",
         )
@@ -97,7 +98,7 @@ class Program(object):
         self._parser.add_argument(
             "-g",
             "--global-defaults",
-            dest="global_defaults",
+            dest="_global_defaults",
             default=None,
             help="path to a global defaults.yaml [default: %(default)s]",
         )
@@ -111,49 +112,49 @@ class Program(object):
         self._parser.add_argument(
             "-d",
             "--daemonize",
-            dest="daemonize",
+            dest="_daemonize",
             default=False,
             action="store_true",
             help="run in daemon mode",
         )
         self._parser.add_argument(
             "--no-worker",
-            dest="no_worker",
+            dest="_no_worker",
             default=False,
             action="store_true",
             help="do not spawn local celery worker",
         )
         self._parser.add_argument(
             "--just-worker",
-            dest="just_worker",
+            dest="_just_worker",
             default=False,
             action="store_true",
             help="spawn worker only",
         )
         self._parser.add_argument(
             "--celery-broker-url",
-            dest="celery_broker",
+            dest="_celery_broker",
             default="amqp://jinjamator:jinjamator@localhost:5672/jinjamator",
             help="celery broker URL (required for daemon mode)  [default: %(default)s]",
         )
         self._parser.add_argument(
             "--celery-result-backend",
-            dest="celery_result_backend",
-            default=f'sqlite:///{self._cfg.get("jinjamator_user_directory",tempfile.gettempdir())}/jinjamator-results.db',
+            dest="_celery_result_backend",
+            default=f'sqlite:///{self._configuration.get("jinjamator_user_directory",tempfile.gettempdir())}/jinjamator-results.db',
             help="celery result backend URL (required for daemon mode)  [default: %(default)s]",
         )
         self._parser.add_argument(
             "--celery-heartbeat-database",
-            dest="celery_beat_database",
-            default=f'{self._cfg.get("jinjamator_user_directory", tempfile.gettempdir())}/jinjamator-beat.db',
+            dest="_celery_beat_database",
+            default=f'{self._configuration.get("jinjamator_user_directory", tempfile.gettempdir())}/jinjamator-beat.db',
             help="celery result beat Database (required for daemon mode)  [default: %(default)s]",
         )
         self._parser.add_argument(
             "--task-base-dir",
-            dest="global_tasks_base_dirs",
+            dest="_global_tasks_base_dirs",
             default=[
-                os.path.sep.join([self._cfg["jinjamator_user_directory"], "tasks"]),
-                os.path.sep.join([self._cfg["jinjamator_base_directory"], "tasks"]),
+                os.path.sep.join([self._configuration["jinjamator_user_directory"], "tasks"]),
+                os.path.sep.join([self._configuration["jinjamator_base_directory"], "tasks"]),
             ],
             action="append",
             help="where should jinjamator look for tasks  [default: %(default)s]",
@@ -161,10 +162,10 @@ class Program(object):
 
         self._parser.add_argument(
             "--output-plugin-base-dir",
-            dest="global_output_plugins_base_dirs",
+            dest="_global_output_plugins_base_dirs",
             default=[
                 os.path.sep.join(
-                    [self._cfg["jinjamator_base_directory"], "plugins", "output"]
+                    [self._configuration["jinjamator_base_directory"], "plugins", "output"]
                 )
             ],
             action="append",
@@ -173,10 +174,10 @@ class Program(object):
 
         self._parser.add_argument(
             "--content-plugin-base-dir",
-            dest="global_content_plugins_base_dirs",
+            dest="_global_content_plugins_base_dirs",
             default=[
                 os.path.sep.join(
-                    [self._cfg["jinjamator_base_directory"], "plugins", "content"]
+                    [self._configuration["jinjamator_base_directory"], "plugins", "content"]
                 )
             ],
             action="append",
@@ -185,10 +186,10 @@ class Program(object):
 
         self._parser.add_argument(
             "--environment-base-dir",
-            dest="global_environments_base_dirs",
+            dest="_global_environments_base_dirs",
             default=[
                 os.path.sep.join(
-                    [self._cfg["jinjamator_user_directory"], "environments"]
+                    [self._configuration["jinjamator_user_directory"], "environments"]
                 )
             ],
             action="append",
@@ -250,12 +251,16 @@ USAGE
             self._args, unknown = self._parser.parse_known_args()
 
             for arg in vars(self._args):
-                self._cfg[arg] = getattr(self._args, arg)
+                if arg.startswith('_'):
+                    self._configuration[arg[1:]] = getattr(self._args, arg)
+                else:
+                    self.configuration[arg] = getattr(self._args, arg)
+
 
             load_output_plugin(
                 self,
-                self._cfg["output_plugin"],
-                self._cfg["global_output_plugins_base_dirs"],
+                self.configuration["output_plugin"],
+                self._configuration["global_output_plugins_base_dirs"],
             )
             if self._output_plugin:
                 self._output_plugin.addArguments()
@@ -268,11 +273,11 @@ USAGE
                 print(self._parser.format_help())
                 sys.exit(0)
 
-            if not self._args.taskdir and not self._args.daemonize:
+            if not self._configuration.get('taskdir') and not self._configuration.get('daemonize'):
                 print(self._parser.format_help())
                 sys.exit(1)
 
-            verbose = self._args.verbose or 0
+            verbose = self._configuration.get('verbose') or 0
 
             if verbose > 0:
                 self._log.setLevel(logging.ERROR)
@@ -289,15 +294,18 @@ USAGE
                 pass
 
             for arg in vars(self._args):
-                self._cfg[arg] = getattr(self._args, arg)
+                if arg.startswith('_'):
+                    self._configuration[arg[1:]] = getattr(self._args, arg)
+                else:
+                    self.configuration[arg] = getattr(self._args, arg)
 
-            if self._cfg["taskdir"]:
-                self._cfg["taskdir"] = os.path.abspath(self._cfg["taskdir"])
+            if self._configuration["taskdir"]:
+                self._configuration["taskdir"] = os.path.abspath(self._configuration["taskdir"])
 
             for index, global_tasks_base_dir in enumerate(
-                self._cfg["global_tasks_base_dirs"]
+                self._configuration["global_tasks_base_dirs"]
             ):
-                self._cfg["global_tasks_base_dirs"][index] = os.path.abspath(
+                self._configuration["global_tasks_base_dirs"][index] = os.path.abspath(
                     global_tasks_base_dir
                 )
 
@@ -314,13 +322,13 @@ USAGE
     def main(self):
         for d in ["environments", "logs", "tasks"]:
             os.makedirs(
-                os.path.sep.join([self._cfg["jinjamator_user_directory"], d]),
+                os.path.sep.join([self._configuration["jinjamator_user_directory"], d]),
                 exist_ok=True,
             )
 
-        if self._cfg["daemonize"]:
+        if self._configuration["daemonize"]:
             from jinjamator.daemon import run as app_run
-            app_run(self._cfg)
+            app_run(self._configuration)
             # if os.path.isfile("/proc/version"):
             #     # Attempt to screen out WSL users, since it is currently (01.04.2020) known to be broken.
             #     try:
@@ -337,31 +345,31 @@ USAGE
 
 
     
-            # app.config["JINJAMATOR_GLOBAL_DEFAULTS"] = self._cfg["global_defaults"]
-            # app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"] = self._cfg[
+            # app.config["JINJAMATOR_GLOBAL_DEFAULTS"] = self._configuration["global_defaults"]
+            # app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"] = self._configuration[
             #     "global_tasks_base_dirs"
             # ]
-            # app.config["JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES"] = self._cfg[
+            # app.config["JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES"] = self._configuration[
             #     "global_environments_base_dirs"
             # ]
-            # app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"] = self._cfg[
+            # app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"] = self._configuration[
             #     "global_output_plugins_base_dirs"
             # ]
-            # app.config["JINJAMATOR_CONTENT_PLUGINS_BASE_DIRS"] = self._cfg[
+            # app.config["JINJAMATOR_CONTENT_PLUGINS_BASE_DIRS"] = self._configuration[
             #     "global_content_plugins_base_dirs"
             # ]
 
             # from jinjamator.daemon import views
 
-            # if not self._cfg["no_worker"]:
-            #     self._cfg["no_worker"] = True
+            # if not self._configuration["no_worker"]:
+            #     self._configuration["no_worker"] = True
 
             #     if "WERKZEUG_RUN_MAIN" not in os.environ.keys():
             #         pid = os.fork()
             #         if pid == 0:
             #             from celery import Celery
 
-            #             queue = Celery("jinjamator", broker=self._cfg["celery_broker"])
+            #             queue = Celery("jinjamator", broker=self._configuration["celery_broker"])
             #             queue.start(
             #                 argv=[
             #                     "celery",
@@ -371,15 +379,15 @@ USAGE
             #                     "--max-tasks-per-child",
             #                     "1",
             #                     "-b",
-            #                     self._cfg["celery_broker"],
+            #                     self._configuration["celery_broker"],
             #                     "-B",
             #                     "-s",
-            #                     self._cfg["celery_beat_database"],
+            #                     self._configuration["celery_beat_database"],
             #                 ]
             #             )
             #             sys.exit(0)
             #         else:
-            #             if not self._cfg["just_worker"]:
+            #             if not self._configuration["just_worker"]:
             #                 app.run(debug=True, host="0.0.0.0")
             #             os.waitpid(pid, 0)
             #     else:
@@ -393,25 +401,26 @@ USAGE
             from jinjamator.task import JinjamatorTask
 
             task = JinjamatorTask("interactive")
-            if self._cfg["global_defaults"]:
-                task.configuration.merge_yaml(self._cfg["global_defaults"])
-            task.configuration.merge_dict(self._cfg)
-            task._configuration.merge_dict(self._cfg)
+            if self._configuration["global_defaults"]:
+                task.configuration.merge_yaml(self._configuration["global_defaults"])
+
+            task.configuration.merge_dict(self.configuration)
+            task._configuration.merge_dict(self._configuration)
 
             task.load_output_plugin(
-                self._cfg["output_plugin"], self._cfg["global_output_plugins_base_dirs"]
+                self.configuration["output_plugin"], self._configuration["global_output_plugins_base_dirs"]
             )
 
             try:
-                task.load(self._cfg["taskdir"])
+                task.load(self._configuration["taskdir"])
             except ValueError:
-                if os.path.isdir(self._cfg["taskdir"]):
+                if os.path.isdir(self._configuration["taskdir"]):
                     self._log.error(
-                        f'No Tasklets found in {self._cfg["taskdir"]} -> exiting'
+                        f'No Tasklets found in {self._configuration["taskdir"]} -> exiting'
                     )
                 else:
                     self._log.error(
-                        f'Task directory {self._cfg["taskdir"]} not found -> exiting'
+                        f'Task directory {self._configuration["taskdir"]} not found -> exiting'
                     )
             task.run()
 
