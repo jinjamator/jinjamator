@@ -5,10 +5,11 @@ import logging
 
 log = logging.getLogger()
 
-def get_section_from_task_doc(task_path, section = 'description'):    
+
+def get_section_from_task_doc(task_path, section="description"):
     retval = None
     try:
-        with open(os.path.join(task_path,'README.rst'),'r') as fh:
+        with open(os.path.join(task_path, "README.rst"), "r") as fh:
             s = fh.read()
     except:
         return None

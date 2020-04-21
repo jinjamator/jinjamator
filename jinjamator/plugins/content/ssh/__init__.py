@@ -61,7 +61,7 @@ def run(command, **kwargs):
 def query(command, **kwargs):
     device_type = (
         kwargs.get("device_type")
-        or self._parent.configuration.get(f"ssh_device_type") 
+        or self._parent.configuration.get(f"ssh_device_type")
         or self._parent.handle_undefined_var("ssh_device_type")
     )
     kwargs["device_type"] = device_type

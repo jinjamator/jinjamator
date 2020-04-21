@@ -47,13 +47,11 @@ def run(path, task_data=False, **kwargs):
         )
     else:
         task.configuration.merge_dict(parent_data)
-        
 
     if os.path.isfile(self._parent.task_base_dir):
         my_parent = os.path.dirname(self._parent.task_base_dir)
     else:
         my_parent = self._parent.task_base_dir
-
 
     task._configuration["global_tasks_base_dirs"].insert(0, my_parent)
 
