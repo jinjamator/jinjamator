@@ -107,10 +107,10 @@ class JinjamatorTask(object):
 
         if not os.path.isabs(path):
             for global_base_dir in search_paths:
-                tried_path = os.path.join(global_base_dir,path)
+                tried_path = os.path.join(global_base_dir, path)
                 if os.path.exists(tried_path):
                     self._log.debug(f"resolved path to {tried_path}")
-                    path=tried_path
+                    path = tried_path
                     break
 
         if os.path.isfile(path):
@@ -393,8 +393,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
 
         schema = tree()
         schema["schema"]["title"] = self.task_base_dir
-            
-        
+
         schema["schema"]["type"] = "object"
         schema["view"]["wizard"] = {
             "title": "Welcome to the Wizard",
@@ -477,9 +476,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
 
             for k, v in builder.to_schema()["properties"].items():
                 schema["schema"]["properties"][k] = v
-                schema["schema"]["properties"][k]['default'] = self._default_values[k]
-                schema["schema"]["properties"][k]['required'] = True
-                
+                schema["schema"]["properties"][k]["default"] = self._default_values[k]
+                schema["schema"]["properties"][k]["required"] = True
+
                 schema["view"]["wizard"]["bindings"][k] = 2
                 schema["data"][k] = self._default_values[k]
                 enhanced = self.enhance_schema(self._default_values[k], k)
@@ -564,7 +563,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         # schema["view"]["wizard"]["bindings"]["custom_parameters"] = 3
         # schema["view"]["wizard"]["bindings"]["output_plugin_parameters"] = 3
 
-
         # schema["schema"]["properties"]["best_effort"]["title"] = "Best Effort"
         # schema["schema"]["properties"]["best_effort"]["type"] = "boolean"
         # schema["schema"]["properties"]["best_effort"]["description"] = "Should jinjamator ignore fatal errors of tasklets for this instance?"
@@ -580,9 +578,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         schema["schema"]["properties"]["undo"]["title"] = "Undo"
         schema["schema"]["properties"]["undo"]["type"] = "boolean"
         schema["schema"]["properties"]["undo"]["default"] = False
-        schema["schema"]["properties"]["undo"]["description"] = "Flags instance as undo run. This will reverse the tasklet execution order. If properly implemented by the task, it should undo all changes."
-
-
+        schema["schema"]["properties"]["undo"][
+            "description"
+        ] = "Flags instance as undo run. This will reverse the tasklet execution order. If properly implemented by the task, it should undo all changes."
 
         schema["options"]["fields"]["undo"][
             "helper"
@@ -690,25 +688,20 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                         code_to_show = ""
 
                     self._log.error(
-                        "{}\n{}:{}, in {}\n    {}\n{}".format(
-                            e, tasklet, lineno, funname, line, code_to_show
-                        )
+                        f"{e}\n{tasklet}:{lineno}, in {funname}\n    {line}\n{code_to_show}"
                     )
-                    if self.configuration._data["best_effort"]:
+
+                    if self.configuration.get("best_effort"):
                         continue
                     else:
                         self._log.error(
-                            "tasklet {0} has failed and best_effort is not defined -> exiting".format(
-                                tasklet
-                            )
+                            f"tasklet {tasklet} has failed and best_effort is not defined -> exiting"
                         )
                         return False
 
             else:
                 raise ValueError(
-                    "tasklet {0} has file extension which is not supported".format(
-                        tasklet
-                    )
+                    f"tasklet {tasklet} has file extension which is not supported"
                 )
 
             self._output_plugin.init_plugin_params()

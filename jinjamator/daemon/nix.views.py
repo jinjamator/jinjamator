@@ -113,7 +113,7 @@ def api_list_environments():
     for directory in app.config["JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES"]:
         log.debug(directory)
         for path in glob.glob("{0}/**/sites/*/".format(directory), recursive=True):
-            tmp = path.split(os.path.sep), 
+            tmp = (path.split(os.path.sep),)
             response["environments"].append(
                 {"path": path, "name": "{}-{}".format(tmp[-4], tmp[-2])}
             )
@@ -125,22 +125,27 @@ def api_list_tasks():
     response = {"tasks": []}
     added_tasks = []
     for directory in app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"]:
-        tasks = glob.glob(f"{directory}/**/*.py", recursive=True) + glob.glob(f"{directory}/**/*.j2", recursive=True)
+        tasks = glob.glob(f"{directory}/**/*.py", recursive=True) + glob.glob(
+            f"{directory}/**/*.j2", recursive=True
+        )
         for item in tasks:
             append = True
-            for dir_chunk in os.path.dirname(item.replace(directory,'')).split(os.path.sep): # filter out hidden directories
+            for dir_chunk in os.path.dirname(item.replace(directory, "")).split(
+                os.path.sep
+            ):  # filter out hidden directories
                 if dir_chunk.startswith("."):
                     append = False
             if append:
-                dir_name = os.path.dirname(item.replace(directory,''))[1:]
+                dir_name = os.path.dirname(item.replace(directory, ""))[1:]
                 task_data = {
-                    'path': dir_name,
-                    'base_dir': directory,
-                    'description': get_section_from_task_doc(os.path.join(directory,dir_name)) or 'no description'
+                    "path": dir_name,
+                    "base_dir": directory,
+                    "description": get_section_from_task_doc(
+                        os.path.join(directory, dir_name)
+                    )
+                    or "no description",
                 }
-                if dir_name not in added_tasks and os.path.isfile(
-                    item
-                ):  
+                if dir_name not in added_tasks and os.path.isfile(item):
                     if "__pycache__" not in dir_name:
                         added_tasks.append(dir_name)
                         response["tasks"].append(task_data)

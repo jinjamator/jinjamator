@@ -26,7 +26,7 @@ import logging
 from glob import glob
 import tempfile
 from jinjamator.plugin_loader.output import load_output_plugin
-from jinjamator.tools.version import version,updated
+from jinjamator.tools.version import version, updated
 
 __version__ = version
 __updated__ = updated
@@ -153,8 +153,12 @@ class Program(object):
             "--task-base-dir",
             dest="_global_tasks_base_dirs",
             default=[
-                os.path.sep.join([self._configuration["jinjamator_user_directory"], "tasks"]),
-                os.path.sep.join([self._configuration["jinjamator_base_directory"], "tasks"]),
+                os.path.sep.join(
+                    [self._configuration["jinjamator_user_directory"], "tasks"]
+                ),
+                os.path.sep.join(
+                    [self._configuration["jinjamator_base_directory"], "tasks"]
+                ),
             ],
             action="append",
             help="where should jinjamator look for tasks  [default: %(default)s]",
@@ -165,7 +169,11 @@ class Program(object):
             dest="_global_output_plugins_base_dirs",
             default=[
                 os.path.sep.join(
-                    [self._configuration["jinjamator_base_directory"], "plugins", "output"]
+                    [
+                        self._configuration["jinjamator_base_directory"],
+                        "plugins",
+                        "output",
+                    ]
                 )
             ],
             action="append",
@@ -177,7 +185,11 @@ class Program(object):
             dest="_global_content_plugins_base_dirs",
             default=[
                 os.path.sep.join(
-                    [self._configuration["jinjamator_base_directory"], "plugins", "content"]
+                    [
+                        self._configuration["jinjamator_base_directory"],
+                        "plugins",
+                        "content",
+                    ]
                 )
             ],
             action="append",
@@ -251,11 +263,10 @@ USAGE
             self._args, unknown = self._parser.parse_known_args()
 
             for arg in vars(self._args):
-                if arg.startswith('_'):
+                if arg.startswith("_"):
                     self._configuration[arg[1:]] = getattr(self._args, arg)
                 else:
                     self.configuration[arg] = getattr(self._args, arg)
-
 
             load_output_plugin(
                 self,
@@ -273,11 +284,13 @@ USAGE
                 print(self._parser.format_help())
                 sys.exit(0)
 
-            if not self._configuration.get('taskdir') and not self._configuration.get('daemonize'):
+            if not self._configuration.get("taskdir") and not self._configuration.get(
+                "daemonize"
+            ):
                 print(self._parser.format_help())
                 sys.exit(1)
 
-            verbose = self._configuration.get('verbose') or 0
+            verbose = self._configuration.get("verbose") or 0
 
             if verbose > 0:
                 self._log.setLevel(logging.ERROR)
@@ -294,13 +307,15 @@ USAGE
                 pass
 
             for arg in vars(self._args):
-                if arg.startswith('_'):
+                if arg.startswith("_"):
                     self._configuration[arg[1:]] = getattr(self._args, arg)
                 else:
                     self.configuration[arg] = getattr(self._args, arg)
 
             if self._configuration["taskdir"]:
-                self._configuration["taskdir"] = os.path.abspath(self._configuration["taskdir"])
+                self._configuration["taskdir"] = os.path.abspath(
+                    self._configuration["taskdir"]
+                )
 
             for index, global_tasks_base_dir in enumerate(
                 self._configuration["global_tasks_base_dirs"]
@@ -328,6 +343,7 @@ USAGE
 
         if self._configuration["daemonize"]:
             from jinjamator.daemon import run as app_run
+
             app_run(self._configuration)
             # if os.path.isfile("/proc/version"):
             #     # Attempt to screen out WSL users, since it is currently (01.04.2020) known to be broken.
@@ -343,8 +359,6 @@ USAGE
             #         self._log.error(e)
             # from jinjamator.daemon import app
 
-
-    
             # app.config["JINJAMATOR_GLOBAL_DEFAULTS"] = self._configuration["global_defaults"]
             # app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"] = self._configuration[
             #     "global_tasks_base_dirs"
@@ -361,41 +375,6 @@ USAGE
 
             # from jinjamator.daemon import views
 
-            # if not self._configuration["no_worker"]:
-            #     self._configuration["no_worker"] = True
-
-            #     if "WERKZEUG_RUN_MAIN" not in os.environ.keys():
-            #         pid = os.fork()
-            #         if pid == 0:
-            #             from celery import Celery
-
-            #             queue = Celery("jinjamator", broker=self._configuration["celery_broker"])
-            #             queue.start(
-            #                 argv=[
-            #                     "celery",
-            #                     "worker",
-            #                     "-c",
-            #                     "8",
-            #                     "--max-tasks-per-child",
-            #                     "1",
-            #                     "-b",
-            #                     self._configuration["celery_broker"],
-            #                     "-B",
-            #                     "-s",
-            #                     self._configuration["celery_beat_database"],
-            #                 ]
-            #             )
-            #             sys.exit(0)
-            #         else:
-            #             if not self._configuration["just_worker"]:
-            #                 app.run(debug=True, host="0.0.0.0")
-            #             os.waitpid(pid, 0)
-            #     else:
-
-            #         app.run(debug=True, host="0.0.0.0")
-            # else:
-            #     app.run(debug=True, host="0.0.0.0")
-
         else:
             # add legacy task execution code here
             from jinjamator.task import JinjamatorTask
@@ -408,7 +387,8 @@ USAGE
             task._configuration.merge_dict(self._configuration)
 
             task.load_output_plugin(
-                self.configuration["output_plugin"], self._configuration["global_output_plugins_base_dirs"]
+                self.configuration["output_plugin"],
+                self._configuration["global_output_plugins_base_dirs"],
             )
 
             try:

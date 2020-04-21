@@ -22,19 +22,17 @@ import collections
 import logging
 import json
 from celery.exceptions import Ignore
+from jinjamator.daemon import celery
 from jinjamator.task.celery.loghandler import CeleryLogHandler, CeleryLogFormatter
-from jinjamator.external.celery.backends.database import DatabaseBackend
-from jinjamator.daemon import app
 from copy import deepcopy
 
-celery = Celery("jinjamator", broker=app.config["CELERY_BROKER_URL"])
 
-
-@celery.task(
-    bind=True,
-    backend=DatabaseBackend(app=celery, url=app.config["CELERY_RESULT_BACKEND"]),
-)
+@celery.task(bind=True)
 def run_jinjamator_task(self, path, data, output_plugin):
+    """
+    Jinjamator Celery Task runner.
+    """
+
     self.update_state(
         state="PROGRESS",
         meta={
@@ -65,6 +63,9 @@ def run_jinjamator_task(self, path, data, output_plugin):
             else:
                 task.load_output_plugin("console")
             task.configuration.merge_dict(pre_run_task["task"]["data"])
+            task._configuration.merge_dict(
+                celery.conf["jinjamator_private_configuration"]
+            )
             task.configuration.merge_dict(deepcopy(data))
 
             task.load(pre_run_task["task"]["path"])
@@ -89,8 +90,13 @@ def run_jinjamator_task(self, path, data, output_plugin):
     task._log.addHandler(log_handler)
 
     task.load_output_plugin(
-        output_plugin, app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"]
+        output_plugin,
+        celery.conf["jinjamator_private_configuration"][
+            "global_output_plugins_base_dirs"
+        ],
     )
+
+    task._configuration.merge_dict(celery.conf["jinjamator_private_configuration"])
     task.configuration.merge_dict(data)
 
     task.load(path)
