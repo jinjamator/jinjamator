@@ -34,7 +34,7 @@ class console(outputPluginBase):
             return True
         if str(data).strip() == "":
             return True
-        if self._parent.configuration["console_pretty_print"]:
+        if self._parent.configuration.get("console_pretty_print"):
             from pprint import pprint
 
             pprint(data)

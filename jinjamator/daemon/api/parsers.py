@@ -1,5 +1,6 @@
 from flask_restx import reqparse
 from jinjamator.daemon.api.endpoints.environments import available_environments
+from werkzeug.datastructures import FileStorage
 import logging
 
 log = logging.getLogger()
@@ -23,3 +24,6 @@ job_arguments.add_argument(
     choices=["TASKLET_RESULT", "INFO", "WARNING", "ERROR", "DEBUG"],
     help="Set the upper loglevel limit for the log entries returned",
 )
+
+upload_parser = reqparse.RequestParser()
+upload_parser.add_argument('files', location='files',type=FileStorage, required=True)
