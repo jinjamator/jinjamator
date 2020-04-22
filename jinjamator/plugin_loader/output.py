@@ -16,6 +16,10 @@ import importlib
 
 
 def load_output_plugin(obj, output_plugin, search_paths):
+    """ 
+    Loads an jinjamator output plugin and registers it
+    """
+    
     for path in search_paths:
         try:
             spec = importlib.util.spec_from_file_location(

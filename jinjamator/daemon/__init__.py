@@ -21,8 +21,11 @@ from jinjamator.daemon.api.endpoints.environments import (
 )
 from jinjamator.daemon.api.endpoints.tasks import ns as tasks_namespace, discover_tasks
 from jinjamator.daemon.api.endpoints.jobs import ns as jobs_namespace
+from jinjamator.daemon.api.endpoints.output_plugins import ns as output_plugins_namespace, discover_output_plugins
+from jinjamator.daemon.api.endpoints.upload import ns as upload_namespace
 from jinjamator.daemon.webui import webui as webui_blueprint
 from jinjamator.daemon.database import db
+
 
 import os, sys
 
@@ -102,8 +105,10 @@ def initialize(flask_app, cfg):
 
     api.init_app(api_blueprint)
     api.add_namespace(environments_namespace)
+    api.add_namespace(output_plugins_namespace)
     api.add_namespace(tasks_namespace)
     api.add_namespace(jobs_namespace)
+    api.add_namespace(upload_namespace)
     flask_app.register_blueprint(api_blueprint)
     flask_app.register_blueprint(webui_blueprint)
     db.init_app(flask_app)
@@ -111,6 +116,7 @@ def initialize(flask_app, cfg):
 
 def run(cfg):
     initialize(app, cfg)
+    discover_output_plugins(app)
     discover_environments(app)
     discover_tasks(app)
 
