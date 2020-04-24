@@ -64,7 +64,7 @@ class JobCollection(Resource):
 @ns.route("/<job_id>")
 class Job(Resource):
     @api.expect(job_arguments)
-    @api.param('job_id','The ID returned by task create operation. (UUID V4 format)')
+    @api.param("job_id", "The ID returned by task create operation. (UUID V4 format)")
     def get(self, job_id):
         """
         Returns detailed information about a job, including a full debug log.

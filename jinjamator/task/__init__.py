@@ -507,16 +507,15 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         # schema["schema"]["properties"]["jinjamator_job_id"]["required"] = True
         # schema["options"]["fields"]["jinjamator_job_id"]["type"] = "hidden"
 
+        # todo make dynamic
         schema["schema"]["properties"]["output_plugin"]["title"] = "Output Plugin"
         schema["schema"]["properties"]["output_plugin"]["type"] = "string"
         schema["schema"]["properties"]["output_plugin"]["enum"] = [
             "apic",
             "console",
             "ssh",
-            "textfile",
-            "xlsxfile",
-            "csvfile",
-            "rabbitmq",
+            "null",
+            "excel",
         ]
         schema["schema"]["properties"]["output_plugin"]["default"] = "console"
         schema["schema"]["properties"]["output_plugin"]["required"] = True
