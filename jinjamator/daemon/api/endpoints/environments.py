@@ -46,7 +46,7 @@ def discover_environments(app):
                             "name": site_name,
                         }
                         current_environment["sites"].append(site)
-        available_environments.append(current_environment)
+            available_environments.append(current_environment)
     for env in available_environments:
         env_name = env.get("name")
         for site in env.get("sites"):
