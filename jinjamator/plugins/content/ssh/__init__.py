@@ -32,6 +32,7 @@ def run(command, **kwargs):
     }
 
     cfg = {}
+    opts = {}
     for var_name in ["host", "username", "password", "port", "device_type"]:
         cfg[var_name] = (
             kwargs.get(var_name)
@@ -39,6 +40,12 @@ def run(command, **kwargs):
             or defaults.get(var_name)
             or self._parent.handle_undefined_var(f"ssh_{var_name}")
         )
+        try:
+            del kwargs[var_name]
+        except KeyError:
+            pass
+    for var_name in kwargs:
+        opts[var_name] = kwargs[var_name]
 
     try:
         connection = ConnectHandler(**cfg)
@@ -53,7 +60,7 @@ def run(command, **kwargs):
                 f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
             )
 
-    retval = connection.send_command_expect(command, max_loops=10000)
+    retval = connection.send_command_expect(command, max_loops=10000, **opts)
     connection.cleanup()
     return retval
 
