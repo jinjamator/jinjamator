@@ -336,7 +336,7 @@ function create_job(job_path, pre_defined_vars) {
                             client.opts['stringifyData'] = true;
                             var data = this.getValue();
                             console.dir(data);
-                            var task = data['task'];
+                            var task = job_path;
                             delete data['task'];
                             $.each(data['output_plugin_parameters'], function(index) {
                                 $.each(data['output_plugin_parameters'][index], function(key, value) {
@@ -348,13 +348,10 @@ function create_job(job_path, pre_defined_vars) {
                             });
                             delete data['output_plugin_parameters'];
                             delete data['custom_parameters'];
-                            var request_data = {
-                                ['task']: task,
-                                ['configuration']: data
-                            }
 
-                            console.dir(request_data);
-                            client.jobs.create(request_data).done(function(data) {
+
+                            console.log(task)
+                            client.tasks.create(job_path, data).done(function(data) {
                                 //console.log(JSON.stringify(data));
                                 setTimeout(function() { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
                             });

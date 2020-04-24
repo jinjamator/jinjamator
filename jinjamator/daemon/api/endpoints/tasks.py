@@ -169,7 +169,7 @@ def discover_tasks(app):
                                         [
                                             relative_task_path,
                                             data,
-                                            data["output_plugin"],
+                                            data.get("output_plugin",'console'),
                                         ],
                                         task_id=job_id,
                                     )
