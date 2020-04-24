@@ -22,7 +22,7 @@ environment = api.model(
 )
 
 environments = api.model(
-    "List of environments", {"environments": fields.List(fields.Nested(environment))}
+    "environments", {"environments": fields.List(fields.Nested(environment))}
 )
 
 task_info = api.model(

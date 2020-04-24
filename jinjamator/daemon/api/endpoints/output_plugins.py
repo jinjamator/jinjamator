@@ -18,7 +18,7 @@ ns = api.namespace(
     "plugins/output", description="Operations related to jinjamator output plugins"
 )
 available_output_plugins = []
-available_output_plugin_names =[]
+available_output_plugin_names = []
 available_output_plugins_by_name = {}
 
 
@@ -37,16 +37,21 @@ def discover_output_plugins(app):
             if os.path.isdir(plugin_dir):
                 plugin_name = os.path.basename(plugin_dir)
                 dummy = DummyTask()
-                load_output_plugin(dummy,plugin_name,app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"])
+                load_output_plugin(
+                    dummy,
+                    plugin_name,
+                    app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"],
+                )
                 current_plugin = {
                     "id": xxhash.xxh64(plugin_name).hexdigest(),
                     "path": plugin_dir,
                     "name": plugin_name,
-                    "schema": dummy._output_plugin.get_json_schema()
+                    "schema": dummy._output_plugin.get_json_schema(),
                 }
                 available_output_plugins.append(current_plugin)
                 available_output_plugin_names.append(plugin_name)
                 available_output_plugins_by_name[plugin_name] = current_plugin
+
 
 @ns.route("/")
 class PluginsCollection(Resource):
@@ -56,12 +61,12 @@ class PluginsCollection(Resource):
         """
         return available_output_plugins
 
+
 @ns.route("/<plugin_name>")
 class PluginInfo(Resource):
-    @api.response(404, 'Plugin not found Error')
-    @api.response(200, 'Success')
-    
-    def get(self,plugin_name):
+    @api.response(404, "Plugin not found Error")
+    @api.response(200, "Success")
+    def get(self, plugin_name):
         """
         Returns information about a output plugin with it's full alpacajs form schema.
         """
@@ -70,5 +75,4 @@ class PluginInfo(Resource):
         if retval:
             return retval
         else:
-            abort(404,f"Plugin {plugin_name} not found")
-        
+            abort(404, f"Plugin {plugin_name} not found")
