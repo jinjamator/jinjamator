@@ -335,7 +335,7 @@ USAGE
             sys.exit(0)
 
     def main(self):
-        for d in ["environments", "logs", "tasks"]:
+        for d in ["environments", "logs", "tasks", "uploads"]:
             os.makedirs(
                 os.path.sep.join([self._configuration["jinjamator_user_directory"], d]),
                 exist_ok=True,
@@ -345,38 +345,9 @@ USAGE
             from jinjamator.daemon import run as app_run
 
             app_run(self._configuration)
-            # if os.path.isfile("/proc/version"):
-            #     # Attempt to screen out WSL users, since it is currently (01.04.2020) known to be broken.
-            #     try:
-            #         with open("/proc/version", "r") as o:
-            #             txt = o.read()
-            #             if "MICROSOFT" in txt.upper():
-            #                 self._log.error(
-            #                     "Running jinjamator daemon mode in WSL currently is not supported, and will corrupt sqlite databases. See https://github.com/microsoft/WSL/issues/2395"
-            #                 )
-            #                 sys.exit(1)
-            #     except Exception as e:
-            #         self._log.error(e)
-            # from jinjamator.daemon import app
-
-            # app.config["JINJAMATOR_GLOBAL_DEFAULTS"] = self._configuration["global_defaults"]
-            # app.config["JINJAMATOR_TASKS_BASE_DIRECTORIES"] = self._configuration[
-            #     "global_tasks_base_dirs"
-            # ]
-            # app.config["JINJAMATOR_ENVIRONMENTS_BASE_DIRECTORIES"] = self._configuration[
-            #     "global_environments_base_dirs"
-            # ]
-            # app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"] = self._configuration[
-            #     "global_output_plugins_base_dirs"
-            # ]
-            # app.config["JINJAMATOR_CONTENT_PLUGINS_BASE_DIRS"] = self._configuration[
-            #     "global_content_plugins_base_dirs"
-            # ]
-
-            # from jinjamator.daemon import views
 
         else:
-            # add legacy task execution code here
+            # legacy cli task
             from jinjamator.task import JinjamatorTask
 
             task = JinjamatorTask("interactive")
