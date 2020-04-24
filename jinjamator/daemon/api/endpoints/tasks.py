@@ -152,7 +152,7 @@ def discover_tasks(app):
                                     f"create_task_instance_for_{task_info['path'].replace(os.path.sep,'_')}"
                                 )
                                 @api.expect(
-                                    task_models[task_info["path"]], validate=True
+                                    task_models[task_info["path"]], validate=False
                                 )
                                 def post(self):
                                     """
@@ -196,7 +196,8 @@ def discover_tasks(app):
                                     return jsonify({"job_id": job.id})
 
                         except Exception as e:
-                            log.error(f"unable to register {task_dir}: {e}")
+                            import traceback
+                            log.error(f"unable to register {task_dir}: {e} {traceback.format_exc()}")
 
 
 @ns.route("/")
