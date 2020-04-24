@@ -124,9 +124,12 @@ def discover_tasks(app):
                                                 site_path_by_name.get(environment_site)
                                             )
                                         )
-                                        task._configuration['jinjamator_site_path'] = site_path_by_name.get(environment_site)
-                                        task._configuration['jinjamator_site_name'] = environment_site
-
+                                        task._configuration[
+                                            "jinjamator_site_path"
+                                        ] = site_path_by_name.get(environment_site)
+                                        task._configuration[
+                                            "jinjamator_site_name"
+                                        ] = environment_site
 
                                     task.load(relative_task_path)
                                     full_schema = task.get_jsonform_schema()
@@ -173,7 +176,7 @@ def discover_tasks(app):
                                         [
                                             relative_task_path,
                                             data,
-                                            data.get("output_plugin",'console'),
+                                            data.get("output_plugin", "console"),
                                         ],
                                         task_id=job_id,
                                     )
@@ -197,7 +200,10 @@ def discover_tasks(app):
 
                         except Exception as e:
                             import traceback
-                            log.error(f"unable to register {task_dir}: {e} {traceback.format_exc()}")
+
+                            log.error(
+                                f"unable to register {task_dir}: {e} {traceback.format_exc()}"
+                            )
 
 
 @ns.route("/")
