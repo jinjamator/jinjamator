@@ -124,6 +124,10 @@ def discover_tasks(app):
                                                 site_path_by_name.get(environment_site)
                                             )
                                         )
+                                        task._configuration['jinjamator_site_path'] = site_path_by_name.get(environment_site)
+                                        task._configuration['jinjamator_site_name'] = environment_site
+
+
                                     task.load(relative_task_path)
                                     full_schema = task.get_jsonform_schema()
 

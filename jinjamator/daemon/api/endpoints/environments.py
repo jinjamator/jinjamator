@@ -32,7 +32,7 @@ def discover_environments(app):
                 environment_name = os.path.basename(env_dir)
                 current_environment = {
                     "id": xxhash.xxh64(environment_name).hexdigest(),
-                    "path": env_dir,
+                    "path": os.path.join(env_base_dir,env_dir),
                     "name": environment_name,
                     "sites": [],
                 }
