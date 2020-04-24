@@ -543,5 +543,3 @@ def get_dict_from_external_epg_dn(dn):
         }
     else:
         return None
-
-
