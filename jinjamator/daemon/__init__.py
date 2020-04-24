@@ -21,7 +21,10 @@ from jinjamator.daemon.api.endpoints.environments import (
 )
 from jinjamator.daemon.api.endpoints.tasks import ns as tasks_namespace, discover_tasks
 from jinjamator.daemon.api.endpoints.jobs import ns as jobs_namespace
-from jinjamator.daemon.api.endpoints.output_plugins import ns as output_plugins_namespace, discover_output_plugins
+from jinjamator.daemon.api.endpoints.output_plugins import (
+    ns as output_plugins_namespace,
+    discover_output_plugins,
+)
 from jinjamator.daemon.api.endpoints.upload import ns as upload_namespace
 from jinjamator.daemon.webui import webui as webui_blueprint
 from jinjamator.daemon.database import db
