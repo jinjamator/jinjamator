@@ -49,6 +49,20 @@ def init_celery(_configuration):
     Configure Celery
     """
     celery.conf.broker_url = _configuration.get("celery_broker")
+    if celery.conf.broker_url == "filesystem://":
+        data_folder = os.path.join(
+            _configuration.get("jinjamator_user_directory"), "broker", "data"
+        )
+        processed_folder = os.path.join(
+            _configuration.get("jinjamator_user_directory"), "broker", "processed"
+        )
+        os.makedirs(data_folder, exist_ok=True)
+        os.makedirs(processed_folder, exist_ok=True)
+        celery.conf.broker_transport_options = {
+            "data_folder_in": data_folder,
+            "data_folder_out": data_folder,
+            "data_folder_processed": "/app/broker/processed",
+        }
     celery.conf.result_backend = _configuration.get("celery_result_backend")
     celery.conf.update({"jinjamator_private_configuration": _configuration})
     backend = DatabaseBackend(app=celery, url=app.config["CELERY_RESULT_BACKEND"])
