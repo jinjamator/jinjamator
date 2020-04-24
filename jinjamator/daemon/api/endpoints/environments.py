@@ -16,7 +16,7 @@ ns = api.namespace(
     "environments", description="Operations related to jinjamator environments"
 )
 available_environments = []
-preload_defaults_from_site_choices = []
+preload_defaults_from_site_choices = [""]
 site_path_by_name = {}
 
 
@@ -32,7 +32,7 @@ def discover_environments(app):
                 environment_name = os.path.basename(env_dir)
                 current_environment = {
                     "id": xxhash.xxh64(environment_name).hexdigest(),
-                    "path": os.path.join(env_base_dir,env_dir),
+                    "path": os.path.join(env_base_dir, env_dir),
                     "name": environment_name,
                     "sites": [],
                 }
