@@ -520,6 +520,18 @@ def get_dict_from_epg_dn(dn):
         return None
 
 
+def get_dict_from_vrf_dn(dn):
+    rgx = re.compile(r"uni/tn-(\S+)/ctx-(\S+)")
+    result = rgx.match(dn)
+    if result:
+        return {
+            "tenant_name": result.group(1),
+            "vrf_name": result.group(2),
+        }
+    else:
+        return None
+
+
 def get_dict_from_external_epg_dn(dn):
     rgx = re.compile(r"uni/tn-(\S+)/out-(\S+)/instP-(\S+)")
     result = rgx.match(dn)
@@ -531,3 +543,5 @@ def get_dict_from_external_epg_dn(dn):
         }
     else:
         return None
+
+
