@@ -134,7 +134,8 @@ class Program(object):
         self._parser.add_argument(
             "--celery-broker-url",
             dest="_celery_broker",
-            default="amqp://jinjamator:jinjamator@localhost:5672/jinjamator",
+            # default="amqp://jinjamator:jinjamator@localhost:5672/jinjamator",
+            default=f"filesystem://",
             help="celery broker URL (required for daemon mode)  [default: %(default)s]",
         )
         self._parser.add_argument(
