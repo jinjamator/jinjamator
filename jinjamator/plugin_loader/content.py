@@ -35,9 +35,9 @@ class ContentPluginLoader(object):
         self._parent = parent
 
     def load(self, base_dir):
-        files = glob.glob(f"{base_dir}{os.path.sep}**{os.path.sep}*.py") + glob.glob(
-            f"{base_dir}{os.path.sep}*.py"
-        )
+        files = glob.glob(
+            f"{base_dir}{os.path.sep}**{os.path.sep}*.py", recursive=True
+        ) + glob.glob(f"{base_dir}{os.path.sep}*.py")
         for file in files:
             relative_path = file.replace(f"{base_dir}{os.path.sep}", "")
             class_path = (
