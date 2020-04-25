@@ -136,11 +136,11 @@ def run(cfg):
     discover_output_plugins(app)
     discover_environments(app)
     discover_tasks(app)
-    port=cfg.get('daemon_listen_port','5000')
-    host=cfg.get('daemon_listen_address','127.0.0.1')
+    port = cfg.get("daemon_listen_port", "5000")
+    host = cfg.get("daemon_listen_address", "127.0.0.1")
 
     if "WERKZEUG_RUN_MAIN" not in os.environ.keys():
-        if not cfg.get('no_worker'):
+        if not cfg.get("no_worker"):
             pid = os.fork()
             if pid == 0:
                 from celery import Celery
@@ -154,7 +154,7 @@ def run(cfg):
                         "-A",
                         "jinjamator.task.celery",
                         "-c",
-                        cfg.get("max_celery_worker",'2'),
+                        cfg.get("max_celery_worker", "2"),
                         "--max-tasks-per-child",
                         "1",
                         "-b",
@@ -167,18 +167,20 @@ def run(cfg):
                 sys.exit(0)
             else:
                 if not cfg.get("just_worker"):
-                    log.info(
-                        f">>>>> Starting daemon at http://{host}:{port}// <<<<<"
+                    log.info(f">>>>> Starting daemon at http://{host}:{port}// <<<<<")
+                    app.run(
+                        debug=True,
+                        host=cfg.get("daemon_listen_address", "127.0.0.1"),
+                        port=cfg.get("daemon_listen_port", "5000"),
                     )
-                    app.run(debug=True, host=cfg.get('daemon_listen_address','127.0.0.1'), port=cfg.get('daemon_listen_port','5000') )
                 os.waitpid(pid, 0)
         else:
-            log.info(
-                f">>>>> Starting daemon at http://{host}:{port}// <<<<<"
+            log.info(f">>>>> Starting daemon at http://{host}:{port}// <<<<<")
+            app.run(
+                debug=True,
+                host=cfg.get("daemon_listen_address", "127.0.0.1"),
+                port=cfg.get("daemon_listen_port", "5000"),
             )
-            app.run(debug=True, host=cfg.get('daemon_listen_address','127.0.0.1'), port=cfg.get('daemon_listen_port','5000') )
     else:
-        log.info(
-            f">>>>> Restarting daemon at http://{host}:{port}/ <<<<<"
-        )
+        log.info(f">>>>> Restarting daemon at http://{host}:{port}/ <<<<<")
         app.run(debug=True, host=host, port=port)
