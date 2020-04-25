@@ -140,37 +140,43 @@ def run(cfg):
     host=cfg.get('daemon_listen_address','127.0.0.1')
 
     if "WERKZEUG_RUN_MAIN" not in os.environ.keys():
-        pid = os.fork()
-        if pid == 0:
-            from celery import Celery
+        if not cfg.get('no_worker'):
+            pid = os.fork()
+            if pid == 0:
+                from celery import Celery
 
-            queue = Celery("jinjamator", broker=cfg["celery_broker"])
+                queue = Celery("jinjamator", broker=cfg["celery_broker"])
 
-            queue.start(
-                argv=[
-                    "celery",
-                    "worker",
-                    "-A",
-                    "jinjamator.task.celery",
-                    "-c",
-                    cfg.get("max_celery_worker",'2'),
-                    "--max-tasks-per-child",
-                    "1",
-                    "-b",
-                    cfg["celery_broker"],
-                    "-B",
-                    "-s",
-                    cfg["celery_beat_database"],
-                ]
-            )
-            sys.exit(0)
-        else:
-            if not cfg.get("just_worker"):
-                log.info(
-                    f">>>>> Starting daemon at http://{host}:{port}// <<<<<"
+                queue.start(
+                    argv=[
+                        "celery",
+                        "worker",
+                        "-A",
+                        "jinjamator.task.celery",
+                        "-c",
+                        cfg.get("max_celery_worker",'2'),
+                        "--max-tasks-per-child",
+                        "1",
+                        "-b",
+                        cfg["celery_broker"],
+                        "-B",
+                        "-s",
+                        cfg["celery_beat_database"],
+                    ]
                 )
-                app.run(debug=True, host=cfg.get('daemon_listen_address','127.0.0.1'), port=cfg.get('daemon_listen_port','5000') )
-            os.waitpid(pid, 0)
+                sys.exit(0)
+            else:
+                if not cfg.get("just_worker"):
+                    log.info(
+                        f">>>>> Starting daemon at http://{host}:{port}// <<<<<"
+                    )
+                    app.run(debug=True, host=cfg.get('daemon_listen_address','127.0.0.1'), port=cfg.get('daemon_listen_port','5000') )
+                os.waitpid(pid, 0)
+        else:
+            log.info(
+                f">>>>> Starting daemon at http://{host}:{port}// <<<<<"
+            )
+            app.run(debug=True, host=cfg.get('daemon_listen_address','127.0.0.1'), port=cfg.get('daemon_listen_port','5000') )
     else:
         log.info(
             f">>>>> Restarting daemon at http://{host}:{port}/ <<<<<"
