@@ -118,6 +118,18 @@ class Program(object):
             help="run in daemon mode",
         )
         self._parser.add_argument(
+                "--listen-address",
+                dest="_daemon_listen_address",
+                default='127.0.0.1',
+                help="on which ip should the daemon listen [default: %(default)s]",
+            )
+        self._parser.add_argument(
+                "--listen-port",
+                dest="_daemon_listen_port",
+                default='5000',
+                help="on which TCP port should the daemon listen [default: %(default)s]",
+            )
+        self._parser.add_argument(
             "--no-worker",
             dest="_no_worker",
             default=False,
