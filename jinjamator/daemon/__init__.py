@@ -136,6 +136,8 @@ def run(cfg):
     discover_output_plugins(app)
     discover_environments(app)
     discover_tasks(app)
+    port=cfg.get('daemon_listen_port','5000')
+    host=cfg.get('daemon_listen_address','127.0.0.1')
 
     if "WERKZEUG_RUN_MAIN" not in os.environ.keys():
         pid = os.fork()
@@ -165,12 +167,12 @@ def run(cfg):
         else:
             if not cfg.get("just_worker"):
                 log.info(
-                    f'>>>>> Starting development server at http://{app.config["SERVER_NAME"]}/ <<<<<'
+                    f">>>>> Starting daemon at http://{host}:{port}// <<<<<"
                 )
-                app.run(debug=True, host="0.0.0.0")
+                app.run(debug=True, host=cfg.get('daemon_listen_address','127.0.0.1'), port=cfg.get('daemon_listen_port','5000') )
             os.waitpid(pid, 0)
     else:
         log.info(
-            f'>>>>> Restarting development server at http://{app.config["SERVER_NAME"]}/ <<<<<'
+            f">>>>> Restarting daemon at http://{host}:{port}/ <<<<<"
         )
-        app.run(debug=True, host="0.0.0.0")
+        app.run(debug=True, host=host, port=port)
