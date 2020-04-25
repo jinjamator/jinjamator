@@ -151,7 +151,7 @@ def run(cfg):
                     "-A",
                     "jinjamator.task.celery",
                     "-c",
-                    "8",
+                    cfg.get("max_celery_worker",'2'),
                     "--max-tasks-per-child",
                     "1",
                     "-b",
@@ -162,14 +162,15 @@ def run(cfg):
                 ]
             )
             sys.exit(0)
-        # else:
-        #     if not self._configuration["just_worker"]:
-        #         app.run(debug=True, host="0.0.0.0")
-        #     os.waitpid(pid, 0)
-
-    log.info(
-        ">>>>> Starting development server at http://{}/api/ <<<<<".format(
-            app.config["SERVER_NAME"]
+        else:
+            if not cfg.get("just_worker"):
+                log.info(
+                    f'>>>>> Starting development server at http://{app.config["SERVER_NAME"]}/ <<<<<'
+                )
+                app.run(debug=True, host="0.0.0.0")
+            os.waitpid(pid, 0)
+    else:
+        log.info(
+            f'>>>>> Restarting development server at http://{app.config["SERVER_NAME"]}/ <<<<<'
         )
-    )
-    app.run(debug=True, host="0.0.0.0")
+        app.run(debug=True, host="0.0.0.0")
