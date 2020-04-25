@@ -119,17 +119,17 @@ def discover_tasks(app):
                                     )
 
                                     if environment_site:
-                                        task.configuration.merge_yaml(
-                                            "{}/defaults.yaml".format(
-                                                site_path_by_name.get(environment_site)
-                                            )
-                                        )
                                         task._configuration[
                                             "jinjamator_site_path"
                                         ] = site_path_by_name.get(environment_site)
                                         task._configuration[
                                             "jinjamator_site_name"
                                         ] = environment_site
+                                        task.configuration.merge_yaml(
+                                            "{}/defaults.yaml".format(
+                                                site_path_by_name.get(environment_site)
+                                            )
+                                        )
 
                                     task.load(relative_task_path)
                                     full_schema = task.get_jsonform_schema()
