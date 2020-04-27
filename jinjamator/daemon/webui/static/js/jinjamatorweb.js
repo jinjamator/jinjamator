@@ -1,3 +1,4 @@
+var update_output_plugin = true;
 $(function() {
     'use strict'
 
@@ -338,22 +339,14 @@ function create_job(job_path, pre_defined_vars) {
 
                             var task = job_path;
                             delete data['task'];
-                            $.each(data['output_plugin_parameters'], function(index) {
-                                $.each(data['output_plugin_parameters'][index], function(key, value) {
-                                    data[key] = value;
-                                });
-                            });
-                            $.each(data['custom_parameters'], function(index) {
-                                data[data['custom_parameters'][index]['key']] = data['custom_parameters'][index]['value'];
-                            });
+                            for (property in data['output_plugin_parameters']) {
+                                data[property] = data['output_plugin_parameters'][property];
+                            }
+
                             delete data['output_plugin_parameters'];
-                            delete data['custom_parameters'];
 
 
-                            console.log(task);
-                            console.dir(data);
                             client.tasks.create(job_path, data).done(function(data) {
-                                //console.log(JSON.stringify(data));
                                 setTimeout(function() { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
                             });
 
@@ -365,52 +358,49 @@ function create_job(job_path, pre_defined_vars) {
             data['options']['fields']['output_plugin']['onFieldChange'] = function(e) {
 
 
+
                 var control = $("#form").alpaca("get");
-
-                self = control.getControlByPath("/output_plugin_parameters");
-
-                $.each(self.children, function(key, value) {
-                    self.removeItem(0);
-                });
-
                 form_data = control.getValue();
 
-                $.each(form_data['custom_parameters'], function(index) {
-                    form_data[form_data['custom_parameters'][index]['key']] = form_data['custom_parameters'][index]['value'];
+                output_plugin_parameters = control.getControlByPath("/output_plugin_parameters");
+                // console.log(output_plugin_parameters)
+                console.log(output_plugin_parameters)
+                $.each(output_plugin_parameters.children, function(key, value) {
+                    // console.log(0)
+                    // console.log(output_plugin_parameters.children[key].propertyId)
+                    if (typeof(output_plugin_parameters.children[0].propertyId) !== 'undefined') {
+                        output_plugin_parameters.removeItem(output_plugin_parameters.children[0].propertyId, function() {});
+                    }
                 });
 
 
 
                 client.plugins.output.read(this.getValue(e), {}, form_data).done(function(data) {
+                    options = data['schema']['options'];
+                    schema = data['schema']['schema'];
+
+
                     order = {}
-                    $.each(data['options']['fields'], function(key, value) {
+                    $.each(options.fields, function(key, value) {
                         order[value.order] = key;
                     });
 
                     $.each(order, function(index, var_name) {
-                        var obj = Object({
-                            'type': 'object',
-                            'properties': {}
-                        });
-                        var options = Object({
-                            'validator': false,
 
-                        });
 
-                        obj.properties[var_name] = data['schema']['properties'][var_name];
-                        if (typeof(data['options']) !== 'undefined') {
-                            if (typeof(data['options']['validator']) !== 'undefined') {
-                                if (typeof(data['options']['validator'][var_name]) !== 'undefined') {
-                                    options['validator'] = new Function("return " + data['options']['validator'][var_name].replace(/(\r\n|\n|\r)/gm, ""))();
-                                }
-                            }
-                        };
+                        // data.properties[var_name] = data['schema']['properties'][var_name];
+                        // if (typeof(options) !== 'undefined') {
+                        //     if (typeof(options.fields.validator) !== 'undefined') {
+                        //         if (typeof(options.fields[var_name].validator) !== 'undefined') {
+                        //             options.fields[var_name].validator = new Function("return " + options.fields[var_name].validator.replace(/(\r\n|\n|\r)/gm, ""))();
+                        //         }
+                        //     }
+                        // };
 
-                        //Object.assign(options,data['options']['fields'][var_name]);
-                        //alert(JSON.stringify(options));
-                        //Object.assign(data,{'options':{'fields':{var_name:{'hideActionBar':true}}}});
-                        self.addItem(0, obj, options, '', function(item) {});
+
+                        output_plugin_parameters.addItem(var_name, schema.properties[var_name], options.fields[var_name], '', function(item) {});
                     });
+                    console.log(output_plugin_parameters)
                 });
 
 
@@ -419,7 +409,46 @@ function create_job(job_path, pre_defined_vars) {
 
             }
             data.options['allowNull'] = true;
+
+
+            data['postRender'] = function(control) {
+                form_data = control.getValue();
+
+                if ('output_plugin' in form_data) {
+                    var output_plugin_name = form_data['output_plugin'];
+                } else {
+                    console.log('output_plugin undefined defaulting to console');
+                    var output_plugin_name = 'console';
+
+                }
+
+                update_output_plugin = false;
+                client.plugins.output.read(output_plugin_name, {}, form_data).done(function(data) {
+                    var itemId = "output_plugin_parameters";
+                    var itemSchema = data['schema']['schema']
+                    var itemOptions = data['schema']['options']
+
+                    var insertAfterId = "output_plugin";
+                    output_plugin = $('[data-alpaca-field-name="output_plugin"]')[0];
+                    console.dir(output_plugin)
+
+                    control.createItem(itemId, itemSchema, itemOptions, {}, '', function(item) {
+                        control.registerChild(item, 3);
+                        output_plugin.parentNode.append(item.containerItemEl[0]);
+
+                    });
+
+                });
+
+
+
+            };
+
             $("#form").alpaca(data);
+
+
+
+
 
             $('.main-content-box-title').remove();
             $('.main-section').removeClass('hidden');
