@@ -141,9 +141,10 @@ class apic(outputPluginBase):
             "description"
         ] = "URL of Cisco ACI Controller"
         # form['schema']['properties']['apic_url']['required']=True
-        form["schema"]["properties"]["apic_url"]["default"] = configuration.get(
-            "apic_url", "https://"
-        )
+        # form["schema"]["properties"]["apic_url"]["default"] = configuration.get(
+        #     "apic_url", "https://"
+        # )
+        
         form["schema"]["properties"]["apic_url"][
             "pattern"
         ] = "^(https?:\\/\\/)\
@@ -154,10 +155,12 @@ class apic(outputPluginBase):
 (\\#[-a-z\\d_]*)?$"
 
         form["options"]["fields"]["apic_url"]["order"] = 1
+        # form["options"]['fields']['apic_url']['hideInitValidationError']= True
         form["options"]["fields"]["apic_username"]["order"] = 2
         form["options"]["fields"]["apic_password"]["order"] = 3
         form["options"]["fields"]["apic_key"]["order"] = 4
         form["options"]["fields"]["apic_cert_name"]["order"] = 5
+
 
         return dict(form)
 
