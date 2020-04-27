@@ -343,7 +343,14 @@ function create_job(job_path, pre_defined_vars) {
                                 data[property] = data['output_plugin_parameters'][property];
                             }
 
+                            for (property in data) {
+                                if (property.startsWith('__no_vars_')) {
+                                    delete data[property];
+                                }
+                            }
+
                             delete data['output_plugin_parameters'];
+
 
 
                             client.tasks.create(job_path, data).done(function(data) {
