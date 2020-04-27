@@ -71,7 +71,7 @@ def import_code(code, name, add_to_sys_modules=False):
 
 class JinjamatorTask(object):
     def __init__(self, run_mode="background"):
-
+        self._global_ldr=None
         self._current_tasklet = "jinamator-core"
         self._parent_tasklet = "jinamator-core"
         self._parent_task_id = None
@@ -125,11 +125,11 @@ class JinjamatorTask(object):
         else:
             raise ValueError(f"cannot load path {path}")
 
-        global_ldr = init_loader(self)
+        self._global_ldr = init_loader(self)
         for content_plugin_dir in self._configuration.get(
             "global_content_plugins_base_dirs", []
         ):
-            global_ldr.load(f"{content_plugin_dir}")
+            self._global_ldr.load(f"{content_plugin_dir}")
 
         self.setup_jinja2()
 
