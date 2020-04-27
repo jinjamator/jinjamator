@@ -414,6 +414,7 @@ function create_job(job_path, pre_defined_vars) {
             data['postRender'] = function(control) {
                 form_data = control.getValue();
 
+
                 if ('output_plugin' in form_data) {
                     var output_plugin_name = form_data['output_plugin'];
                 } else {
@@ -422,7 +423,7 @@ function create_job(job_path, pre_defined_vars) {
 
                 }
 
-                update_output_plugin = false;
+
                 client.plugins.output.read(output_plugin_name, {}, form_data).done(function(data) {
                     var itemId = "output_plugin_parameters";
                     var itemSchema = data['schema']['schema']
@@ -430,7 +431,7 @@ function create_job(job_path, pre_defined_vars) {
 
                     var insertAfterId = "output_plugin";
                     output_plugin = $('[data-alpaca-field-name="output_plugin"]')[0];
-                    console.dir(output_plugin)
+                    // console.dir(output_plugin)
 
                     control.createItem(itemId, itemSchema, itemOptions, {}, '', function(item) {
                         control.registerChild(item, 3);
@@ -443,6 +444,25 @@ function create_job(job_path, pre_defined_vars) {
 
 
             };
+            var step_counter = [0, 0, 0]
+            $.each(data['view']['wizard']['bindings'], function(key, value) {
+                step_counter[value - 1]++;
+            });
+            step_counter.forEach(function(value, index, array) {
+                if (value == 0) {
+                    var step = index + 1;
+                    data['schema']['properties']['__no_vars_' + step] = {
+                        'required': false,
+                        'title': 'No variables',
+                        'type': "string",
+                        'readonly': true
+                    }
+                    data['view']['wizard']['bindings']['__no_vars_' + step] = step
+
+                }
+            });
+
+
 
             $("#form").alpaca(data);
 
