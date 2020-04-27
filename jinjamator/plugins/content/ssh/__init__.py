@@ -16,6 +16,10 @@ from netmiko import ConnectHandler, ssh_exception
 import textfsm
 import os
 from jinjamator.plugins.content.fsm import fsm_process
+import logging
+
+log = logging.getLogger()
+from netmiko import log as netmiko_log
 
 try:
     from textfsm import clitable
@@ -48,8 +52,11 @@ def run(command, **kwargs):
         opts[var_name] = kwargs[var_name]
 
     try:
+        backup_log_level = log.level
+        netmiko_log.setLevel(logging.INFO)
         connection = ConnectHandler(**cfg)
     except ssh_exception.NetMikoAuthenticationException as e:
+        netmiko_log.setLevel(backup_log_level)
         if self._parent.configuration["best_effort"]:
             self._parent._log.error(
                 f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
@@ -59,9 +66,10 @@ def run(command, **kwargs):
             raise Exception(
                 f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
             )
-
+    
     retval = connection.send_command_expect(command, max_loops=10000, **opts)
     connection.cleanup()
+    netmiko_log.setLevel(backup_log_level)
     return retval
 
 
