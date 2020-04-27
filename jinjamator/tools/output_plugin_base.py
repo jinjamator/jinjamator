@@ -13,11 +13,7 @@
 # limitations under the License.
 
 import logging
-from collections import defaultdict
 
-
-def tree():
-    return defaultdict(tree)
 
 
 class notImplemented(Exception):
@@ -47,7 +43,16 @@ class outputPluginBase(object):
 
     @staticmethod
     def get_json_schema(configuration={}):
-        form = tree()
-        form["schema"]["type"] = "object"
-        form["schema"]["properties"] = {}
+        form = {
+            'schema': {
+                'type': 'object',
+                'properties': {}
+            },
+            'options':{
+                'fields':{
+
+                }
+            }
+        }
+        
         return form
