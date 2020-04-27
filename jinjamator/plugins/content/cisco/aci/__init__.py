@@ -23,6 +23,8 @@ import getpass
 # from jinjamator.tools.aciwatcherthread import ACIWatcherThread
 from pprint import pprint
 
+log = logging.getLogger()
+
 
 switchdb = {
     "N9K-C93108TC-EX": {
@@ -98,6 +100,7 @@ def connect_apic(subscription_enabled=False):
             cert_name=self._parent.configuration["apic_cert_name"],
             key=self._parent.configuration["apic_key"],
             subscription_enabled=False,
+            
         )
     else:
         if not self._parent.configuration["apic_password"]:
@@ -112,14 +115,18 @@ def connect_apic(subscription_enabled=False):
     return apic_session
 
 
-def query(queryURL):
+def query(queryURL,timeout = 60):
     if "subscription=yes" in queryURL:
         subscription_enabled = True
     else:
         subscription_enabled = False
     session = connect_apic(subscription_enabled)
-    data = session.get(queryURL)
-    session.close()
+    try:
+        data = session.get(queryURL, timeout)
+    except Exception as e:
+        log.error(e)
+        session.close()
+        return {'imdata':[],'totalCount':'0'}
     return json.loads(data.text)
 
 
