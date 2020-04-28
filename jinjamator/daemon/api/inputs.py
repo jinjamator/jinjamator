@@ -23,7 +23,7 @@ def task_data(value):
     return value
 
 
-task_data.__schema__ = {
-    "type": "object",
-    "additionalProperties": {"$ref": "#/definitions/cisco_nx-os_query"},
-}
+#task_data.__schema__ = {
+#    "type": "object",
+#    "additionalProperties": {"$ref": "#/definitions/cisco_nx-os_query"},
+#}
