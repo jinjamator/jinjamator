@@ -43,11 +43,22 @@ from jinjamator.external.celery.backends.database import DatabaseBackend
 celery = Celery("jinjamator")
 log = logging.getLogger()
 
+def init_database(_configuration):
+    """
+    initialize modified celery database backend
+    """
+    
+    from jinjamator.external.celery.backends.database.session import ResultModelBase
+    from sqlalchemy import create_engine
+    engine = create_engine(_configuration.get("celery_result_backend"), echo=True)
+    ResultModelBase.metadata.create_all(engine, checkfirst=True)
+
 
 def init_celery(_configuration):
     """
     Configure Celery
     """
+
     celery.conf.broker_url = _configuration.get("celery_broker")
     if celery.conf.broker_url == "filesystem://":
         data_folder = os.path.join(
@@ -66,6 +77,7 @@ def init_celery(_configuration):
     celery.conf.result_backend = _configuration.get("celery_result_backend")
     celery.conf.update({"jinjamator_private_configuration": _configuration})
     backend = DatabaseBackend(app=celery, url=app.config["CELERY_RESULT_BACKEND"])
+    
     celery.backend = backend
     return celery
 
@@ -116,6 +128,7 @@ def initialize(flask_app, cfg):
     Initialize Jinjamator Daemon Mode
     """
     configure(flask_app, cfg)
+    init_database(cfg)
     init_celery(cfg)
 
     api_blueprint = Blueprint("api", __name__, url_prefix="/api/")
