@@ -1,14 +1,15 @@
 import logging
 
 from flask import request, jsonify
-from flask_restx import Resource
+from flask_restx import Resource, abort
 from jinjamator.daemon.api.serializers import job_brief
 from jinjamator.daemon.api.restx import api
 from jinjamator.external.celery.backends.database.models import Task as DB_Job, JobLog
 from jinjamator.daemon.database import db
 from jinjamator.daemon.api.parsers import job_arguments
 
-from sqlalchemy import select, and_, or_
+
+from sqlalchemy import select, and_, or_, exc
 import glob
 import os
 import xxhash
@@ -30,19 +31,23 @@ class JobCollection(Resource):
         Returns a list of all jobs.
         """
         response = []
-        rs = db.session.execute(
-            select(
-                [
-                    DB_Job.id,
-                    DB_Job.task_id,
-                    DB_Job.status,
-                    DB_Job.date_done,
-                    DB_Job.date_start,
-                    DB_Job.date_scheduled,
-                    DB_Job.jinjamator_task,
-                ]
-            ).order_by(DB_Job.id.desc())
-        )
+        try:
+            rs = db.session.execute(
+                select(
+                    [
+                        DB_Job.id,
+                        DB_Job.task_id,
+                        DB_Job.status,
+                        DB_Job.date_done,
+                        DB_Job.date_start,
+                        DB_Job.date_scheduled,
+                        DB_Job.jinjamator_task,
+                    ]
+                ).order_by(DB_Job.id.desc())
+            )
+        except exc.SQLAlchemyError as e:
+            log.error(e)
+            return response
         for job in rs.fetchall():
             response.append(
                 {
@@ -64,6 +69,8 @@ class JobCollection(Resource):
 @ns.route("/<job_id>")
 class Job(Resource):
     @api.expect(job_arguments)
+    @api.response(404, "Task not found Error")
+    @api.response(200, "Success")
     @api.param("job_id", "The ID returned by task create operation. (UUID V4 format)")
     def get(self, job_id):
         """
@@ -72,14 +79,17 @@ class Job(Resource):
 
         args = job_arguments.parse_args(request)
         log_level = args.get("log-level", "DEBUG")
-
-        job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).all()[0]
-        response = {
-            "id": job.task_id,
-            "state": job.status,
-            "jinjamator_task": job.jinjamator_task,
-            "log": [],
-        }
+        try:
+            job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).all()[0]
+            response = {
+                "id": job.task_id,
+                "state": job.status,
+                "jinjamator_task": job.jinjamator_task,
+                "log": [],
+            }
+        except exc.SQLAlchemyError as e:
+            log.error(e)
+            abort(404, f"Job ID {job_id} not found")
 
         log_level_filter = JobLog.level.is_("TASKLET_RESULT")
         if log_level in ["INFO", "WARNING", "ERROR", "DEBUG"]:
