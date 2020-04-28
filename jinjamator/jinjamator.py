@@ -83,7 +83,7 @@ class Program(object):
             "-t",
             "--task-dir",
             dest="_taskdir",
-            help="task directory with task descriptions",
+            help="path to task directory or tasklet file which should be run (CLI only)",
         )
         self._parser.add_argument(
             "-v",
@@ -174,7 +174,7 @@ class Program(object):
                 ),
             ],
             action="append",
-            help="where should jinjamator look for tasks  [default: %(default)s]",
+            help="where should jinjamator look for tasks in daemon mode [default: %(default)s]",
         )
 
         self._parser.add_argument(
