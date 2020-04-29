@@ -54,6 +54,7 @@ def run_jinjamator_task(self, path, data, output_plugin):
         for pre_run_task in data["jinjamator_pre_run_tasks"]:
 
             task = JinjamatorTask()
+            task._configuration._data['jinjamator_job_id']=self.request.id
             log_handler.formatter.set_jinjamator_task(task)
             task._scheduler = self
             task._log.addHandler(log_handler)
@@ -66,6 +67,7 @@ def run_jinjamator_task(self, path, data, output_plugin):
             task._configuration.merge_dict(
                 celery.conf["jinjamator_private_configuration"]
             )
+            
             task.configuration.merge_dict(deepcopy(data))
 
             task.load(pre_run_task["task"]["path"])
@@ -84,6 +86,7 @@ def run_jinjamator_task(self, path, data, output_plugin):
     )
 
     task = JinjamatorTask()
+    task._configuration._data['jinjamator_job_id']=self.request.id
     task._scheduler = self
     log_handler.formatter.set_jinjamator_task(task)
     task._log.setLevel(logging.DEBUG)
@@ -97,9 +100,12 @@ def run_jinjamator_task(self, path, data, output_plugin):
     )
 
     task._configuration.merge_dict(celery.conf["jinjamator_private_configuration"])
+    
     task.configuration.merge_dict(data)
+    
 
     task.load(path)
+    
 
     if not task.run():
         raise Exception("task failed")
