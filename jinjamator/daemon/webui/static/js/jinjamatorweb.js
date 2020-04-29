@@ -637,7 +637,6 @@ function timeline_render_elements(data) {
     $('#job_status').addClass("badge");
     $('#job_status').addClass(badge_color_from_state(data['state']));
 
-    console.dir(data)
     if (data.files.length > 0) {
         $("#job_files").html('');
         data['files'].forEach(function(value, index, array) {
