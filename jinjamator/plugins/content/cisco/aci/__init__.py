@@ -100,7 +100,6 @@ def connect_apic(subscription_enabled=False):
             cert_name=self._parent.configuration["apic_cert_name"],
             key=self._parent.configuration["apic_key"],
             subscription_enabled=False,
-            
         )
     else:
         if not self._parent.configuration["apic_password"]:
@@ -115,7 +114,7 @@ def connect_apic(subscription_enabled=False):
     return apic_session
 
 
-def query(queryURL,timeout = 60):
+def query(queryURL, timeout=60):
     if "subscription=yes" in queryURL:
         subscription_enabled = True
     else:
@@ -126,7 +125,7 @@ def query(queryURL,timeout = 60):
     except Exception as e:
         log.error(e)
         session.close()
-        return {'imdata':[],'totalCount':'0'}
+        return {"imdata": [], "totalCount": "0"}
     return json.loads(data.text)
 
 

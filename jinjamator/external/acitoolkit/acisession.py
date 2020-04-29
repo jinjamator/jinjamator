@@ -879,20 +879,19 @@ class Session(object):
         logging.debug(get_url)
 
         cookies = self._prep_x509_header("GET", url)
-        
+
         try:
             resp = self.session.get(
                 get_url,
                 timeout=timeout,
                 verify=self.verify_ssl,
                 proxies=self._proxies,
-                cookies=cookies, 
-
+                cookies=cookies,
             )
         except ConnectionError as e:
             logging.error(e)
             raise
-        
+
         if resp.status_code == 403:
             if self.cert_auth and not (
                 self.appcenter_user and self._subscription_enabled

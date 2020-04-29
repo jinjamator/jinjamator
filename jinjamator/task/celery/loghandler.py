@@ -18,21 +18,22 @@ from copy import deepcopy
 from json_log_formatter import JSONFormatter
 from datetime import datetime
 
-def _redact_password(obj,is_password = False):
+
+def _redact_password(obj, is_password=False):
     if isinstance(obj, str):
         if is_password:
-            obj = '<redacted>'
+            obj = "<redacted>"
         return obj
     elif isinstance(obj, list):
-        for index,item in enumerate(obj):
-            obj[index]=_redact_password(item)
+        for index, item in enumerate(obj):
+            obj[index] = _redact_password(item)
         return obj
     elif isinstance(obj, dict):
         for k, v in obj.items():
-            if 'pass' in k and isinstance(v,str):
-                obj[k]=_redact_password(v,True)
+            if "pass" in k and isinstance(v, str):
+                obj[k] = _redact_password(v, True)
             else:
-                obj[k]=_redact_password(v)
+                obj[k] = _redact_password(v)
         return obj
     return obj
 
@@ -88,8 +89,6 @@ class CeleryLogFormatter(JSONFormatter):
         if record.exc_info:
             message = message + str(self.formatException(record.exc_info))
 
-
-
         retval = {
             str(extra["time"]): {
                 "root_task": self._root_task,
@@ -100,7 +99,9 @@ class CeleryLogFormatter(JSONFormatter):
                 "current_task_id": id(self._task),
                 "message": message,
                 "level": logging.getLevelName(record.levelno),
-                "configuration": _redact_password(deepcopy(self._task.configuration._data)),
+                "configuration": _redact_password(
+                    deepcopy(self._task.configuration._data)
+                ),
                 "stdout": self._task._stdout.getvalue(),
             }
         }

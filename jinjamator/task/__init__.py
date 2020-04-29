@@ -71,7 +71,7 @@ def import_code(code, name, add_to_sys_modules=False):
 
 class JinjamatorTask(object):
     def __init__(self, run_mode="background"):
-        self._global_ldr=None
+        self._global_ldr = None
         self._current_tasklet = "jinamator-core"
         self._parent_tasklet = "jinamator-core"
         self._parent_task_id = None

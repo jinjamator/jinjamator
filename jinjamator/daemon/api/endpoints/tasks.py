@@ -77,7 +77,7 @@ def discover_tasks(app):
                             task._configuration.merge_dict(
                                 app.config["JINJAMATOR_FULL_CONFIGURATION"]
                             )
-                            
+
                             task.load(
                                 os.path.join(task_info["base_dir"], task_info["path"])
                             )
@@ -91,8 +91,7 @@ def discover_tasks(app):
                                 task_id, data
                             )
                             del task
-                            
-                            
+
                             log.info(f"registred model for task {task_dir}")
 
                             @ns.route(
@@ -116,13 +115,13 @@ def discover_tasks(app):
                                         "api.", ""
                                     )
                                     inner_task = JinjamatorTask()
-                                    
+
                                     inner_task._configuration.merge_dict(
                                         app.config["JINJAMATOR_FULL_CONFIGURATION"]
                                     )
                                     inner_task.load(relative_task_path)
 
-                                    if environment_site not in [None,'None']:
+                                    if environment_site not in [None, "None"]:
                                         inner_task._configuration[
                                             "jinjamator_site_path"
                                         ] = site_path_by_name.get(environment_site)
@@ -134,8 +133,7 @@ def discover_tasks(app):
                                                 site_path_by_name.get(environment_site)
                                             )
                                         )
-                                    
-                                    
+
                                     full_schema = inner_task.get_jsonform_schema()
 
                                     if schema_type in ["", "full"]:
