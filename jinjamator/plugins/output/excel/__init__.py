@@ -20,7 +20,7 @@ import json
 import errno
 import json
 import xmltodict
-
+import tempfile
 from flatten_json import flatten
 from natsort import natsorted
 from jinjamator.tools.xlsx_tools import XLSXWriter
@@ -79,8 +79,23 @@ class excel(outputPluginBase):
         pass
 
     def process(self, data, **kwargs):
+        if isinstance(data,list) or isinstance (data,str):
+            if len(data) == 0:
+                self._log.warning('refusing to generate excel file from empty data')
+                return False
+        elif isinstance(data,dict):
+            if len(list(data.keys)) == 0:
+                self._log.warning('refusing to generate excel file from empty data')
+                return False
+
+            
+        self._log.debug(self._parent._configuration._data)
+        
+        if self._parent._configuration.get("task_run_mode") == 'background':
+            self._parent.configuration["output_directory"] = os.path.join(self._parent._configuration.get("jinjamator_user_directory",tempfile.gettempdir()),'logs',self._parent._configuration.get('jinjamator_job_id'),'files')
+
         try:
-            os.mkdir(self._parent.configuration.get("output_directory", "./"))
+            os.makedirs(self._parent.configuration.get("output_directory", "./"),exist_ok=True)
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
