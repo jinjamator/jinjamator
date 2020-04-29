@@ -21,7 +21,9 @@ def is_possible(timeout=1):
         try:
             sess = cisco.aci.connect_apic()
             sess.get("/api/aaaLogin.json", 1)
+            sess.close()
         except Exception as e:
+            sess.close()
             log.error(e)
             return False
 
