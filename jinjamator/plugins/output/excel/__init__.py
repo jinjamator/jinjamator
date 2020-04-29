@@ -79,31 +79,47 @@ class excel(outputPluginBase):
         pass
 
     def process(self, data, **kwargs):
-        if isinstance(data,list) or isinstance (data,str):
+        if isinstance(data, list) or isinstance(data, str):
             if len(data) == 0:
-                self._log.warning('refusing to generate excel file from empty data')
+                self._log.warning("refusing to generate excel file from empty data")
                 return False
-        elif isinstance(data,dict):
+        elif isinstance(data, dict):
             if len(list(data.keys)) == 0:
-                self._log.warning('refusing to generate excel file from empty data')
+                self._log.warning("refusing to generate excel file from empty data")
                 return False
 
-            
-        self._log.debug(self._parent._configuration._data)
         
-        if self._parent._configuration.get("task_run_mode") == 'background':
-            self._parent.configuration["output_directory"] = os.path.join(self._parent._configuration.get("jinjamator_user_directory",tempfile.gettempdir()),'logs',self._parent._configuration.get('jinjamator_job_id'),'files')
+
+        if self._parent._configuration.get("task_run_mode") == "background":
+            self._parent.configuration["output_directory"] = os.path.join(
+                self._parent._configuration.get(
+                    "jinjamator_user_directory", tempfile.gettempdir()
+                ),
+                "logs",
+                self._parent._configuration.get("jinjamator_job_id"),
+                "files",
+            )
 
         try:
-            os.makedirs(self._parent.configuration.get("output_directory", "./"),exist_ok=True)
+            os.makedirs(
+                self._parent.configuration.get("output_directory", "./"), exist_ok=True
+            )
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
             pass
+
+        file_name = kwargs["template_path"]
+        for directory in self._parent._configuration.get('global_tasks_base_dirs'):
+            file_name = file_name.replace(directory,'')
+        if file_name[0] == os.path.sep:
+            file_name = file_name[1:]
+        
+
         dest = "{0}/{1}{2}.xlsx".format(
             self._parent.configuration.get("output_directory", "./"),
             self._parent.configuration.get("output_filename_prefix", ""),
-            kwargs["template_path"].replace(os.path.sep, "_"),
+            file_name.replace(os.path.sep, "_"),
         )
 
         if self._parent.configuration.get("columns"):
