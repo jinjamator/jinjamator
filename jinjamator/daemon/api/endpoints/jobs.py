@@ -15,6 +15,7 @@ import os
 import xxhash
 import json
 from glob import glob
+from uuid import UUID
 
 log = logging.getLogger()
 
@@ -68,15 +69,20 @@ class JobCollection(Resource):
 
 
 @ns.route("/<job_id>")
+@api.doc(params={ "job_id": "The ID returned by task create operation. (UUID V4 format)"})
 class Job(Resource):
     @api.expect(job_arguments)
     @api.response(404, "Task not found Error")
+    @api.response(400, "Task ID not in UUID V4 format")
     @api.response(200, "Success")
-    @api.param("job_id", "The ID returned by task create operation. (UUID V4 format)")
     def get(self, job_id):
         """
         Returns detailed information about a job, including a full debug log.
         """
+        try:
+            UUID(job_id, version=4)
+        except ValueError:
+            abort(400,"Task ID not in UUID V4 format")
 
         args = job_arguments.parse_args(request)
         log_level = args.get("log-level", "DEBUG")
