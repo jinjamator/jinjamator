@@ -1,6 +1,6 @@
 import logging
 
-from flask import request
+from flask import request, send_from_directory
 from flask_restx import Resource
 from jinjamator.daemon.api.serializers import environments
 from jinjamator.daemon.api.restx import api
@@ -16,11 +16,11 @@ import magic
 log = logging.getLogger()
 
 ns = api.namespace(
-    "upload", description="Operations related to jinjamator file uploads"
+    "files", description="Operations related to jinjamator file up and downloads"
 )
 
 
-@ns.route("/")
+@ns.route("/upload")
 class FileUpload(Resource):
     @api.expect(upload_parser, validate=True)
     def post(self):
@@ -44,3 +44,16 @@ class FileUpload(Resource):
                 }
             )
         return retval
+
+@ns.route("/download/<job_id>/<file_name>")
+class FileUpload(Resource):
+    @api.doc('Download a file from job')
+    def get(self,job_id,file_name):
+        """
+        Downloads a single file.
+        """
+        
+        
+        files_base_dir = os.path.join(app.config["JINJAMATOR_USER_DIRECTORY"],'logs', job_id ,'files')
+
+        return send_from_directory(files_base_dir, file_name, as_attachment=True)

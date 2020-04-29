@@ -25,7 +25,7 @@ from jinjamator.daemon.api.endpoints.output_plugins import (
     ns as output_plugins_namespace,
     discover_output_plugins,
 )
-from jinjamator.daemon.api.endpoints.upload import ns as upload_namespace
+from jinjamator.daemon.api.endpoints.files import ns as files_namespace
 from jinjamator.daemon.webui import webui as webui_blueprint
 from jinjamator.daemon.database import db
 
@@ -120,7 +120,11 @@ def configure(flask_app, _configuration):
     flask_app.config["JINJAMATOR_CONTENT_PLUGINS_BASE_DIRS"] = _configuration.get(
         "global_content_plugins_base_dirs"
     )
+    flask_app.config["JINJAMATOR_USER_DIRECTORY"] = _configuration.get(
+        "jinjamator_user_directory"
+    )
     flask_app.config["JINJAMATOR_FULL_CONFIGURATION"] = _configuration
+    
 
 
 def initialize(flask_app, cfg):
@@ -138,7 +142,7 @@ def initialize(flask_app, cfg):
     api.add_namespace(output_plugins_namespace)
     api.add_namespace(tasks_namespace)
     api.add_namespace(jobs_namespace)
-    api.add_namespace(upload_namespace)
+    api.add_namespace(files_namespace)
     flask_app.register_blueprint(api_blueprint)
     flask_app.register_blueprint(webui_blueprint)
     db.init_app(flask_app)
