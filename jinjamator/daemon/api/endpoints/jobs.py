@@ -7,13 +7,14 @@ from jinjamator.daemon.api.restx import api
 from jinjamator.external.celery.backends.database.models import Task as DB_Job, JobLog
 from jinjamator.daemon.database import db
 from jinjamator.daemon.api.parsers import job_arguments
-
+from flask import current_app as app
 
 from sqlalchemy import select, and_, or_, exc
 import glob
 import os
 import xxhash
 import json
+from glob import glob
 
 log = logging.getLogger()
 
@@ -86,6 +87,7 @@ class Job(Resource):
                 "state": job.status,
                 "jinjamator_task": job.jinjamator_task,
                 "log": [],
+                "files": [],
             }
         except exc.SQLAlchemyError as e:
             log.error(e)
@@ -122,4 +124,9 @@ class Job(Resource):
                     }
                 }
             )
+        files_base_dir = os.path.join(app.config["JINJAMATOR_USER_DIRECTORY"],'logs', job_id ,'files')
+        for file_path in glob( os.path.join(files_base_dir,'*') ):
+            if os.path.isfile(file_path):
+                response["files"].append(file_path.replace(files_base_dir,'')[1:])
+            
         return response
