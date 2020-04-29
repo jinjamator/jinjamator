@@ -637,6 +637,18 @@ function timeline_render_elements(data) {
     $('#job_status').addClass("badge");
     $('#job_status').addClass(badge_color_from_state(data['state']));
 
+    console.dir(data)
+    if (data.files.length > 0) {
+        $("#job_files").html('');
+        data['files'].forEach(function(value, index, array) {
+            var thelink = $('<a>', {
+                text: value,
+                title: value,
+                href: '/api/files/download/' + data.id + '/' + value
+            }).appendTo('#job_files');
+        });
+    }
+
 
     $.each(data['log'], function(index, log_item) {
         var timestamp = Object.keys(log_item)[0];
@@ -748,6 +760,7 @@ function show_job(job_id) {
 
                 timeline_render_elements(data);
                 $("#job_path").html(data['jinjamator_task']);
+
             });
 
 
