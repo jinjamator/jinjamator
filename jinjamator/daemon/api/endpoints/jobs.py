@@ -69,7 +69,9 @@ class JobCollection(Resource):
 
 
 @ns.route("/<job_id>")
-@api.doc(params={ "job_id": "The ID returned by task create operation. (UUID V4 format)"})
+@api.doc(
+    params={"job_id": "The ID returned by task create operation. (UUID V4 format)"}
+)
 class Job(Resource):
     @api.expect(job_arguments)
     @api.response(404, "Task not found Error")
@@ -82,7 +84,7 @@ class Job(Resource):
         try:
             UUID(job_id, version=4)
         except ValueError:
-            abort(400,"Task ID not in UUID V4 format")
+            abort(400, "Task ID not in UUID V4 format")
 
         args = job_arguments.parse_args(request)
         log_level = args.get("log-level", "DEBUG")
@@ -130,9 +132,11 @@ class Job(Resource):
                     }
                 }
             )
-        files_base_dir = os.path.join(app.config["JINJAMATOR_USER_DIRECTORY"],'logs', job_id ,'files')
-        for file_path in glob( os.path.join(files_base_dir,'*') ):
+        files_base_dir = os.path.join(
+            app.config["JINJAMATOR_USER_DIRECTORY"], "logs", job_id, "files"
+        )
+        for file_path in glob(os.path.join(files_base_dir, "*")):
             if os.path.isfile(file_path):
-                response["files"].append(file_path.replace(files_base_dir,'')[1:])
-            
+                response["files"].append(file_path.replace(files_base_dir, "")[1:])
+
         return response

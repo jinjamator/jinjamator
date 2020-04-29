@@ -43,13 +43,15 @@ from jinjamator.external.celery.backends.database import DatabaseBackend
 celery = Celery("jinjamator")
 log = logging.getLogger()
 
+
 def init_database(_configuration):
     """
     initialize modified celery database backend
     """
-    
+
     from jinjamator.external.celery.backends.database.session import ResultModelBase
     from sqlalchemy import create_engine
+
     engine = create_engine(_configuration.get("celery_result_backend"), echo=True)
     ResultModelBase.metadata.create_all(engine, checkfirst=True)
 
@@ -77,7 +79,7 @@ def init_celery(_configuration):
     celery.conf.result_backend = _configuration.get("celery_result_backend")
     celery.conf.update({"jinjamator_private_configuration": _configuration})
     backend = DatabaseBackend(app=celery, url=app.config["CELERY_RESULT_BACKEND"])
-    
+
     celery.backend = backend
     return celery
 
@@ -124,7 +126,6 @@ def configure(flask_app, _configuration):
         "jinjamator_user_directory"
     )
     flask_app.config["JINJAMATOR_FULL_CONFIGURATION"] = _configuration
-    
 
 
 def initialize(flask_app, cfg):

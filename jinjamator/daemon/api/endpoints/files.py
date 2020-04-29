@@ -45,15 +45,17 @@ class FileUpload(Resource):
             )
         return retval
 
+
 @ns.route("/download/<job_id>/<file_name>")
 class FileUpload(Resource):
-    @api.doc('Download a file from job')
-    def get(self,job_id,file_name):
+    @api.doc("Download a file from job")
+    def get(self, job_id, file_name):
         """
         Downloads a single file.
         """
-        
-        
-        files_base_dir = os.path.join(app.config["JINJAMATOR_USER_DIRECTORY"],'logs', job_id ,'files')
+
+        files_base_dir = os.path.join(
+            app.config["JINJAMATOR_USER_DIRECTORY"], "logs", job_id, "files"
+        )
 
         return send_from_directory(files_base_dir, file_name, as_attachment=True)

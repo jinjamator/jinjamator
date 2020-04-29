@@ -15,7 +15,6 @@
 import logging
 
 
-
 class notImplemented(Exception):
     pass
 
@@ -44,15 +43,8 @@ class outputPluginBase(object):
     @staticmethod
     def get_json_schema(configuration={}):
         form = {
-            'schema': {
-                'type': 'object',
-                'properties': {}
-            },
-            'options':{
-                'fields':{
-
-                }
-            }
+            "schema": {"type": "object", "properties": {}},
+            "options": {"fields": {}},
         }
-        
+
         return form

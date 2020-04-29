@@ -66,7 +66,7 @@ def run(command, **kwargs):
             raise Exception(
                 f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
             )
-    
+
     retval = connection.send_command_expect(command, max_loops=10000, **opts)
     connection.cleanup()
     netmiko_log.setLevel(backup_log_level)

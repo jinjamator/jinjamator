@@ -144,7 +144,7 @@ class apic(outputPluginBase):
         # form["schema"]["properties"]["apic_url"]["default"] = configuration.get(
         #     "apic_url", "https://"
         # )
-        
+
         form["schema"]["properties"]["apic_url"][
             "pattern"
         ] = "^(https?:\\/\\/)\
@@ -160,7 +160,6 @@ class apic(outputPluginBase):
         form["options"]["fields"]["apic_password"]["order"] = 3
         form["options"]["fields"]["apic_key"]["order"] = 4
         form["options"]["fields"]["apic_cert_name"]["order"] = 5
-
 
         return dict(form)
 

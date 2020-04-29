@@ -16,6 +16,8 @@ import sys
 import os
 from jinjamator.tools.output_plugin_base import outputPluginBase
 from collections import defaultdict
+
+
 def tree():
     return defaultdict(tree)
 
@@ -48,27 +50,26 @@ class console(outputPluginBase):
     @staticmethod
     def get_json_schema(configuration={}):
         form = {
-            'schema':{
-                'type':'object',
-                'title':'Console Output Plugin Parameters',
-                'properties':{
-                    'console_pretty_print':{
-                        'title': 'Enable Pretty Print',
-                        'type': 'boolean',
-                        'description':'Shoud the tasklet output be rendered by pretty print function (useful for viewing data structures)'
+            "schema": {
+                "type": "object",
+                "title": "Console Output Plugin Parameters",
+                "properties": {
+                    "console_pretty_print": {
+                        "title": "Enable Pretty Print",
+                        "type": "boolean",
+                        "description": "Shoud the tasklet output be rendered by pretty print function (useful for viewing data structures)",
+                    }
+                },
+            },
+            "options": {
+                "fields": {
+                    "console_pretty_print": {
+                        "helper": [
+                            "Shoud the tasklet output be rendered by pretty print function (useful for viewing data structures)"
+                        ]
                     }
                 }
             },
-            'options':{
-                'fields': {
-                    'console_pretty_print':{
-                'helper': [
-                    'Shoud the tasklet output be rendered by pretty print function (useful for viewing data structures)'
-                ]
+        }
 
-                }}}
-            }
-        
-    
-        
         return dict(form)
