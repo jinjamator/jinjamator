@@ -641,11 +641,12 @@ function timeline_render_elements(data) {
     if (data.files.length > 0) {
         $("#job_files").html('');
         data['files'].forEach(function(value, index, array) {
-            var thelink = $('<a>', {
+            $('<a>', {
                 text: value,
                 title: value,
                 href: '/api/files/download/' + data.id + '/' + value
             }).appendTo('#job_files');
+            $('<br>').appendTo('#job_files');
         });
     }
 
