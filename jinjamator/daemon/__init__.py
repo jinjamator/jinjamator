@@ -90,7 +90,7 @@ def configure(flask_app, _configuration):
     """
 
     flask_app.url_map.strict_slashes = False
-    flask_app.config["SERVER_NAME"] = "localhost:5000"
+    # flask_app.config["SERVER_NAME"] = "localhost:5000"
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.config["SWAGGER_UI_DOC_EXPANSION"] = "list"
     flask_app.config["RESTPLUS_VALIDATE"] = True
