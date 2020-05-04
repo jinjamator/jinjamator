@@ -21,6 +21,8 @@ from jinjamator.plugin_loader.content import j2_load_plugins
 import distutils.util
 import json
 from jinja2 import Undefined
+from copy import deepcopy
+from jinjamator.tools.password import redact
 
 
 class SafeLoaderIgnoreUnknown(yaml.SafeLoader):
@@ -101,6 +103,13 @@ class TaskConfiguration(object):
             self._data.__delitem__(key)
         except:
             pass
+    
+    def __str__(self):
+        tmp = redact(deepcopy(self._data))
+        return str(tmp)
+
+
+
 
     def get(self, item_name, default=False):
         return self._data.get(item_name, default)
