@@ -105,7 +105,7 @@ class TaskConfiguration(object):
             pass
     
     def __str__(self):
-        tmp = redact(deepcopy(self._data))
+        tmp = redact(deepcopy(self._data))[1]
         return str(tmp)
 
 
