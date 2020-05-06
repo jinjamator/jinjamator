@@ -34,6 +34,7 @@ class CeleryLogHandler(logging.Handler):
         self._celery_task = NullCelery()
         self._celery_meta_template = {}
         self._q = []
+        self._redacted_passwords = []
 
     @property
     def contents(self):
@@ -73,6 +74,13 @@ class CeleryLogFormatter(JSONFormatter):
         if record.exc_info:
             message = message + str(self.formatException(record.exc_info))
 
+        found_passwords, redacted_config = redact(deepcopy(self._task.configuration._data))
+        
+        stdout = self._task._stdout.getvalue()
+        for found_password in found_passwords:
+            message = message.replace(found_password, '__redacted__')
+            stdout = stdout.replace(found_password, '__redacted__')
+
         retval = {
             str(extra["time"]): {
                 "root_task": self._root_task,
@@ -83,10 +91,8 @@ class CeleryLogFormatter(JSONFormatter):
                 "current_task_id": id(self._task),
                 "message": message,
                 "level": logging.getLevelName(record.levelno),
-                "configuration": redact(
-                    deepcopy(self._task.configuration._data)
-                ),
-                "stdout": self._task._stdout.getvalue(),
+                "configuration": redacted_config,
+                "stdout": stdout,
             }
         }
 
