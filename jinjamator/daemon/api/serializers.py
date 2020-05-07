@@ -74,3 +74,12 @@ job_brief = api.model(
         )
     },
 )
+
+aaa_post_data = api.model(
+    "aaa_post_data",
+    {
+        "username": fields.String(required=True, description="Your Username"),
+        "password": fields.String(required=True, description="Your Password"),
+    },
+)
+
