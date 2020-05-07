@@ -221,6 +221,25 @@ class Program(object):
             help="where should jinjamator look for environments [default: %(default)s]",
         )
 
+        self._parser.add_argument(
+            "--aaa-configuration-base-dir",
+            dest="_aaa_configuration_base_dirs",
+            default=[
+                os.path.sep.join(
+                    [self._configuration["jinjamator_user_directory"], "aaa"]
+                )
+            ],
+            action="append",
+            help="where should jinjamator look for aaa configuration files [default: %(default)s]",
+        )
+
+        self._parser.add_argument(
+            "--aaa-database-uri",
+            dest="_global_aaa_database_uri",
+            default=f'sqlite:///{self._configuration.get("jinjamator_user_directory",tempfile.gettempdir())}/aaa/jinjamator-aaa.db',
+            help="celery result backend URL (required for daemon mode)  [default: %(default)s]",
+        )
+
     def setupLogging(self):
         global logging
         logging.addLevelName(90, "TASKLET_RESULT")
@@ -348,7 +367,7 @@ USAGE
             sys.exit(0)
 
     def main(self):
-        for d in ["environments", "logs", "tasks", "uploads"]:
+        for d in ["environments", "logs", "tasks", "uploads", "aaa"]:
             os.makedirs(
                 os.path.sep.join([self._configuration["jinjamator_user_directory"], d]),
                 exist_ok=True,
