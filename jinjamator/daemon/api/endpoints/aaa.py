@@ -72,7 +72,11 @@ class Auth(Resource):
             if aaa_providers[aaa_provider].authorize(request):
                 current_provider = aaa_providers[aaa_provider]
                 redir = redirect(url_for("webui.index"))
-                redir.headers["access_token"] = f"Bearer {current_provider.get_token()}"
+                token = current_provider.get_token()
+                if token:
+                    redir.headers["access_token"] = f"Bearer {token}"
+                else:
+                    abort(401,'Upstream token expired, please reauthenticate')
 
                 return redir
             # obj = getattr(aaa_providers[aaa_provider], aaa_provider)
@@ -122,6 +126,8 @@ class Auth(Resource):
                                 "message": f'login ok user id {token_data["id"]}, you got a new token',
                                 "status": "logged_in_new_token_issued",
                                 "user_id": token_data["id"],
+                                "token_ttl": token_data["exp"] - now
+                                
                             },
                             200,
                             {"access_token": f"Bearer {token}"},
@@ -131,6 +137,8 @@ class Auth(Resource):
                         "message": f'login ok user id {token_data["id"]}',
                         "status": "logged_in",
                         "user_id": token_data["id"],
+                        "token_ttl": token_data["exp"] - now,
+                        "auto_renew_in": token_data["exp"] - now - 300
                     }
 
                 else:
