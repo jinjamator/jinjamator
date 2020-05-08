@@ -88,8 +88,6 @@ class excel(outputPluginBase):
                 self._log.warning("refusing to generate excel file from empty data")
                 return False
 
-        
-
         if self._parent._configuration.get("task_run_mode") == "background":
             self._parent.configuration["output_directory"] = os.path.join(
                 self._parent._configuration.get(
@@ -110,11 +108,10 @@ class excel(outputPluginBase):
             pass
 
         file_name = kwargs["template_path"]
-        for directory in self._parent._configuration.get('global_tasks_base_dirs'):
-            file_name = file_name.replace(directory,'')
+        for directory in self._parent._configuration.get("global_tasks_base_dirs"):
+            file_name = file_name.replace(directory, "")
         if file_name[0] == os.path.sep:
             file_name = file_name[1:]
-        
 
         dest = "{0}/{1}{2}.xlsx".format(
             self._parent.configuration.get("output_directory", "./"),

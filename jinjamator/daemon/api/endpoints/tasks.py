@@ -58,13 +58,12 @@ def discover_tasks(app):
                     if dir_chunk.startswith(".") or dir_chunk in ["__pycache__"]:
                         append = False
                         break
-                
+
                 dir_name = task_dir.replace(tasks_base_dir, "")[1:]
                 if append and dir_name not in available_tasks_by_path:
-                    
+
                     task_id = xxhash.xxh64(task_dir).hexdigest()
-                    
-                    
+
                     task_info = {
                         "id": task_id,
                         "path": dir_name,
@@ -89,16 +88,12 @@ def discover_tasks(app):
                                     task.get_jsonform_schema()["schema"]
                                 ).data.decode("utf-8")
                             )
-                        task_models[task_info["path"]] = api.schema_model(
-                            task_id, data
-                        )
+                        task_models[task_info["path"]] = api.schema_model(task_id, data)
                         del task
 
                         log.info(f"registred model for task {task_dir}")
 
-                        @ns.route(
-                            f"/{task_info['path']}", endpoint=task_info["path"]
-                        )
+                        @ns.route(f"/{task_info['path']}", endpoint=task_info["path"])
                         class APIJinjamatorTask(Resource):
                             @api.doc(
                                 f"get_task_{task_info['path'].replace(os.path.sep,'_')}_schema"
@@ -141,15 +136,11 @@ def discover_tasks(app):
                                 if schema_type in ["", "full"]:
                                     response = jsonify(full_schema)
                                 elif schema_type in ["schema"]:
-                                    response = jsonify(
-                                        full_schema.get("schema", {})
-                                    )
+                                    response = jsonify(full_schema.get("schema", {}))
                                 elif schema_type in ["data"]:
                                     response = jsonify(full_schema.get("data", {}))
                                 elif schema_type in ["options"]:
-                                    response = jsonify(
-                                        full_schema.get("options", {})
-                                    )
+                                    response = jsonify(full_schema.get("options", {}))
                                 elif schema_type in ["view"]:
                                     response = jsonify(full_schema.get("view", {}))
                                 del inner_task
@@ -158,17 +149,13 @@ def discover_tasks(app):
                             @api.doc(
                                 f"create_task_instance_for_{task_info['path'].replace(os.path.sep,'_')}"
                             )
-                            @api.expect(
-                                task_models[task_info["path"]], validate=False
-                            )
+                            @api.expect(task_models[task_info["path"]], validate=False)
                             def post(self):
                                 """
                                 Creates an instance of the task and returns the job_id
                                 """
 
-                                from jinjamator.task.celery import (
-                                    run_jinjamator_task,
-                                )
+                                from jinjamator.task.celery import run_jinjamator_task
                                 from jinjamator.daemon.database import db
 
                                 relative_task_path = request.endpoint.replace(
