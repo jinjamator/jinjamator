@@ -82,4 +82,3 @@ aaa_post_data = api.model(
         "password": fields.String(required=True, description="Your Password"),
     },
 )
-
