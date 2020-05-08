@@ -65,20 +65,25 @@ class LocalAuthProvider(AuthProviderBase):
         self._name = "local"
 
     def login(self, request):
-        username = request.json.get("username")
-        password = request.json.get("password")
+        if request.json:
+            username = request.json.get("username", "")
+            password = request.json.get("password", "")
+        else:
+            return {"message": "Invalid Request (did you send your data as json?)"}, 400
+
         self._user = self.verify_password(username, password)
         if self._user:
-            return True
-        return False
+            token = self.get_token()
+            db_token = JinjamatorToken.query.filter_by(user_id=self._user.id).first()
+            return db_token.serialize()
 
-    def verify_password(self, username_or_token, password):
-        # first try to authenticate by token
-        user = User.verify_auth_token(username_or_token)
-        if not user:
-            user = User.query.filter_by(username=username_or_token).first()
-            if not user or not user.verify_password(password):
-                return None
+        return {"message": "Invalid Credentials"}, 401
+
+    def verify_password(self, username, password):
+
+        user = User.query.filter_by(username=username).first()
+        if not user or not user.verify_password(password):
+            return None
         return user
 
 
@@ -139,7 +144,7 @@ class AuthLibAuthProvider(AuthProviderBase):
             else:
                 self._log.info(f"username {self._username} found in local database")
             user.aaa_provider = self._name
-            user.hash_password(
+            user.password_hash = user.hash_password(
                 "".join(
                     random.SystemRandom().choice(string.ascii_letters + string.digits)
                     for _ in range(128)
@@ -164,7 +169,6 @@ class AuthLibAuthProvider(AuthProviderBase):
             )
         return False
 
-
     def get_token(self):
         now = timegm(datetime.utcnow().utctimetuple())
         db_token = JinjamatorToken.query.filter_by(user_id=self._user.id).first()
@@ -172,13 +176,19 @@ class AuthLibAuthProvider(AuthProviderBase):
         if db_token:
             if self._user.verify_auth_token(db_token.access_token):
                 return db_token.access_token
-        upstream_token = Oauth2UpstreamToken.query.filter_by(user_id=self._user.id).first()
-        
+        upstream_token = Oauth2UpstreamToken.query.filter_by(
+            user_id=self._user.id
+        ).first()
+
         if upstream_token.expires_at < now:
-            log.debug(f"upstream token {upstream_token.expires_at} for user {self._user.id} expired {now}, refusing to generate a new local one")
+            log.debug(
+                f"upstream token {upstream_token.expires_at} for user {self._user.id} expired {now}, refusing to generate a new local one"
+            )
             return False
         else:
-            log.debug(f"upstream token ({upstream_token.expires_at}) for user {self._user.id} valid ({now}) ttl {upstream_token.expires_at - now}")
+            log.debug(
+                f"upstream token ({upstream_token.expires_at}) for user {self._user.id} valid ({now}) ttl {upstream_token.expires_at - now}"
+            )
         log.debug(f"generating new token for user_id: {self._user.id}")
         return self._user.generate_auth_token().access_token
 

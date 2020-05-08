@@ -82,3 +82,14 @@ aaa_post_data = api.model(
         "password": fields.String(required=True, description="Your Password"),
     },
 )
+
+aaa_create_user_data = api.model(
+    "aaa_create_user_data",
+    {
+        "username": fields.String(required=True, description="New Users Username"),
+        "name": fields.String(
+            required=True, description="New Users Name e.g. John Doe"
+        ),
+        "password": fields.String(required=True, description="New Users Password"),
+    },
+)

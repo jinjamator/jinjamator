@@ -7,8 +7,9 @@ from flask_restx import Resource, abort
 from jinjamator.daemon.api.serializers import environments
 from jinjamator.daemon.aaa import aaa_providers
 from jinjamator.daemon.api.restx import api
-from jinjamator.daemon.api.serializers import aaa_post_data
+from jinjamator.daemon.api.serializers import aaa_post_data, aaa_create_user_data
 from jinjamator.daemon.aaa.models import User
+from jinjamator.daemon.database import db
 
 from flask import current_app as app
 import glob
@@ -71,14 +72,14 @@ class Auth(Resource):
             log.debug(f"trying to use {aaa_provider}")
             if aaa_providers[aaa_provider].authorize(request):
                 current_provider = aaa_providers[aaa_provider]
-                redir = redirect(url_for("webui.index"))
                 token = current_provider.get_token()
-                if token:
-                    redir.headers["access_token"] = f"Bearer {token}"
-                else:
-                    abort(401,'Upstream token expired, please reauthenticate')
 
-                return redir
+                if token:
+                    redir = redirect(url_for("webui.index", access_token=token))
+                    return redir
+                else:
+                    abort(401, "Upstream token expired, please reauthenticate")
+
             # obj = getattr(aaa_providers[aaa_provider], aaa_provider)
             # try:
             #     access_token = obj.authorize_access_token()
@@ -95,7 +96,7 @@ class Auth(Resource):
 
 
 @ns.route("/verify")
-class Auth(Resource):
+class VerifyToken(Resource):
     @api.doc(
         params={
             "Authorization": {"in": "header", "description": "An authorization token"}
@@ -126,8 +127,7 @@ class Auth(Resource):
                                 "message": f'login ok user id {token_data["id"]}, you got a new token',
                                 "status": "logged_in_new_token_issued",
                                 "user_id": token_data["id"],
-                                "token_ttl": token_data["exp"] - now
-                                
+                                "token_ttl": token_data["exp"] - now,
                             },
                             200,
                             {"access_token": f"Bearer {token}"},
@@ -138,7 +138,7 @@ class Auth(Resource):
                         "status": "logged_in",
                         "user_id": token_data["id"],
                         "token_ttl": token_data["exp"] - now,
-                        "auto_renew_in": token_data["exp"] - now - 300
+                        "auto_renew_in": token_data["exp"] - now - 300,
                     }
 
                 else:
@@ -147,3 +147,48 @@ class Auth(Resource):
                 abort(400, "Invalid Authorization Header Token Type")
         else:
             abort(402, "Authorization required, no Authorization Header found")
+
+
+@ns.route("/users")
+class Users(Resource):
+    def get(self):
+        retval = []
+        for user in User.query.all():
+            retval.append(
+                {
+                    "username": user.username,
+                    "name": user.name,
+                    "aaa_provider": user.aaa_provider,
+                }
+            )
+        return retval
+
+    @api.expect(aaa_create_user_data)
+    def post(self):
+        try:
+            new_user = User(
+                username=request.json["username"],
+                name=request.json["name"],
+                password_hash=User.hash_password(request.json["password"]),
+                aaa_provider="local",
+            )
+        except IndexError:
+            abort(400, "Invalid request: Parameters missing, or not properly encoded")
+        db.session.add(new_user)
+        try:
+            db.session.commit()
+            db.session.refresh(new_user)
+            return new_user.serialize()
+        except:
+            abort(400, "Invalid request: User exists")
+
+
+@ns.route("/users/<user_id>")
+class UserDetail(Resource):
+    @api.doc(params={"user_id": "The User ID of the user which should be returned"})
+    def get(self, user_id):
+        user = User.query.filter_by(id=user_id).first()
+        if user:
+            return user
+        else:
+            abort(404, "User ID not found")
