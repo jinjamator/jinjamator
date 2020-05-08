@@ -1,5 +1,6 @@
 redacted_passwords = []
 
+
 def redact(obj, is_password=False):
     if isinstance(obj, str):
         if is_password:

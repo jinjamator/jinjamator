@@ -8,6 +8,7 @@ def get(var, default=None):
 
     return os.environ.get(var, default)
 
+
 def pop(var, default=None):
     """
     jinja2 helper function to access the os environment
@@ -17,4 +18,3 @@ def pop(var, default=None):
     except KeyError:
         data = default
     return data
-    

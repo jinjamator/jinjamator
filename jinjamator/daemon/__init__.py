@@ -42,7 +42,7 @@ import logging
 
 from celery import Celery
 from jinjamator.external.celery.backends.database import DatabaseBackend
-from jinjamator.daemon.aaa.models import User
+from jinjamator.daemon.aaa.models import User, Oauth2UpstreamToken, JinjamatorToken
 
 
 celery = Celery("jinjamator")
@@ -55,13 +55,11 @@ def init_database(_configuration):
     """
 
     from jinjamator.external.celery.backends.database.session import ResultModelBase
-    
+
     from sqlalchemy import create_engine
 
     engine = create_engine(_configuration.get("celery_result_backend"), echo=True)
     ResultModelBase.metadata.create_all(engine, checkfirst=True)
-    
-    
 
 
 def init_celery(_configuration):
@@ -98,8 +96,14 @@ def configure(flask_app, _configuration):
     """
 
     flask_app.url_map.strict_slashes = False
-    generated_secret =''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(128))
-    flask_app.config["SECRET_KEY"] = os.environ.get('JINJAMATOR_SECRET_KEY',generated_secret)
+    generated_secret = "".join(
+        random.SystemRandom().choice(string.ascii_letters + string.digits)
+        for _ in range(128)
+    )
+    flask_app.config["SECRET_KEY"] = os.environ.get(
+        "JINJAMATOR_SECRET_KEY", generated_secret
+    )
+
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.config["SWAGGER_UI_DOC_EXPANSION"] = "list"
     flask_app.config["RESTPLUS_VALIDATE"] = True
@@ -135,11 +139,10 @@ def configure(flask_app, _configuration):
         "jinjamator_user_directory"
     )
     flask_app.config["SQLALCHEMY_BINDS"] = {
-        'aaa':_configuration.get('global_aaa_database_uri')
+        "aaa": _configuration.get("global_aaa_database_uri")
     }
 
     flask_app.config["JINJAMATOR_FULL_CONFIGURATION"] = _configuration
-    
 
 
 def initialize(flask_app, cfg):
@@ -152,7 +155,7 @@ def initialize(flask_app, cfg):
     init_aaa(aaa_providers, cfg)
 
     api_blueprint = Blueprint("api", __name__, url_prefix="/api/")
-    
+
     api.init_app(api_blueprint)
     api.add_namespace(environments_namespace)
     api.add_namespace(output_plugins_namespace)
@@ -164,12 +167,10 @@ def initialize(flask_app, cfg):
     flask_app.register_blueprint(webui_blueprint)
     db.init_app(flask_app)
     with flask_app.app_context():
-        db.create_all(bind=['aaa'])
+        db.create_all(bind=["aaa"])
     # log.debug('--------------------------------------')
     # log.debug(pformat(dict(app.config)))
     # log.debug('--------------------------------------')
-
-    
 
 
 def run(cfg):

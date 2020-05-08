@@ -20,8 +20,6 @@ from datetime import datetime
 from jinjamator.tools.password import redact
 
 
-
-
 class NullCelery(object):
     def update_state(self, **kwargs):
         pass
@@ -74,12 +72,14 @@ class CeleryLogFormatter(JSONFormatter):
         if record.exc_info:
             message = message + str(self.formatException(record.exc_info))
 
-        found_passwords, redacted_config = redact(deepcopy(self._task.configuration._data))
-        
+        found_passwords, redacted_config = redact(
+            deepcopy(self._task.configuration._data)
+        )
+
         stdout = self._task._stdout.getvalue()
         for found_password in found_passwords:
-            message = message.replace(found_password, '__redacted__')
-            stdout = stdout.replace(found_password, '__redacted__')
+            message = message.replace(found_password, "__redacted__")
+            stdout = stdout.replace(found_password, "__redacted__")
 
         retval = {
             str(extra["time"]): {
