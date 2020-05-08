@@ -6,7 +6,9 @@ from jinjamator.plugin_loader.content import init_loader
 from jinjamator.daemon.app import app
 from jinjamator.daemon.aaa.models import User, Oauth2UpstreamToken, JinjamatorToken
 from jinjamator.daemon.database import db
-import time
+from datetime import datetime
+from calendar import timegm
+
 from jwt import InvalidSignatureError, ExpiredSignatureError
 
 import random
@@ -161,6 +163,24 @@ class AuthLibAuthProvider(AuthProviderBase):
                 f"AAA provider {self._name} has not been initialized properly"
             )
         return False
+
+
+    def get_token(self):
+        now = timegm(datetime.utcnow().utctimetuple())
+        db_token = JinjamatorToken.query.filter_by(user_id=self._user.id).first()
+
+        if db_token:
+            if self._user.verify_auth_token(db_token.access_token):
+                return db_token.access_token
+        upstream_token = Oauth2UpstreamToken.query.filter_by(user_id=self._user.id).first()
+        
+        if upstream_token.expires_at < now:
+            log.debug(f"upstream token {upstream_token.expires_at} for user {self._user.id} expired {now}, refusing to generate a new local one")
+            return False
+        else:
+            log.debug(f"upstream token ({upstream_token.expires_at}) for user {self._user.id} valid ({now}) ttl {upstream_token.expires_at - now}")
+        log.debug(f"generating new token for user_id: {self._user.id}")
+        return self._user.generate_auth_token().access_token
 
 
 def initialize(aaa_providers, _configuration):
