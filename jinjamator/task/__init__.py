@@ -645,9 +645,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         for tasklet in self._tasklets:
             self._current_tasklet = tasklet
             retval = ""
-            self._log.debug(
-                "running with dataset: {0}".format(self.configuration)
-            )
+            self._log.debug("running with dataset: {0}".format(self.configuration))
             if tasklet.endswith("j2"):
                 try:
                     t = self.j2_environment.get_template(os.path.basename(tasklet))
