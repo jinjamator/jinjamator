@@ -6,23 +6,15 @@ from calendar import timegm
 from jinjamator.daemon.database import db
 from jinjamator.daemon.app import app
 from sqlalchemy.inspection import inspect
-
+from sqlalchemy.orm import relationship, backref
 from jwt import InvalidSignatureError, ExpiredSignatureError
 import logging
 
 log = logging.getLogger("")
+from sqlalchemy_serializer import SerializerMixin
 
 
-class Serializer(object):
-    def serialize(self):
-        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
-
-    @staticmethod
-    def serialize_list(l):
-        return [m.serialize() for m in l]
-
-
-class User(db.Model, Serializer):
+class User(db.Model, SerializerMixin):
     __tablename__ = "users"
     __bind_key__ = "aaa"
 
@@ -31,6 +23,8 @@ class User(db.Model, Serializer):
     name = db.Column(db.String(128))
     password_hash = db.Column(db.String(128))
     aaa_provider = db.Column(db.String(128))
+    roles = relationship("JinjamatorRole", secondary="user_role_link")
+    serialize_rules = ("-password_hash",)
 
     @staticmethod
     def hash_password(password):
@@ -71,11 +65,6 @@ class User(db.Model, Serializer):
             return False
         return data
 
-    def serialize(self):
-        d = Serializer.serialize(self)
-        del d["password_hash"]
-        return d
-
 
 class Oauth2UpstreamToken(db.Model):
     __tablename__ = "oauth2_upstream_token"
@@ -95,7 +84,7 @@ class Oauth2UpstreamToken(db.Model):
     user = db.relationship("User")
 
 
-class JinjamatorToken(db.Model, Serializer):
+class JinjamatorToken(db.Model, SerializerMixin):
     __tablename__ = "token"
     __bind_key__ = "aaa"
 
@@ -105,3 +94,20 @@ class JinjamatorToken(db.Model, Serializer):
     expires_at = db.Column(db.Integer)
     expires_in = db.Column(db.Integer)
     access_token = db.Column(db.String(4096))
+
+
+class JinjamatorRole(db.Model, SerializerMixin):
+    __tablename__ = "roles"
+    __bind_key__ = "aaa"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(4096), unique=True)
+
+
+class UserRoleLink(db.Model, SerializerMixin):
+    __tablename__ = "user_role_link"
+    __bind_key__ = "aaa"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))

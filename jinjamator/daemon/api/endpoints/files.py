@@ -51,7 +51,7 @@ class FileUpload(Resource):
     @api.doc("Download a file from job")
     def get(self, job_id, file_name):
         """
-        Downloads a single file.
+        Downloads a single file which is attached to a job.
         """
 
         files_base_dir = os.path.join(

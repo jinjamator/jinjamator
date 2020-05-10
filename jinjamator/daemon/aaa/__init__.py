@@ -75,7 +75,9 @@ class LocalAuthProvider(AuthProviderBase):
         if self._user:
             token = self.get_token()
             db_token = JinjamatorToken.query.filter_by(user_id=self._user.id).first()
-            return db_token.serialize()
+            token = db_token.to_dict()
+            token["access_token"] = f"Bearer {token['access_token']}"
+            return token
 
         return {"message": "Invalid Credentials"}, 401
 

@@ -42,7 +42,13 @@ import logging
 
 from celery import Celery
 from jinjamator.external.celery.backends.database import DatabaseBackend
-from jinjamator.daemon.aaa.models import User, Oauth2UpstreamToken, JinjamatorToken
+from jinjamator.daemon.aaa.models import (
+    User,
+    Oauth2UpstreamToken,
+    JinjamatorToken,
+    JinjamatorRole,
+    UserRoleLink,
+)
 
 
 celery = Celery("jinjamator")

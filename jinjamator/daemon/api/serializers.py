@@ -75,16 +75,16 @@ job_brief = api.model(
     },
 )
 
-aaa_post_data = api.model(
-    "aaa_post_data",
+aaa_login_post = api.model(
+    "aaa_login_post",
     {
         "username": fields.String(required=True, description="Your Username"),
         "password": fields.String(required=True, description="Your Password"),
     },
 )
 
-aaa_create_user_data = api.model(
-    "aaa_create_user_data",
+aaa_create_user = api.model(
+    "aaa_create_user",
     {
         "username": fields.String(required=True, description="New Users Username"),
         "name": fields.String(
@@ -92,4 +92,14 @@ aaa_create_user_data = api.model(
         ),
         "password": fields.String(required=True, description="New Users Password"),
     },
+)
+
+aaa_create_role = api.model(
+    "aaa_create_role",
+    {"name": fields.String(required=True, description="Name of new role"),},
+)
+
+aaa_set_user_roles = api.model(
+    "aaa_set_user_roles",
+    {"roles": fields.List(fields.String(description="Name of role"), required=True)},
 )
