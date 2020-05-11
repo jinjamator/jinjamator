@@ -261,7 +261,7 @@ class Roles(Resource):
         Create a new role.
         """
         try:
-            new_role = JinjamatorRole(name=request.json["name"],)
+            new_role = JinjamatorRole(name=request.json["name"])
         except IndexError:
             abort(400, "Parameters missing, or not properly encoded")
         db.session.add(new_role)

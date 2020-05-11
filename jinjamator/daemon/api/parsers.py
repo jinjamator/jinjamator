@@ -18,7 +18,7 @@ task_arguments.add_argument(
 )
 
 task_arguments.add_argument(
-    "preload-data", type=task_data, required=False, help="preload data into schema",
+    "preload-data", type=task_data, required=False, help="preload data into schema"
 )
 
 

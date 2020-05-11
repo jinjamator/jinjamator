@@ -55,7 +55,7 @@ class ContentPluginLoader(object):
                     setattr(cur, item, contentPlugin())
                 cur = getattr(cur, item)
 
-            spec = importlib.util.spec_from_file_location(class_path, file,)
+            spec = importlib.util.spec_from_file_location(class_path, file)
             if not spec:
                 continue
             else:

@@ -53,19 +53,15 @@ switchdb = {
         "downlinks": range(1, 49),
         "type": "leaf",
     },
-    "N2K-B22HP-P": {
-        "uplinks": range(17, 25),
-        "downlinks": range(1, 17),
-        "type": "fex",
-    },
+    "N2K-B22HP-P": {"uplinks": range(17, 25), "downlinks": range(1, 17), "type": "fex"},
     "N2K-C2248TP-1GE": {
         "uplinks": range(49, 53),
         "downlinks": range(1, 49),
         "type": "fex",
     },
-    "N9K-C9364C": {"uplinks": [], "downlinks": range(1, 67), "type": "spine",},
-    "N9K-C9332C": {"uplinks": [], "downlinks": range(1, 35), "type": "spine",},
-    "N9K-C9336PQ": {"uplinks": [], "downlinks": range(1, 37), "type": "spine",},
+    "N9K-C9364C": {"uplinks": [], "downlinks": range(1, 67), "type": "spine"},
+    "N9K-C9332C": {"uplinks": [], "downlinks": range(1, 35), "type": "spine"},
+    "N9K-C9336PQ": {"uplinks": [], "downlinks": range(1, 37), "type": "spine"},
     "N9K-C93216TC-FX2": {
         "uplinks": range(96, 109),
         "downlinks": range(1, 97),
@@ -530,10 +526,7 @@ def get_dict_from_vrf_dn(dn):
     rgx = re.compile(r"uni/tn-(\S+)/ctx-(\S+)")
     result = rgx.match(dn)
     if result:
-        return {
-            "tenant_name": result.group(1),
-            "vrf_name": result.group(2),
-        }
+        return {"tenant_name": result.group(1), "vrf_name": result.group(2)}
     else:
         return None
 
