@@ -13,5 +13,5 @@ def index():
     Just send static index.html
     """
     return send_from_directory(
-        os.path.sep.join([os.path.dirname(__file__), "static"]), "index.html",
+        os.path.sep.join([os.path.dirname(__file__), "static"]), "index.html"
     )
