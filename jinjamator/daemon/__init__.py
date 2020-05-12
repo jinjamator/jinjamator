@@ -32,8 +32,6 @@ from jinjamator.daemon.database import db
 from jinjamator.daemon.aaa import aaa_providers, initialize as init_aaa
 from jinjamator.daemon.api.endpoints.aaa import ns as aaa_namespace
 from pprint import pformat
-import random
-import string
 import os, sys
 
 
@@ -102,14 +100,8 @@ def configure(flask_app, _configuration):
     """
 
     flask_app.url_map.strict_slashes = False
-    generated_secret = "".join(
-        random.SystemRandom().choice(string.ascii_letters + string.digits)
-        for _ in range(128)
-    )
-    flask_app.config["SECRET_KEY"] = os.environ.get(
-        "JINJAMATOR_SECRET_KEY", generated_secret
-    )
 
+    flask_app.config["SECRET_KEY"] = _configuration.get("secret-key")
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.config["SWAGGER_UI_DOC_EXPANSION"] = "list"
     flask_app.config["RESTPLUS_VALIDATE"] = True
