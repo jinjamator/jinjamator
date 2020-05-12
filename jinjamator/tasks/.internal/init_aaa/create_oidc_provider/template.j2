@@ -1,13 +1,13 @@
-client_id: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + {{provider_name | upper}} + '_CLIENT_ID','IdontReadDocs') {%raw%}}}
+client_id: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_CLIENT_ID','IdontReadDocs') {%raw%}}}
 {%endraw%}
-client_secret: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + {{provider_name | upper}} + '_CLIENT_SECRET','IdontReadDocs') {%raw%}}}
+client_secret: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_CLIENT_SECRET','IdontReadDocs') {%raw%}}}
 {%endraw%}
-redirect_uri: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + {{provider_name | upper}} + '_REDIRECT_URI','IdontReadDocs') {%raw%}}}
+redirect_uri: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_REDIRECT_URI','IdontReadDocs') {%raw%}}}
 {%endraw%}
 type: authlib
 authlib_configuration:
     name: {{provider_name|lower}}
-    server_metadata_url: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + {{provider_name | upper}} + '_SERVER_METADATA_URL','IdontReadDocs') {%raw%}}}
+    server_metadata_url: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_SERVER_METADATA_URL','IdontReadDocs') {%raw%}}}
 {%endraw%}
     client_kwargs:
         scope: openid email profile
