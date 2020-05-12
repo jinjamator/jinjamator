@@ -97,8 +97,11 @@ class Auth(Resource):
             if aaa_providers[aaa_provider].authorize(request):
                 current_provider = aaa_providers[aaa_provider]
                 token = current_provider.get_token()
+                url = url_for("webui.index", access_token=token)
+                proto = request.headers.get("X-Forwarded-Proto", "http")
+                url = url.replace("http", proto)
                 if token:
-                    redir = redirect(url_for("webui.index", access_token=token))
+                    redir = redirect(url)
                     return redir
                 else:
                     abort(401, "Upstream token expired, please reauthenticate")
