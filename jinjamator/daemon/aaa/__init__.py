@@ -1,6 +1,8 @@
-from flask import g, url_for
+from flask import g, url_for, abort
 from authlib.integrations.flask_client import OAuth, OAuthError
 from authlib.integrations.sqla_oauth2 import create_save_token_func
+
+
 from jinjamator.task.configuration import TaskConfiguration
 from jinjamator.plugin_loader.content import init_loader
 from jinjamator.daemon.app import app
@@ -8,8 +10,10 @@ from jinjamator.daemon.aaa.models import User, Oauth2UpstreamToken, JinjamatorTo
 from jinjamator.daemon.database import db
 from datetime import datetime
 from calendar import timegm
+from flask import request
 
 from jwt import InvalidSignatureError, ExpiredSignatureError
+from functools import wraps
 
 import random
 from pprint import pformat
@@ -226,3 +230,55 @@ def initialize(aaa_providers, _configuration):
                 if cur_cfg.get("redirect_uri"):
                     aaa_providers[prov_name]._redirect_uri = cur_cfg.get("redirect_uri")
                 aaa_providers[prov_name] = LocalAuthProvider()
+
+
+def require_role(role=None):
+    def decorator(func):
+        @wraps(func)
+        def aaa_check_role(*args, **kwargs):
+            log.debug(f"required role {role}")
+            if request.headers.get("Authorization"):
+                try:
+                    token_type, auth_token = request.headers.get("Authorization").split(
+                        " "
+                    )
+                except:
+                    abort(400, "Invalid Authorization Header Format")
+            elif request.args.get("access_token"):
+                try:
+                    auth_token = request.args.get("access_token")
+                    token_type = "Bearer"
+                except:
+                    abort(400, "Invalid Authorization access_token Format")
+
+            if token_type == "Bearer":
+                token_data = User.verify_auth_token(auth_token)
+                if token_data:
+                    now = timegm(datetime.utcnow().utctimetuple())
+                    log.info(f'Access granted for user_id {token_data["id"]}')
+                    if (token_data["exp"] - now) < 300:
+                        log.info("renewing token as lifetime less than 300s")
+                        token = (
+                            User.query.filter_by(id=token_data["id"])
+                            .first()
+                            .generate_auth_token()
+                            .access_token
+                        )
+                    user = User.query.filter_by(id=token_data["id"]).first().to_dict()
+                    for user_role in user["roles"]:
+                        if role == user_role["name"]:
+                            return func(*args, **kwargs)
+                    abort(403, f"Authorization required, user has no role {role}")
+                else:
+                    abort(400, "Token invalid, please reauthenticate")
+            else:
+                abort(400, "Invalid Authorization Header Token Type")
+
+            abort(
+                403,
+                "Authorization required, no Authorization Data found (Header,POST,GET",
+            )
+
+        return aaa_check_role
+
+    return decorator
