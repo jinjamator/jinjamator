@@ -2,13 +2,26 @@ import logging
 import traceback
 
 from flask_restx import Api
+from flask import url_for
 
 # from rest_api_demo import settings
 from sqlalchemy.orm.exc import NoResultFound
 
 log = logging.getLogger(__name__)
 
-api = Api(
+
+class Custom_API(Api):
+    @property
+    def specs_url(self):
+        """
+        The Swagger specifications absolute url (ie. `swagger.json`)
+
+        :rtype: str
+        """
+        return url_for(self.endpoint("specs"), _external=False)
+
+
+api = Custom_API(
     version="1.0", title="Jinjamator API", description="The REST API of Jinjamator"
 )
 
