@@ -48,7 +48,11 @@ class Login(Resource):
         """
         if provider in aaa_providers:
             response = aaa_providers[provider].login(request)
-            response.headers.add("Access-Control-Allow-Origin", "*")
+            # try:
+            #     response.headers.add("Access-Control-Allow-Origin", "*")
+            # except AttributeError:
+            #     log.debug('Cannot add Access-Control-Allow-Origin header')
+            #     pass
             return response
         abort(400, f"Unknown Login Provider {provider}")
 
@@ -152,7 +156,7 @@ class VerifyToken(Resource):
             else:
                 abort(400, "Invalid Authorization Header Token Type")
         else:
-            abort(402, "Authorization required, no Authorization Header found")
+            abort(401, "Authorization required, no Authorization Header found")
 
 
 @ns.route("/users")
