@@ -97,10 +97,10 @@ class Auth(Resource):
             if aaa_providers[aaa_provider].authorize(request):
                 current_provider = aaa_providers[aaa_provider]
                 token = current_provider.get_token()
-                url = url_for("webui.index", access_token=token)
-                proto = request.headers.get("X-Forwarded-Proto", "http")
-                url = url.replace("http", proto)
                 if token:
+                    url = url_for("webui.index", access_token=token)
+                    proto = request.headers.get("X-Forwarded-Proto", "http")
+                    url = url.replace("http", proto)
                     redir = redirect(url)
                     return redir
                 else:
