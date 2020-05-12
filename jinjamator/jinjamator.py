@@ -138,6 +138,7 @@ class Program(object):
             dest="_daemon_listen_address",
             default="127.0.0.1",
             help="on which ip should the daemon listen [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_LISTEN_ADDRESS",
         )
         self._parser.add_argument(
             "--listen-port",
