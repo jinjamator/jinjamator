@@ -99,7 +99,10 @@ class Auth(Resource):
                 token = current_provider.get_token()
                 if token:
                     url = url_for("webui.index", access_token=token)
-                    proto = request.headers.get("X-Forwarded-Proto", "http")
+                    if request.headers:
+                        proto = request.headers.get("X-Forwarded-Proto", "http")
+                    else:
+                        proto = "http"
                     url = url.replace("http", proto)
                     redir = redirect(url)
                     return redir
