@@ -98,7 +98,7 @@ class Auth(Resource):
                 current_provider = aaa_providers[aaa_provider]
                 token = current_provider.get_token()
                 if token:
-                    url = url_for("webui.index", access_token=token)
+                    url = url_for("webui.index", access_token=token, _external=True)
                     if request.headers:
                         proto = request.headers.get("X-Forwarded-Proto", "http")
                     else:
