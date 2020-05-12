@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>AdminLTE 2 | Log in</title>
+    <title>JinjamatorWeb | Log in</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.7 -->
@@ -33,20 +33,20 @@
         <div class="login-box-body">
             <p class="login-box-msg">Sign in to start your session</p>
 
-            <form action="/api/aaa/login/local" method="post">
+            <form id='login_form' action="#" method="post">
                 <div class="form-group has-feedback">
-                    <input type="username" class="form-control" placeholder="Email">
+                    <input name='username' type="username" class="form-control" placeholder="Email">
                     <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
                 </div>
                 <div class="form-group has-feedback">
-                    <input type="password" class="form-control" placeholder="Password">
+                    <input name='password' type="password" class="form-control" placeholder="Password">
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
                 <div class="row">
                     <div class="col-xs-8">
                         <div class="checkbox icheck">
                             <label>
-              <input type="checkbox"> Remember Me
+              <!-- <input type="checkbox"> Remember Me -->
             </label>
                         </div>
                     </div>
@@ -67,8 +67,8 @@
             </div>
             <!-- /.social-auth-links -->
 
-            <a href="#">I forgot my password</a><br>
-            <a href="register.html" class="text-center">Register a new membership</a>
+            <!-- <a href="#">I forgot my password</a><br>
+            <a href="register.html" class="text-center">Register a new membership</a> -->
 
         </div>
         <!-- /.login-box-body -->
@@ -88,7 +88,45 @@
                 radioClass: 'iradio_square-blue',
                 increaseArea: '20%' /* optional */
             });
+            const serialize_form = form => JSON.stringify(
+                Array.from(new FormData(form).entries())
+                .reduce((m, [key, value]) => Object.assign(m, {
+                    [key]: value
+                }), {})
+            );
+            $('#login_form').on('submit', function(event) {
+                event.preventDefault();
+                const json = serialize_form(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/aaa/login/local',
+                    dataType: 'json',
+                    data: json,
+                    contentType: 'application/json',
+                    success: function(response) {
+                        access_token = response.access_token.split(' ')[1]
+                        window.location.replace("/?access_token=" + access_token);
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        if (xhr.status == 401) {
+                            alert('Login Failed');
+                        }
+
+
+                    }
+                });
+            });
+
+
+
         });
+        const serialize_form = form => JSON.stringify(
+            Array.from(new FormData(form).entries())
+            .reduce((m, [key, value]) => Object.assign(m, {
+                [key]: value
+            }), {})
+        );
     </script>
 </body>
 
