@@ -7,7 +7,7 @@ from jinjamator.daemon.database import db
 from jinjamator.daemon.app import app
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import relationship, backref
-from jwt import InvalidSignatureError, ExpiredSignatureError
+from jwt import InvalidSignatureError, ExpiredSignatureError, DecodeError
 import logging
 
 log = logging.getLogger("")
@@ -58,11 +58,15 @@ class User(db.Model, SerializerMixin):
         try:
             data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
         except InvalidSignatureError:
-            log.info("token invalid")
+            log.info("InvalidSignatureError token invalid")
             return False
         except ExpiredSignatureError:
-            log.info("token expired")
+            log.info("ExpiredSignatureError token expired")
             return False
+        except DecodeError:
+            log.info("DecodeError token invalid")
+            return False
+
         return data
 
 
