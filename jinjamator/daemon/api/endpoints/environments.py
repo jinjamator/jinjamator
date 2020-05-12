@@ -4,7 +4,7 @@ from flask import request
 from flask_restx import Resource
 from jinjamator.daemon.api.serializers import environments
 from jinjamator.daemon.api.restx import api
-
+from jinjamator.daemon.aaa import require_role
 from flask import current_app as app
 import glob
 import os
