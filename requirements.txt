@@ -32,4 +32,4 @@ argon2_cffi
 SQLAlchemy-serializer
 authlib
 configargparse
-jwt
+pyjwt
