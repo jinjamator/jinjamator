@@ -6,7 +6,12 @@ from authlib.integrations.sqla_oauth2 import create_save_token_func
 from jinjamator.task.configuration import TaskConfiguration
 from jinjamator.plugin_loader.content import init_loader
 from jinjamator.daemon.app import app
-from jinjamator.daemon.aaa.models import User, Oauth2UpstreamToken, JinjamatorToken
+from jinjamator.daemon.aaa.models import (
+    User,
+    Oauth2UpstreamToken,
+    JinjamatorToken,
+    JinjamatorRole,
+)
 from jinjamator.daemon.database import db
 from datetime import datetime
 from calendar import timegm
@@ -34,6 +39,8 @@ class AuthProviderBase(object):
         self._log = logging.getLogger()
         self._user = None
         self._redirect_uri = None
+        self.static_users = []
+        self.static_roles = []
 
     def register(self, **kwargs):
         self._log.info("not implemented")
@@ -61,6 +68,91 @@ class AuthProviderBase(object):
 
         log.debug(f"generating new token for user_id: {self._user.id}")
         return self._user.generate_auth_token().access_token
+
+    def create_static_users(self):
+        with app.app_context():
+            for static_user in self.static_users:
+                try:
+
+                    existing = (
+                        db.session.query(User)
+                        .filter_by(username=static_user["username"])
+                        .first()
+                    )
+                    if existing:
+                        self._log.info(f"User {static_user['username']} already exists")
+                        # return True
+                        del static_user["username"]
+                        new_user = existing
+                        new_user.password_hash = User.hash_password(
+                            static_user["password"]
+                        )
+                        new_user.aaa_provider = self._name
+                        new_user.name = str(static_user["name"])
+                    else:
+                        new_user = User(
+                            username=static_user["username"],
+                            name=static_user["name"],
+                            password_hash=User.hash_password(static_user["password"]),
+                            aaa_provider=self._name,
+                        )
+                except IndexError as e:
+                    self._log.error(f"Cannot create static user {e}")
+                    return False
+
+                # delete all existing roles for
+                new_user.roles = []
+
+                for static_user_role in static_user.get("roles", []):
+                    role = (
+                        db.session.query(JinjamatorRole)
+                        .filter_by(name=static_user_role)
+                        .first()
+                    )
+                    new_user.roles.append(role)
+
+                db.session.merge(new_user)
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    self._log.error(f"Cannot create static user {e}")
+                    return False
+                db.session.refresh(new_user)
+                self._log.info(
+                    f"Created static user {new_user.username} with id {new_user.id} "
+                )
+
+        return True
+
+    def create_static_roles(self):
+        with app.app_context():
+            for static_role in self.static_roles:
+                try:
+                    existing = (
+                        db.session.query(JinjamatorRole)
+                        .filter_by(name=static_role["name"])
+                        .first()
+                    )
+                    if existing:
+                        self._log.info(f"Role {static_role['name']} already exists")
+                        continue
+
+                    new_role = JinjamatorRole(name=static_role["name"])
+                except IndexError as e:
+                    self._log.error(f"Cannot create static role {e}")
+                    return False
+
+                db.session.merge(new_role)
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    self._log.error(f"Cannot create static role {e}")
+                    return False
+                db.session.refresh(new_role)
+                self._log.info(
+                    f"Created static role {new_role.name} with id {new_role.id} "
+                )
+        return True
 
 
 class LocalAuthProvider(AuthProviderBase):
@@ -224,12 +316,23 @@ def initialize(aaa_providers, _configuration):
                 aaa_providers[prov_name].init_app(app)
                 if cur_cfg.get("redirect_uri"):
                     aaa_providers[prov_name]._redirect_uri = cur_cfg.get("redirect_uri")
+
             elif cur_cfg.get("type") == "local":
                 prov_name = cur_cfg.get("name")
-                log.debug(pformat(cur_cfg._data))
-                if cur_cfg.get("redirect_uri"):
-                    aaa_providers[prov_name]._redirect_uri = cur_cfg.get("redirect_uri")
                 aaa_providers[prov_name] = LocalAuthProvider()
+                if cur_cfg.get("redirect_uri"):
+                    aaa_providers[prov_name]._redirect_uri = cur_cfg.get(
+                        "redirect_uri", []
+                    )
+                if cur_cfg.get("static_roles"):
+                    aaa_providers[prov_name].static_roles = cur_cfg.get(
+                        "static_roles", []
+                    )
+                    aaa_providers[prov_name].create_static_roles()
+
+                if cur_cfg.get("static_users"):
+                    aaa_providers[prov_name].static_users = cur_cfg.get("static_users")
+                    aaa_providers[prov_name].create_static_users()
 
 
 def require_role(role=None):
