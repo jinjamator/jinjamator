@@ -150,6 +150,9 @@ def initialize(flask_app, cfg):
     configure(flask_app, cfg)
     init_database(cfg)
     init_celery(cfg)
+    db.init_app(flask_app)
+    with flask_app.app_context():
+        db.create_all(bind=["aaa"])
     init_aaa(aaa_providers, cfg)
 
     api_blueprint = Blueprint("api", __name__, url_prefix="/api/")
@@ -163,9 +166,6 @@ def initialize(flask_app, cfg):
     api.add_namespace(aaa_namespace)
     flask_app.register_blueprint(api_blueprint)
     flask_app.register_blueprint(webui_blueprint)
-    db.init_app(flask_app)
-    with flask_app.app_context():
-        db.create_all(bind=["aaa"])
     # log.debug('--------------------------------------')
     # log.debug(pformat(dict(app.config)))
     # log.debug('--------------------------------------')
