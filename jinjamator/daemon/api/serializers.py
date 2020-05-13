@@ -83,6 +83,7 @@ aaa_login_post = api.model(
     },
 )
 
+
 aaa_create_user = api.model(
     "aaa_create_user",
     {
@@ -99,7 +100,7 @@ aaa_create_role = api.model(
     {"name": fields.String(required=True, description="Name of new role")},
 )
 
-aaa_set_user_roles = api.model(
-    "aaa_set_user_roles",
-    {"roles": fields.List(fields.String(description="Name of role"), required=True)},
+aaa_set_user_role = api.model(
+    "aaa_set_user_role",
+    {"role": fields.String(description="Name of role", required=True)},
 )

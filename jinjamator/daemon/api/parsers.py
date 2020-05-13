@@ -34,3 +34,18 @@ job_arguments.add_argument(
 
 upload_parser = reqparse.RequestParser()
 upload_parser.add_argument("files", location="files", type=FileStorage, required=True)
+
+
+aaa_login_get = reqparse.RequestParser()
+aaa_login_get.add_argument(
+    "username",
+    type=str,
+    required=False,
+    help="Your Username (for local login providers only)",
+)
+aaa_login_get.add_argument(
+    "password",
+    type=str,
+    required=False,
+    help="Your Password (for local login providers only)",
+)

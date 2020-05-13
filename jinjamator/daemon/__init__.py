@@ -30,7 +30,7 @@ from jinjamator.daemon.api.endpoints.files import ns as files_namespace
 from jinjamator.daemon.webui import webui as webui_blueprint
 from jinjamator.daemon.database import db
 from jinjamator.daemon.aaa import aaa_providers, initialize as init_aaa
-from jinjamator.daemon.api.endpoints.aaa import ns as aaa_namespace
+
 from pprint import pformat
 import os, sys
 
@@ -156,6 +156,7 @@ def initialize(flask_app, cfg):
     init_aaa(aaa_providers, cfg)
 
     api_blueprint = Blueprint("api", __name__, url_prefix="/api/")
+    from jinjamator.daemon.api.endpoints.aaa import ns as aaa_namespace
 
     api.init_app(api_blueprint)
     api.add_namespace(environments_namespace)
