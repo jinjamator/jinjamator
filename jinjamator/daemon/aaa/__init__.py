@@ -17,6 +17,7 @@ from datetime import datetime
 from calendar import timegm
 from flask import request
 
+
 from jwt import InvalidSignatureError, ExpiredSignatureError
 from functools import wraps
 
@@ -161,9 +162,14 @@ class LocalAuthProvider(AuthProviderBase):
         self._name = "local"
 
     def login(self, request):
+
         if request.json:
             username = request.json.get("username", "")
             password = request.json.get("password", "")
+        elif request.args:
+
+            username = request.args.get("username", "")
+            password = request.args.get("password", "")
         else:
             return {"message": "Invalid Request (did you send your data as json?)"}, 400
 
@@ -335,7 +341,7 @@ def initialize(aaa_providers, _configuration):
                     aaa_providers[prov_name].create_static_users()
 
 
-def require_role(role=None):
+def require_role(role=None, permit_self=False):
     def decorator(func):
         @wraps(func)
         def aaa_check_role(*args, **kwargs):
