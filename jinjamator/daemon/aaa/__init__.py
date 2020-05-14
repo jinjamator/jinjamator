@@ -32,6 +32,7 @@ import string
 log = logging.getLogger()
 aaa_providers = {}
 _global_ldr = init_loader(None)
+from sqlalchemy import or_, and_
 
 
 class AuthProviderBase(object):
@@ -345,7 +346,7 @@ def require_role(role=None, permit_self=False):
     def decorator(func):
         @wraps(func)
         def aaa_check_role(*args, **kwargs):
-            log.debug(f"required role {role}")
+
             if request.headers.get("Authorization"):
                 try:
                     token_type, auth_token = request.headers.get("Authorization").split(
@@ -373,11 +374,68 @@ def require_role(role=None, permit_self=False):
                             .generate_auth_token()
                             .access_token
                         )
-                    user = User.query.filter_by(id=token_data["id"]).first().to_dict()
-                    for user_role in user["roles"]:
-                        if role == user_role["name"]:
-                            return func(*args, **kwargs)
-                    abort(403, f"Authorization required, user has no role {role}")
+                    if permit_self:  # permit access for endpoint
+                        user_id_or_name = kwargs.get(
+                            "user_id_or_name", kwargs.get("user_id")
+                        )
+                        user = User.query.filter(
+                            or_(
+                                User.id == user_id_or_name,
+                                User.username == user_id_or_name,
+                            )
+                        ).first()
+                        if user:
+                            if user.id == token_data["id"]:
+                                log.debug(
+                                    f"permit self set -> permitting access for user_id {user.id} user_name {user.name} on own record"
+                                )
+                                return func(*args, **kwargs)
+                            else:
+                                user = None
+                    if isinstance(role, str):
+                        log.debug(f"required role {role} or administrator")
+                        user = User.query.filter(
+                            and_(
+                                User.id == token_data["id"],
+                                or_(
+                                    User.roles.any(
+                                        JinjamatorRole.name == "administrator"
+                                    ),
+                                    User.roles.any(JinjamatorRole.name == role),
+                                ),
+                            )
+                        ).first()
+                    elif role is None:
+                        log.debug(
+                            f"just a valid authentication with no special role required"
+                        )
+                        user = User.query.filter_by(id=token_data["id"])
+
+                    else:
+                        if hasattr(role, "__module__"):
+                            if role.__module__ == "sqlalchemy.sql.elements":
+                                log.debug(
+                                    f"got sqlalchemy sql expression as role {role} or administrator"
+                                )
+                                user = User.query.filter(
+                                    and_(
+                                        User.id == token_data["id"],
+                                        or_(
+                                            User.roles.any(
+                                                JinjamatorRole.name == "administrator"
+                                            ),
+                                            role,
+                                        ),
+                                    )
+                                ).first()
+
+                    if user:
+                        return func(*args, **kwargs)
+
+                    abort(
+                        403,
+                        f"Elevated privileges required, user neither has role {role} nor administrator",
+                    )
                 else:
                     abort(400, "Token invalid, please reauthenticate")
             else:
