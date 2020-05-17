@@ -1,6 +1,5 @@
 import logging
 from types import MethodType
-
 import httpx
 
 from .exceptions import ActionNotFound, ActionURLMatchError
@@ -80,7 +79,7 @@ class BaseResource:
 class Resource(BaseResource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.client = httpx.Client()
+        self.client = httpx.Client(verify=self.ssl_verify)
         for action_name in self.actions.keys():
             self.add_action(action_name)
 
@@ -106,6 +105,7 @@ class Resource(BaseResource):
                 ssl_verify=self.ssl_verify,
                 kwargs=kwargs,
             )
+
             request.params.update(self.params)
             request.headers.update(self.headers)
             return make_request(self.client, request)
