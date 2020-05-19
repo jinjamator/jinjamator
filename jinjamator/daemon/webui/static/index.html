@@ -18,7 +18,7 @@
 
             $.ajax({
                 type: "GET",
-                url: "/api/aaa/verify",
+                url: "/api/aaa/token",
                 contentType: "application/json; charset=utf-8",
                 beforeSend: function(xhr) {
                     xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);

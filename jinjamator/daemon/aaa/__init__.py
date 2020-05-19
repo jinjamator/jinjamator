@@ -163,15 +163,13 @@ class LocalAuthProvider(AuthProviderBase):
         self._name = "local"
 
     def login(self, request):
-
-        if request.json:
-            username = request.json.get("username", "")
-            password = request.json.get("password", "")
-        elif request.args:
-
-            username = request.args.get("username", "")
-            password = request.args.get("password", "")
-        else:
+        try:
+            username = request.json.get("username")
+            password = request.json.get("password")
+        except Exception as e:
+            username = request.args.get("username")
+            password = request.args.get("password")
+        if not username or not password:
             return {"message": "Invalid Request (did you send your data as json?)"}, 400
 
         self._user = self.verify_password(username, password)
@@ -346,7 +344,7 @@ def require_role(role=None, permit_self=False):
     def decorator(func):
         @wraps(func)
         def aaa_check_role(*args, **kwargs):
-
+            token_type = None
             if request.headers.get("Authorization"):
                 try:
                     token_type, auth_token = request.headers.get("Authorization").split(
@@ -366,9 +364,14 @@ def require_role(role=None, permit_self=False):
                 if token_data:
                     now = timegm(datetime.utcnow().utctimetuple())
                     log.info(f'Access granted for user_id {token_data["id"]}')
-                    if (token_data["exp"] - now) < 300:
-                        log.info("renewing token as lifetime less than 300s")
-                        token = (
+                    new_token = None
+                    if (token_data["exp"] - now) < app.config[
+                        "JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME"
+                    ]:
+                        log.info(
+                            f"renewing token as lifetime less than {app.config['JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME']}s"
+                        )
+                        new_token = (
                             User.query.filter_by(id=token_data["id"])
                             .first()
                             .generate_auth_token()
@@ -389,7 +392,14 @@ def require_role(role=None, permit_self=False):
                                 log.debug(
                                     f"permit self set -> permitting access for user_id {user.id} user_name {user.name} on own record"
                                 )
-                                return func(*args, **kwargs)
+                                retval = func(*args, **kwargs)
+                                if new_token:
+                                    return (
+                                        retval,
+                                        200,
+                                        {"Authorization": f"Bearer {new_token}"},
+                                    )
+                                return retval
                             else:
                                 user = None
                     if isinstance(role, str):
@@ -430,7 +440,14 @@ def require_role(role=None, permit_self=False):
                                 ).first()
 
                     if user:
-                        return func(*args, **kwargs)
+                        retval = func(*args, **kwargs)
+                        if new_token:
+                            return (
+                                retval,
+                                200,
+                                {"Authorization": f"Bearer {new_token}"},
+                            )
+                        return retval
 
                     abort(
                         403,
