@@ -33,7 +33,9 @@ class User(db.Model, SerializerMixin):
     def verify_password(self, password):
         return argon2.verify(password, self.password_hash)
 
-    def generate_auth_token(self, expires_in=600):
+    def generate_auth_token(self, expires_in=None):
+        if not expires_in:
+            expires_in = app.config["JINJAMATOR_AAA_TOKEN_LIFETIME"]
         now = timegm(datetime.utcnow().utctimetuple())
 
         exp = now + expires_in

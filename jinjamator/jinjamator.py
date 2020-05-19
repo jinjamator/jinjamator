@@ -281,6 +281,21 @@ class Program(object):
             env_var="JINJAMATOR_DAEMON_SECRET_KEY",
         )
 
+        self._parser.add_argument(
+            "--aaa-token-lifetime",
+            dest="_aaa_token_lifetime",
+            default=600,
+            help="API JWT token lifetime [default: %(default)s]",
+            env_var="JINJAMATOR_AAA_TOKEN_LIFETIME",
+        )
+        self._parser.add_argument(
+            "--aaa-token-auto-renew_time",
+            dest="_aaa_token_auto_renew_time",
+            default=300,
+            help="Renew API JWT token automatically if token lifetime is below this. Set to 0 to disable auto renew [default: %(default)s]",
+            env_var="JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME",
+        )
+
     def setupLogging(self):
         global logging
         logging.addLevelName(90, "TASKLET_RESULT")

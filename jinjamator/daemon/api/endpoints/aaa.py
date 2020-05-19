@@ -117,7 +117,7 @@ class Auth(Resource):
         abort(400, "Cannot find valid login provider")
 
 
-@ns.route("/verify")
+@ns.route("/token")
 class VerifyToken(Resource):
     @api.doc(
         params={
@@ -136,8 +136,12 @@ class VerifyToken(Resource):
                 if token_data:
                     now = timegm(datetime.utcnow().utctimetuple())
                     log.info((token_data["exp"] - now))
-                    if (token_data["exp"] - now) < 300:
-                        log.info("renewing token as lifetime less than 300s")
+                    if (token_data["exp"] - now) < app.config[
+                        "JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME"
+                    ]:
+                        log.info(
+                            f"renewing token as lifetime less than {app.config['JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME']}"
+                        )
                         token = (
                             User.query.filter_by(id=token_data["id"])
                             .first()
@@ -150,6 +154,7 @@ class VerifyToken(Resource):
                                 "status": "logged_in_new_token_issued",
                                 "user_id": token_data["id"],
                                 "token_ttl": token_data["exp"] - now,
+                                "access_token": f"Bearer {token}",
                             },
                             200,
                             {"access_token": f"Bearer {token}"},
@@ -246,6 +251,7 @@ class UserDetail(Resource):
 @api.response(200, "Success")
 class UserRolesDetail(Resource):
     @api.response(404, "User ID not found")
+    @require_role(role="user_administration", permit_self=True)
     def get(self, user_id_or_name):
         """
         List roles attached to an user.
@@ -261,6 +267,7 @@ class UserRolesDetail(Resource):
 
     @api.response(404, "User ID not found")
     @api.expect(aaa_set_user_role)
+    @require_role(role="user_administration")
     def post(self, user_id_or_name):
         """
         Add a role to an user.
@@ -367,6 +374,7 @@ class RoleDetail(Resource):
         else:
             abort(404, f"JinjamatorRole id or name {role_id_or_name} not found")
 
+    @require_role(role="role_administration")
     def delete(self, role_id_or_name):
         """
         Delete a role.
@@ -383,3 +391,13 @@ class RoleDetail(Resource):
             return {"message": f"successfully deleted role {role_id_or_name}"}
         else:
             abort(404, f"JinjamatorRole id or name {role_id_or_name} not found")
+
+
+@ns.route("/providers")
+@api.response(200, "Success")
+class ListAAAProviders(Resource):
+    def get(self):
+        """
+        Get a list of AAA providers.
+        """
+        return list(aaa_providers.keys())

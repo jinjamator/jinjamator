@@ -140,6 +140,13 @@ def configure(flask_app, _configuration):
         "aaa": _configuration.get("global_aaa_database_uri")
     }
 
+    flask_app.config["JINJAMATOR_AAA_TOKEN_LIFETIME"] = int(
+        _configuration.get("aaa_token_lifetime")
+    )
+    flask_app.config["JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME"] = int(
+        _configuration.get("aaa_token_auto_renew_time")
+    )
+
     flask_app.config["JINJAMATOR_FULL_CONFIGURATION"] = _configuration
 
 
