@@ -33,3 +33,5 @@ SQLAlchemy-serializer
 authlib
 configargparse
 pyjwt
+httpx
+python-status
