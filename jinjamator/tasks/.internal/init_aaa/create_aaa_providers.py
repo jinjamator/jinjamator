@@ -3,8 +3,10 @@ import re
 
 env_rgx = re.compile(r"JINJAMATOR_AAA_([A-Z|0-9]+)_TYPE")
 
-for k, v in task.run("create_local_provider", False, output_plugin="null").items():
-    file.save(v, os.path.expanduser("~/.jinjamator/aaa/99_local.yaml"))
+for v in task.run(
+    "create_local_provider", {"provider_name": "local"}, output_plugin="null"
+):
+    file.save(v["result"], os.path.expanduser("~/.jinjamator/aaa/99_local.yaml"))
 
 for k, v in os.environ.items():
     result = env_rgx.match(k)
