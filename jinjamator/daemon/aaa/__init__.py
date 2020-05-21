@@ -113,7 +113,7 @@ class AuthProviderBase(object):
                     )
                     new_user.roles.append(role)
 
-                db.session.merge(new_user)
+                db.session.add(new_user)
                 try:
                     db.session.commit()
                 except Exception as e:
@@ -144,7 +144,7 @@ class AuthProviderBase(object):
                     self._log.error(f"Cannot create static role {e}")
                     return False
 
-                db.session.merge(new_role)
+                db.session.add(new_role)
                 try:
                     db.session.commit()
                 except Exception as e:
