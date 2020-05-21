@@ -84,7 +84,7 @@ class excel(outputPluginBase):
                 self._log.warning("refusing to generate excel file from empty data")
                 return False
         elif isinstance(data, dict):
-            if len(list(data.keys)) == 0:
+            if len(list(data.keys())) == 0:
                 self._log.warning("refusing to generate excel file from empty data")
                 return False
 
