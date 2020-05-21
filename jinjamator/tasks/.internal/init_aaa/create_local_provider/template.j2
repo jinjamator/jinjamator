@@ -2,7 +2,9 @@ type: local
 name: local
 static_users:
     - username: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_ADMIN_USERNAME','admin') {%raw%}}}
+{%endraw%}
       password: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_ADMIN_PASSWORD','password') {%raw%}}}
+{%endraw%}
       name: Local Administrator
       roles:
         - administrator
