@@ -12,6 +12,7 @@ try:
     jmc.login()
 except Exception as e:
     log.info(e)
+    raise
 
 
 return "OK"
