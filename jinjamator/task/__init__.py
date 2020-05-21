@@ -641,7 +641,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
 
         # validate_jsonschema(instance=self.configuration._data, schema=schema)
         # validate_jsonschema(instance=self.configuration._data, schema=self._output_plugin.get_json_schema(self.configuration._data)['schema'])
-        results = {}
+        results = []
         for tasklet in self._tasklets:
             self._current_tasklet = tasklet
             retval = ""
@@ -709,7 +709,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 retval, template_path=tasklet, current_data=self.configuration
             )
 
-            results[tasklet] = retval
+            results.append({"tasklet_path": tasklet, "result": retval})
             if self._configuration["task_run_mode"] == "background":
                 self._log.tasklet_result(
                     "{0}".format(retval)
