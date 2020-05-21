@@ -316,8 +316,8 @@ class UserRolesDetail(Resource):
 @api.doc(
     params={"Authorization": {"in": "header", "description": "A valid access token"}}
 )
-@api.response(200, "Success")
 class Roles(Resource):
+    @api.response(200, "Success")
     @require_role(role="role_administration")
     def get(self):
         """
@@ -328,6 +328,7 @@ class Roles(Resource):
             retval.append(role.to_dict())
         return retval
 
+    @api.response(201, "Created Role")
     @api.response(400, "Invalid request")
     @api.expect(aaa_create_role)
     @require_role(role="role_administration")
@@ -343,7 +344,7 @@ class Roles(Resource):
         try:
             db.session.commit()
             db.session.refresh(new_role)
-            return new_role.to_dict()
+            return new_role.to_dict(), 201
         except:
             abort(400, "Role exists")
 
@@ -375,6 +376,7 @@ class RoleDetail(Resource):
             abort(404, f"JinjamatorRole id or name {role_id_or_name} not found")
 
     @require_role(role="role_administration")
+    @api.response(204, "Role deleted")
     def delete(self, role_id_or_name):
         """
         Delete a role.
@@ -388,7 +390,7 @@ class RoleDetail(Resource):
         if role:
             db.session.delete(role)
             db.session.commit()
-            return {"message": f"successfully deleted role {role_id_or_name}"}
+            return {"message": f"successfully deleted role {role_id_or_name}"}, 204
         else:
             abort(404, f"JinjamatorRole id or name {role_id_or_name} not found")
 
