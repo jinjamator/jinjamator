@@ -60,6 +60,7 @@ class JinjamatorClient(object):
             resource_name="aaa/providers", resource_class=JinjamatorResource
         )
         for aaa_provider in self.api.aaa.providers.list().body:
+            self._log.debug(f"adding aaa_provider {aaa_provider}")
             self.api.add_resource(
                 resource_name=f"aaa/login/{aaa_provider}",
                 resource_class=JinjamatorResource,
@@ -97,7 +98,8 @@ class JinjamatorClient(object):
         if password:
             self._password = password
         auth_data = self.api.aaa.login.local.list(
-            params={"username": username, "password": password}
+            params={"username": self._username, "password": self._password}
         ).body
         token = auth_data.get("access_token")
         self.api.headers["Authorization"] = token
+        return True
