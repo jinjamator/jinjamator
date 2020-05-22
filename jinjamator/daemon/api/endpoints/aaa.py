@@ -219,14 +219,15 @@ class Users(Resource):
 
 @ns.route("/users/<user_id_or_name>")
 @api.doc(
-    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+    params={
+        "Authorization": {"in": "header", "description": "A valid access token"},
+        "user_id_or_name": "The User ID of the user which should be returned",
+    }
 )
+@api.doc(params={})
 @api.response(404, "User ID not found")
 @api.response(200, "Success")
 class UserDetail(Resource):
-    @api.doc(
-        params={"user_id_or_name": "The User ID of the user which should be returned"}
-    )
     @require_role(role="user_administration", permit_self=True)
     def get(self, user_id_or_name):
         """
@@ -239,6 +240,25 @@ class UserDetail(Resource):
             return user.to_dict()
         else:
             abort(404, "User ID not found")
+
+    @require_role(role="user_administration", permit_self=True)
+    def delete(self, user_id_or_name):
+        """
+        Delete an user.
+        """
+        try:
+            if (
+                User.query.filter(
+                    or_(User.id == user_id_or_name, User.username == user_id_or_name)
+                ).delete()
+                == 1
+            ):
+                db.session.commit()
+                return {"message": f"deleted user {user_id_or_name}"}
+
+        except Exception as e:
+            abort(500, f"Error, cannot remove user {user_id_or_name} : {e}")
+        return {"message": f"user {user_id_or_name} not found"}, 404
 
 
 @ns.route("/users/<user_id_or_name>/roles")
