@@ -13,14 +13,14 @@ for k, v in os.environ.items():
     if result:
         self.configuration["provider_name"] = provider_name = result.group(1).lower()
         if v.lower() == "oidc":
-            for k1, v1 in task.run(
+            for res in task.run(
                 "create_oidc_provider", self.configuration, output_plugin="null"
-            ).items():
+            ):
                 provider_priority = os.environ.get(
                     f"JINJAMATOR_AAA_{provider_name.upper()}_PRIORITY", "01"
                 )
                 file.save(
-                    v1,
+                    res["result"],
                     os.path.expanduser(
                         f"~/.jinjamator/aaa/{provider_priority}_{provider_name.lower()}.yaml"
                     ),
