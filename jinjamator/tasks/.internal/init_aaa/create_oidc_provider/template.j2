@@ -11,3 +11,5 @@ authlib_configuration:
 {%endraw%}
     client_kwargs:
         scope: openid email profile
+        token_endpoint_auth_method: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_TOKEN_ENDPOINT_AUTH_METHOD','client_secret_post') {%raw%}}}
+{%endraw%}
