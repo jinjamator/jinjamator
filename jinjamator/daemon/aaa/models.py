@@ -88,6 +88,7 @@ class Oauth2UpstreamToken(db.Model):
     scope = db.Column(db.String(128))
     token_type = db.Column(db.String(128))
     user = db.relationship("User")
+    nonce = db.Column(db.String(128))
 
 
 class JinjamatorToken(db.Model, SerializerMixin):
