@@ -55,38 +55,7 @@ class JinjamatorClient(object):
             append_slash=False,  # append slash to final url
             json_encode_body=True,  # encode body as json
             ssl_verify=kwargs.get("ssl_verify", None),
-        )
-        self.api.add_resource(
-            resource_name="aaa/providers", resource_class=JinjamatorResource
-        )
-        for aaa_provider in self.api.aaa.providers.list().body:
-            self._log.debug(f"adding aaa_provider {aaa_provider}")
-            self.api.add_resource(
-                resource_name=f"aaa/login/{aaa_provider}",
-                resource_class=JinjamatorResource,
-            )
-        self.api.add_resource(
-            resource_name="aaa/roles", resource_class=JinjamatorResource
-        )
-        self.api.add_resource(
-            resource_name="aaa/logout", resource_class=JinjamatorResource
-        )
-        self.api.add_resource(
-            resource_name="aaa/users", resource_class=JinjamatorResource
-        )
-        self.api.add_resource(
-            resource_name="environments", resource_class=JinjamatorResource
-        )
-        self.api.add_resource(resource_name="tasks", resource_class=JinjamatorResource)
-        self.api.add_resource(resource_name="jobs", resource_class=JinjamatorResource)
-        self.api.add_resource(
-            resource_name="plugins/output", resource_class=JinjamatorResource
-        )
-        self.api.add_resource(
-            resource_name="files/upload", resource_class=JinjamatorResource
-        )
-        self.api.add_resource(
-            resource_name="files/download", resource_class=JinjamatorResource
+            resource_class=JinjamatorResource,
         )
 
     def __str__(self):
@@ -97,6 +66,7 @@ class JinjamatorClient(object):
             self._username = username
         if password:
             self._password = password
+
         auth_data = self.api.aaa.login.local.list(
             params={"username": self._username, "password": self._password}
         ).body

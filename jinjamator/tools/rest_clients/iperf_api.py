@@ -15,11 +15,16 @@ class RunState(Resource):
                 "url": "{0}/results".format(self.resource_name),
             },
             "destroy": {"method": "DELETE", "url": "{0}".format(self.resource_name)},
+            "list": {"method": "GET", "url": self.resource_name},
+            "create": {"method": "POST", "url": self.resource_name},
+            "retrieve": {"method": "GET", "url": self.resource_name + "/{}"},
+            "update": {"method": "PUT", "url": self.resource_name + "/{}"},
+            "partial_update": {"method": "PATCH", "url": self.resource_name + "/{}"},
+            "destroy": {"method": "DELETE", "url": self.resource_name + "/{}"},
         }
 
 
 def get_iperf_api_client(url, ssl_verify=False):
-    _log = logging.getLogger("")
     api = API(
         api_root_url=url,  # base api url
         params={},  # default params
@@ -28,16 +33,7 @@ def get_iperf_api_client(url, ssl_verify=False):
         append_slash=False,  # append slash to final url
         json_encode_body=True,  # encode body as json
         ssl_verify=ssl_verify,
+        resource_class=RunState,
     )
 
-    api.add_resource(resource_name="servers")
-    api.add_resource(resource_name="clients")
-    api.add_resource(resource_name="system/network/interfaces")
-    for vrf, interfaces in api.system.network.interfaces.list().body.items():
-        for interface in interfaces:
-            api.add_resource(
-                resource_name="system/network/interfaces/{0}/{1}".format(vrf, interface)
-            )
-        api.add_resource(resource_name="system/network/{0}/routes".format(vrf))
-    _log.debug(pformat(api.get_resource_list()))
     return api
