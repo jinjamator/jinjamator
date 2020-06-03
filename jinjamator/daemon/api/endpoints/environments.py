@@ -1,6 +1,6 @@
 import logging
 
-from flask import request
+from flask import request, g
 from flask_restx import Resource
 from jinjamator.daemon.api.serializers import environments
 from jinjamator.daemon.api.restx import api
@@ -9,6 +9,9 @@ from flask import current_app as app
 import glob
 import os
 import xxhash
+from jinjamator.daemon.aaa.models import JinjamatorRole
+from jinjamator.daemon.database import db
+import copy
 
 log = logging.getLogger()
 
@@ -54,14 +57,43 @@ def discover_environments(app):
             site_path_by_name[f"{env_name}/{site.get('name')}"] = os.path.join(
                 env.get("path"), "sites", site.get("name")
             )
+            dynamic_role_name = f"environment_{env_name}|site_{site.get('name')}"
+            new_role = JinjamatorRole(name=dynamic_role_name)
+            with app.app_context():
+                db.session.add(new_role)
+                try:
+                    db.session.commit()
+                except Exception:
+                    pass
 
 
 @ns.route("/")
 class EnvironmentCollection(Resource):
+    @require_role(role=None)
+    @api.doc(
+        params={
+            "Authorization": {"in": "header", "description": "A valid access token"}
+        }
+    )
     @api.marshal_with(environments)
     def get(self):
         """
         Returns the list of discoverd environments found in global_environments_base_dirs.
         """
-        response = {"environments": available_environments}
+        user_roles = [role["name"] for role in g._user["roles"]]
+
+        if "administrator" in user_roles or "environments_all" in user_roles:
+            response = {"environments": available_environments}
+        else:
+            user_accessible_environments = []
+            for env in copy.deepcopy(available_environments):
+                user_accessible_environment_sites = []
+                for site in env.get("sites"):
+                    if f"environment_{env['name']}|site_{site['name']}" in user_roles:
+                        user_accessible_environment_sites.append(site)
+                env["sites"] = user_accessible_environment_sites
+                if env["sites"]:
+                    user_accessible_environments.append(env)
+            response = {"environments": user_accessible_environments}
+
         return response
