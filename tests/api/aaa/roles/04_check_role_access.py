@@ -1,7 +1,9 @@
-from jinjamator.tools.rest_clients.jinjamator import JinjamatorClient
+from jinjamator.tools.rest_clients.jinjamator import (
+    JinjamatorClient,
+    JinjamatorResource,
+)
 from jinjamator.external.rest_client.exceptions import AuthError
 
-log.info(f"http://localhost:{_container['port']}/api")
 
 try:
     admjmc = JinjamatorClient(
@@ -38,7 +40,16 @@ try:
 except AuthError:
     pass
 
-# admjmc.api.aaa.users.delete('role_aaa_tester') not yet implemented
+
+admjmc.api.aaa.users.role_aaa_tester.roles.create(body={"role": "role_administration"})
+
+
+try:
+    response = jmc.api.aaa.roles.list()
+except AuthError:
+    raise ValueError(f"cannot list roles with role_administration role {response.body}")
+
+admjmc.api.aaa.users.destroy("role_aaa_tester")
 
 
 return "OK"

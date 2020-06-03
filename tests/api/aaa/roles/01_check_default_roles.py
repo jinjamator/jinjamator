@@ -1,6 +1,5 @@
 from jinjamator.tools.rest_clients.jinjamator import JinjamatorClient
 
-log.info(f"http://localhost:{_container['port']}/api")
 
 try:
     jmc = JinjamatorClient(
