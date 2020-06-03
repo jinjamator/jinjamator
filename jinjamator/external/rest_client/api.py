@@ -1,4 +1,5 @@
 from .resource import Resource
+import logging
 
 
 class API:
@@ -11,6 +12,7 @@ class API:
         append_slash=False,
         json_encode_body=False,
         ssl_verify=None,
+        resource_class=None,
     ):
         self.api_root_url = api_root_url
         self.params = params or {}
@@ -20,6 +22,8 @@ class API:
         self.json_encode_body = json_encode_body
         self.ssl_verify = True if ssl_verify is None else ssl_verify
         self._resources = {}
+        self._resource_class = resource_class or Resource
+        self._log = logging.getLogger(__file__)
 
         if self.json_encode_body:
             self.headers["Content-Type"] = "application/json"
@@ -43,7 +47,7 @@ class API:
         resource_name = ""
         for objname in resources:
             resource_name = "{0}/{1}".format(resource_name, objname)
-            resource_class = resource_class or Resource
+            resource_class = resource_class or self._resource_class
             resource = resource_class(
                 api_root_url=api_root_url or self.api_root_url,
                 resource_name=resource_name,
@@ -63,3 +67,18 @@ class API:
 
     def get_resource_list(self):
         return list(self._resources.keys())
+
+    def __getattr__(self, instance):
+        self._resources[instance] = self._resource_class(
+            api_root_url=self.api_root_url,
+            resource_name=instance,
+            params=self.params,
+            headers=self.headers,
+            timeout=self.timeout,
+            append_slash=self.append_slash,
+            json_encode_body=self.json_encode_body,
+            ssl_verify=self.ssl_verify,
+        )
+        setattr(self, instance, self._resources[instance])
+
+        return self._resources[instance]
