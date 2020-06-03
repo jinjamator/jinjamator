@@ -235,7 +235,12 @@ class AuthLibAuthProvider(AuthProviderBase):
         if self._provider:
             self._access_token = self._provider.authorize_access_token()
             self._id_token = self._provider.parse_id_token(self._access_token)
-            self._username = self._id_token["preferred_username"]
+            self._log.debug(self._id_token)
+            self._username = self._id_token.get(
+                "preferred_username", self._id_token.get("name")
+            )
+            if not self._username:
+                abort(500, "Did not get a username from token")
             user = User.query.filter_by(username=self._username).first()
             if user is None:
                 self._log.info(
@@ -419,7 +424,7 @@ def require_role(role=None, permit_self=False):
                         log.debug(
                             f"just a valid authentication with no special role required"
                         )
-                        user = User.query.filter_by(id=token_data["id"])
+                        user = User.query.filter_by(id=token_data["id"]).first()
 
                     else:
                         if hasattr(role, "__module__"):
@@ -440,6 +445,7 @@ def require_role(role=None, permit_self=False):
                                 ).first()
 
                     if user:
+                        g._user = user.to_dict()
                         retval = func(*args, **kwargs)
                         if new_token:
                             return (
