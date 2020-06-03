@@ -1,8 +1,6 @@
 from jinjamator.tools.rest_clients.jinjamator import JinjamatorClient
 from jinjamator.external.rest_client.exceptions import NotFoundError
 
-log.info(f"http://localhost:{_container['port']}/api")
-
 try:
     jmc = JinjamatorClient(
         f"http://localhost:{_container['port']}/api",
