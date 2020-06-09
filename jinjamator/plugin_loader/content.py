@@ -23,6 +23,23 @@ from types import ModuleType
 global_ldr = None
 
 
+def import_code(code, name, add_to_sys_modules=False):
+    """
+    Returns a newly generated module.
+    """
+    import sys
+    import imp
+
+    module = imp.new_module(name)
+    module.__file__ = ":inmemory:"
+
+    exec(code, module.__dict__)
+    if add_to_sys_modules:
+        sys.modules[name] = module
+
+    return module
+
+
 class contentPlugin(object):
     pass
 
@@ -54,22 +71,31 @@ class ContentPluginLoader(object):
                 if not hasattr(cur, item):
                     setattr(cur, item, contentPlugin())
                 cur = getattr(cur, item)
+            code = """
+from jinjamator.plugin_loader.content import py_load_plugins
+py_load_plugins(globals())
+"""
+            with open(file, "r") as fh:
+                code += fh.read()
+            module = import_code(code, class_path)
 
-            spec = importlib.util.spec_from_file_location(class_path, file,)
-            if not spec:
-                continue
-            else:
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                for func_name in dir(module):
-                    func = getattr(module, func_name)
-                    if hasattr(func, "__call__"):
-                        self._log.debug(f"registering {class_path}.{func_name}")
-                        setattr(cur, func_name, func)
-                        argspec = inspect.getfullargspec(func)
-                        setattr(module, "self", self)
-                        if len(argspec.args) == 1:
-                            self._filters[f"{class_path}.{func_name}"] = func
+            # spec = importlib.util.spec_from_file_location(class_path, file)
+            # if not spec:
+            #     continue
+            # else:
+            # module = importlib.util.module_from_spec(spec)
+            # self._log.info(dir(spec.loader)   )
+            # self._log.info(spec.loader)
+            # spec.loader.exec_module(module)
+            for func_name in dir(module):
+                func = getattr(module, func_name)
+                if hasattr(func, "__call__"):
+                    self._log.debug(f"registering {class_path}.{func_name}")
+                    setattr(cur, func_name, func)
+                    argspec = inspect.getfullargspec(func)
+                    setattr(module, "self", self)
+                    if len(argspec.args) == 1:
+                        self._filters[f"{class_path}.{func_name}"] = func
 
     def get_functions(self):
         return self._functions
