@@ -22,6 +22,7 @@ import json
 from collections import defaultdict
 import re
 from pprint import pprint, pformat
+import logging
 
 
 def tree():
@@ -29,9 +30,16 @@ def tree():
 
 
 class apic(outputPluginBase):
+    def __init__(self, parent):
+        self._log = logging.getLogger()
+        self._parent = parent
+        self.apic_dn_acl_rules = [
+            "uni/tn-\S+/ctx-.*,c,protect VRFs from deletion and configuration updates",
+            "uni/tn-[a-zA-Z0-9]+$,c,protect Tenant objects from deletion",
+        ]
+
     def addArguments(self):
         self._dn_acls = {}
-        self.apic_dn_acl_rules = ""
         self.apic_password = ""
         self.apic_username = ""
         self.apic_key = ""
@@ -74,10 +82,7 @@ class apic(outputPluginBase):
             action="append",
             dest="apic_dn_acl_rules",
             help="format: <dn path regex>,<c(eate)|u(pdate)|d(delete)>,<remark> default: %(default)s",
-            default=[
-                "uni/tn-\S+/ctx-.*,c,protect VRFs from deletion and configuration updates",
-                "uni/tn-[a-zA-Z0-9]+$,c,protect Tenant objects from deletion",
-            ],
+            default=self.apic_dn_acl_rules,
         )
 
     def init_plugin_params(self, **kwargs):
@@ -90,10 +95,38 @@ class apic(outputPluginBase):
             "apic_cert_name",
             "apic_dn_acl_rules",
         ]:
-            setattr(self, var, self._parent.configuration._data.get(var, ""))
+            if self._parent.configuration._data.get(var):
+                setattr(self, var, self._parent.configuration._data.get(var, ""))
 
     @staticmethod
     def get_json_schema(configuration={}):
+        # form = {
+        #     "data": {
+        #         "apic_cert_name": configuration.get("apic_cert_name", "")
+        #     },
+        #     "schema": {
+        #         "type": "object",
+        #         "title": "APIC Output Plugin Parameters",
+        #         "properties": {
+        #             "apic_cert_name": {
+        #                 "title": "Cert Name",
+        #                 "type": "string",
+        #                 "description": "Name of the APIC user certificate",
+        #             }
+        #         },
+        #     },
+        #     "options": {
+        #         "fields": {
+        #             "apic_cert_name": {
+        #                 "helper": [
+        #                     "Name of the APIC user certificate"
+        #                 ]
+        #             }
+        #         }
+        #     },
+        # }
+
+        # return dict(form)
         form = tree()
         form["schema"]["type"] = "object"
 
@@ -131,7 +164,7 @@ class apic(outputPluginBase):
             "description"
         ] = "Cisco ACI username"
         # form['schema']['properties']['apic_username']['required']=True
-        form["data"]["apic_username"]["default"] = configuration.get(
+        form["schema"]["properties"]["apic_username"]["default"] = configuration.get(
             "apic_username", "admin"
         )
 
@@ -153,6 +186,9 @@ class apic(outputPluginBase):
 (\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*\
 (\\?[;&a-z\\d%_.~+=-]*)?\
 (\\#[-a-z\\d_]*)?$"
+        form["schema"]["properties"]["apic_url"]["default"] = configuration.get(
+            "apic_url", ""
+        )
 
         form["options"]["fields"]["apic_url"]["order"] = 1
         # form["options"]['fields']['apic_url']['hideInitValidationError']= True
@@ -184,7 +220,6 @@ class apic(outputPluginBase):
             self.apic_session.login()
 
     def init_acls(self):
-
         for apic_dn_acl_rule in self.apic_dn_acl_rules:
             if isinstance(apic_dn_acl_rule, str):
                 dn_regex, flags, remark = apic_dn_acl_rule.split(",")
