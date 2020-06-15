@@ -336,7 +336,7 @@ function create_job(job_path, pre_defined_vars) {
                         "click": function() {
                             client.opts['stringifyData'] = true;
                             var data = this.getValue();
-
+                            
                             var task = job_path;
                             delete data['task'];
                             for (property in data['output_plugin_parameters']) {
@@ -347,12 +347,15 @@ function create_job(job_path, pre_defined_vars) {
                                 if (property.startsWith('__no_vars_')) {
                                     delete data[property];
                                 }
+                                if (data[property] === null) {
+                                    delete data[property];
+                                }
                             }
 
                             delete data['output_plugin_parameters'];
 
 
-
+                            
                             client.tasks.create(job_path, data).done(function(data) {
                                 setTimeout(function() { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
                             });
