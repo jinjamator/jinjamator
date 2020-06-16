@@ -10,6 +10,7 @@ import glob
 import os
 import xxhash
 from flask_restx import abort
+from jinjamator.daemon.api.parsers import task_arguments
 
 
 log = logging.getLogger()
@@ -70,9 +71,17 @@ class PluginInfo(Resource):
         """
         Returns information about a output plugin with it's full alpacajs form schema.
         """
-
         retval = available_output_plugins_by_name.get(plugin_name)
         if retval:
-            return retval
+            if request.args:
+                dummy = DummyTask()
+                load_output_plugin(
+                    dummy,
+                    plugin_name,
+                    app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"],
+                )
+                retval["schema"] = dummy._output_plugin.get_json_schema(request.args)
+
+                return retval
         else:
             abort(404, f"Plugin {plugin_name} not found")
