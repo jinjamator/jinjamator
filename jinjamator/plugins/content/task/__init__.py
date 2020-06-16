@@ -20,8 +20,8 @@ from jinjamator.task import JinjamatorTask
 def run(path, task_data=False, **kwargs):
     """calls another jinjamator task"""
 
-    parent_data = copy.deepcopy(self._parent.configuration._data)
-    parent_private_data = copy.deepcopy(self._parent._configuration._data)
+    parent_data = copy.deepcopy(_jinjamator.configuration._data)
+    parent_private_data = copy.deepcopy(_jinjamator._configuration._data)
 
     output_plugin = (
         kwargs.get("output_plugin", False)
@@ -48,10 +48,10 @@ def run(path, task_data=False, **kwargs):
     else:
         task.configuration.merge_dict(parent_data)
 
-    if os.path.isfile(self._parent.task_base_dir):
-        my_parent = os.path.dirname(self._parent.task_base_dir)
+    if os.path.isfile(_jinjamator.task_base_dir):
+        my_parent = os.path.dirname(_jinjamator.task_base_dir)
     else:
-        my_parent = self._parent.task_base_dir
+        my_parent = _jinjamator.task_base_dir
 
     task._configuration["global_tasks_base_dirs"].insert(0, my_parent)
 
