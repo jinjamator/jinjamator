@@ -40,9 +40,9 @@ def run(command, **kwargs):
     for var_name in ["host", "username", "password", "port", "device_type"]:
         cfg[var_name] = (
             kwargs.get(var_name)
-            or _jinjamator.configuration.get(f"ssh_{var_name}")
+            or self._parent.configuration.get(f"ssh_{var_name}")
             or defaults.get(var_name)
-            or _jinjamator.handle_undefined_var(f"ssh_{var_name}")
+            or self._parent.handle_undefined_var(f"ssh_{var_name}")
         )
         try:
             del kwargs[var_name]
@@ -57,8 +57,8 @@ def run(command, **kwargs):
         connection = ConnectHandler(**cfg)
     except ssh_exception.NetMikoAuthenticationException as e:
         netmiko_log.setLevel(backup_log_level)
-        if _jinjamator.configuration["best_effort"]:
-            _jinjamator._log.error(
+        if self._parent.configuration["best_effort"]:
+            self._parent._log.error(
                 f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
             )
             return ""
@@ -76,8 +76,8 @@ def run(command, **kwargs):
 def query(command, **kwargs):
     device_type = (
         kwargs.get("device_type")
-        or _jinjamator.configuration.get(f"ssh_device_type")
-        or _jinjamator.handle_undefined_var("ssh_device_type")
+        or self._parent.configuration.get(f"ssh_device_type")
+        or self._parent.handle_undefined_var("ssh_device_type")
     )
     kwargs["device_type"] = device_type
     config = run(command, **kwargs)

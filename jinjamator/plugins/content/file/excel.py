@@ -19,7 +19,7 @@ import os
 
 def load(path, **kwargs):
     if not os.path.isabs(path):
-        path = os.path.join(_jinjamator.task_base_dir, path)
+        path = os.path.join(self._parent.task_base_dir, path)
     xlsx = XLSXReader(
         path, kwargs.get("work_sheet_name", "Sheet1"), kwargs.get("cache", True)
     )
