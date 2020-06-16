@@ -78,32 +78,32 @@ log = logging.getLogger()
 
 
 def connect_apic(subscription_enabled=False):
-    if not self._parent.configuration["apic_url"]:
-        self._parent.handle_undefined_var("apic_url")
-    if not self._parent.configuration["apic_username"]:
-        self._parent.handle_undefined_var("apic_username")
-    if not self._parent.configuration["apic_key"]:
-        del self._parent.configuration["apic_key"]
-    if not self._parent.configuration["apic_cert_name"]:
-        del self._parent.configuration["apic_cert_name"]
+    if not _jinjamator.configuration["apic_url"]:
+        _jinjamator.handle_undefined_var("apic_url")
+    if not _jinjamator.configuration["apic_username"]:
+        _jinjamator.handle_undefined_var("apic_username")
+    if not _jinjamator.configuration["apic_key"]:
+        del _jinjamator.configuration["apic_key"]
+    if not _jinjamator.configuration["apic_cert_name"]:
+        del _jinjamator.configuration["apic_cert_name"]
     if (
-        "apic_key" in self._parent.configuration.keys()
-        and "apic_cert_name" in self._parent.configuration.keys()
+        "apic_key" in _jinjamator.configuration.keys()
+        and "apic_cert_name" in _jinjamator.configuration.keys()
     ):
         apic_session = Session(
-            self._parent.configuration["apic_url"],
-            self._parent.configuration["apic_username"],
-            cert_name=self._parent.configuration["apic_cert_name"],
-            key=self._parent.configuration["apic_key"],
+            _jinjamator.configuration["apic_url"],
+            _jinjamator.configuration["apic_username"],
+            cert_name=_jinjamator.configuration["apic_cert_name"],
+            key=_jinjamator.configuration["apic_key"],
             subscription_enabled=False,
         )
     else:
-        if not self._parent.configuration["apic_password"]:
-            self._parent.handle_undefined_var("apic_password")
+        if not _jinjamator.configuration["apic_password"]:
+            _jinjamator.handle_undefined_var("apic_password")
         apic_session = Session(
-            self._parent.configuration["apic_url"],
-            self._parent.configuration["apic_username"],
-            self._parent.configuration["apic_password"],
+            _jinjamator.configuration["apic_url"],
+            _jinjamator.configuration["apic_username"],
+            _jinjamator.configuration["apic_password"],
             subscription_enabled=subscription_enabled,
         )
         apic_session.login()
@@ -351,7 +351,7 @@ def vlan_pool_contains_vlan(pool_name, vlan_id):
 
 def dn_has_attribute(dn, key, value):
     url = "/api/node/mo/{0}.json".format(dn)
-    self._parent._log.debug(url)
+    _jinjamator._log.debug(url)
     for obj in query(url)["imdata"]:
         for k, v in obj.items():
             try:
