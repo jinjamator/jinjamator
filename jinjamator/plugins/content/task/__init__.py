@@ -20,8 +20,8 @@ from jinjamator.task import JinjamatorTask
 def run(path, task_data=False, **kwargs):
     """calls another jinjamator task"""
 
-    parent_data = copy.deepcopy(self._parent.configuration._data)
-    parent_private_data = copy.deepcopy(self._parent._configuration._data)
+    parent_data = copy.deepcopy(_jinjamator.configuration._data)
+    parent_private_data = copy.deepcopy(_jinjamator._configuration._data)
 
     output_plugin = (
         kwargs.get("output_plugin", False)
@@ -34,8 +34,8 @@ def run(path, task_data=False, **kwargs):
 
     if parent_private_data.get("task_run_mode") == "background":
         backup = task._log.handlers[1].formatter._task
-        task.self._parent_tasklet = backup._current_tasklet
-        task.self._parent_task_id = id(backup)
+        task._jinjamator_tasklet = backup._current_tasklet
+        task._jinjamator_task_id = id(backup)
         task._log.handlers[1].formatter._task = task
     if task_data:
         task.configuration.merge_dict(
@@ -48,10 +48,10 @@ def run(path, task_data=False, **kwargs):
     else:
         task.configuration.merge_dict(parent_data)
 
-    if os.path.isfile(self._parent.task_base_dir):
-        my_parent = os.path.dirname(self._parent.task_base_dir)
+    if os.path.isfile(_jinjamator.task_base_dir):
+        my_parent = os.path.dirname(_jinjamator.task_base_dir)
     else:
-        my_parent = self._parent.task_base_dir
+        my_parent = _jinjamator.task_base_dir
 
     task._configuration["global_tasks_base_dirs"].insert(0, my_parent)
 
@@ -63,7 +63,7 @@ def run(path, task_data=False, **kwargs):
     retval = task.run()
     if parent_private_data.get("task_run_mode") == "background":
         task._log.handlers[1].formatter._task = backup
-        task.self._parent_tasklet = backup.self._parent_tasklet
+        task._jinjamator_tasklet = backup._jinjamator_tasklet
 
     del task
     return retval

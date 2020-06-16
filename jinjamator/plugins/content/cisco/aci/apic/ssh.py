@@ -20,17 +20,17 @@ def run(command, **kwargs):
     kwargs["device_type"] = "cisco_nxos"
     kwargs["cmd_verify"] = False
     kwargs["strip_command"] = True
-    self._parent.configuration["ssh_username"] = (
-        self._parent.configuration.get("apic_username")
-        or self._parent.configuration.get("ssh_username")
-        or self._parent.handle_undefined_var("apic_username")
+    _jinjamator.configuration["ssh_username"] = (
+        _jinjamator.configuration.get("apic_username")
+        or _jinjamator.configuration.get("ssh_username")
+        or _jinjamator.handle_undefined_var("apic_username")
     )
-    self._parent.configuration["ssh_host"] = self._parent.configuration.get(
+    _jinjamator.configuration["ssh_host"] = _jinjamator.configuration.get(
         "apic_ip"
-    ) or self._parent.handle_undefined_var("apic_ip")
-    self._parent.configuration["ssh_password"] = (
-        self._parent.configuration.get("apic_password")
-        or self._parent.configuration.get("ssh_password")
-        or self._parent.handle_undefined_var("apic_password")
+    ) or _jinjamator.handle_undefined_var("apic_ip")
+    _jinjamator.configuration["ssh_password"] = (
+        _jinjamator.configuration.get("apic_password")
+        or _jinjamator.configuration.get("ssh_password")
+        or _jinjamator.handle_undefined_var("apic_password")
     )
     return ssh.run(command, **kwargs)
