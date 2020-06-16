@@ -6,11 +6,11 @@ log = logging.getLogger()
 
 
 def site_path():
-    return self._parent._configuration.get("jinjamator_site_path", None)
+    return _jinjamator._configuration.get("jinjamator_site_path", None)
 
 
 def jinjamator_base_directory():
-    return self._parent._configuration.get("jinjamator_base_directory", None)
+    return _jinjamator._configuration.get("jinjamator_base_directory", None)
 
 
 def python_requirements():
