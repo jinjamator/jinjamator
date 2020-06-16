@@ -34,8 +34,8 @@ def run(path, task_data=False, **kwargs):
 
     if parent_private_data.get("task_run_mode") == "background":
         backup = task._log.handlers[1].formatter._task
-        task.self._parent_tasklet = backup._current_tasklet
-        task.self._parent_task_id = id(backup)
+        task._parent_tasklet = backup._current_tasklet
+        task._parent_task_id = id(backup)
         task._log.handlers[1].formatter._task = task
     if task_data:
         task.configuration.merge_dict(
@@ -63,7 +63,7 @@ def run(path, task_data=False, **kwargs):
     retval = task.run()
     if parent_private_data.get("task_run_mode") == "background":
         task._log.handlers[1].formatter._task = backup
-        task.self._parent_tasklet = backup.self._parent_tasklet
+        task._parent_tasklet = backup._parent_tasklet
 
     del task
     return retval
