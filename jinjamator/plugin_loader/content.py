@@ -90,7 +90,7 @@ py_load_plugins(globals())
             for func_name in dir(module):
                 func = getattr(module, func_name)
                 if hasattr(func, "__call__"):
-                    self._log.debug(f"registering {class_path}.{func_name}")
+                    # self._log.debug(f"registering {class_path}.{func_name}")
                     setattr(cur, func_name, func)
                     argspec = inspect.getfullargspec(func)
                     setattr(module, "_jinjamator", self._parent)
