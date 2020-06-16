@@ -279,7 +279,7 @@ def is_min_version(major, minor, patch_level, node_id=1):
     {% if aci_is_min_version(4, 0, None) %}
     {% endif %}
     """
-    running_version = aci_version(node_id)
+    running_version = version(node_id)
     m = re.match(
         r"(?P<major>\d+)\.(?P<minor>\d+)\((?P<patchlevel>.+)\)", running_version
     )
