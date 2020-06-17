@@ -111,3 +111,4 @@ jinjamator/tasks/vendor/*
 # ignore testing tasks
 jinjamator/tasks/test/*
 
+jinjamator/tasks/vendor
