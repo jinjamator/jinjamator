@@ -1,4 +1,23 @@
 import setuptools
+import os
+from subprocess import check_output
+
+command = "git describe --tags --long --dirty"
+version_format = ("{tag}.dev{commitcount}+{gitsha}",)
+
+
+def format_version(version, fmt):
+    parts = version.split("-")
+    assert len(parts) in (3, 4)
+    dirty = len(parts) == 4
+    tag, count, sha = parts[:3]
+    if count == "0" and not dirty:
+        return tag
+    return fmt.format(tag=tag, commitcount=count, gitsha=sha.lstrip("g"))
+
+
+version = check_output(command.split()).decode("utf-8").strip()
+
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
@@ -6,11 +25,9 @@ with open("README.rst", "r") as fh:
 with open("requirements.txt", "r") as fh:
     install_requires = fh.read().split("\n")
 
-
 setuptools.setup(
     name="jinjamator",
-    version_format="{tag}.dev{commitcount}+{gitsha}",
-    setup_requires=["setuptools-git-version"],
+    version=version,
     author="Wilhelm Putz",
     author_email="jinjamator@aci.guru",
     description="Boilerplate-free scripting and IT automation for python programmers",
