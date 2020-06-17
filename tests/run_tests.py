@@ -12,21 +12,24 @@ tests = []
 logger = logging.getLogger()
 # logger.disabled = True
 
-apic_url, apic_username, apic_password, ssh_host, ssh_username, ssh_password
+# apic_url, apic_username, apic_password, ssh_host, ssh_username, ssh_password
+
+task_tests = task.run("helper/get_task_tests")[0]["result"]
 
 test_paths = (
-    glob(
-        f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.py",
-        recursive=True,
-    )
-    + glob(
-        f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.j2",
-        recursive=True,
-    )
-    + glob(
-        f"{os.path.dirname(__file__)}{os.path.sep}api/{os.path.sep}**{os.path.sep}*.py",
-        recursive=True,
-    )
+    # glob(
+    #     f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.py",
+    #     recursive=True,
+    # )
+    # + glob(
+    #     f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.j2",
+    #     recursive=True,
+    # )
+    # + glob(
+    #     f"{os.path.dirname(__file__)}{os.path.sep}api/{os.path.sep}**{os.path.sep}*.py",
+    #     recursive=True,
+    # ) +
+    task_tests
 )
 
 for tasklet_path in test_paths:
@@ -36,12 +39,13 @@ for tasklet_path in test_paths:
 failed = 0
 
 
-container_data = task.run("helper/create_docker_container", output_plugin="null")[1][
-    "result"
-]
+# container_data = task.run("helper/create_docker_container", output_plugin="null")[1][
+#     "result"
+# ]
 
 cfg = self.configuration
-cfg["_container"] = container_data
+# cfg["_container"] = container_data
+
 
 for test in tests:
     print(f"running test {test}:")
@@ -50,7 +54,11 @@ for test in tests:
             tasklet_path = retval["tasklet_path"]
             tasklet_return_value = retval["result"]
             print(f"\t{os.path.basename(tasklet_path)}", end=" ")
-            if "/content/" in tasklet_path or "/api/" in tasklet_path:
+            if (
+                "/content/" in tasklet_path
+                or "/api/" in tasklet_path
+                or "/tasks/" in tasklet_path
+            ):
                 if tasklet_return_value == "OK":
                     print(Fore.GREEN + str(tasklet_return_value))
                 else:
@@ -72,6 +80,7 @@ for test in tests:
 
         failed += 1
         print(Style.RESET_ALL, end="")
+
 
 print(Style.RESET_ALL, end="")
 print(f"Failed tests: {failed}")
