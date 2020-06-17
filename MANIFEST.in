@@ -2,3 +2,6 @@ include */README.md
 include */LICENSE
 recursive-include jinjamator/daemon/web *
 recursive-include jinjamator/plugins *
+prune jinjamator/tasks/vendor/*
+prune jinjamator/tasks/test/*
+
