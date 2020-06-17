@@ -1,5 +1,4 @@
 import setuptools
-from jinjamator.tools.version import version
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
@@ -10,7 +9,8 @@ with open("requirements.txt", "r") as fh:
 
 setuptools.setup(
     name="jinjamator",
-    version=f"{version}",
+    version_format="{tag}.dev{commitcount}+{gitsha}",
+    setup_requires=["setuptools-git-version"],
     author="Wilhelm Putz",
     author_email="jinjamator@aci.guru",
     description="Boilerplate-free scripting and IT automation for python programmers",
