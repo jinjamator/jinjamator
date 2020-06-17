@@ -37,8 +37,6 @@ class apic(outputPluginBase):
             "uni/tn-\S+/ctx-.*,c,protect VRFs from deletion and configuration updates",
             "uni/tn-[a-zA-Z0-9]+$,c,protect Tenant objects from deletion",
         ]
-
-    def addArguments(self):
         self._dn_acls = {}
         self.apic_password = ""
         self.apic_username = ""
@@ -46,6 +44,9 @@ class apic(outputPluginBase):
         self.apic_cert_name = ""
         self.apic_url = ""
         self.apic_session = None
+
+    def addArguments(self):
+
         self._parent._parser.add_argument(
             "-l",
             "--apic-username",
@@ -71,7 +72,6 @@ class apic(outputPluginBase):
             default="",
         )
         self._parent._parser.add_argument(
-            "-c",
             "--apic-certname",
             dest="apic_cert_name",
             help="path to apic user certificate",
