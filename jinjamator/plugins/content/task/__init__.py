@@ -53,7 +53,8 @@ def run(path, task_data=False, **kwargs):
     else:
         my_parent = _jinjamator.task_base_dir
 
-    task._configuration["global_tasks_base_dirs"].insert(0, my_parent)
+    if not my_parent.endswith("../"):
+        task._configuration["global_tasks_base_dirs"].insert(0, my_parent)
 
     task.load(path)
 
