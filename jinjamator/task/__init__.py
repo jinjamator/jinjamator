@@ -645,6 +645,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         # validate_jsonschema(instance=self.configuration._data, schema=schema)
         # validate_jsonschema(instance=self.configuration._data, schema=self._output_plugin.get_json_schema(self.configuration._data)['schema'])
         results = []
+        to_process = copy.copy(self._tasklets)
         for tasklet in self._tasklets:
             self._current_tasklet = tasklet
             retval = ""
@@ -702,12 +703,17 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                         self._log.error(
                             f"tasklet {tasklet} has failed and best_effort is not defined -> exiting"
                         )
+                        to_process.pop(0)
+                        skipped = []
+                        for path in to_process:
+                            skipped.append(os.path.basename(path))
                         results.append(
                             {
                                 "tasklet_path": tasklet,
                                 "result": "",
                                 "status": "error",
                                 "error": error_text,
+                                "skipped": skipped,
                             }
                         )
                         return results
@@ -724,8 +730,15 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             )
 
             results.append(
-                {"tasklet_path": tasklet, "result": retval, "status": "ok", "error": ""}
+                {
+                    "tasklet_path": tasklet,
+                    "result": retval,
+                    "status": "ok",
+                    "error": "",
+                    "skipped": [],
+                }
             )
+            to_process.pop(0)
             if self._configuration["task_run_mode"] == "background":
                 self._log.tasklet_result(
                     "{0}".format(retval)
