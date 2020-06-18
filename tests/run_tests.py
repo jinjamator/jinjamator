@@ -82,7 +82,7 @@ for test in tests:
                 if tasklet_return_value == "OK":
                     print(Fore.GREEN + str(tasklet_return_value))
                 else:
-                    print(Fore.RED + str(tasklet_error).split("\n")[0])
+                    print(Fore.RED + "FAILED " + str(tasklet_error).split("\n")[0])
                     print(Style.RESET_ALL, end="")
                     failed += 1
                     for skipped_task in tasklet_skipped:
