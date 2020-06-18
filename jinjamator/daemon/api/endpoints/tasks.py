@@ -103,6 +103,7 @@ def discover_tasks(app):
                                 """
                                 Returns the json-schema or the whole alpacajs configuration data for the task
                                 """
+
                                 args = task_arguments.parse_args(request)
                                 schema_type = args.get("schema-type", "full")
                                 environment_site = args.get(
@@ -188,6 +189,10 @@ def discover_tasks(app):
                                     db.session.commit()
 
                                 return jsonify({"job_id": job.id})
+
+                            if task_info["description"]:
+                                post.__doc__ += task_info["description"]
+                                get.__doc__ += task_info["description"]
 
                     except Exception as e:
                         import traceback
