@@ -215,7 +215,10 @@ class apic(outputPluginBase):
                 self.apic_password = self._parent.handle_undefined_var("apic_password")
 
             self.apic_session = Session(
-                self.apic_url, self.apic_username, self.apic_password
+                self.apic_url,
+                self.apic_username,
+                self.apic_password,
+                subscription_enabled=False,
             )
             self.apic_session.login()
 
