@@ -72,6 +72,7 @@ for test in tests:
             tasklet_return_value = retval["result"]
             tasklet_error = retval["error"]
             tasklet_status = retval["status"]
+            tasklet_skipped = retval["skipped"]
             print(f"\t{os.path.basename(tasklet_path)}", end=" ")
             if (
                 "/content/" in tasklet_path
@@ -82,7 +83,11 @@ for test in tests:
                     print(Fore.GREEN + str(tasklet_return_value))
                 else:
                     print(Fore.RED + str(tasklet_error).split("\n")[0])
+                    print(Style.RESET_ALL, end="")
                     failed += 1
+                    for skipped_task in tasklet_skipped:
+                        print("\t" + skipped_task + Fore.YELLOW + " SKIPPED")
+
                 print(Style.RESET_ALL, end="")
             elif "/output/" in tasklet_path:
                 print(Fore.GREEN + "OK")
