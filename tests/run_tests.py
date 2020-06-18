@@ -41,9 +41,10 @@ if "api" in run_tests or "all" in run_tests:
     cfg["_container"] = container_data
     log.info("done creating test container for api tests")
 
+
 if "tasks" in run_tests or "all" in run_tests:
     print("adding task unit tests to test list")
-    test_paths += task.run("helper/get_task_tests")[0]["result"]
+    test_paths += task.run("helper/get_task_tests", output_plugin="null")[0]["result"]
 
 
 for tasklet_path in test_paths:
@@ -59,6 +60,8 @@ for test in tests:
         for retval in task.run(test, cfg, output_plugin="null"):
             tasklet_path = retval["tasklet_path"]
             tasklet_return_value = retval["result"]
+            tasklet_error = retval["error"]
+            tasklet_status = retval["status"]
             print(f"\t{os.path.basename(tasklet_path)}", end=" ")
             if (
                 "/content/" in tasklet_path
@@ -68,7 +71,7 @@ for test in tests:
                 if tasklet_return_value == "OK":
                     print(Fore.GREEN + str(tasklet_return_value))
                 else:
-                    print(Fore.RED + str(tasklet_return_value))
+                    print(Fore.RED + str(tasklet_error).split("\n")[0])
                     failed += 1
                 print(Style.RESET_ALL, end="")
             elif "/output/" in tasklet_path:
