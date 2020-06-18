@@ -3,13 +3,23 @@ from glob import glob
 import os, sys, logging
 from colorama import init
 import traceback
+from tempfile import mkstemp
 
 init()
 from colorama import Fore, Style
 
 tests = []
 
+log_file = mkstemp(suffix=".log", prefix="jinjamtor_tests_", text=True)[1]
+
 logger = logging.getLogger()
+fh = logging.FileHandler(log_file)
+logger.handlers.pop()
+logger.addHandler(fh)
+logger.setLevel(logging.DEBUG)
+
+print(f"Logfile for this run is {log_file}")
+
 # logger.disabled = True
 
 # apic_url, apic_username, apic_password, ssh_host, ssh_username, ssh_password
@@ -93,5 +103,6 @@ for test in tests:
 
 print(Style.RESET_ALL, end="")
 print(f"Failed tests: {failed}")
+print(f"Logfile for this run is {log_file}")
 if failed:
     sys.exit(1)
