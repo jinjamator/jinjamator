@@ -112,3 +112,4 @@ jinjamator/tasks/vendor/*
 jinjamator/tasks/test/*
 
 jinjamator/tasks/vendor
+jinjamator/tasks/customers
