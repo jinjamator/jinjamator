@@ -14,37 +14,43 @@ logger = logging.getLogger()
 
 # apic_url, apic_username, apic_password, ssh_host, ssh_username, ssh_password
 
-task_tests = task.run("helper/get_task_tests")[0]["result"]
+test_paths = []
+cfg = self.configuration
 
-test_paths = (
-    # glob(
-    #     f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.py",
-    #     recursive=True,
-    # )
-    # + glob(
-    #     f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.j2",
-    #     recursive=True,
-    # )
-    # + glob(
-    #     f"{os.path.dirname(__file__)}{os.path.sep}api/{os.path.sep}**{os.path.sep}*.py",
-    #     recursive=True,
-    # ) +
-    task_tests
-)
+if "plugins" in run_tests or "all" in run_tests:
+    print("adding plugin tests to test list")
+    test_paths += glob(
+        f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.py",
+        recursive=True,
+    ) + glob(
+        f"{os.path.dirname(__file__)}{os.path.sep}plugins/{os.path.sep}**{os.path.sep}*.j2",
+        recursive=True,
+    )
+
+
+if "api" in run_tests or "all" in run_tests:
+    print("adding api tests to test list")
+    test_paths += glob(
+        f"{os.path.dirname(__file__)}{os.path.sep}api/{os.path.sep}**{os.path.sep}*.py",
+        recursive=True,
+    )
+    print("creating test container for api tests")
+    container_data = task.run("helper/create_docker_container", output_plugin="null")[
+        1
+    ]["result"]
+    cfg["_container"] = container_data
+    log.info("done creating test container for api tests")
+
+if "tasks" in run_tests or "all" in run_tests:
+    print("adding task unit tests to test list")
+    test_paths += task.run("helper/get_task_tests")[0]["result"]
+
 
 for tasklet_path in test_paths:
     task_path = os.path.dirname(tasklet_path)
     if task_path not in tests:
         tests.append(task_path)
 failed = 0
-
-
-# container_data = task.run("helper/create_docker_container", output_plugin="null")[1][
-#     "result"
-# ]
-
-cfg = self.configuration
-# cfg["_container"] = container_data
 
 
 for test in tests:
