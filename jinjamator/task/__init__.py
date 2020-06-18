@@ -244,8 +244,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
     def handle_undefined_var(self, var_name):
         if var_name == "undo":
             self.configuration["undo"] = False
+            return False
         if var_name == "best_effort":
             self.configuration["best_effort"] = False
+            return False
         if self._configuration["task_run_mode"] == "background":
             raise KeyError(
                 "undefined variable found {0} and running in background -> cannot proceed".format(
