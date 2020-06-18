@@ -246,7 +246,7 @@ def is_dn_in_use(dn, ignore_children=False):
 
 def dn_exists(dn):
     data = query("/api/node/mo/{0}.json".format(dn))
-    if int(data["totalCount"]) > 0:
+    if len(data["imdata"]) > 0:
         return True
     return False
 
