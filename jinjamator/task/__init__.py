@@ -685,13 +685,16 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                     filename, lineno, funname, line = traceback.extract_tb(tb)[-1]
                     if filename == "<string>":
                         filename = tasklet
-                        code_to_show = task_code.split("\n")[lineno - 1]
+                        try:
+                            code_to_show = task_code.split("\n")[lineno - 1]
+                        except Exception:
+                            self._log.debug("cannot show code -> this is a bug")
+                            code_to_show = ""
+
                     else:
                         code_to_show = ""
-
-                    self._log.error(
-                        f"{e}\n{tasklet}:{lineno}, in {funname}\n    {line}\n{code_to_show}"
-                    )
+                    error_text = f"{e}\n{tasklet}:{lineno}, in {funname}\n    {line}\n{code_to_show}"
+                    self._log.error(error_text)
 
                     if self.configuration.get("best_effort"):
                         continue
@@ -699,7 +702,15 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                         self._log.error(
                             f"tasklet {tasklet} has failed and best_effort is not defined -> exiting"
                         )
-                        return False
+                        results.append(
+                            {
+                                "tasklet_path": tasklet,
+                                "result": "",
+                                "status": "error",
+                                "error": error_text,
+                            }
+                        )
+                        return results
 
             else:
                 raise ValueError(
@@ -712,7 +723,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 retval, template_path=tasklet, current_data=self.configuration
             )
 
-            results.append({"tasklet_path": tasklet, "result": retval})
+            results.append(
+                {"tasklet_path": tasklet, "result": retval, "status": "ok", "error": ""}
+            )
             if self._configuration["task_run_mode"] == "background":
                 self._log.tasklet_result(
                     "{0}".format(retval)
