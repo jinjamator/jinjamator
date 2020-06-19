@@ -68,7 +68,7 @@ if "tasks" in run_tests or "all" in run_tests:
     print("adding task unit tests to test list", end=" ")
 
     tmp = task.run("helper/get_task_tests", output_plugin="null")[0]["result"]
-    test_paths += tests
+    test_paths += tmp
     print(Fore.GREEN + "DONE " + Fore.WHITE + str(len(tmp)) + Style.RESET_ALL)
 
 
