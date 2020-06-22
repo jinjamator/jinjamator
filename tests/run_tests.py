@@ -31,7 +31,7 @@ print(f"Logfile for this run is {log_file}")
 test_paths = []
 cfg = self.configuration
 
-if "plugins" in run_tests or "all" in run_tests:
+if "plugins" == run_tests or "all" == run_tests:
     print("adding plugin tests to test list", end=" ")
 
     tmp = glob(
@@ -46,7 +46,7 @@ if "plugins" in run_tests or "all" in run_tests:
     print(Fore.GREEN + "DONE " + Fore.WHITE + str(len(tmp)) + Style.RESET_ALL)
 
 
-if "api" in run_tests or "all" in run_tests:
+if "api" == run_tests or "all" == run_tests:
     print("adding api tests to test list", end=" ")
 
     tmp = glob(
@@ -64,12 +64,16 @@ if "api" in run_tests or "all" in run_tests:
     print(Fore.GREEN + "DONE" + Style.RESET_ALL)
 
 
-if "tasks" in run_tests or "all" in run_tests:
+if "tasks" == run_tests or "all" == run_tests:
     print("adding task unit tests to test list", end=" ")
-
     tmp = task.run("helper/get_task_tests", output_plugin="null")[0]["result"]
     test_paths += tmp
     print(Fore.GREEN + "DONE " + Fore.WHITE + str(len(tmp)) + Style.RESET_ALL)
+
+if os.path.isdir(run_tests):
+    print("adding single task unit tests to test list", end=" ")
+    test_paths.append(run_tests)
+    print(Fore.GREEN + "DONE " + Style.RESET_ALL)
 
 
 for tasklet_path in test_paths:
