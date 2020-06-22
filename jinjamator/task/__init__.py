@@ -76,6 +76,7 @@ class JinjamatorTask(object):
         self._parent_tasklet = "jinamator-core"
         self._parent_task_id = None
         self._log = logging.getLogger()
+        self._id = id(self)
 
         self._tasklets = []
         self.configuration = TaskConfiguration()
@@ -647,6 +648,11 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         results = []
         to_process = copy.copy(self._tasklets)
         for tasklet in self._tasklets:
+            self._global_ldr = init_loader(self)
+            for content_plugin_dir in self._configuration.get(
+                "global_content_plugins_base_dirs", []
+            ):
+                self._global_ldr.load(f"{content_plugin_dir}")
             self._current_tasklet = tasklet
             retval = ""
             self._log.debug("running with dataset: {0}".format(self.configuration))
