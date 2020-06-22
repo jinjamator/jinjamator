@@ -41,6 +41,7 @@ import base64
 import requests
 import sys
 from collections import namedtuple
+from pprint import pformat
 
 if sys.version_info < (3, 0, 0):
     from urllib import unquote
@@ -616,15 +617,15 @@ class Session(object):
 
         url = unquote(url)
 
-        logging.debug(
-            (
-                "Preparing certificate based authentication with:"
-                "\n Cert DN: {}"
-                "\n Key file: {} "
-                "\n Request: {} {}"
-                "\n Data: {}"
-            ).format(cert_dn, self.key, method, url, data)
-        )
+        # logging.debug(
+        #     (
+        #         "Preparing certificate based authentication with:"
+        #         "\n Cert DN: {}"
+        #         "\n Key file: {} "
+        #         "\n Request: {} {}"
+        #         "\n Data: {}"
+        #     ).format(cert_dn, self.key, method, url, data)
+        # )
 
         payload = "{}{}".format(method, url)
         if data:
@@ -640,7 +641,7 @@ class Session(object):
             "APIC-Certificate-DN": cert_dn,
         }
 
-        logging.debug("Authentication cookie %s" % cookie)
+        # logging.debug("Authentication cookie %s" % cookie)
         return cookie
 
     def _send_login(self, timeout=None):
@@ -820,7 +821,9 @@ class Session(object):
                   response.ok is True if request is sent successfully.
         """
         post_url = self.api + url
-        logging.debug("Posting url: %s data: %s", post_url, data)
+        logging.debug(
+            "Posting url: %s data: \n%s", post_url, json.dumps(data, indent=2)
+        )
 
         if self.cert_auth and not (
             self.appcenter_user and self._subscription_enabled and self._logged_in
@@ -981,7 +984,7 @@ class Session(object):
                 logging.error("Raising ConnectionError")
                 raise ConnectionError
         logging.debug(resp)
-        logging.debug(resp.text)
+        # logging.debug(resp.text)
         return resp
 
     def register_login_callback(self, callback_fn):
