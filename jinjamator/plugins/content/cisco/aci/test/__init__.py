@@ -46,7 +46,7 @@ def create_verify(task_dir, config={}):
     if not res:
         return "OK"
     else:
-        return f"Data configured != data received {res}"
+        raise ACIObjectNotEqual(f"Data configured != data received {res}")
 
 
 def delete_verify(task_dir, config={}):
@@ -67,4 +67,4 @@ def delete_verify(task_dir, config={}):
     if not cisco.aci.dn_exists(expected_dn):
         return "OK"
     else:
-        return f"{expected_dn} does exists after delete"
+        return ACIObjectExists(f"{expected_dn} does exists after delete")
