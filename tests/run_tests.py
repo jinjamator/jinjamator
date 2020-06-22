@@ -13,10 +13,14 @@ tests = []
 log_file = mkstemp(suffix=".log", prefix="jinjamtor_tests_", text=True)[1]
 
 logger = logging.getLogger()
+msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(levelname)s - %(message)s"
+formatter = logging.Formatter(msg_format)
 fh = logging.FileHandler(log_file)
+fh.setFormatter(formatter)
 logger.handlers.pop()
 logger.addHandler(fh)
 logger.setLevel(logging.DEBUG)
+
 
 print(f"\n-------------------------------------------------------------------")
 print(f"Setting up testbed")
