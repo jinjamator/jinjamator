@@ -1,4 +1,4 @@
-from dictdiffer import diff
+from deepdiff import DeepDiff
 
 
 class ACIObjectExists(ValueError):
@@ -44,7 +44,7 @@ def create_verify(task_dir, config={}):
     configured_dn = configured_obj[configured_obj_type]["attributes"]["dn"]
 
     if configured_obj[configured_obj_type].get("children"):
-        query_url = f"/api/mo/{configured_dn}.json?rsp-prop-include=config-only&rsp-subtree=full"
+        query_url = f"/api/mo/{configured_dn}.json?rsp-prop-include=config-only&rsp-subtree=children"
     else:
         query_url = f"/api/mo/{configured_dn}.json?rsp-prop-include=config-only"
 
@@ -58,12 +58,15 @@ def create_verify(task_dir, config={}):
     else:
         raise ACITooManyObjects(f"APIC returned too many Objects {data}")
 
-    res = list(diff(configured_obj, data))
+    ddiff = DeepDiff(configured_obj, data)
 
-    if not res:
+    if not ddiff:
         return "OK"
     else:
-        raise ACIObjectNotEqual(f"Data configured != data received {res}")
+
+        raise ACIObjectNotEqual(
+            f"Data configured != data received \n{json.dumps(json.loads(ddiff.to_json()))}"
+        )
 
 
 def delete_verify(task_dir, config={}):
