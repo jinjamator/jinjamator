@@ -5,7 +5,15 @@ class ACIObjectExists(ValueError):
     pass
 
 
+class ACIObjectDoesNotExists(ValueError):
+    pass
+
+
 class ACIObjectNotEqual(ValueError):
+    pass
+
+
+class ACITooManyObjects(ValueError):
     pass
 
 
@@ -39,7 +47,16 @@ def create_verify(task_dir, config={}):
         query_url = f"/api/mo/{configured_dn}.json?rsp-prop-include=config-only&rsp-subtree=full"
     else:
         query_url = f"/api/mo/{configured_dn}.json?rsp-prop-include=config-only"
-    data = cisco.aci.query(query_url)["imdata"][0]
+
+    d_query_result = cisco.aci.query(query_url)
+    if len(d_query_result["imdata"]) == 1:
+        data = d_query_result["imdata"][0]
+    elif len(d_query_result["imdata"]) == 0:
+        raise ACIObjectDoesNotExists(
+            f"Object which should exists does not exist dn {configured_dn}"
+        )
+    else:
+        raise ACITooManyObjects(f"APIC returned too many Objects {data}")
 
     res = list(diff(configured_obj, data))
 
