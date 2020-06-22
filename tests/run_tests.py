@@ -105,7 +105,13 @@ for test in tests:
                     print(Style.RESET_ALL, end="")
                     failed += 1
                     for skipped_task in tasklet_skipped:
-                        print("\t" + skipped_task + Fore.YELLOW + " SKIPPED")
+                        print(
+                            "\t"
+                            + skipped_task
+                            + Fore.YELLOW
+                            + " SKIPPED"
+                            + Style.RESET_ALL
+                        )
                         skipped += 1
 
                 print(Style.RESET_ALL, end="")
