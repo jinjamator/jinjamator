@@ -542,3 +542,12 @@ def get_dict_from_external_epg_dn(dn):
         }
     else:
         return None
+
+
+def get_dict_from_node_dn(dn):
+    rgx = re.compile(r"topology/pod-(\S+)/node-(\S+)")
+    result = rgx.match(dn)
+    if result:
+        return {"pod_id": result.group(1), "node_id": result.group(2)}
+    else:
+        return None
