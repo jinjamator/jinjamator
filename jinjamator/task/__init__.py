@@ -693,18 +693,31 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                     retval = module.jinjaTask().__run__()
                 except Exception as e:
                     _, _, tb = sys.exc_info()
-                    filename, lineno, funname, line = traceback.extract_tb(tb)[-1]
-                    if filename == "<string>":
-                        filename = tasklet
-                        try:
-                            code_to_show = task_code.split("\n")[lineno - 1]
-                        except Exception:
-                            self._log.debug("cannot show code -> this is a bug")
-                            code_to_show = ""
+                    error_text = ""
+                    code_to_show = ""
+                    for filename, lineno, funname, line in reversed(
+                        traceback.extract_tb(tb)
+                    ):
+                        if filename == "<string>":
+                            filename = tasklet
+                        if filename == tasklet and funname == "__run__":
+                            try:
+                                code_to_show = (
+                                    "[ line "
+                                    + str(lineno - 7)
+                                    + " ] "
+                                    + task_code.split("\n")[lineno - 1]
+                                )
+                                error_text += f"{e}\n{filename}:{lineno -7}, in {funname}\n    {line}\n {code_to_show}\n\n"
+                            except Exception as inner_e:
+                                self._log.debug(
+                                    f"cannot show code -> this is a bug \n{inner_e }\n task_code: {task_code}\nlineno: {lineno}"
+                                )
+                        else:
+                            error_text += (
+                                f"{e}\n{filename}:{lineno}, in {funname}\n    {line}\n"
+                            )
 
-                    else:
-                        code_to_show = ""
-                    error_text = f"{e}\n{tasklet}:{lineno}, in {funname}\n    {line}\n{code_to_show}"
                     self._log.error(error_text)
 
                     if self.configuration.get("best_effort"):
