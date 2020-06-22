@@ -300,7 +300,7 @@ class apic(outputPluginBase):
                 return True
 
             data = json.loads(data)
-            self._log.debug(data)
+            self._log.debug(json.dumps(data, indent=2))
         except ValueError as e:
             self._log.error(
                 "{0}\nis not a valid json document {1} -> invalid configuration -> skipping".format(
@@ -328,5 +328,5 @@ class apic(outputPluginBase):
 
             else:
                 self._log.info("successfully sent config for dn {0}".format(dn))
-                self._log.debug(pformat(item))
+                self._log.debug(json.dumps(item, indent=2))
         return True
