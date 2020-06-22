@@ -245,10 +245,49 @@ def is_dn_in_use(dn, ignore_children=False):
 
 
 def dn_exists(dn):
+    """
+    Checks if the dn exists. Also returns true when there was an API-Error. Writes the error to error-out
+
+    :param dn: dn-string
+    :type dn: string
+    :returns: True if dn exists (or contains an error), false if not existing
+    :rtype: boolean
+    """
     data = query("/api/node/mo/{0}.json".format(dn))
     if len(data["imdata"]) > 0:
+        if 'error' in data['imdata'][0]:
+            log.error(parse_api_error(data))
         return True
     return False
+
+def parse_api_error (response):
+    """
+    Parse the error-message from the API Response.
+    Assumes, that a check if there is an error present was done beforehand.
+
+    :param response: Dict of the request response ([imdata][0][....])
+    :type response: dict
+    :returns: Parsed Error-Text
+    :rtype: string
+    """
+    if 'error' in response['imdata'][0]:
+        return "API-Errorcode "+str(response['imdata'][0]['error']['attributes']['code'])+": "+str(response['imdata'][0]['error']['attributes']['text'])
+    else:
+        return "Unparseable: "+str(response)
+
+def is_api_error (response):
+    """
+    Check the API-Response for errors
+
+    :param response: Dict of the request response ([imdata][0][....])
+    :type response: dict
+    :returns: True if response contains an error, false if not
+    :rtype: boolean
+    """
+    if 'error' in data['imdata'][0]:
+        return True
+    else:
+        return False
 
 
 def get_podid_by_switch_id(switch_id):
