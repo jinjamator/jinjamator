@@ -37,3 +37,4 @@ httpx
 python-status
 setuptools-git-version
 docker
+deepdiff
