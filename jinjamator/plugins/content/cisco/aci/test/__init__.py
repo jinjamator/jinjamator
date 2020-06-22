@@ -44,7 +44,7 @@ def create_verify(task_dir, config={}):
     configured_dn = configured_obj[configured_obj_type]["attributes"]["dn"]
 
     if configured_obj[configured_obj_type].get("children"):
-        query_url = f"/api/mo/{configured_dn}.json?rsp-prop-include=config-only&rsp-subtree=children"
+        query_url = f"/api/mo/{configured_dn}.json?rsp-prop-include=config-only&rsp-subtree=full"
     else:
         query_url = f"/api/mo/{configured_dn}.json?rsp-prop-include=config-only"
 
