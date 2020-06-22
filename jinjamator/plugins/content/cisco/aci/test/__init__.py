@@ -20,7 +20,12 @@ def create_verify(task_dir, config={}):
     expected_dn = expected_obj[expected_obj_type]["attributes"]["dn"]
 
     if cisco.aci.dn_exists(expected_dn):
-        raise ACIObjectExists(f"{expected_dn} exists, aborting test")
+        if _jinjamator.configuration.get("force_overwrite_existing_objects"):
+            log.warning(
+                "overwriting existing object {expected_dn} because force_overwrite_existing_objects is True."
+            )
+        else:
+            raise ACIObjectExists(f"{expected_dn} exists, aborting test")
 
     configured_data = json.loads(
         task.run(task_dir, config, output_plugin="apic")[0]["result"]
