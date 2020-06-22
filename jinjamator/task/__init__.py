@@ -46,6 +46,7 @@ from jsonschema import validate as validate_jsonschema
 import uuid
 from dotty_dict import dotty
 from jinjamator.plugin_loader.output import load_output_plugin
+from pprint import pformat
 
 
 def tree():
@@ -330,7 +331,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         return obj
 
     def load_schema_yaml(self, path):
-        from pprint import pformat
 
         try:
             with open(path, "r") as stream:
@@ -655,7 +655,11 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 self._global_ldr.load(f"{content_plugin_dir}")
             self._current_tasklet = tasklet
             retval = ""
-            self._log.debug("running with dataset: {0}".format(self.configuration))
+            self._log.debug(
+                "running with dataset: \n{0}".format(
+                    pformat(self.configuration._data, indent=4)
+                )
+            )
             if tasklet.endswith("j2"):
                 try:
                     t = self.j2_environment.get_template(os.path.basename(tasklet))
