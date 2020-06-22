@@ -20,6 +20,12 @@ from jinjamator.task import JinjamatorTask
 def run(path, task_data=False, **kwargs):
     """calls another jinjamator task"""
 
+    if path == "../":
+        tmp = _jinjamator.task_base_dir.split(os.path.sep)
+        if tmp[0] == "":
+            tmp[0] = os.path.sep
+        path = os.path.join(*tmp[:-1])
+
     parent_data = copy.deepcopy(_jinjamator.configuration._data)
     parent_private_data = copy.deepcopy(_jinjamator._configuration._data)
 
@@ -31,6 +37,7 @@ def run(path, task_data=False, **kwargs):
 
     task = JinjamatorTask(parent_private_data.get("task_run_mode"))
     task._configuration.merge_dict(parent_private_data)
+    task._parent_tasklet = _jinjamator._current_tasklet
 
     if parent_private_data.get("task_run_mode") == "background":
         backup = task._log.handlers[1].formatter._task
@@ -48,13 +55,7 @@ def run(path, task_data=False, **kwargs):
     else:
         task.configuration.merge_dict(parent_data)
 
-    if os.path.isfile(_jinjamator.task_base_dir):
-        my_parent = os.path.dirname(_jinjamator.task_base_dir)
-    else:
-        my_parent = _jinjamator.task_base_dir
-
-    if not my_parent.endswith("../"):
-        task._configuration["global_tasks_base_dirs"].insert(0, my_parent)
+    task._configuration["global_tasks_base_dirs"].insert(0, _jinjamator.task_base_dir)
 
     task.load(path)
 
@@ -65,6 +66,5 @@ def run(path, task_data=False, **kwargs):
     if parent_private_data.get("task_run_mode") == "background":
         task._log.handlers[1].formatter._task = backup
         task._parent_tasklet = backup._parent_tasklet
-
     del task
     return retval
