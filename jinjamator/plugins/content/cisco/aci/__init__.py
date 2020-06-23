@@ -202,7 +202,18 @@ def get_convertible_uplinks(model, count, min_uplinks=2):
 
 
 def get_all_downlinks(model):
-    return switchdb[model.upper()]["downlinks"]
+    """
+    Return all downlink ports from plugin internal switch database.
+
+    :param model: Cisco Switch Model String
+    :type model: string
+    :returns: A list of all default downlink port numbers.
+    :rtype: list
+    """
+    try:
+        return switchdb[model.upper()]["downlinks"]
+    except KeyError:
+        raise ValueError(f"Switchmodel {model} is not supported")
 
 
 def get_parent_dn_from_child_dn(dn):
