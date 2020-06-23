@@ -1,11 +1,16 @@
 import docker
 import atexit
 import re
+from colorama import Fore, Style
 
 
 def cleanup(container):
+    print("stopping test container:", end=" ")
     container.stop()
+    print(Fore.GREEN + "DONE" + Style.RESET_ALL)
+    print("deleting test container:", end=" ")
     container.remove()
+    print(Fore.GREEN + "DONE" + Style.RESET_ALL)
 
 
 client = docker.from_env()
