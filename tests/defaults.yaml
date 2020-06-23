@@ -15,5 +15,5 @@
 apic_url: https://sandboxapicdc.cisco.com/
 apic_username: admin
 apic_password: ciscopsdt
-run_tests: [ all ]
+run_tests: all
 test_obj_prefix: jmt_
