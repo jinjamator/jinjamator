@@ -106,6 +106,9 @@ def discover_tasks(app):
 
                                 args = task_arguments.parse_args(request)
                                 schema_type = args.get("schema-type", "full")
+                                preload_data = json.loads(
+                                    args.get("preload-data", "{}")
+                                )
                                 environment_site = args.get(
                                     "preload-defaults-from-site"
                                 )
@@ -117,6 +120,8 @@ def discover_tasks(app):
                                 inner_task._configuration.merge_dict(
                                     app.config["JINJAMATOR_FULL_CONFIGURATION"]
                                 )
+                                inner_task.configuration.merge_dict(preload_data)
+
                                 inner_task.load(relative_task_path)
 
                                 if environment_site not in [None, "None"]:
