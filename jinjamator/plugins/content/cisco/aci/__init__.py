@@ -77,6 +77,25 @@ switchdb = {
 log = logging.getLogger()
 
 
+def credentials_set():
+    """
+    Check if jinjamator has all information set necessary to connect to APIC.
+
+    :returns: True if all required APIC connection parameters are set, False if not.
+    :rtype: boolean
+    """
+    if (
+        "apic_username" in _jinjamator.configuration.keys()
+        and "apic_key" in _jinjamator.configuration.keys()
+        and "apic_cert_name" in _jinjamator.configuration.keys()
+    ) or (
+        "apic_username" in _jinjamator.configuration.keys()
+        and "apic_password" in _jinjamator.configuration.keys()
+    ):
+        return True
+    return False
+
+
 def connect_apic(subscription_enabled=False):
     if not _jinjamator.configuration["apic_url"]:
         _jinjamator.handle_undefined_var("apic_url")
@@ -291,18 +310,37 @@ def is_api_error(response):
     :returns: True if response contains an error, false if not
     :rtype: boolean
     """
-    if "error" in data["imdata"][0]:
-        return True
-    else:
+    try:
+        if "error" in response["imdata"][0]:
+            return True
+        else:
+            return False
+    except IndexError:
+        log.debug("got empty response from APIC -> this is not an error")
         return False
 
 
 def get_podid_by_switch_id(switch_id):
+    """
+    Retrive the pod_id for a switch_id from APIC, if not possible ask user to enter pod_id
+
+    :param switch_id: integer from 100 to 3999
+    :type switch_id: integer
+    :returns: pod_id
+    :rtype: integer
+    """
+    if int(switch_id) > 99 and int(switch_id) < 4000:
+        pass
+    else:
+        raise ValueError("Valid switch id must be between 99 and 4000")
+
     data = query(
-        '/api/node/class/fabricNode.json?query-target-filter=and(eq(fabricNode.id,"{0}"))'.format(
-            switch_id
-        )
+        f'/api/node/class/fabricNode.json?query-target-filter=and(eq(fabricNode.id,"{switch_id}"))'
     )
+    if is_api_error(data) or len(data["imdata"]) == 0:
+        var_name = f"pod_id"
+        _jinjamator.handle_undefined_var(var_name)
+        return _jinjamator.configuration.get(var_name)
     return (
         get_parent_dn_from_child_dn(data["imdata"][0]["fabricNode"]["attributes"]["dn"])
         .split("/")[-1:][0]
