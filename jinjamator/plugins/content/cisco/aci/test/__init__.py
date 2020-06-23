@@ -19,6 +19,10 @@ class ACITooManyObjects(ValueError):
 
 def create_verify(task_dir, config={}):
     py_load_plugins(globals())
+    log.debug("")
+    log.debug("######################################################################")
+    log.debug("#  Running create_verify")
+    log.debug("######################################################################")
     expected_data = json.loads(
         task.run(task_dir, config, output_plugin="null")[0]["result"]
     )
@@ -61,8 +65,10 @@ def create_verify(task_dir, config={}):
     ddiff = DeepDiff(configured_obj, data)
 
     if not ddiff:
+        log.debug("*************** Verification OK ***************")
         return "OK"
     else:
+        log.debug("*************** Verification NOK ***************")
 
         raise ACIObjectNotEqual(
             f"Data configured != data received \n{json.dumps(json.loads(ddiff.to_json()))}"
@@ -71,6 +77,10 @@ def create_verify(task_dir, config={}):
 
 def delete_verify(task_dir, config={}):
     py_load_plugins(globals())
+    log.debug("")
+    log.debug("######################################################################")
+    log.debug("#  Running delete_verify")
+    log.debug("######################################################################")
 
     config["undo"] = "yes"
     configured_data = json.loads(
@@ -85,6 +95,9 @@ def delete_verify(task_dir, config={}):
     expected_dn = expected_obj[expected_obj_type]["attributes"]["dn"]
 
     if not cisco.aci.dn_exists(expected_dn):
+        log.debug("*************** Deletion OK ***************")
         return "OK"
     else:
+        log.debug("*************** Deletion NOK ***************")
+        log.debug(f"{expected_dn} does exists after delete")
         return ACIObjectExists(f"{expected_dn} does exists after delete")
