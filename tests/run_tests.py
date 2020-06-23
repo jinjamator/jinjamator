@@ -10,7 +10,12 @@ from colorama import Fore, Style
 
 tests = []
 
-log_file = mkstemp(suffix=".log", prefix="jinjamtor_tests_", text=True)[1]
+#set static logfile via -m and specify the full path
+#This is helpful when debugging multiple script runs while doing tail -f
+if len(static_logfile) > 0:
+    log_file = static_logfile
+else:
+    log_file = mkstemp(suffix=".log", prefix="jinjamtor_tests_", text=True)[1]
 
 logger = logging.getLogger()
 msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(levelname)s - %(message)s"
@@ -100,6 +105,9 @@ for test in tests:
             tasklet_error = retval["error"]
             tasklet_status = retval["status"]
             tasklet_skipped = retval["skipped"]
+            log.debug("\n<--- Tasklet returned: --->\n\n"
+            + json.dumps(retval)
+            + "\n\n<--- Return End --->")
             print(f"\t{os.path.basename(tasklet_path)}", end=" ")
             if (
                 "/content/" in tasklet_path
