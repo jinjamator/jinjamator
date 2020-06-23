@@ -100,4 +100,4 @@ def delete_verify(task_dir, config={}):
     else:
         log.debug("*************** Deletion NOK ***************")
         log.debug(f"{expected_dn} does exists after delete")
-        return ACIObjectExists(f"{expected_dn} does exists after delete")
+        raise ACIObjectExists(f"{expected_dn} does exists after delete")
