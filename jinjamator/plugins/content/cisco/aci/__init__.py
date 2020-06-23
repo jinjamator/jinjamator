@@ -338,7 +338,9 @@ def get_podid_by_switch_id(switch_id):
         f'/api/node/class/fabricNode.json?query-target-filter=and(eq(fabricNode.id,"{switch_id}"))'
     )
     if is_api_error(data) or len(data["imdata"]) == 0:
-        var_name = f"pod_id"
+        var_name = f"{switch_id}_pod_id"
+        if _jinjamator.configuration.get(var_name):
+            return _jinjamator.configuration.get(var_name)
         _jinjamator.handle_undefined_var(var_name)
         return _jinjamator.configuration.get(var_name)
     return (
