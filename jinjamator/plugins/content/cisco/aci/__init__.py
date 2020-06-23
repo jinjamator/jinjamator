@@ -362,13 +362,21 @@ def get_podid_by_switch_id(switch_id):
 
 
 def version(node_id=1):
-    pod_id = get_podid_by_switch_id(node_id)
-    data = query(
-        "/api/node/class/topology/pod-{0}/node-{1}/firmwareCtrlrRunning.json".format(
-            pod_id, node_id
-        )
+    """
+    Returns the firmware version of an APIC
+
+    :param node_id: integer from 1 to 10
+    :type node_id: integer
+    :returns: Version information as returned from APIC
+    :rtype: string
+    """
+    result = query(
+        f'/api/node/class/firmwareCtrlrRunning.json?query-target-filter=and(wcard(firmwareCtrlrRunning.dn,"node-{node_id}"))'
     )
-    return data["imdata"][0]["firmwareCtrlrRunning"]["attributes"]["version"]
+    try:
+        return result["imdata"][0]["firmwareCtrlrRunning"]["attributes"]["version"]
+    except KeyError:
+        raise ValueError("Node {node_id} does not exist or is not an APIC")
 
 
 def is_min_version(major, minor, patch_level, node_id=1):
