@@ -102,6 +102,8 @@ def delete_verify(task_dir, config={}):
     expected_obj_type = list(expected_obj.keys())[0]
     expected_dn = expected_obj[expected_obj_type]["attributes"]["dn"]
 
+    config["undo"] = False
+
     if not cisco.aci.dn_exists(expected_dn):
         log.debug("*************** Deletion OK ***************")
         return "OK"
