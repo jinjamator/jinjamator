@@ -182,6 +182,7 @@ $(function() {
 
     $('[data-toggle="tooltip"]').tooltip()
 
+    $('.render_username').each(function(){ this.innerHTML=sessionStorage.getItem('logged_in_username'); })
     var client = new $.RestClient('/api/');
     client.add('environments');
     client.environments.read().done(function(data) {
