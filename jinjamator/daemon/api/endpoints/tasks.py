@@ -250,7 +250,7 @@ class TaskList(Resource):
     @require_role(role=None)
     def get(self):
         """
-        Returns the list of discoverd tasks found in the directories specified by global_tasks_base_dirs.
+        Returns the list of discovered tasks found in the directories specified by global_tasks_base_dirs.
         """
         response = {"tasks": []}
         user_roles = [role["name"] for role in g._user["roles"]]
