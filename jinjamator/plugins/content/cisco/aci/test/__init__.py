@@ -62,13 +62,21 @@ def create_verify(task_dir, config={}):
     else:
         raise ACITooManyObjects(f"APIC returned too many Objects {data}")
 
-    ddiff = DeepDiff(configured_obj, data)
+    #For some checks the order of items is somewhat unpredictable when reading from APIC (especially for unordered children)
+    if _jinjamator.configuration.get("verify_ignore_order"):
+        ddiff = DeepDiff(configured_obj, data,ignore_order=True)
+    else:
+        ddiff = DeepDiff(configured_obj, data)
 
     if not ddiff:
         log.debug("*************** Verification OK ***************")
         return "OK"
     else:
-        log.debug("*************** Verification NOK ***************")
+        log.debug("*************** Verification NOK ***************\n"
+            + "Live data:\n"
+            + json.dumps(data)
+            + "\n\n"
+        )
 
         raise ACIObjectNotEqual(
             f"Data configured != data received \n{json.dumps(json.loads(ddiff.to_json()))}"
@@ -101,3 +109,14 @@ def delete_verify(task_dir, config={}):
         log.debug("*************** Deletion NOK ***************")
         log.debug(f"{expected_dn} does exists after delete")
         raise ACIObjectExists(f"{expected_dn} does exists after delete")
+
+def verify_ignore_order (state=True):
+    """
+    Instruct the verify-process to ignore the order of json attributes
+
+    :param state: Set to True or False
+    :type state: boolean
+    :returns: None
+    :rtype: None
+    """
+    _jinjamator.configuration.__setitem__("verify_ignore_order",state)
