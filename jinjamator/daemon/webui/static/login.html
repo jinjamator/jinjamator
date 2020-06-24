@@ -35,7 +35,7 @@
 
             <form id='login_form' action="#" method="post">
                 <div class="form-group has-feedback">
-                    <input name='username' type="username" class="form-control" placeholder="Email">
+                    <input name='username' type="username" class="form-control" placeholder="Username">
                     <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
                 </div>
                 <div class="form-group has-feedback">
@@ -58,12 +58,8 @@
                 </div>
             </form>
 
-            <div class="social-auth-links text-center">
+            <div class="social-auth-links text-center" id='oidc_providers'>
                 <p>- OR -</p>
-                <a href="/api/aaa/login/okta" class="btn btn-block btn-social btn-facebook btn-flat"> Sign in using
-        Okta.com</a>
-                <a href="/api/aaa/login/avl09" class="btn btn-block btn-social btn-google btn-flat"> Sign in using
-        AVL09</a>
             </div>
             <!-- /.social-auth-links -->
 
@@ -83,6 +79,22 @@
     <script src="/static/js/icheck.min.js"></script>
     <script>
         $(function() {
+            $.ajax({
+                    type: 'GET',
+                    url: '/api/aaa/providers',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function(response) {
+                        response.forEach(function (item, index) {
+                            if (item.type == 'authlib'){
+                                $('#oidc_providers').append( '<a href="/api/aaa/login/' + item.name  + '" class="btn btn-block btn-social btn-default btn-flat"> Sign in using ' + item.display_name +'</a>' );
+                            }
+                            // console.log(item, index);
+                        });
+                        
+                    }
+                    
+                });
             $('input').iCheck({
                 checkboxClass: 'icheckbox_square-blue',
                 radioClass: 'iradio_square-blue',

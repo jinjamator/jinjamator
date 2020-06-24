@@ -1,5 +1,6 @@
 type: local
 name: local
+display_name: Local Login
 static_users:
     - username: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_ADMIN_USERNAME','admin') {%raw%}}}
 {%endraw%}

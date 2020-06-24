@@ -422,4 +422,13 @@ class ListAAAProviders(Resource):
         """
         Get a list of AAA providers.
         """
-        return list(aaa_providers.keys())
+        retval = []
+        for name, aaa_provider in aaa_providers.items():
+            retval.append(
+                {
+                    "name": aaa_provider._name,
+                    "type": aaa_provider._type,
+                    "display_name": aaa_provider._display_name,
+                }
+            )
+        return retval

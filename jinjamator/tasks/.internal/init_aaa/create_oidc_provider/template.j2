@@ -4,6 +4,8 @@ client_secret: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{pro
 {%endraw%}
 redirect_uri: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_REDIRECT_URI','IdontReadDocs') {%raw%}}}
 {%endraw%}
+display_name: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_DISPLAY_NAME','{{provider_name | upper}}') {%raw%}}}
+{%endraw%}
 type: authlib
 authlib_configuration:
     name: {{provider_name|lower}}
