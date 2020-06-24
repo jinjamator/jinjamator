@@ -118,6 +118,7 @@
                     contentType: 'application/json',
                     success: function(response) {
                         access_token = response.access_token.split(' ')[1]
+                        sessionStorage.setItem('logged_in_username', $("input[name=username]").val());
                         window.location.replace("/?access_token=" + access_token);
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
