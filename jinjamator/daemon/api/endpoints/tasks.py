@@ -1,6 +1,6 @@
 import logging
 
-from flask import request
+from flask import request, g
 from flask_restx import Resource
 from jinjamator.daemon.api.serializers import tasks
 from jinjamator.daemon.api.parsers import task_arguments
@@ -15,6 +15,10 @@ from sqlalchemy import select
 from jinjamator.external.celery.backends.database.models import Task as DB_Job
 from jinjamator.external.celery.backends.database.models import JobLog
 from flask import current_app as app
+from jinjamator.daemon.aaa.models import JinjamatorRole
+from jinjamator.daemon.aaa import require_role
+from jinjamator.daemon.database import db
+
 from flask import jsonify
 import glob
 import os
@@ -91,7 +95,17 @@ def discover_tasks(app):
                         task_models[task_info["path"]] = api.schema_model(task_id, data)
                         del task
 
-                        log.info(f"registred model for task {task_dir}")
+                        log.info(f"registered model for task {task_dir}")
+
+                        dynamic_role_name = f"task_{dir_name}"
+                        new_role = JinjamatorRole(name=dynamic_role_name)
+
+                        with app.app_context():
+                            db.session.add(new_role)
+                            try:
+                                db.session.commit()
+                            except Exception:
+                                pass
 
                         @ns.route(f"/{task_info['path']}", endpoint=task_info["path"])
                         class APIJinjamatorTask(Resource):
@@ -99,6 +113,15 @@ def discover_tasks(app):
                                 f"get_task_{task_info['path'].replace(os.path.sep,'_')}_schema"
                             )
                             @api.expect(task_arguments)
+                            @api.doc(
+                                params={
+                                    "Authorization": {
+                                        "in": "header",
+                                        "description": "A valid access token",
+                                    }
+                                }
+                            )
+                            @require_role(role=dynamic_role_name)
                             def get(self):
                                 """
                                 Returns the json-schema or the whole alpacajs configuration data for the task
@@ -156,6 +179,15 @@ def discover_tasks(app):
                                 f"create_task_instance_for_{task_info['path'].replace(os.path.sep,'_')}"
                             )
                             @api.expect(task_models[task_info["path"]], validate=False)
+                            @api.doc(
+                                params={
+                                    "Authorization": {
+                                        "in": "header",
+                                        "description": "A valid access token",
+                                    }
+                                }
+                            )
+                            @require_role(role=dynamic_role_name)
                             def post(self):
                                 """
                                 Creates an instance of the task and returns the job_id
@@ -210,13 +242,24 @@ def discover_tasks(app):
 @ns.route("/")
 class TaskList(Resource):
     @api.marshal_with(tasks)
+    @api.doc(
+        params={
+            "Authorization": {"in": "header", "description": "A valid access token"}
+        }
+    )
+    @require_role(role=None)
     def get(self):
         """
         Returns the list of discoverd tasks found in the directories specified by global_tasks_base_dirs.
         """
-
         response = {"tasks": []}
-        for k, v in available_tasks_by_path.items():
-            response["tasks"].append(v)
-
+        user_roles = [role["name"] for role in g._user["roles"]]
+        log.info(f"userroles: {user_roles}")
+        if "administrator" in user_roles or "tasks_all" in user_roles:
+            for k, v in available_tasks_by_path.items():
+                response["tasks"].append(v)
+        else:
+            for k, v in available_tasks_by_path.items():
+                if f"task_{k}" in user_roles:
+                    response["tasks"].append(v)
         return response
