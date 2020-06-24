@@ -161,6 +161,8 @@ class LocalAuthProvider(AuthProviderBase):
     def __init__(self, app=None):
         super(LocalAuthProvider, self).__init__(app)
         self._name = "local"
+        self._type = "local"
+        self._display_name = "Local Login"
 
     def login(self, request):
         try:
@@ -199,6 +201,8 @@ class AuthLibAuthProvider(AuthProviderBase):
             self._oauth = OAuth()
         self._name = None
         self._provider = None
+        self._type = "authlib"
+        self._display_name = "Authlib Login"
 
     def init_app(self, app):
         """
@@ -213,6 +217,7 @@ class AuthLibAuthProvider(AuthProviderBase):
         """
 
         self._name = kwargs.get("name")
+
         self._oauth.register(**kwargs)
 
     def login(self, request):
@@ -313,6 +318,7 @@ def initialize(aaa_providers, _configuration):
             cur_cfg = TaskConfiguration()
             cur_cfg.merge_yaml(config_file)
             prov_name = cur_cfg.get("authlib_configuration", {}).get("name")
+
             if cur_cfg.get("type") == "authlib":
                 app.config[f"{prov_name.upper()}_CLIENT_ID"] = cur_cfg.get("client_id")
                 app.config[f"{prov_name.upper()}_CLIENT_SECRET"] = cur_cfg.get(
@@ -324,6 +330,7 @@ def initialize(aaa_providers, _configuration):
                     **deepcopy(cur_cfg.get("authlib_configuration", {}))
                 )
                 aaa_providers[prov_name].init_app(app)
+
                 if cur_cfg.get("redirect_uri"):
                     aaa_providers[prov_name]._redirect_uri = cur_cfg.get("redirect_uri")
 
@@ -343,6 +350,8 @@ def initialize(aaa_providers, _configuration):
                 if cur_cfg.get("static_users"):
                     aaa_providers[prov_name].static_users = cur_cfg.get("static_users")
                     aaa_providers[prov_name].create_static_users()
+            if cur_cfg.get("display_name"):
+                aaa_providers[prov_name]._display_name = cur_cfg.get("display_name")
 
 
 def require_role(role=None, permit_self=False):
