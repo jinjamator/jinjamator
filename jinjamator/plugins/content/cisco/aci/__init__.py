@@ -72,6 +72,17 @@ switchdb = {
         "downlinks": range(1, 49),
         "type": "leaf",
     },
+    "TEST-LEAF": {
+        "uplinks": range(49, 50),
+        "downlinks": range(1, 2),
+        "type": "leaf",
+    },
+    "TEST-SPINE": {"uplinks": [], "downlinks": range(1, 2), "type": "spine"},
+    "TEST-FEX": {
+        "uplinks": range(49, 50),
+        "downlinks": range(1, 2),
+        "type": "fex",
+    }
 }
 
 log = logging.getLogger()
