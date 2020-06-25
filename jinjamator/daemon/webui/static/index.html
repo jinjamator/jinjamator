@@ -204,20 +204,41 @@
                             <li class="treeview-item"><a href="#" onclick="list_jobs()"><i class="fa fa-circle-o"></i>List current</a></li>
                         </ul>
                     </li>
-                    <!--
-        <li class="treeview">
-          <a href="#">
-            <i class="fa fa-tasks"></i> <span>Tasks</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-            <li class="treeview-item"><a  href="#" onclick="list_tasks()"><i class="fa fa-circle-o"></i>List available</a></li>
-          </ul>
-        </li>        
-        -->
-                </ul>
+                    
+                    <li class="treeview">
+                        <a href="#">
+                          <i class="fa fa-users"></i> <span>AAA</span>
+                          <span class="pull-right-container">
+                            <i class="fa fa-angle-left pull-right"></i>
+                          </span>
+                        </a>
+                        <ul class="treeview-menu">
+                          <li class="treeview">
+                            <a href="#"><i class="fa fa-circle-o"></i> <span>Users</span>
+                                <span class="pull-right-container">
+                                  <i class="fa fa-angle-left pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                              <li><a href="#" id='menu_create_user' onclick="create_user()"><i class="fa fa-circle-o"></i> Create</a></li>
+                              <li><a href="#" id='menu_list_users' onclick="list_users()"><i class="fa fa-circle-o"></i> List</a></li>
+                            </ul>
+                          </li>
+                          <li class="treeview">
+                            <a href="#"><i class="fa fa-circle-o"></i> <span>Roles</span>
+                                <span class="pull-right-container">
+                                  <i class="fa fa-angle-left pull-right"></i>
+                                </span>
+                            </a>
+                            <ul class="treeview-menu">
+                              <li><a href="#" id='menu_create_role'  onclick="create_role()"><i class="fa fa-circle-o"></i> Create</a></li>
+                              <li><a href="#" id='menu_list_roles' onclick="list_roles()"><i class="fa fa-circle-o"></i> List</a></li>
+                            </ul>
+                          </li>
+                                        
+                        </ul>
+                      </li>               
+                 </ul>
             </section>
             <!-- /.sidebar -->
         </aside>
