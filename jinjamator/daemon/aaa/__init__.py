@@ -469,7 +469,7 @@ def require_role(role=None, permit_self=False):
                         f"Elevated privileges required, user neither has role {role} nor administrator",
                     )
                 else:
-                    abort(400, "Token invalid, please reauthenticate")
+                    abort(401, "Token invalid, please reauthenticate")
             else:
                 abort(400, "Invalid Authorization Header Token Type")
 
