@@ -198,6 +198,9 @@ var client = new $.RestClient('/api/');
 client.add('tasks');
 client.add('jobs');
 client.add('plugins', { isSingle: true });
+client.add('aaa', { isSingle: true });
+client.aaa.add('users');
+client.aaa.add('roles');
 
 client.plugins.add('output');
 
@@ -207,6 +210,129 @@ function update_breadcrumb(level1, level2) {
     $('.breadcrumb').html('<li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li><li><a href="#">' + level1 + '</a></li><li class="active">' + level2 + '</li>')
 }
 
+function list_roles() {
+
+    // $(".treeview-item").removeClass("active")
+    // parent.parents('li').addClass('active');
+    update_breadcrumb('AAA', 'Roles');
+
+    $.get("static/templates/main_content_section.html", function(data) {
+        $(".all-content").html('<section class="content">' + data + '</section>');
+    });
+
+    client.aaa.roles.read().done(function(data) {
+        table_data = '<div class="box-body"><table id="roles_list" class="table table-bordered table-hover">\
+         <thead><tr><th>ID</th><th width="99%">Role Name</th><th width="1%">Actions</th></tr></thead>'
+        
+        data.forEach(function(value, index, array) {
+            table_data += '<tr><td>' + value.id + '</td><td width="99%">' + value.name + '</td>\
+            <td align="center" width="1%" style="white-space:nowrap;">\
+            <div class="icon">\
+            <a href="#" class="fa fa-remove delete-role-href" onclick="delete_role(\'' +value.id + '\')">\
+            <!-- <a href="#" class="fa fa-delete">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+            <a href="#" class="fa fa-info-circle"></a>-->\
+            </a></div> \
+            </td></tr > '
+        });
+
+        table_data += '</table></div>';
+        $(".main-content-box-title").replaceWith('<h3 class="box-title">roles</h3>');
+        $(".main-content-box").replaceWith(table_data);
+
+
+        if ($.fn.dataTable.isDataTable('#task_list')) {
+            $('#roles_list').DataTable().destroy();
+        }
+
+        table = $('#roles_list').DataTable({
+                "lengthMenu": [
+                    [15, 30, 100, -1],
+                    [15, 30, 100, "All"]
+                ]
+
+            })
+            //table.on( 'dblclick', function () {
+        // table.on('dblclick', 'tbody tr', function() {
+        //     edit_user(table.row(this).data()[0]);
+        // });
+
+        $('.main-section').removeClass('hidden');
+
+    });
+}
+
+
+function create_role(){
+    alert('Not implemented yet!')
+}
+
+
+function delete_role(id){
+    alert('Not implemented yet!')
+}
+
+function delete_user(id){
+    alert('Not implemented yet!')
+}
+
+function edit_user(id){
+    alert('Not implemented yet!')
+}
+
+function create_user(){
+    alert('Not implemented yet!')
+}
+
+
+function list_users() {
+
+    // $(".treeview-item").removeClass("active")
+    // parent.parents('li').addClass('active');
+    update_breadcrumb('AAA', 'Users');
+
+    $.get("static/templates/main_content_section.html", function(data) {
+        $(".all-content").html('<section class="content">' + data + '</section>');
+    });
+
+    client.aaa.users.read().done(function(data) {
+        table_data = '<div class="box-body"><table id="users_list" class="table table-bordered table-hover">\
+         <thead><tr><th>ID</th><th>Username</th><th width="60%">Full Name</th><th>AAA Provider</th><th width="1%">Actions</th></tr></thead>'
+        
+        data.forEach(function(value, index, array) {
+            table_data += '<tr><td>' + value.id + '</td><td>' + value.username + '</td><td width="60%">' + value.name + '</td> <td> ' + value.aaa_provider + ' </td>\
+            <td align="center" width="1%" style="white-space:nowrap;">\
+            <div class="icon">\
+            <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' +value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' +value.id + '\')">\
+            </a></div> \
+            </td></tr > '
+        });
+
+        table_data += '</table></div>';
+        $(".main-content-box-title").replaceWith('<h3 class="box-title">Users</h3>');
+        $(".main-content-box").replaceWith(table_data);
+
+
+        if ($.fn.dataTable.isDataTable('#task_list')) {
+            $('#users_list').DataTable().destroy();
+        }
+
+        table = $('#users_list').DataTable({
+                "lengthMenu": [
+                    [15, 30, 100, -1],
+                    [15, 30, 100, "All"]
+                ]
+
+            })
+            //table.on( 'dblclick', function () {
+        table.on('dblclick', 'tbody tr', function() {
+            edit_user(table.row(this).data()[0]);
+        });
+
+        $('.main-section').removeClass('hidden');
+
+    });
+}
 
 
 function list_tasks() {
