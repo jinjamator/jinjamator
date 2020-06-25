@@ -363,6 +363,12 @@
                         sessionStorage.setItem('access_token', access_token.split(' ')[1]);
                         console.log('refreshed access_token');
                     };
+                },
+                error: function (request, status, error){
+                    if (request.status == 401){
+                        window.location.pathname = '/login.html';
+                        
+                    }
                 }
             };
             if (data) {
