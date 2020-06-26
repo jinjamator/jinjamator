@@ -194,13 +194,14 @@ $(function() {
     });
 })
 
-var client = new $.RestClient('/api/');
+var client = new $.RestClient('/api/',{stringifyData: true});
 client.add('tasks');
 client.add('jobs');
 client.add('plugins', { isSingle: true });
 client.add('aaa', { isSingle: true });
 client.aaa.add('users');
 client.aaa.add('roles');
+client.aaa.users.add('roles', { isSingle: true });
 
 client.plugins.add('output');
 
@@ -275,8 +276,90 @@ function delete_user(id){
     alert('Not implemented yet!')
 }
 
-function edit_user(id){
-    alert('Not implemented yet!')
+function edit_user(username){
+    
+    update_breadcrumb('AAA', 'Users');
+    client.aaa.users.read(username).done(function(userdata) {
+        client.aaa.roles.read().done(function(roledata) {
+            console.dir(userdata);
+            console.dir(roledata);
+            var select_data = [];
+            
+            $(".all-content").html(
+            `<section class="content">
+            <div class="row">
+            <!-- left column -->
+            <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                <h3 class="box-title">Edit User</h3>
+                </div>
+                <!-- /.box-header -->
+                <!-- form start -->
+                    <form role="form" id='edit_user_form'>
+                    <div class="box-body">
+                    <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="string" class="form-control" id="username" placeholder="Username" disabled value='` + username + `'>
+                    </div>
+                    <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="string" class="form-control" id="full_name" placeholder="full_name" value='` + userdata.name + `'>
+                    </div>
+                    <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                    <label for="roles">Roles</label>
+                    <select class="form-control" id="roles" multiple></select>
+                    </div>                    
+                    
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                </form>
+            </div>
+            <!-- /.box -->
+            </div>
+            </div>
+            </section>`
+            );
+            var selected = [];
+            userdata.roles.forEach(function(value, index, array) {
+                selected.push(value.id);
+            });
+
+            roledata.forEach(function(value, index, array) {
+                is_selected=false;
+                if (selected.includes(value.id)){
+                    is_selected=true;
+                }
+                
+                $('#roles').append($('<option>', {value:value.name, text:value.name, selected:is_selected}));
+            });
+            $('#roles').multiselect({enableFiltering: true,
+                filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
+            $("#edit_user_form").submit(function(e){
+                e.preventDefault();
+                var form = this;
+                if (this.password.value != null){
+                    userdata.password=this.password.value;
+                }
+                userdata.name=this.full_name.value;
+                new_role_data=[];
+                for (let item of this.roles.selectedOptions){
+                    new_role_data.push(item.value);
+                }
+                userdata.roles=new_role_data;
+                console.dir(userdata)
+                client.aaa.users.update(username,userdata);
+                
+            });
+        });
+    });
+
 }
 
 function create_user(){
@@ -303,7 +386,7 @@ function list_users() {
             <td align="center" width="1%" style="white-space:nowrap;">\
             <div class="icon">\
             <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' +value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
-            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' +value.id + '\')">\
+            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' +value.username + '\')">\
             </a></div> \
             </td></tr > '
         });
@@ -326,7 +409,7 @@ function list_users() {
             })
             //table.on( 'dblclick', function () {
         table.on('dblclick', 'tbody tr', function() {
-            edit_user(table.row(this).data()[0]);
+            edit_user(table.row(this).data()[1]);
         });
 
         $('.main-section').removeClass('hidden');

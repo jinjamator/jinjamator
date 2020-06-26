@@ -12,6 +12,7 @@ from jinjamator.daemon.api.serializers import (
     aaa_create_user,
     aaa_create_role,
     aaa_set_user_role,
+    aaa_edit_user,
     environments,
 )
 from jinjamator.daemon.aaa.models import User, JinjamatorRole, JinjamatorRole as r
@@ -218,15 +219,14 @@ class Users(Resource):
 
 
 @ns.route("/users/<user_id_or_name>")
+@api.response(404, "User ID not found")
+@api.response(200, "Success")
 @api.doc(
     params={
         "Authorization": {"in": "header", "description": "A valid access token"},
-        "user_id_or_name": "The User ID of the user which should be returned",
+        "user_id_or_name": "The user ID or name of the user which should be modified",
     }
 )
-@api.doc(params={})
-@api.response(404, "User ID not found")
-@api.response(200, "Success")
 class UserDetail(Resource):
     @require_role(role="user_administration", permit_self=True)
     def get(self, user_id_or_name):
@@ -240,6 +240,33 @@ class UserDetail(Resource):
             return user.to_dict()
         else:
             abort(404, "User ID not found")
+
+    @api.expect(aaa_edit_user)
+    @require_role(role="user_administration", permit_self=True)
+    def put(self, user_id_or_name):
+        """
+        Update user.
+        """
+
+        user = User.query.filter(
+            or_(User.id == user_id_or_name, User.username == user_id_or_name)
+        ).first()
+
+        if request.json.get("name"):
+            user.name = request.json.get("name")
+        if request.json.get("password"):
+            new_password = request.json.get("password")
+            if new_password:
+                user.password_hash = user.hash_password(new_password)
+        if request.json.get("roles") or request.json.get("roles") == []:
+            user.roles = []
+            for role in request.json.get("roles", []):
+                db_role = JinjamatorRole.query.filter_by(name=role).first()
+                user.roles.append(db_role)
+
+        db.session.add(user)
+        db.session.commit()
+        return {"message": f"updated user"}
 
     @require_role(role="user_administration", permit_self=True)
     def delete(self, user_id_or_name):
