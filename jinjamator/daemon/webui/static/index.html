@@ -63,12 +63,16 @@
     <link rel="stylesheet" href="static/css/skins/_all-skins.min.css">
 
     <link rel="stylesheet" href="static/css/dataTables.bootstrap.min.css">
+    
+    <link rel="stylesheet" href="static/css/buttons.dataTables.min.css">
 
     <link type="text/css" href="static/css/alpaca.min.css" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="static/css/jquery.fileupload.css" />
 
     <link rel="stylesheet" type="text/css" href="static/css/jquery.fileupload-ui.css" />
+
+    
 
 
 
@@ -196,48 +200,29 @@
                         <a href="#">
                             <i class="fa fa-dashboard"></i> <span>Jobs</span>
                             <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
                         </a>
                         <ul class="treeview-menu">
                             <li class="treeview-item"><a href="#" onclick="create_job()"><i class="fa fa-circle-o"></i>Create</a></li>
                             <li class="treeview-item"><a href="#" onclick="list_jobs()"><i class="fa fa-circle-o"></i>List current</a></li>
                         </ul>
                     </li>
-                    
                     <li class="treeview">
                         <a href="#">
-                          <i class="fa fa-users"></i> <span>AAA</span>
-                          <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
-                          </span>
+                            <i class="fa fa-users"></i> <span>AAA</span>
+                            <span class="pull-right-container">
+                                <i class="fa fa-angle-left pull-right"></i>
+                            </span>
                         </a>
                         <ul class="treeview-menu">
-                          <li class="treeview">
-                            <a href="#"><i class="fa fa-circle-o"></i> <span>Users</span>
-                                <span class="pull-right-container">
-                                  <i class="fa fa-angle-left pull-right"></i>
-                                </span>
-                            </a>
-                            <ul class="treeview-menu">
-                              <li><a href="#" id='menu_create_user' onclick="create_user()"><i class="fa fa-circle-o"></i> Create</a></li>
-                              <li><a href="#" id='menu_list_users' onclick="list_users()"><i class="fa fa-circle-o"></i> List</a></li>
-                            </ul>
-                          </li>
-                          <li class="treeview">
-                            <a href="#"><i class="fa fa-circle-o"></i> <span>Roles</span>
-                                <span class="pull-right-container">
-                                  <i class="fa fa-angle-left pull-right"></i>
-                                </span>
-                            </a>
-                            <ul class="treeview-menu">
-                              <li><a href="#" id='menu_create_role'  onclick="create_role()"><i class="fa fa-circle-o"></i> Create</a></li>
-                              <li><a href="#" id='menu_list_roles' onclick="list_roles()"><i class="fa fa-circle-o"></i> List</a></li>
-                            </ul>
-                          </li>
-                                        
+                            <li class="treeview-item"><a href="#" onclick="list_users()"><i class="fa fa-circle-o"></i>Users</a></li>
+                            <li class="treeview-item"><a href="#" onclick="list_roles()"><i class="fa fa-circle-o"></i>Roles</a></li>
                         </ul>
-                      </li>               
+                    </li>                    
+
+
+        
                  </ul>
             </section>
             <!-- /.sidebar -->
@@ -292,6 +277,8 @@
     <!-- DataTables -->
     <script src="static/js/jquery.dataTables.min.js"></script>
     <script src="static/js/dataTables.bootstrap.min.js"></script>
+    <script src="static/js/dataTables.buttons.min.js"></script>
+    
     <!-- typeahead.js -->
     <script src="static/js/bloodhound.min.js" type="text/javascript"></script>
     <script src="static/js/typeahead.bundle.min.js" type="text/javascript"></script>
