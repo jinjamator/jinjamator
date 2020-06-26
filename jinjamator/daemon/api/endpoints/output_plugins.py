@@ -11,6 +11,7 @@ import os
 import xxhash
 from flask_restx import abort
 from jinjamator.daemon.api.parsers import task_arguments
+from jinjamator.daemon.aaa import require_role
 
 
 log = logging.getLogger()
@@ -56,6 +57,8 @@ def discover_output_plugins(app):
 
 @ns.route("/")
 class PluginsCollection(Resource):
+    @api.response(200, "Success")
+    @require_role(role=None)
     def get(self):
         """
         Returns a list of all output plugins with it's full alpacajs form schema.
@@ -67,6 +70,7 @@ class PluginsCollection(Resource):
 class PluginInfo(Resource):
     @api.response(404, "Plugin not found Error")
     @api.response(200, "Success")
+    @require_role(role=None)
     def get(self, plugin_name):
         """
         Returns information about a output plugin with it's full alpacajs form schema.
