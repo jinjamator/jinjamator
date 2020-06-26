@@ -95,6 +95,18 @@ aaa_create_user = api.model(
     },
 )
 
+aaa_edit_user = api.model(
+    "aaa_edit_user",
+    {
+        "username": fields.String(required=True, description="Username"),
+        "name": fields.String(
+            required=False, description="Users Full Name e.g. John Doe"
+        ),
+        "password": fields.String(required=False, description="New Users Password"),
+        "roles": fields.List(fields.String(description="Name of role")),
+    },
+)
+
 aaa_create_role = api.model(
     "aaa_create_role",
     {"name": fields.String(required=True, description="Name of new role")},
