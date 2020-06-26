@@ -199,6 +199,7 @@ client.add('tasks');
 client.add('jobs');
 client.add('plugins', { isSingle: true });
 client.add('aaa', { isSingle: true });
+client.aaa.add('providers', { isSingle: true });
 client.aaa.add('users');
 client.aaa.add('roles');
 client.aaa.users.add('roles', { isSingle: true });
@@ -237,7 +238,7 @@ function list_roles() {
         });
 
         table_data += '</table></div>';
-        $(".main-content-box-title").replaceWith('<h3 class="box-title">roles</h3>');
+        $(".main-content-box-title").replaceWith('<h3 class="box-title">Roles</h3>');
         $(".main-content-box").replaceWith(table_data);
 
 
@@ -246,6 +247,15 @@ function list_roles() {
         }
 
         table = $('#roles_list').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        text: 'Create Role',
+                        action: function ( e, dt, node, config ) {
+                            create_role();
+                    }
+                    }
+                ],
                 "lengthMenu": [
                     [15, 30, 100, -1],
                     [15, 30, 100, "All"]
@@ -264,25 +274,70 @@ function list_roles() {
 
 
 function create_role(){
-    alert('Not implemented yet!')
+    update_breadcrumb('AAA', 'Roles');
+            
+    $(".all-content").html(`
+    <section class="content">
+    <div class="row">
+    <!-- left column -->
+    <div class="col-md-6">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+        <h3 class="box-title">Create Role</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+            <form role="form" id='create_role_form'>
+            <div class="box-body">
+            <div class="form-group">
+            <label for="name">Rolename</label>
+            <input type="string" class="form-control" id="role_name" placeholder="Name">
+            </div>
+        </div>
+        <div class="box-footer">
+            <button type="submit" class="btn btn-primary">Create Role</button>
+        </div>
+        </form>
+    </div>
+    <!-- /.box -->
+    </div>
+    </div>
+    </section>`
+    );
+
+
+
+    $("#create_role_form").submit(function(e){
+        e.preventDefault();
+        var form = this;
+        role_data={
+            name:this.role_name.value
+        }
+        
+        client.aaa.roles.create(role_data);
+        list_roles();
+    
+    });
 }
 
 
 function delete_role(id){
-    alert('Not implemented yet!')
+    client.aaa.roles.destroy(id).done(function(user_data) {
+        list_roles();
+    });  
 }
 
 function delete_user(id){
-    alert('Not implemented yet!')
+    client.aaa.users.destroy(id).done(function(user_data) {
+        list_users();
+    });
 }
 
 function edit_user(username){
     
     update_breadcrumb('AAA', 'Users');
-    client.aaa.users.read(username).done(function(userdata) {
+    client.aaa.users.read(username).done(function(user_data) {
         client.aaa.roles.read().done(function(roledata) {
-            console.dir(userdata);
-            console.dir(roledata);
             var select_data = [];
             
             $(".all-content").html(
@@ -300,11 +355,11 @@ function edit_user(username){
                     <div class="box-body">
                     <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="string" class="form-control" id="username" placeholder="Username" disabled value='` + username + `'>
+                    <input type="string" class="form-control" id="username" placeholder="Username" disabled value='` + user_data.username + `'>
                     </div>
                     <div class="form-group">
                     <label for="full_name">Full Name</label>
-                    <input type="string" class="form-control" id="full_name" placeholder="full_name" value='` + userdata.name + `'>
+                    <input type="string" class="form-control" id="full_name" placeholder="Full Name" value='` + user_data.name + `'>
                     </div>
                     <div class="form-group">
                     <label for="password">Password</label>
@@ -317,7 +372,7 @@ function edit_user(username){
                     
                 </div>
                 <div class="box-footer">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
                 </form>
             </div>
@@ -327,7 +382,7 @@ function edit_user(username){
             </section>`
             );
             var selected = [];
-            userdata.roles.forEach(function(value, index, array) {
+            user_data.roles.forEach(function(value, index, array) {
                 selected.push(value.id);
             });
 
@@ -345,17 +400,17 @@ function edit_user(username){
                 e.preventDefault();
                 var form = this;
                 if (this.password.value != null){
-                    userdata.password=this.password.value;
+                    user_data.password=this.password.value;
                 }
-                userdata.name=this.full_name.value;
+                user_data.name=this.full_name.value;
                 new_role_data=[];
                 for (let item of this.roles.selectedOptions){
                     new_role_data.push(item.value);
                 }
-                userdata.roles=new_role_data;
-                console.dir(userdata)
-                client.aaa.users.update(username,userdata);
-                
+                user_data.roles=new_role_data;
+                console.dir(user_data)
+                client.aaa.users.update(username,user_data);
+                list_users();
             });
         });
     });
@@ -363,7 +418,97 @@ function edit_user(username){
 }
 
 function create_user(){
-    alert('Not implemented yet!')
+    
+    update_breadcrumb('AAA', 'Users');
+    
+        client.aaa.roles.read().done(function(roledata) {
+            user_data = {}
+            var select_data = [];
+            
+            $(".all-content").html(
+            `<section class="content">
+            <div class="row">
+            <!-- left column -->
+            <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                <h3 class="box-title">Create User</h3>
+                </div>
+                <!-- /.box-header -->
+                <!-- form start -->
+                    <form role="form" id='create_user_form'>
+                    <div class="box-body">
+                    <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="string" class="form-control" id="username" placeholder="Username">
+                    </div>
+                    <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="string" class="form-control" id="full_name" placeholder="full_name">
+                    </div>
+                    <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                    <label for="aaa_provider">AAA Provider</label>
+                    <select class="form-control" id="aaa_provider"></select>
+                    </div>                    
+
+                    <div class="form-group">
+                    <label for="roles">Roles</label>
+                    <select class="form-control" id="roles" multiple></select>
+                    </div>                    
+                    
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+                </form>
+            </div>
+            <!-- /.box -->
+            </div>
+            </div>
+            </section>`
+            );
+
+
+            roledata.forEach(function(value, index, array) {
+                $('#roles').append($('<option>', {value:value.name, text:value.name}));
+            });
+            
+            client.aaa.providers.read().done(function(providers) {
+                providers.forEach(function(value, index, array) {
+                    $('#aaa_provider').append($('<option>', {value:value.name, text:value.display_name}));
+                });
+                $('#aaa_provider').multiselect({enableFiltering: true,
+                    filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
+    
+            });
+            
+            $('#roles').multiselect({enableFiltering: true,
+                filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
+    
+            $("#create_user_form").submit(function(e){
+                e.preventDefault();
+                var form = this;
+                if (this.password.value != null){
+                    user_data.password=this.password.value;
+                }
+                user_data.name=this.full_name.value;
+                user_data.username=this.username.value;
+                new_role_data=[];
+                for (let item of this.roles.selectedOptions){
+                    new_role_data.push(item.value);
+                }
+                user_data.roles=new_role_data;
+                
+                client.aaa.users.create(user_data);
+                list_users();
+            });
+        });
+
+
 }
 
 
@@ -386,7 +531,7 @@ function list_users() {
             <td align="center" width="1%" style="white-space:nowrap;">\
             <div class="icon">\
             <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' +value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
-            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' +value.username + '\')">\
+            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' +value.id + '\')">\
             </a></div> \
             </td></tr > '
         });
@@ -401,12 +546,21 @@ function list_users() {
         }
 
         table = $('#users_list').DataTable({
-                "lengthMenu": [
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    text: 'Create User',
+                    action: function ( e, dt, node, config ) {
+                        create_user();
+                }
+                }
+            ],
+            "lengthMenu": [
                     [15, 30, 100, -1],
                     [15, 30, 100, "All"]
-                ]
+            ]
 
-            })
+        })
             //table.on( 'dblclick', function () {
         table.on('dblclick', 'tbody tr', function() {
             edit_user(table.row(this).data()[1]);
