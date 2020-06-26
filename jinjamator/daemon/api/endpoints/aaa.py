@@ -201,13 +201,21 @@ class Users(Resource):
         Create a new Jinjamator User.
         """
         try:
+            if not request.json["username"]:
+                abort(400, "Parameter username must not be empty")
             new_user = User(
                 username=request.json["username"],
-                name=request.json["name"],
+                name=request.json.get("name"),
                 password_hash=User.hash_password(request.json["password"]),
                 aaa_provider=request.json.get("aaa_provider", "local"),
+                roles=[],
             )
-        except IndexError:
+            if request.json.get("roles") or request.json.get("roles") == []:
+                for role in request.json.get("roles", []):
+                    db_role = JinjamatorRole.query.filter_by(name=role).first()
+                    new_user.roles.append(db_role)
+
+        except KeyError:
             abort(400, "Parameters missing, or not properly encoded")
         db.session.add(new_user)
         try:
@@ -233,13 +241,30 @@ class UserDetail(Resource):
         """
         Get details about an user.
         """
+
         user = User.query.filter(
-            or_(User.id == user_id_or_name, User.username == user_id_or_name)
+            or_(User.id == user_id_or_name, User.username == str(user_id_or_name))
         ).first()
         if user:
             return user.to_dict()
         else:
             abort(404, "User ID not found")
+
+    @require_role(role="user_administration")
+    def delete(self, user_id_or_name):
+        """
+        Delete an user.
+        """
+        # try:
+        log.debug(f"user_id_or_name {user_id_or_name}")
+        user = User.query.filter(
+            or_(User.id == user_id_or_name, User.username == str(user_id_or_name))
+        ).delete()
+        db.session.add(user)
+        db.session.commit()
+        return {"message": f"deleted user"}
+        # except Exception:
+        #     abort(404, "User ID not found")
 
     @api.expect(aaa_edit_user)
     @require_role(role="user_administration", permit_self=True)
@@ -384,6 +409,8 @@ class Roles(Resource):
         Create a new role.
         """
         try:
+            if not request.json["name"]:
+                abort(400, "Parameter name must not be empty")
             new_role = JinjamatorRole(name=request.json["name"])
         except IndexError:
             abort(400, "Parameters missing, or not properly encoded")
