@@ -5,6 +5,7 @@ from flask_restx import Resource
 from jinjamator.daemon.api.serializers import environments
 from jinjamator.daemon.api.restx import api
 from jinjamator.daemon.api.parsers import upload_parser
+from jinjamator.daemon.aaa import require_role
 from flask import current_app as app
 import glob
 import os
@@ -23,6 +24,7 @@ ns = api.namespace(
 @ns.route("/upload")
 class FileUpload(Resource):
     @api.expect(upload_parser, validate=True)
+    @require_role(role=None)
     def post(self):
         """
         Accepts a single file.
@@ -49,6 +51,7 @@ class FileUpload(Resource):
 @ns.route("/download/<job_id>/<file_name>")
 class FileUpload(Resource):
     @api.doc("Download a file from job")
+    @require_role(role=None)
     def get(self, job_id, file_name):
         """
         Downloads a single file which is attached to a job.
