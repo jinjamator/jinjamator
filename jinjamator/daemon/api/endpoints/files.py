@@ -36,6 +36,9 @@ ns = api.namespace(
 
 
 @ns.route("/upload")
+@api.doc(
+    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+)
 class FileUpload(Resource):
     @api.expect(upload_parser, validate=True)
     @require_role(role=None)
@@ -63,6 +66,9 @@ class FileUpload(Resource):
 
 
 @ns.route("/download/<job_id>/<file_name>")
+@api.doc(
+    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+)
 class FileUpload(Resource):
     @api.doc("Download a file from job")
     @require_role(role=None)
