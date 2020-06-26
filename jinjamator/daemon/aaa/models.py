@@ -13,6 +13,8 @@ import logging
 log = logging.getLogger("")
 from sqlalchemy_serializer import SerializerMixin
 
+logging.getLogger("serializer").setLevel(logging.ERROR)
+
 
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
