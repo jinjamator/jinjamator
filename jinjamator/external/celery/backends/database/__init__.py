@@ -122,6 +122,8 @@ class DatabaseBackend(BaseBackend):
             task.status = state
             task.traceback = traceback
             task_id = task.task_id
+            if not result:
+                return []
             if task_id:
                 try:
                     result["log"]
