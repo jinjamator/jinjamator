@@ -7,6 +7,7 @@ from jinjamator.daemon.api.restx import api
 from jinjamator.external.celery.backends.database.models import Task as DB_Job, JobLog
 from jinjamator.daemon.database import db
 from jinjamator.daemon.api.parsers import job_arguments
+from jinjamator.daemon.aaa import require_role
 from flask import current_app as app
 
 from sqlalchemy import select, and_, or_, exc
@@ -28,6 +29,8 @@ site_path_by_name = {}
 @ns.route("/")
 class JobCollection(Resource):
     @api.marshal_list_with(job_brief)
+    @api.response(200, "Success")
+    @require_role(role=None)
     def get(self):
         """
         Returns a list of all jobs.
@@ -77,6 +80,7 @@ class Job(Resource):
     @api.response(404, "Task not found Error")
     @api.response(400, "Task ID not in UUID V4 format")
     @api.response(200, "Success")
+    @require_role(role=None)
     def get(self, job_id):
         """
         Returns detailed information about a job, including a full debug log.
