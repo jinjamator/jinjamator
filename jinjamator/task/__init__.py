@@ -70,6 +70,15 @@ def import_code(code, name, add_to_sys_modules=False):
     return module
 
 
+class TaskletFailed(Exception):
+    def __init__(self, results, message):
+        self.results = results
+        self.message = message
+        # self._log = logging.getLogger('taskletfail')
+        # self._log.error(message)
+        super().__init__(self.message)
+
+
 class JinjamatorTask(object):
     def __init__(self, run_mode="background"):
         self._global_ldr = None
@@ -78,7 +87,8 @@ class JinjamatorTask(object):
         self._parent_task_id = None
         self._log = logging.getLogger()
         self._id = id(self)
-
+        self._current_global_base_dir = None
+        self._unresolved_task_base_dir = None
         self._tasklets = []
         self.configuration = TaskConfiguration()
         self._configuration = TaskConfiguration()
@@ -100,7 +110,7 @@ class JinjamatorTask(object):
 
     def load(self, path):
         self.task_base_dir = path
-
+        self._unresolved_task_base_dir = path
         self._log.debug(f"---------------- load task: {path} ----------------")
 
         search_paths = self._configuration.get("global_tasks_base_dirs", [])
@@ -112,6 +122,7 @@ class JinjamatorTask(object):
                 tried_path = os.path.join(global_base_dir, path)
                 if os.path.exists(tried_path):
                     self._log.debug(f"resolved path to {tried_path}")
+                    self._current_global_base_dir = global_base_dir
                     path = tried_path
                     break
 
@@ -723,9 +734,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                     if self.configuration.get("best_effort"):
                         continue
                     else:
-                        self._log.error(
-                            f"tasklet {tasklet} has failed and best_effort is not defined -> exiting"
-                        )
                         to_process.pop(0)
                         skipped = []
                         for path in to_process:
@@ -739,7 +747,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                                 "skipped": skipped,
                             }
                         )
-                        return results
+                        raise TaskletFailed(
+                            results,
+                            f"tasklet {tasklet} has failed and best_effort is not defined -> exiting",
+                        )
 
             else:
                 raise ValueError(
