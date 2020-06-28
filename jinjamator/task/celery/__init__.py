@@ -24,6 +24,7 @@ import json
 from celery.exceptions import Ignore
 from jinjamator.daemon import celery
 from jinjamator.task.celery.loghandler import CeleryLogHandler, CeleryLogFormatter
+from jinjamator.task import TaskletFailed
 from copy import deepcopy
 
 
@@ -104,8 +105,9 @@ def run_jinjamator_task(self, path, data, output_plugin):
     task.configuration.merge_dict(data)
 
     task.load(path)
-
-    if not task.run():
+    try:
+        task.run()
+    except TaskletFailed:
         raise Exception("task failed")
 
     return {
