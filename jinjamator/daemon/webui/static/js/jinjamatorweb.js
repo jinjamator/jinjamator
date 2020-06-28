@@ -1069,7 +1069,7 @@ function timeline_render_elements(data) {
 
 
 
-            timeline_item.find('.timeline-header').html('<strong>' + log_item[timestamp]['current_tasklet'] + ':</strong> ' + short_msg);
+            timeline_item.find('.timeline-header').html('<strong>' + log_item[timestamp]['current_tasklet'] + '</strong> ');
 
 
             timeline_item.find('#configuration').html('<div style="white-space: pre-wrap;">' + JSON.stringify(log_item[timestamp]['configuration'], null, 4) + '</div>');
