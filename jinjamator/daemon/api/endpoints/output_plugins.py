@@ -70,6 +70,9 @@ def discover_output_plugins(app):
 
 
 @ns.route("/")
+@api.doc(
+    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+)
 class PluginsCollection(Resource):
     @api.response(200, "Success")
     @require_role(role=None)
@@ -81,6 +84,9 @@ class PluginsCollection(Resource):
 
 
 @ns.route("/<plugin_name>")
+@api.doc(
+    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+)
 class PluginInfo(Resource):
     @api.response(404, "Plugin not found Error")
     @api.response(200, "Success")
