@@ -41,6 +41,9 @@ site_path_by_name = {}
 
 
 @ns.route("/")
+@api.doc(
+    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+)
 class JobCollection(Resource):
     @api.marshal_list_with(job_brief)
     @api.response(200, "Success")
@@ -87,7 +90,10 @@ class JobCollection(Resource):
 
 @ns.route("/<job_id>")
 @api.doc(
-    params={"job_id": "The ID returned by task create operation. (UUID V4 format)"}
+    params={
+        "job_id": "The ID returned by task create operation. (UUID V4 format)",
+        "Authorization": {"in": "header", "description": "A valid access token"},
+    }
 )
 class Job(Resource):
     @api.expect(job_arguments)
