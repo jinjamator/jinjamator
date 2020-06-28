@@ -4,6 +4,7 @@ import os, sys, logging
 from colorama import init
 import traceback
 from tempfile import mkstemp
+from jinjamator.task import TaskletFailed
 
 init()
 from colorama import Fore, Style
@@ -99,7 +100,12 @@ print(f"-------------------------------------------------------------------\n")
 for test in tests:
     print(f"running tests defined in {test}:")
     try:
-        for retval in task.run(test, cfg, output_plugin="null"):
+        task_return_values = task.run(test, cfg, output_plugin="null")
+    except TaskletFailed as e:
+        task_return_values = e.results
+
+    try:
+        for retval in task_return_values:
             tasklet_path = retval["tasklet_path"]
             tasklet_return_value = retval["result"]
             tasklet_error = retval["error"]
