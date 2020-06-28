@@ -70,12 +70,10 @@ def import_code(code, name, add_to_sys_modules=False):
     return module
 
 
-class TaskletFailed(Exception):
+class TaskletFailed(ValueError):
     def __init__(self, results, message):
         self.results = results
         self.message = message
-        # self._log = logging.getLogger('taskletfail')
-        # self._log.error(message)
         super().__init__(self.message)
 
 
