@@ -29,11 +29,12 @@ from sqlalchemy import select
 from jinjamator.external.celery.backends.database.models import Task as DB_Job
 from jinjamator.external.celery.backends.database.models import JobLog
 from flask import current_app as app
-from jinjamator.daemon.aaa.models import JinjamatorRole
+from jinjamator.daemon.aaa.models import User, JinjamatorRole
 from jinjamator.daemon.aaa import require_role
 from jinjamator.daemon.database import db
 
 from flask import jsonify
+from sqlalchemy import or_, and_
 import glob
 import os
 import xxhash
@@ -135,7 +136,14 @@ def discover_tasks(app):
                                     }
                                 }
                             )
-                            @require_role(role=dynamic_role_name)
+                            @require_role(
+                                role=or_(
+                                    User.roles.any(
+                                        JinjamatorRole.name == dynamic_role_name
+                                    ),
+                                    User.roles.any(JinjamatorRole.name == "tasks_all"),
+                                )
+                            )
                             def get(self):
                                 """
                                 Returns the json-schema or the whole alpacajs configuration data for the task
@@ -268,7 +276,6 @@ class TaskList(Resource):
         """
         response = {"tasks": []}
         user_roles = [role["name"] for role in g._user["roles"]]
-        log.info(f"userroles: {user_roles}")
         if "administrator" in user_roles or "tasks_all" in user_roles:
             for k, v in available_tasks_by_path.items():
                 response["tasks"].append(v)
