@@ -15,7 +15,7 @@
 import logging
 
 from flask import request, g
-from flask_restx import Resource
+from flask_restx import Resource, abort
 from jinjamator.daemon.api.serializers import tasks
 from jinjamator.daemon.api.parsers import task_arguments
 from jinjamator.daemon.api.endpoints.environments import (
@@ -179,11 +179,28 @@ def discover_tasks(app):
                                     inner_task._configuration[
                                         "jinjamator_site_name"
                                     ] = environment_site
-                                    inner_task.configuration.merge_yaml(
-                                        "{}/defaults.yaml".format(
-                                            site_path_by_name.get(environment_site)
+
+                                    env_name, site_name = environment_site.split("/")
+                                    roles = [
+                                        role["name"]
+                                        for role in g._user.get("roles", [])
+                                    ]
+                                    if (
+                                        f"environment_{env_name}|site_{site_name}"
+                                        in roles
+                                        or f"environments_all" in roles
+                                        or f"administrator" in roles
+                                    ):
+                                        inner_task.configuration.merge_yaml(
+                                            "{}/defaults.yaml".format(
+                                                site_path_by_name.get(environment_site)
+                                            )
                                         )
-                                    )
+                                    else:
+                                        abort(
+                                            403,
+                                            f"User neither has no role environment_{env_name}|site_{site_name} nor environments_all nor administrator. Access denied.",
+                                        )
 
                                 full_schema = inner_task.get_jsonform_schema()
 
