@@ -151,9 +151,12 @@ def discover_tasks(app):
 
                                 args = task_arguments.parse_args(request)
                                 schema_type = args.get("schema-type", "full")
-                                preload_data = json.loads(
-                                    args.get("preload-data", "{}")
-                                )
+                                try:
+                                    preload_data = json.loads(
+                                        args.get("preload-data", "{}")
+                                    )
+                                except TypeError:
+                                    preload_data = {}
                                 environment_site = args.get(
                                     "preload-defaults-from-site"
                                 )
