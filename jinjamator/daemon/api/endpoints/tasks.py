@@ -229,7 +229,14 @@ def discover_tasks(app):
                                     }
                                 }
                             )
-                            @require_role(role=dynamic_role_name)
+                            @require_role(
+                                role=or_(
+                                    User.roles.any(
+                                        JinjamatorRole.name == dynamic_role_name
+                                    ),
+                                    User.roles.any(JinjamatorRole.name == "tasks_all"),
+                                )
+                            )
                             def post(self):
                                 """
                                 Creates an instance of the task and returns the job_id
