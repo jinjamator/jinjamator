@@ -1127,7 +1127,6 @@ function show_job(job_id) {
             $(".all-content").html('<section class="content">' + timeline.html() + '</section>');
 
             client.jobs.read(job_id).done(function(data) {
-                console.log(data)
                 $("#user_name").html(data['created_by_user_name']);
                 timeline_render_elements(data);
                 $("#job_path").html(data['jinjamator_task']);
