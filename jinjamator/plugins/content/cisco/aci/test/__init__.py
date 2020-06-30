@@ -62,21 +62,29 @@ def create_verify(task_dir, config={}, ignore_fields=[]):
     else:
         raise ACITooManyObjects(f"APIC returned too many Objects {data}")
 
-    #Function to ignore fields that shall not be checked
+    # Function to ignore fields that shall not be checked
     def exclude_obj_callback(obj, path):
         return True if path in ignore_fields else False
 
-    #For some checks the order of items is somewhat unpredictable when reading from APIC (especially for unordered children)
+    # For some checks the order of items is somewhat unpredictable when reading from APIC (especially for unordered children)
     if _jinjamator.configuration.get("verify_ignore_order"):
-        ddiff = DeepDiff(configured_obj, data,ignore_order=True,exclude_obj_callback=exclude_obj_callback)
+        ddiff = DeepDiff(
+            configured_obj,
+            data,
+            ignore_order=True,
+            exclude_obj_callback=exclude_obj_callback,
+        )
     else:
-        ddiff = DeepDiff(configured_obj, data,exclude_obj_callback=exclude_obj_callback)
+        ddiff = DeepDiff(
+            configured_obj, data, exclude_obj_callback=exclude_obj_callback
+        )
 
     if not ddiff:
         log.debug("*************** Verification OK ***************")
         return "OK"
     else:
-        log.debug("*************** Verification NOK ***************\n"
+        log.debug(
+            "*************** Verification NOK ***************\n"
             + "Live data:\n"
             + json.dumps(data)
             + "\n\n"
@@ -116,7 +124,8 @@ def delete_verify(task_dir, config={}):
         log.debug(f"{expected_dn} does exists after delete")
         raise ACIObjectExists(f"{expected_dn} does exists after delete")
 
-def verify_ignore_order (state=True):
+
+def verify_ignore_order(state=True):
     """
     Instruct the verify-process to ignore the order of json attributes
 
@@ -125,4 +134,4 @@ def verify_ignore_order (state=True):
     :returns: None
     :rtype: None
     """
-    _jinjamator.configuration.__setitem__("verify_ignore_order",state)
+    _jinjamator.configuration["verify_ignore_order"] = state
