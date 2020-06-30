@@ -51,6 +51,7 @@ class CeleryLogHandler(logging.Handler):
         meta = deepcopy(self._celery_meta_template)
         self._q.append(json.loads(self.format(record)))
         meta["log"] = self._q
+        meta["created_by_user_id"] = self.created_by_user_id
         if record.levelno == logging.ERROR:
             self._celery_state = "ERROR"
         self._celery_task.update_state(state=self._celery_state, meta=meta)
@@ -83,6 +84,7 @@ class CeleryLogFormatter(JSONFormatter):
 
         retval = {
             str(extra["time"]): {
+                "created_by_user_id": self.created_by_user_id,
                 "root_task": self._root_task,
                 "parent_tasklet": self._task._parent_tasklet,
                 "parent_task_id": self._task._parent_task_id,

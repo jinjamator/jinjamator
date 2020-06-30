@@ -541,7 +541,7 @@ function list_users() {
         $(".main-content-box").replaceWith(table_data);
 
 
-        if ($.fn.dataTable.isDataTable('#task_list')) {
+        if ($.fn.dataTable.isDataTable('#users_list')) {
             $('#users_list').DataTable().destroy();
         }
 
@@ -1119,14 +1119,17 @@ function show_job(job_id) {
             var timeline = timeline_templates.filter('#timeline-template');
             var timeline_overview_box = timeline_templates.filter('#timeline-overview-box-template');
             timeline_overview_box.find('#job_id').html(job_id);
+            
 
             timeline.find('.timeline').append(timeline_overview_box.html());
             $(".all-content").html('<section class="content">' + timeline.html() + '</section>');
 
             client.jobs.read(job_id).done(function(data) {
-
+                console.log(data)
+                $("#user_name").html(data['created_by_user_name']);
                 timeline_render_elements(data);
                 $("#job_path").html(data['jinjamator_task']);
+                
 
             });
 

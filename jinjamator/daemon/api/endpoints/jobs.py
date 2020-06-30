@@ -22,6 +22,7 @@ from jinjamator.external.celery.backends.database.models import Task as DB_Job, 
 from jinjamator.daemon.database import db
 from jinjamator.daemon.api.parsers import job_arguments
 from jinjamator.daemon.aaa import require_role
+from jinjamator.daemon.aaa.models import User
 from flask import current_app as app
 
 from sqlalchemy import select, and_, or_, exc
@@ -64,13 +65,16 @@ class JobCollection(Resource):
                         DB_Job.date_start,
                         DB_Job.date_scheduled,
                         DB_Job.jinjamator_task,
+                        DB_Job.created_by_user_id,
                     ]
                 ).order_by(DB_Job.id.desc())
             )
         except exc.SQLAlchemyError as e:
             log.error(e)
             return response
+
         for job in rs.fetchall():
+            user = User.query.filter(User.id == int(job.created_by_user_id)).first()
             response.append(
                 {
                     "job": {
@@ -81,6 +85,8 @@ class JobCollection(Resource):
                         "date_start": str(job.date_start),
                         "date_scheduled": str(job.date_scheduled),
                         "task": str(job.jinjamator_task),
+                        "created_by_user_id": int(job.created_by_user_id),
+                        "created_by_user_name": str(user.username),
                     }
                 }
             )
@@ -113,13 +119,16 @@ class Job(Resource):
         args = job_arguments.parse_args(request)
         log_level = args.get("log-level", "DEBUG")
         try:
-            job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).all()[0]
+            job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).first()
+            user = User.query.filter(User.id == int(job.created_by_user_id)).first()
             response = {
                 "id": job.task_id,
                 "state": job.status,
                 "jinjamator_task": job.jinjamator_task,
                 "log": [],
                 "files": [],
+                "created_by_user_id": int(job.created_by_user_id),
+                "created_by_user_name": str(user.username),
             }
         except exc.SQLAlchemyError as e:
             log.error(e)
