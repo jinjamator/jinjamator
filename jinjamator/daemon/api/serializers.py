@@ -83,6 +83,14 @@ job_brief = api.model(
                         required=True,
                         description="Relative path to task which will be, or has been executed",
                     ),
+                    "created_by_user_id": fields.Integer(
+                        required=True,
+                        description="Userid of User which created the job",
+                    ),
+                    "created_by_user_name": fields.String(
+                        required=True,
+                        description="Username of User which created the job",
+                    ),
                 },
             )
         )

@@ -29,7 +29,7 @@ from copy import deepcopy
 
 
 @celery.task(bind=True)
-def run_jinjamator_task(self, path, data, output_plugin):
+def run_jinjamator_task(self, path, data, output_plugin, user_id):
     """
     Jinjamator Celery Task runner.
     """
@@ -38,52 +38,57 @@ def run_jinjamator_task(self, path, data, output_plugin):
         state="PROGRESS",
         meta={
             "status": "setting up jinjamator task run",
-            "configuration": {"root_task_path": path},
+            "configuration": {"root_task_path": path, "created_by_user_id": user_id},
         },
     )
 
     formatter = CeleryLogFormatter()
     log_handler = CeleryLogHandler()
-
+    formatter.created_by_user_id = user_id
+    log_handler.created_by_user_id = user_id
     log_handler.setLevel(logging.DEBUG)
     log_handler.setFormatter(formatter)
+
     log_handler.set_celery_task(self)
 
     log_handler.formatter.set_root_task_path(path)
 
-    if "jinjamator_pre_run_tasks" in data:
-        for pre_run_task in data["jinjamator_pre_run_tasks"]:
+    # if "jinjamator_pre_run_tasks" in data:
+    #     for pre_run_task in data["jinjamator_pre_run_tasks"]:
 
-            task = JinjamatorTask()
-            task._configuration._data["jinjamator_job_id"] = self.request.id
-            log_handler.formatter.set_jinjamator_task(task)
-            task._scheduler = self
-            task._log.addHandler(log_handler)
-            task._log.setLevel(logging.DEBUG)
-            if "output_plugin" in pre_run_task["task"]:
-                task.load_output_plugin(pre_run_task["task"]["output_plugin"])
-            else:
-                task.load_output_plugin("console")
-            task.configuration.merge_dict(pre_run_task["task"]["data"])
-            task._configuration.merge_dict(
-                celery.conf["jinjamator_private_configuration"]
-            )
+    #         task = JinjamatorTask()
+    #         task._configuration._data["jinjamator_job_id"] = self.request.id
+    #         log_handler.formatter.set_jinjamator_task(task)
+    #         task._scheduler = self
+    #         task._log.addHandler(log_handler)
+    #         task._log.setLevel(logging.DEBUG)
+    #         if "output_plugin" in pre_run_task["task"]:
+    #             task.load_output_plugin(pre_run_task["task"]["output_plugin"])
+    #         else:
+    #             task.load_output_plugin("console")
+    #         task.configuration.merge_dict(pre_run_task["task"]["data"])
+    #         task._configuration.merge_dict(
+    #             celery.conf["jinjamator_private_configuration"]
+    #         )
 
-            task.configuration.merge_dict(deepcopy(data))
+    #         task.configuration.merge_dict(deepcopy(data))
 
-            task.load(pre_run_task["task"]["path"])
-            task._log.info(
-                "running pre run task {}".format(pre_run_task["task"]["path"])
-            )
-            if not task.run():
-                raise Exception("task failed")
-            task._log.handlers.remove(log_handler)
-            log_handler._task = None
-            del task
+    #         task.load(pre_run_task["task"]["path"])
+    #         task._log.info(
+    #             "running pre run task {}".format(pre_run_task["task"]["path"])
+    #         )
+    #         if not task.run():
+    #             raise Exception("task failed")
+    #         task._log.handlers.remove(log_handler)
+    #         log_handler._task = None
+    #         del task
 
     self.update_state(
         state="PROGRESS",
-        meta={"status": "running main task", "configuration": {"root_task_path": path}},
+        meta={
+            "status": "running main task",
+            "configuration": {"root_task_path": path, "created_by_user_id": user_id},
+        },
     )
 
     task = JinjamatorTask()

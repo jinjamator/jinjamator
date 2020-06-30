@@ -172,14 +172,13 @@ def discover_tasks(app):
 
                                 inner_task.load(relative_task_path)
 
-                                if environment_site not in [None, "None"]:
+                                if environment_site not in [None, "None", ""]:
                                     inner_task._configuration[
                                         "jinjamator_site_path"
                                     ] = site_path_by_name.get(environment_site)
                                     inner_task._configuration[
                                         "jinjamator_site_name"
                                     ] = environment_site
-
                                     env_name, site_name = environment_site.split("/")
                                     roles = [
                                         role["name"]
@@ -250,13 +249,17 @@ def discover_tasks(app):
                                 )
                                 data = request.get_json()
                                 job_id = str(uuid.uuid4())
+                                user_id = g._user["id"]
+
                                 job = run_jinjamator_task.apply_async(
                                     [
                                         relative_task_path,
                                         data,
                                         data.get("output_plugin", "console"),
+                                        user_id,
                                     ],
                                     task_id=job_id,
+                                    created_by_user_id=user_id,
                                 )
 
                                 db_job = list(
@@ -270,6 +273,7 @@ def discover_tasks(app):
                                     db_job.status = "SCHEDULED"
                                     db_job.configuration = data
                                     db_job.jinjamator_task = relative_task_path
+                                    db_job.created_by_user_id = user_id
                                     db.session.add(db_job)
                                     db.session.flush()
                                     db.session.commit()

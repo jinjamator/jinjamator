@@ -134,6 +134,7 @@ class DatabaseBackend(BaseBackend):
                     log_time = list(entry.keys())[0]
                     log = entry[log_time]
                     task.jinjamator_task = log["root_task"]
+                    task.created_by_user_id = log["created_by_user_id"]
                     try:
                         log["exc_info"]
                     except KeyError:
@@ -155,6 +156,7 @@ class DatabaseBackend(BaseBackend):
                             level=log["level"],
                             stdout=log["stdout"],
                             exc_info=log["exc_info"],
+                            created_by_user_id=log["created_by_user_id"],
                         )
                     )
 
@@ -162,7 +164,7 @@ class DatabaseBackend(BaseBackend):
             return result
 
     @retry
-    def _get_task_meta_for(self, task_id):
+    def _get_task_meta_for(self, task_id, created_by_user_id):
         """Get task meta-data for a task by id."""
         session = self.ResultSession()
         with session_cleanup(session):
@@ -171,6 +173,7 @@ class DatabaseBackend(BaseBackend):
             if not task:
                 task = Task(task_id)
                 task.status = states.PENDING
+                task.created_by_user_id = created_by_user_id
                 task.result = None
             return self.meta_from_decoded(task.to_dict())
 
