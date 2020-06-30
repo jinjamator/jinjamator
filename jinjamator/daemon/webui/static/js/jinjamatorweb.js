@@ -910,6 +910,7 @@ function list_jobs() {
                 <thead>\
                 <tr>\
                     <th width="1%">#</th>\
+                    <th>Created by</th>\
                     <th>Scheduled</th>\
                     <th>Start</th>\
                     <th>End</th>\
@@ -923,9 +924,10 @@ function list_jobs() {
 
                 badge_color = badge_color_from_state(obj.state);
                 table_data += '<tr><td width="1%">' + obj.number + '</td>\
-                <td width="13%">' + obj.date_scheduled.split('.')[0] + '</td>\
-                <td width="13%">' + obj.date_start.split('.')[0] + '</td>\
-                <td width="13%">' + obj.date_done.split('.')[0] + '</td>\
+                <td width="10%">' + obj.created_by_user_name + '</td>\
+                <td width="10%">' + obj.date_scheduled.split('.')[0] + '</td>\
+                <td width="10%">' + obj.date_start.split('.')[0] + '</td>\
+                <td width="10%">' + obj.date_done.split('.')[0] + '</td>\
                 <td width="17%">' + obj.id + '</td>\
                 <td>' + obj.task + '</td>\
                 <td width="1%"><span class="badge ' + badge_color + '">' + obj.state + '</span></td></tr>'
