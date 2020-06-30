@@ -16,17 +16,23 @@
 swiss army knife automation tool
 """
 
-
-from argparse import ArgumentParser
-from argparse import RawDescriptionHelpFormatter
 import sys
 import os
-from jinjamator.task.configuration import TaskConfiguration
 import logging
 from glob import glob
 import tempfile
+import random
+import string
+
+
+from configargparse import ArgumentParser
+from configargparse import RawDescriptionHelpFormatter
+
+
+from jinjamator.task.configuration import TaskConfiguration
 from jinjamator.plugin_loader.output import load_output_plugin
 from jinjamator.tools.version import version, updated
+
 
 __version__ = version
 __updated__ = updated
@@ -65,18 +71,26 @@ class Program(object):
             action="count",
             help="show this help message and exit",
         )
+        self._parser.add(
+            "-c",
+            "--configuration-file",
+            required=False,
+            is_config_file=True,
+            help="config file path",
+        )
+
         self._parser.add_argument(
             "-o",
             "--output-plugin",
             dest="output_plugin",
-            help="selects the plugin which is used for futher data processing after tasklrt template has been rendered [default: %(default)s]",
+            help="selects the plugin which is used for futher data processing after tasklet template has been rendered [default: %(default)s] (CLI only)",
             default="console",
         )
         self._parser.add_argument(
             "-m",
             "--mapping",
             dest="mapping",
-            help="map data (strings,integer or json) to a variable, e.g. -m 'var_name:asdf' or -m 'var_name:{\"key\":\"value\"}' ",
+            help="map data (strings,integer or json) to a variable, e.g. -m 'var_name:asdf' or -m 'var_name:{\"key\":\"value\"}' (CLI only)",
             action="append",
         )
         self._parser.add_argument(
@@ -85,6 +99,14 @@ class Program(object):
             dest="_taskdir",
             help="path to task directory or tasklet file which should be run (CLI only)",
         )
+        self._parser.add_argument(
+            "--best-effort",
+            dest="best_effort",
+            default=False,
+            action="store_true",
+            help="allow tasklets to fail (CLI only)",
+        )
+
         self._parser.add_argument(
             "-v",
             "--verbose",
@@ -102,13 +124,7 @@ class Program(object):
             default=None,
             help="path to a global defaults.yaml [default: %(default)s]",
         )
-        self._parser.add_argument(
-            "--best-effort",
-            dest="best_effort",
-            default=False,
-            action="store_true",
-            help="allow task items to fail",
-        )
+
         self._parser.add_argument(
             "-d",
             "--daemonize",
@@ -122,12 +138,14 @@ class Program(object):
             dest="_daemon_listen_address",
             default="127.0.0.1",
             help="on which ip should the daemon listen [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_LISTEN_ADDRESS",
         )
         self._parser.add_argument(
             "--listen-port",
             dest="_daemon_listen_port",
             default="5000",
             help="on which TCP port should the daemon listen [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_LISTEN_PORT",
         )
         self._parser.add_argument(
             "--no-worker",
@@ -135,6 +153,7 @@ class Program(object):
             default=False,
             action="store_true",
             help="do not spawn local celery worker",
+            env_var="JINJAMATOR_DAEMON_NO_WORKER",
         )
         self._parser.add_argument(
             "--just-worker",
@@ -142,6 +161,7 @@ class Program(object):
             default=False,
             action="store_true",
             help="spawn worker only",
+            env_var="JINJAMATOR_DAEMON_JUST_WORKER",
         )
         self._parser.add_argument(
             "--celery-broker-url",
@@ -149,18 +169,21 @@ class Program(object):
             # default="amqp://jinjamator:jinjamator@localhost:5672/jinjamator",
             default=f"filesystem://",
             help="celery broker URL (required for daemon mode)  [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_CELERY_BROKER_URL",
         )
         self._parser.add_argument(
             "--celery-result-backend",
             dest="_celery_result_backend",
             default=f'sqlite:///{self._configuration.get("jinjamator_user_directory",tempfile.gettempdir())}/jinjamator-results.db',
             help="celery result backend URL (required for daemon mode)  [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_CELERY_RESULT_BACKEND_URL",
         )
         self._parser.add_argument(
             "--celery-heartbeat-database",
             dest="_celery_beat_database",
             default=f'{self._configuration.get("jinjamator_user_directory", tempfile.gettempdir())}/jinjamator-beat.db',
             help="celery result beat Database (required for daemon mode)  [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_CELERY_BEAT_DB_PATH",
         )
         self._parser.add_argument(
             "--task-base-dir",
@@ -175,6 +198,7 @@ class Program(object):
             ],
             action="append",
             help="where should jinjamator look for tasks in daemon mode [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_TASK_BASE_DIRECTORIES",
         )
 
         self._parser.add_argument(
@@ -191,6 +215,7 @@ class Program(object):
             ],
             action="append",
             help="where should jinjamator look for output plugins  [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_OUTPUT_PLUGINS_BASE_DIRECTORIES",
         )
 
         self._parser.add_argument(
@@ -206,7 +231,8 @@ class Program(object):
                 )
             ],
             action="append",
-            help="where should jinjamator look for output plugins  [default: %(default)s]",
+            help="where should jinjamator look for content plugins  [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_CONTENT_PLUGINS_BASE_DIRECTORIES",
         )
 
         self._parser.add_argument(
@@ -219,6 +245,55 @@ class Program(object):
             ],
             action="append",
             help="where should jinjamator look for environments [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_ENVIRONMENTS_BASE_DIRECTORIES",
+        )
+
+        self._parser.add_argument(
+            "--aaa-configuration-base-dir",
+            dest="_aaa_configuration_base_dirs",
+            default=[
+                os.path.sep.join(
+                    [self._configuration["jinjamator_user_directory"], "aaa"]
+                )
+            ],
+            action="append",
+            help="where should jinjamator look for aaa configuration files [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_AAA_BASE_DIRECTORIES",
+        )
+
+        self._parser.add_argument(
+            "--aaa-database-uri",
+            dest="_global_aaa_database_uri",
+            default=f'sqlite:///{self._configuration.get("jinjamator_user_directory",tempfile.gettempdir())}/aaa/jinjamator-aaa.db',
+            help="celery result backend URL (required for daemon mode)  [default: %(default)s]",
+            env_var="JINJAMATOR_DAEMON_AAA_DATABASE_URL",
+        )
+
+        generated_secret = "".join(
+            random.SystemRandom().choice(string.ascii_letters + string.digits)
+            for _ in range(128)
+        )
+        self._parser.add_argument(
+            "--secret-key",
+            dest="_secret-key",
+            default=generated_secret,
+            help="FLASK application secret key, which is used for token generation (required for daemon mode)  [default: autogenerated]",
+            env_var="JINJAMATOR_DAEMON_SECRET_KEY",
+        )
+
+        self._parser.add_argument(
+            "--aaa-token-lifetime",
+            dest="_aaa_token_lifetime",
+            default=600,
+            help="API JWT token lifetime [default: %(default)s]",
+            env_var="JINJAMATOR_AAA_TOKEN_LIFETIME",
+        )
+        self._parser.add_argument(
+            "--aaa-token-auto-renew_time",
+            dest="_aaa_token_auto_renew_time",
+            default=300,
+            help="Renew API JWT token automatically if token lifetime is below this. Set to 0 to disable auto renew [default: %(default)s]",
+            env_var="JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME",
         )
 
     def setupLogging(self):
@@ -231,7 +306,7 @@ class Program(object):
 
         logging.Logger.tasklet_result = tasklet_result
 
-        msg_format = "%(asctime)s - %(process)d - %(threadName)s - %(funcName)s - %(levelname)s - %(message)s"
+        msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(funcName)s - %(levelname)s - %(message)s"
         stdout = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(msg_format)
         stdout.setFormatter(formatter)
@@ -269,6 +344,7 @@ USAGE
                 description=self._program_license,
                 formatter_class=RawDescriptionHelpFormatter,
                 add_help=False,
+                default_config_files=["~/.jinjamator/conf.d/*.yaml"],
             )
             self.addArguments()
 
@@ -348,7 +424,7 @@ USAGE
             sys.exit(0)
 
     def main(self):
-        for d in ["environments", "logs", "tasks", "uploads"]:
+        for d in ["environments", "logs", "tasks", "uploads", "aaa", "conf.d"]:
             os.makedirs(
                 os.path.sep.join([self._configuration["jinjamator_user_directory"], d]),
                 exist_ok=True,

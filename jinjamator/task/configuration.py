@@ -103,13 +103,14 @@ class TaskConfiguration(object):
             self._data.__delitem__(key)
         except:
             pass
-    
+
     def __str__(self):
         tmp = redact(deepcopy(self._data))[1]
         return str(tmp)
 
-
-
+    def __str__(self):
+        tmp = redact(deepcopy(self._data))[1]
+        return str(tmp)
 
     def get(self, item_name, default=False):
         return self._data.get(item_name, default)

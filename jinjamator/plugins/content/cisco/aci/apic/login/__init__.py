@@ -6,12 +6,12 @@ def is_possible(timeout=1):
 
     py_load_plugins(globals())
     if (
-        "apic_url" in self._parent.configuration._data
-        and "apic_username" in self._parent.configuration._data
-        and "apic_password" in self._parent.configuration._data
+        "apic_url" in _jinjamator.configuration._data
+        and "apic_username" in _jinjamator.configuration._data
+        and "apic_password" in _jinjamator.configuration._data
     ) or (
-        "apic_key" in self._parent.configuration._data
-        and "apic_cert_name" in self._parent.configuration._data
+        "apic_key" in _jinjamator.configuration._data
+        and "apic_cert_name" in _jinjamator.configuration._data
     ):
 
         import logging

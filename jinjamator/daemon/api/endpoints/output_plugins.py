@@ -1,3 +1,17 @@
+# Copyright 2019 Wilhelm Putz
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 
 from flask import request
@@ -10,6 +24,8 @@ import glob
 import os
 import xxhash
 from flask_restx import abort
+from jinjamator.daemon.api.parsers import task_arguments
+from jinjamator.daemon.aaa import require_role
 
 
 log = logging.getLogger()
@@ -54,7 +70,12 @@ def discover_output_plugins(app):
 
 
 @ns.route("/")
+@api.doc(
+    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+)
 class PluginsCollection(Resource):
+    @api.response(200, "Success")
+    @require_role(role=None)
     def get(self):
         """
         Returns a list of all output plugins with it's full alpacajs form schema.
@@ -63,16 +84,28 @@ class PluginsCollection(Resource):
 
 
 @ns.route("/<plugin_name>")
+@api.doc(
+    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+)
 class PluginInfo(Resource):
     @api.response(404, "Plugin not found Error")
     @api.response(200, "Success")
+    @require_role(role=None)
     def get(self, plugin_name):
         """
         Returns information about a output plugin with it's full alpacajs form schema.
         """
-
         retval = available_output_plugins_by_name.get(plugin_name)
         if retval:
-            return retval
+            if request.args:
+                dummy = DummyTask()
+                load_output_plugin(
+                    dummy,
+                    plugin_name,
+                    app.config["JINJAMATOR_OUTPUT_PLUGINS_BASE_DIRS"],
+                )
+                retval["schema"] = dummy._output_plugin.get_json_schema(request.args)
+
+                return retval
         else:
             abort(404, f"Plugin {plugin_name} not found")

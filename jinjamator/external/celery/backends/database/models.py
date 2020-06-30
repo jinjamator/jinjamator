@@ -38,6 +38,7 @@ class Task(ResultModelBase):
     date_start = sa.Column(sa.DateTime, default=datetime.utcnow, nullable=True)
     traceback = sa.Column(sa.Text, nullable=True)
     jinjamator_task = sa.Column(sa.String(1024), nullable=False, default="")
+    created_by_user_id = sa.Column(sa.Integer, nullable=False)
 
     def __init__(self, task_id):
         self.task_id = task_id
@@ -52,6 +53,7 @@ class Task(ResultModelBase):
             "date_start": self.date_start,
             "date_scheduled": self.date_scheduled,
             "jinjamator_task": self.jinjamator_task,
+            "created_by_user_id": self.created_by_user_id,
         }
 
     def __repr__(self):
@@ -119,6 +121,7 @@ class JobLog(ResultModelBase):
     level = sa.Column(sa.String(64), nullable=False, default="")
     stdout = sa.Column(sa.UnicodeText(), nullable=False, default="")
     exc_info = sa.Column(sa.UnicodeText(), nullable=False, default="")
+    created_by_user_id = sa.Column(sa.Integer, nullable=False)
 
     def __repr__(self):
         return "<job {0}>".format(self.id)

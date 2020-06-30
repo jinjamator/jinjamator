@@ -104,3 +104,12 @@ venv.bak/
 
 *.code-workspace
 .vscode
+
+# ignore vendor task packages
+jinjamator/tasks/vendor/*
+
+# ignore testing tasks
+jinjamator/tasks/test/*
+
+jinjamator/tasks/vendor
+jinjamator/tasks/customer

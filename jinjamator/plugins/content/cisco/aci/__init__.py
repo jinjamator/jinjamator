@@ -53,19 +53,15 @@ switchdb = {
         "downlinks": range(1, 49),
         "type": "leaf",
     },
-    "N2K-B22HP-P": {
-        "uplinks": range(17, 25),
-        "downlinks": range(1, 17),
-        "type": "fex",
-    },
+    "N2K-B22HP-P": {"uplinks": range(17, 25), "downlinks": range(1, 17), "type": "fex"},
     "N2K-C2248TP-1GE": {
         "uplinks": range(49, 53),
         "downlinks": range(1, 49),
         "type": "fex",
     },
-    "N9K-C9364C": {"uplinks": [], "downlinks": range(1, 67), "type": "spine",},
-    "N9K-C9332C": {"uplinks": [], "downlinks": range(1, 35), "type": "spine",},
-    "N9K-C9336PQ": {"uplinks": [], "downlinks": range(1, 37), "type": "spine",},
+    "N9K-C9364C": {"uplinks": [], "downlinks": range(1, 67), "type": "spine"},
+    "N9K-C9332C": {"uplinks": [], "downlinks": range(1, 35), "type": "spine"},
+    "N9K-C9336PQ": {"uplinks": [], "downlinks": range(1, 37), "type": "spine"},
     "N9K-C93216TC-FX2": {
         "uplinks": range(96, 109),
         "downlinks": range(1, 97),
@@ -76,38 +72,68 @@ switchdb = {
         "downlinks": range(1, 49),
         "type": "leaf",
     },
+    "TEST-LEAF": {
+        "uplinks": range(49, 50),
+        "downlinks": range(1, 2),
+        "type": "leaf",
+    },
+    "TEST-SPINE": {"uplinks": [], "downlinks": range(1, 2), "type": "spine"},
+    "TEST-FEX": {
+        "uplinks": range(49, 50),
+        "downlinks": range(1, 2),
+        "type": "fex",
+    }
 }
 
 log = logging.getLogger()
 
 
-def connect_apic(subscription_enabled=False):
-    if not self._parent.configuration["apic_url"]:
-        self._parent.handle_undefined_var("apic_url")
-    if not self._parent.configuration["apic_username"]:
-        self._parent.handle_undefined_var("apic_username")
-    if not self._parent.configuration["apic_key"]:
-        del self._parent.configuration["apic_key"]
-    if not self._parent.configuration["apic_cert_name"]:
-        del self._parent.configuration["apic_cert_name"]
+def credentials_set():
+    """
+    Check if jinjamator has all information set necessary to connect to APIC.
+
+    :returns: True if all required APIC connection parameters are set, False if not.
+    :rtype: boolean
+    """
     if (
-        "apic_key" in self._parent.configuration.keys()
-        and "apic_cert_name" in self._parent.configuration.keys()
+        "apic_username" in _jinjamator.configuration.keys()
+        and "apic_key" in _jinjamator.configuration.keys()
+        and "apic_cert_name" in _jinjamator.configuration.keys()
+    ) or (
+        "apic_username" in _jinjamator.configuration.keys()
+        and "apic_password" in _jinjamator.configuration.keys()
+    ):
+        return True
+    return False
+
+
+def connect_apic(subscription_enabled=False):
+    if not _jinjamator.configuration["apic_url"]:
+        _jinjamator.handle_undefined_var("apic_url")
+    if not _jinjamator.configuration["apic_username"]:
+        _jinjamator.handle_undefined_var("apic_username")
+    if not _jinjamator.configuration["apic_key"]:
+        del _jinjamator.configuration["apic_key"]
+    if not _jinjamator.configuration["apic_cert_name"]:
+        del _jinjamator.configuration["apic_cert_name"]
+    if (
+        "apic_key" in _jinjamator.configuration.keys()
+        and "apic_cert_name" in _jinjamator.configuration.keys()
     ):
         apic_session = Session(
-            self._parent.configuration["apic_url"],
-            self._parent.configuration["apic_username"],
-            cert_name=self._parent.configuration["apic_cert_name"],
-            key=self._parent.configuration["apic_key"],
+            _jinjamator.configuration["apic_url"],
+            _jinjamator.configuration["apic_username"],
+            cert_name=_jinjamator.configuration["apic_cert_name"],
+            key=_jinjamator.configuration["apic_key"],
             subscription_enabled=False,
         )
     else:
-        if not self._parent.configuration["apic_password"]:
-            self._parent.handle_undefined_var("apic_password")
+        if not _jinjamator.configuration["apic_password"]:
+            _jinjamator.handle_undefined_var("apic_password")
         apic_session = Session(
-            self._parent.configuration["apic_url"],
-            self._parent.configuration["apic_username"],
-            self._parent.configuration["apic_password"],
+            _jinjamator.configuration["apic_url"],
+            _jinjamator.configuration["apic_username"],
+            _jinjamator.configuration["apic_password"],
             subscription_enabled=subscription_enabled,
         )
         apic_session.login()
@@ -187,7 +213,18 @@ def get_convertible_uplinks(model, count, min_uplinks=2):
 
 
 def get_all_downlinks(model):
-    return switchdb[model.upper()]["downlinks"]
+    """
+    Return all downlink ports from plugin internal switch database.
+
+    :param model: Cisco Switch Model String
+    :type model: string
+    :returns: A list of all default downlink port numbers.
+    :rtype: list
+    """
+    try:
+        return switchdb[model.upper()]["downlinks"]
+    except KeyError:
+        raise ValueError(f"Switchmodel {model} is not supported")
 
 
 def get_parent_dn_from_child_dn(dn):
@@ -249,18 +286,85 @@ def is_dn_in_use(dn, ignore_children=False):
 
 
 def dn_exists(dn):
+    """
+    Checks if the dn exists. Also returns true when there was an API-Error. Writes the error to error-out
+
+    :param dn: dn-string
+    :type dn: string
+    :returns: True if dn exists (or contains an error), false if not existing
+    :rtype: boolean
+    """
     data = query("/api/node/mo/{0}.json".format(dn))
-    if int(data["totalCount"]) > 0:
+    if len(data["imdata"]) > 0:
+        if "error" in data["imdata"][0]:
+            log.error(parse_api_error(data))
         return True
     return False
 
 
-def get_podid_by_switch_id(switch_id):
-    data = query(
-        '/api/node/class/fabricNode.json?query-target-filter=and(eq(fabricNode.id,"{0}"))'.format(
-            switch_id
+def parse_api_error(response):
+    """
+    Parse the error-message from the API Response.
+    Assumes, that a check if there is an error present was done beforehand.
+
+    :param response: Dict of the request response ([imdata][0][....])
+    :type response: dict
+    :returns: Parsed Error-Text
+    :rtype: string
+    """
+    if "error" in response["imdata"][0]:
+        return (
+            "API-Errorcode "
+            + str(response["imdata"][0]["error"]["attributes"]["code"])
+            + ": "
+            + str(response["imdata"][0]["error"]["attributes"]["text"])
         )
+    else:
+        return "Unparseable: " + str(response)
+
+
+def is_api_error(response):
+    """
+    Check the API-Response for errors
+
+    :param response: Dict of the request response ([imdata][0][....])
+    :type response: dict
+    :returns: True if response contains an error, false if not
+    :rtype: boolean
+    """
+    try:
+        if "error" in response["imdata"][0]:
+            return True
+        else:
+            return False
+    except IndexError:
+        log.debug("got empty response from APIC -> this is not an error")
+        return False
+
+
+def get_podid_by_switch_id(switch_id):
+    """
+    Retrive the pod_id for a switch_id from APIC, if not possible ask user to enter pod_id
+
+    :param switch_id: integer from 100 to 3999
+    :type switch_id: integer
+    :returns: pod_id
+    :rtype: integer
+    """
+    if int(switch_id) > 99 and int(switch_id) < 4000:
+        pass
+    else:
+        raise ValueError("Valid switch id must be between 99 and 4000")
+
+    data = query(
+        f'/api/node/class/fabricNode.json?query-target-filter=and(eq(fabricNode.id,"{switch_id}"))'
     )
+    if is_api_error(data) or len(data["imdata"]) == 0:
+        var_name = f"{switch_id}_pod_id"
+        if _jinjamator.configuration.get(var_name):
+            return _jinjamator.configuration.get(var_name)
+        _jinjamator.handle_undefined_var(var_name)
+        return _jinjamator.configuration.get(var_name)
     return (
         get_parent_dn_from_child_dn(data["imdata"][0]["fabricNode"]["attributes"]["dn"])
         .split("/")[-1:][0]
@@ -269,13 +373,21 @@ def get_podid_by_switch_id(switch_id):
 
 
 def version(node_id=1):
-    pod_id = get_podid_by_switch_id(node_id)
-    data = query(
-        "/api/node/class/topology/pod-{0}/node-{1}/firmwareCtrlrRunning.json".format(
-            pod_id, node_id
-        )
+    """
+    Returns the firmware version of an APIC
+
+    :param node_id: integer from 1 to 10
+    :type node_id: integer
+    :returns: Version information as returned from APIC
+    :rtype: string
+    """
+    result = query(
+        f'/api/node/class/firmwareCtrlrRunning.json?query-target-filter=and(wcard(firmwareCtrlrRunning.dn,"node-{node_id}"))'
     )
-    return data["imdata"][0]["firmwareCtrlrRunning"]["attributes"]["version"]
+    try:
+        return result["imdata"][0]["firmwareCtrlrRunning"]["attributes"]["version"]
+    except KeyError:
+        raise ValueError("Node {node_id} does not exist or is not an APIC")
 
 
 def is_min_version(major, minor, patch_level, node_id=1):
@@ -283,7 +395,7 @@ def is_min_version(major, minor, patch_level, node_id=1):
     {% if aci_is_min_version(4, 0, None) %}
     {% endif %}
     """
-    running_version = aci_version(node_id)
+    running_version = version(node_id)
     m = re.match(
         r"(?P<major>\d+)\.(?P<minor>\d+)\((?P<patchlevel>.+)\)", running_version
     )
@@ -355,7 +467,7 @@ def vlan_pool_contains_vlan(pool_name, vlan_id):
 
 def dn_has_attribute(dn, key, value):
     url = "/api/node/mo/{0}.json".format(dn)
-    self._parent._log.debug(url)
+    _jinjamator._log.debug(url)
     for obj in query(url)["imdata"]:
         for k, v in obj.items():
             try:
@@ -530,10 +642,7 @@ def get_dict_from_vrf_dn(dn):
     rgx = re.compile(r"uni/tn-(\S+)/ctx-(\S+)")
     result = rgx.match(dn)
     if result:
-        return {
-            "tenant_name": result.group(1),
-            "vrf_name": result.group(2),
-        }
+        return {"tenant_name": result.group(1), "vrf_name": result.group(2)}
     else:
         return None
 
@@ -547,5 +656,14 @@ def get_dict_from_external_epg_dn(dn):
             "l3out_name": result.group(2),
             "external_epg_name": result.group(3),
         }
+    else:
+        return None
+
+
+def get_dict_from_node_dn(dn):
+    rgx = re.compile(r"topology/pod-(\S+)/node-(\S+)")
+    result = rgx.match(dn)
+    if result:
+        return {"pod_id": result.group(1), "node_id": result.group(2)}
     else:
         return None

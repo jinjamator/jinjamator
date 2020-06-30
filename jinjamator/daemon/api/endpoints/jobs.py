@@ -1,3 +1,17 @@
+# Copyright 2019 Wilhelm Putz
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 
 from flask import request, jsonify
@@ -7,6 +21,8 @@ from jinjamator.daemon.api.restx import api
 from jinjamator.external.celery.backends.database.models import Task as DB_Job, JobLog
 from jinjamator.daemon.database import db
 from jinjamator.daemon.api.parsers import job_arguments
+from jinjamator.daemon.aaa import require_role
+from jinjamator.daemon.aaa.models import User
 from flask import current_app as app
 
 from sqlalchemy import select, and_, or_, exc
@@ -26,8 +42,13 @@ site_path_by_name = {}
 
 
 @ns.route("/")
+@api.doc(
+    params={"Authorization": {"in": "header", "description": "A valid access token"}}
+)
 class JobCollection(Resource):
     @api.marshal_list_with(job_brief)
+    @api.response(200, "Success")
+    @require_role(role=None)
     def get(self):
         """
         Returns a list of all jobs.
@@ -44,13 +65,16 @@ class JobCollection(Resource):
                         DB_Job.date_start,
                         DB_Job.date_scheduled,
                         DB_Job.jinjamator_task,
+                        DB_Job.created_by_user_id,
                     ]
                 ).order_by(DB_Job.id.desc())
             )
         except exc.SQLAlchemyError as e:
             log.error(e)
             return response
+
         for job in rs.fetchall():
+            user = User.query.filter(User.id == int(job.created_by_user_id)).first()
             response.append(
                 {
                     "job": {
@@ -61,6 +85,8 @@ class JobCollection(Resource):
                         "date_start": str(job.date_start),
                         "date_scheduled": str(job.date_scheduled),
                         "task": str(job.jinjamator_task),
+                        "created_by_user_id": int(job.created_by_user_id),
+                        "created_by_user_name": str(user.username),
                     }
                 }
             )
@@ -70,13 +96,17 @@ class JobCollection(Resource):
 
 @ns.route("/<job_id>")
 @api.doc(
-    params={"job_id": "The ID returned by task create operation. (UUID V4 format)"}
+    params={
+        "job_id": "The ID returned by task create operation. (UUID V4 format)",
+        "Authorization": {"in": "header", "description": "A valid access token"},
+    }
 )
 class Job(Resource):
     @api.expect(job_arguments)
     @api.response(404, "Task not found Error")
     @api.response(400, "Task ID not in UUID V4 format")
     @api.response(200, "Success")
+    @require_role(role=None)
     def get(self, job_id):
         """
         Returns detailed information about a job, including a full debug log.
@@ -89,13 +119,16 @@ class Job(Resource):
         args = job_arguments.parse_args(request)
         log_level = args.get("log-level", "DEBUG")
         try:
-            job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).all()[0]
+            job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).first()
+            user = User.query.filter(User.id == int(job.created_by_user_id)).first()
             response = {
                 "id": job.task_id,
                 "state": job.status,
                 "jinjamator_task": job.jinjamator_task,
                 "log": [],
                 "files": [],
+                "created_by_user_id": int(job.created_by_user_id),
+                "created_by_user_name": str(user.username),
             }
         except exc.SQLAlchemyError as e:
             log.error(e)

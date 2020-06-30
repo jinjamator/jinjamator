@@ -12,9 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from json import dumps as json_dumps
+from json import dumps as json_dumps, loads as json_loads
 
 
 def dumps(data):
     """helper for jinja2"""
     return json_dumps(data, sort_keys=True, indent=2)
+
+
+def loads(data):
+    return json_loads(data)

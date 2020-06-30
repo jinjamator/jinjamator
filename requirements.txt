@@ -28,3 +28,14 @@ python-magic
 dotty_dict
 docutils
 flask-restx
+argon2_cffi
+SQLAlchemy-serializer
+authlib
+configargparse
+pyjwt
+httpx
+python-status
+setuptools-git-version
+docker
+deepdiff
+jsonpickle
