@@ -897,7 +897,7 @@ function badge_color_from_state(state) {
 }
 
 function list_jobs() {
-    update_breadcrumb('Jobs', 'List');
+    update_breadcrumb('Jobs', 'History');
     $(".treeview-item").removeClass("active")
         // parent.parents('li').addClass('active');
     $.get("static/templates/main_content_section.html", function(data) {
