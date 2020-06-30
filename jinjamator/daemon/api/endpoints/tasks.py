@@ -50,6 +50,33 @@ available_tasks_by_path = {}
 task_models = {}
 
 
+def remove_redacted(obj):
+    """
+    Removes all string object with the value __redacted__
+    """
+    if isinstance(obj, str):
+        if obj == "__redacted__":
+            return True, obj
+        else:
+            return False, obj
+    elif isinstance(obj, list):
+        for index, item in enumerate(obj):
+            remove, obj[index] = remove_redacted(item)
+            if remove:
+                del obj[index]
+        return False, obj
+    elif isinstance(obj, dict):
+        to_remove = []
+        for k, v in obj.items():
+            remove, obj[k] = remove_redacted(v)
+            if remove:
+                to_remove.append(k)
+        for k in to_remove:
+            del obj[k]
+        return False, obj
+    return False, obj
+
+
 def discover_tasks(app):
     """
     Discovers all tasks in JINJAMATOR_TASKS_BASE_DIRECTORIES and registers a model and a corresponding REST endpoint with get and post below /tasks.
@@ -157,6 +184,7 @@ def discover_tasks(app):
                                     )
                                 except TypeError:
                                     preload_data = {}
+                                preload_data = remove_redacted(preload_data)[1]
                                 environment_site = args.get(
                                     "preload-defaults-from-site"
                                 )
