@@ -953,7 +953,7 @@ function list_jobs() {
         })
 
         table.on('dblclick', 'tbody tr', function() {
-            show_job(table.row(this).data()[4]);
+            show_job(table.row(this).data()[5]);
         });
 
         $('.main-section').removeClass('hidden');
