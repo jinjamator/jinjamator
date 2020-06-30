@@ -19,6 +19,7 @@ import sys
 import os
 import inspect
 from types import ModuleType
+import types
 
 global_ldr = None
 
@@ -89,11 +90,11 @@ py_load_plugins(globals())
             # spec.loader.exec_module(module)
             for func_name in dir(module):
                 func = getattr(module, func_name)
-                if hasattr(func, "__call__"):
-                    self._log.debug(f"registering {class_path}.{func_name}")
+                if isinstance(func, types.FunctionType):
+                    # self._log.debug(f"registering {class_path}.{func_name}")
                     setattr(cur, func_name, func)
                     argspec = inspect.getfullargspec(func)
-                    setattr(module, "self", self)
+                    setattr(module, "_jinjamator", self._parent)
                     if len(argspec.args) == 1:
                         self._filters[f"{class_path}.{func_name}"] = func
 

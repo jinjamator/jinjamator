@@ -1,3 +1,17 @@
+# Copyright 2019 Wilhelm Putz
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from flask_restx import fields
 from jinjamator.daemon.api.restx import api
 
@@ -69,8 +83,58 @@ job_brief = api.model(
                         required=True,
                         description="Relative path to task which will be, or has been executed",
                     ),
+                    "created_by_user_id": fields.Integer(
+                        required=True,
+                        description="Userid of User which created the job",
+                    ),
+                    "created_by_user_name": fields.String(
+                        required=True,
+                        description="Username of User which created the job",
+                    ),
                 },
             )
         )
     },
+)
+
+aaa_login_post = api.model(
+    "aaa_login_post",
+    {
+        "username": fields.String(required=True, description="Your Username"),
+        "password": fields.String(required=True, description="Your Password"),
+    },
+)
+
+
+aaa_create_user = api.model(
+    "aaa_create_user",
+    {
+        "username": fields.String(required=True, description="New Users Username"),
+        "name": fields.String(
+            required=True, description="New Users Name e.g. John Doe"
+        ),
+        "password": fields.String(required=True, description="New Users Password"),
+    },
+)
+
+aaa_edit_user = api.model(
+    "aaa_edit_user",
+    {
+        "username": fields.String(required=True, description="Username"),
+        "name": fields.String(
+            required=False, description="Users Full Name e.g. John Doe"
+        ),
+        "password": fields.String(required=False, description="New Users Password"),
+        "roles": fields.List(fields.String(description="Name of role")),
+    },
+)
+
+aaa_create_role = api.model(
+    "aaa_create_role",
+    {"name": fields.String(required=True, description="Name of new role")},
+)
+
+aaa_set_user_role = api.model(
+    "aaa_set_user_role",
+    {"role": fields.String(description="Name of role", required=True)},
 )

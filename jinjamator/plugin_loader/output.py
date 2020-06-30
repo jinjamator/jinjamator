@@ -23,7 +23,7 @@ def load_output_plugin(obj, output_plugin, search_paths):
     for path in search_paths:
         try:
             spec = importlib.util.spec_from_file_location(
-                output_plugin, f"{path}/{output_plugin}/__init__.py",
+                output_plugin, f"{path}/{output_plugin}/__init__.py"
             )
             if not spec:
                 continue

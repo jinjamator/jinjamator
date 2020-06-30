@@ -20,8 +20,14 @@ from jinjamator.task import JinjamatorTask
 def run(path, task_data=False, **kwargs):
     """calls another jinjamator task"""
 
-    parent_data = copy.deepcopy(self._parent.configuration._data)
-    parent_private_data = copy.deepcopy(self._parent._configuration._data)
+    if path == "../":
+        tmp = _jinjamator.task_base_dir.split(os.path.sep)
+        if tmp[0] == "":
+            tmp[0] = os.path.sep
+        path = os.path.join(*tmp[:-1])
+
+    parent_data = copy.deepcopy(_jinjamator.configuration._data)
+    parent_private_data = copy.deepcopy(_jinjamator._configuration._data)
 
     output_plugin = (
         kwargs.get("output_plugin", False)
@@ -31,11 +37,12 @@ def run(path, task_data=False, **kwargs):
 
     task = JinjamatorTask(parent_private_data.get("task_run_mode"))
     task._configuration.merge_dict(parent_private_data)
+    task._parent_tasklet = _jinjamator._current_tasklet
 
     if parent_private_data.get("task_run_mode") == "background":
         backup = task._log.handlers[1].formatter._task
-        task.self._parent_tasklet = backup._current_tasklet
-        task.self._parent_task_id = id(backup)
+        task._parent_tasklet = backup._current_tasklet
+        task._parent_task_id = id(backup)
         task._log.handlers[1].formatter._task = task
     if task_data:
         task.configuration.merge_dict(
@@ -48,12 +55,7 @@ def run(path, task_data=False, **kwargs):
     else:
         task.configuration.merge_dict(parent_data)
 
-    if os.path.isfile(self._parent.task_base_dir):
-        my_parent = os.path.dirname(self._parent.task_base_dir)
-    else:
-        my_parent = self._parent.task_base_dir
-
-    task._configuration["global_tasks_base_dirs"].insert(0, my_parent)
+    task._configuration["global_tasks_base_dirs"].insert(0, _jinjamator.task_base_dir)
 
     task.load(path)
 
@@ -63,7 +65,6 @@ def run(path, task_data=False, **kwargs):
     retval = task.run()
     if parent_private_data.get("task_run_mode") == "background":
         task._log.handlers[1].formatter._task = backup
-        task.self._parent_tasklet = backup.self._parent_tasklet
-
+        task._parent_tasklet = backup._parent_tasklet
     del task
     return retval

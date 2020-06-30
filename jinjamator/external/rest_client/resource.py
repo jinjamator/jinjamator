@@ -1,6 +1,5 @@
 import logging
 from types import MethodType
-
 import httpx
 
 from .exceptions import ActionNotFound, ActionURLMatchError
@@ -49,6 +48,22 @@ class BaseResource:
         }
 
     def __call__(self, instance):
+
+        return getattr(self, instance)
+
+    def __getattr__(self, instance):
+        resource_name = "/".join([self.resource_name, instance])
+        tmp = self.__class__(
+            api_root_url=self.api_root_url,
+            resource_name=resource_name,
+            params=self.params,
+            headers=self.headers,
+            timeout=self.timeout,
+            append_slash=self.append_slash,
+            json_encode_body=self.json_encode_body,
+            ssl_verify=self.ssl_verify,
+        )
+        self.__setattr__(instance, tmp)
         return getattr(self, instance)
 
     def get_action(self, action_name):
@@ -80,7 +95,7 @@ class BaseResource:
 class Resource(BaseResource):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.client = httpx.Client()
+        self.client = httpx.Client(verify=self.ssl_verify)
         for action_name in self.actions.keys():
             self.add_action(action_name)
 
@@ -92,7 +107,7 @@ class Resource(BaseResource):
             params=None,
             headers=None,
             action_name=action_name,
-            **kwargs
+            **kwargs,
         ):
             url = self.get_action_full_url(action_name, *args)
             method = self.get_action_method(action_name)
@@ -106,6 +121,7 @@ class Resource(BaseResource):
                 ssl_verify=self.ssl_verify,
                 kwargs=kwargs,
             )
+
             request.params.update(self.params)
             request.headers.update(self.headers)
             return make_request(self.client, request)
@@ -128,7 +144,7 @@ class AsyncResource(BaseResource):
             params=None,
             headers=None,
             action_name=action_name,
-            **kwargs
+            **kwargs,
         ):
             url = self.get_action_full_url(action_name, *args)
             method = self.get_action_method(action_name)

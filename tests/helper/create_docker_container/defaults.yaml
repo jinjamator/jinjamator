@@ -1,0 +1,17 @@
+ubuntu_version: 20.04
+baseimage: jinjamator/ubuntu_{{ubuntu_version}}_base:{{timestamp.today()}}
+environment:
+    - JINJAMATOR_AAA_LOCAL_ADMIN_PASSWORD={{ jm.password.generate()  }}
+    - JINJAMATOR_AAA_LOCAL_ADMIN_USERNAME=testing
+    - JINJAMATOR_DAEMON_SECRET_KEY={{ jm.password.generate(128)  }}
+    - JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME=2
+    - JINJAMATOR_AAA_TOKEN_LIFETIME=3
+    - JINJAMATOR_DAEMON_LISTEN_ADDRESS=0.0.0.0
+volumes:
+    {{ jm.environment.jinjamator_base_directory() }}:
+        bind: /opt/jinjamator
+        mode: ro
+ports:
+    5000/tcp: Null
+
+force_rebuild: False

@@ -140,7 +140,7 @@ class ssh(outputPluginBase):
             help="username [default: %(default)s]",
         )
         self._parent._parser.add_argument(
-            "-p", "--ssh-password", dest="ssh_password", help="password",
+            "-p", "--ssh-password", dest="ssh_password", help="password"
         )
         self._parent._parser.add_argument(
             "--ssh-device-type",

@@ -182,6 +182,7 @@ $(function() {
 
     $('[data-toggle="tooltip"]').tooltip()
 
+    $('.render_username').each(function(){ this.innerHTML=sessionStorage.getItem('logged_in_username'); })
     var client = new $.RestClient('/api/');
     client.add('environments');
     client.environments.read().done(function(data) {
@@ -193,10 +194,15 @@ $(function() {
     });
 })
 
-var client = new $.RestClient('/api/');
+var client = new $.RestClient('/api/',{stringifyData: true});
 client.add('tasks');
 client.add('jobs');
 client.add('plugins', { isSingle: true });
+client.add('aaa', { isSingle: true });
+client.aaa.add('providers', { isSingle: true });
+client.aaa.add('users');
+client.aaa.add('roles');
+client.aaa.users.add('roles', { isSingle: true });
 
 client.plugins.add('output');
 
@@ -206,6 +212,364 @@ function update_breadcrumb(level1, level2) {
     $('.breadcrumb').html('<li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li><li><a href="#">' + level1 + '</a></li><li class="active">' + level2 + '</li>')
 }
 
+function list_roles() {
+
+    // $(".treeview-item").removeClass("active")
+    // parent.parents('li').addClass('active');
+    update_breadcrumb('AAA', 'Roles');
+
+    $.get("static/templates/main_content_section.html", function(data) {
+        $(".all-content").html('<section class="content">' + data + '</section>');
+    });
+
+    client.aaa.roles.read().done(function(data) {
+        table_data = '<div class="box-body"><table id="roles_list" class="table table-bordered table-hover">\
+         <thead><tr><th>ID</th><th width="99%">Role Name</th><th width="1%">Actions</th></tr></thead>'
+        
+        data.forEach(function(value, index, array) {
+            table_data += '<tr><td>' + value.id + '</td><td width="99%">' + value.name + '</td>\
+            <td align="center" width="1%" style="white-space:nowrap;">\
+            <div class="icon">\
+            <a href="#" class="fa fa-remove delete-role-href" onclick="delete_role(\'' +value.id + '\')">\
+            <!-- <a href="#" class="fa fa-delete">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+            <a href="#" class="fa fa-info-circle"></a>-->\
+            </a></div> \
+            </td></tr > '
+        });
+
+        table_data += '</table></div>';
+        $(".main-content-box-title").replaceWith('<h3 class="box-title">Roles</h3>');
+        $(".main-content-box").replaceWith(table_data);
+
+
+        if ($.fn.dataTable.isDataTable('#task_list')) {
+            $('#roles_list').DataTable().destroy();
+        }
+
+        table = $('#roles_list').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        text: 'Create Role',
+                        action: function ( e, dt, node, config ) {
+                            create_role();
+                    }
+                    }
+                ],
+                "lengthMenu": [
+                    [15, 30, 100, -1],
+                    [15, 30, 100, "All"]
+                ]
+
+            })
+            //table.on( 'dblclick', function () {
+        // table.on('dblclick', 'tbody tr', function() {
+        //     edit_user(table.row(this).data()[0]);
+        // });
+
+        $('.main-section').removeClass('hidden');
+
+    });
+}
+
+
+function create_role(){
+    update_breadcrumb('AAA', 'Roles');
+            
+    $(".all-content").html(`
+    <section class="content">
+    <div class="row">
+    <!-- left column -->
+    <div class="col-md-6">
+    <div class="box box-primary">
+        <div class="box-header with-border">
+        <h3 class="box-title">Create Role</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+            <form role="form" id='create_role_form'>
+            <div class="box-body">
+            <div class="form-group">
+            <label for="name">Rolename</label>
+            <input type="string" class="form-control" id="role_name" placeholder="Name">
+            </div>
+        </div>
+        <div class="box-footer">
+            <button type="submit" class="btn btn-primary">Create Role</button>
+        </div>
+        </form>
+    </div>
+    <!-- /.box -->
+    </div>
+    </div>
+    </section>`
+    );
+
+
+
+    $("#create_role_form").submit(function(e){
+        e.preventDefault();
+        var form = this;
+        role_data={
+            name:this.role_name.value
+        }
+        
+        client.aaa.roles.create(role_data);
+        list_roles();
+    
+    });
+}
+
+
+function delete_role(id){
+    client.aaa.roles.destroy(id).done(function(user_data) {
+        list_roles();
+    });  
+}
+
+function delete_user(id){
+    client.aaa.users.destroy(id).done(function(user_data) {
+        list_users();
+    });
+}
+
+function edit_user(username){
+    
+    update_breadcrumb('AAA', 'Users');
+    client.aaa.users.read(username).done(function(user_data) {
+        client.aaa.roles.read().done(function(roledata) {
+            var select_data = [];
+            
+            $(".all-content").html(
+            `<section class="content">
+            <div class="row">
+            <!-- left column -->
+            <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                <h3 class="box-title">Edit User</h3>
+                </div>
+                <!-- /.box-header -->
+                <!-- form start -->
+                    <form role="form" id='edit_user_form'>
+                    <div class="box-body">
+                    <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="string" class="form-control" id="username" placeholder="Username" disabled value='` + user_data.username + `'>
+                    </div>
+                    <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="string" class="form-control" id="full_name" placeholder="Full Name" value='` + user_data.name + `'>
+                    </div>
+                    <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                    <label for="roles">Roles</label>
+                    <select class="form-control" id="roles" multiple></select>
+                    </div>                    
+                    
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+                </form>
+            </div>
+            <!-- /.box -->
+            </div>
+            </div>
+            </section>`
+            );
+            var selected = [];
+            user_data.roles.forEach(function(value, index, array) {
+                selected.push(value.id);
+            });
+
+            roledata.forEach(function(value, index, array) {
+                is_selected=false;
+                if (selected.includes(value.id)){
+                    is_selected=true;
+                }
+                
+                $('#roles').append($('<option>', {value:value.name, text:value.name, selected:is_selected}));
+            });
+            $('#roles').multiselect({enableFiltering: true,
+                filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
+            $("#edit_user_form").submit(function(e){
+                e.preventDefault();
+                var form = this;
+                if (this.password.value != null){
+                    user_data.password=this.password.value;
+                }
+                user_data.name=this.full_name.value;
+                new_role_data=[];
+                for (let item of this.roles.selectedOptions){
+                    new_role_data.push(item.value);
+                }
+                user_data.roles=new_role_data;
+                console.dir(user_data)
+                client.aaa.users.update(username,user_data);
+                list_users();
+            });
+        });
+    });
+
+}
+
+function create_user(){
+    
+    update_breadcrumb('AAA', 'Users');
+    
+        client.aaa.roles.read().done(function(roledata) {
+            user_data = {}
+            var select_data = [];
+            
+            $(".all-content").html(
+            `<section class="content">
+            <div class="row">
+            <!-- left column -->
+            <div class="col-md-6">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                <h3 class="box-title">Create User</h3>
+                </div>
+                <!-- /.box-header -->
+                <!-- form start -->
+                    <form role="form" id='create_user_form'>
+                    <div class="box-body">
+                    <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="string" class="form-control" id="username" placeholder="Username">
+                    </div>
+                    <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="string" class="form-control" id="full_name" placeholder="full_name">
+                    </div>
+                    <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                    <label for="aaa_provider">AAA Provider</label>
+                    <select class="form-control" id="aaa_provider"></select>
+                    </div>                    
+
+                    <div class="form-group">
+                    <label for="roles">Roles</label>
+                    <select class="form-control" id="roles" multiple></select>
+                    </div>                    
+                    
+                </div>
+                <div class="box-footer">
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+                </form>
+            </div>
+            <!-- /.box -->
+            </div>
+            </div>
+            </section>`
+            );
+
+
+            roledata.forEach(function(value, index, array) {
+                $('#roles').append($('<option>', {value:value.name, text:value.name}));
+            });
+            
+            client.aaa.providers.read().done(function(providers) {
+                providers.forEach(function(value, index, array) {
+                    $('#aaa_provider').append($('<option>', {value:value.name, text:value.display_name}));
+                });
+                $('#aaa_provider').multiselect({enableFiltering: true,
+                    filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
+    
+            });
+            
+            $('#roles').multiselect({enableFiltering: true,
+                filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
+    
+            $("#create_user_form").submit(function(e){
+                e.preventDefault();
+                var form = this;
+                if (this.password.value != null){
+                    user_data.password=this.password.value;
+                }
+                user_data.name=this.full_name.value;
+                user_data.username=this.username.value;
+                new_role_data=[];
+                for (let item of this.roles.selectedOptions){
+                    new_role_data.push(item.value);
+                }
+                user_data.roles=new_role_data;
+                
+                client.aaa.users.create(user_data);
+                list_users();
+            });
+        });
+
+
+}
+
+
+function list_users() {
+
+    // $(".treeview-item").removeClass("active")
+    // parent.parents('li').addClass('active');
+    update_breadcrumb('AAA', 'Users');
+
+    $.get("static/templates/main_content_section.html", function(data) {
+        $(".all-content").html('<section class="content">' + data + '</section>');
+    });
+
+    client.aaa.users.read().done(function(data) {
+        table_data = '<div class="box-body"><table id="users_list" class="table table-bordered table-hover">\
+         <thead><tr><th>ID</th><th>Username</th><th width="60%">Full Name</th><th>AAA Provider</th><th width="1%">Actions</th></tr></thead>'
+        
+        data.forEach(function(value, index, array) {
+            table_data += '<tr><td>' + value.id + '</td><td>' + value.username + '</td><td width="60%">' + value.name + '</td> <td> ' + value.aaa_provider + ' </td>\
+            <td align="center" width="1%" style="white-space:nowrap;">\
+            <div class="icon">\
+            <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' +value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' +value.id + '\')">\
+            </a></div> \
+            </td></tr > '
+        });
+
+        table_data += '</table></div>';
+        $(".main-content-box-title").replaceWith('<h3 class="box-title">Users</h3>');
+        $(".main-content-box").replaceWith(table_data);
+
+
+        if ($.fn.dataTable.isDataTable('#users_list')) {
+            $('#users_list').DataTable().destroy();
+        }
+
+        table = $('#users_list').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    text: 'Create User',
+                    action: function ( e, dt, node, config ) {
+                        create_user();
+                }
+                }
+            ],
+            "lengthMenu": [
+                    [15, 30, 100, -1],
+                    [15, 30, 100, "All"]
+            ]
+
+        })
+            //table.on( 'dblclick', function () {
+        table.on('dblclick', 'tbody tr', function() {
+            edit_user(table.row(this).data()[1]);
+        });
+
+        $('.main-section').removeClass('hidden');
+
+    });
+}
 
 
 function list_tasks() {
@@ -336,7 +700,7 @@ function create_job(job_path, pre_defined_vars) {
                         "click": function() {
                             client.opts['stringifyData'] = true;
                             var data = this.getValue();
-
+                            
                             var task = job_path;
                             delete data['task'];
                             for (property in data['output_plugin_parameters']) {
@@ -347,12 +711,15 @@ function create_job(job_path, pre_defined_vars) {
                                 if (property.startsWith('__no_vars_')) {
                                     delete data[property];
                                 }
+                                if (data[property] === null) {
+                                    delete data[property];
+                                }
                             }
 
                             delete data['output_plugin_parameters'];
 
 
-
+                            
                             client.tasks.create(job_path, data).done(function(data) {
                                 setTimeout(function() { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
                             });
@@ -530,7 +897,7 @@ function badge_color_from_state(state) {
 }
 
 function list_jobs() {
-    update_breadcrumb('Jobs', 'List');
+    update_breadcrumb('Jobs', 'History');
     $(".treeview-item").removeClass("active")
         // parent.parents('li').addClass('active');
     $.get("static/templates/main_content_section.html", function(data) {
@@ -543,6 +910,7 @@ function list_jobs() {
                 <thead>\
                 <tr>\
                     <th width="1%">#</th>\
+                    <th>Created by</th>\
                     <th>Scheduled</th>\
                     <th>Start</th>\
                     <th>End</th>\
@@ -556,9 +924,10 @@ function list_jobs() {
 
                 badge_color = badge_color_from_state(obj.state);
                 table_data += '<tr><td width="1%">' + obj.number + '</td>\
-                <td width="13%">' + obj.date_scheduled + '</td>\
-                <td width="13%">' + obj.date_start + '</td>\
-                <td width="13%">' + obj.date_done + '</td>\
+                <td width="10%">' + obj.created_by_user_name + '</td>\
+                <td width="10%">' + obj.date_scheduled.split('.')[0] + '</td>\
+                <td width="10%">' + obj.date_start.split('.')[0] + '</td>\
+                <td width="10%">' + obj.date_done.split('.')[0] + '</td>\
                 <td width="17%">' + obj.id + '</td>\
                 <td>' + obj.task + '</td>\
                 <td width="1%"><span class="badge ' + badge_color + '">' + obj.state + '</span></td></tr>'
@@ -584,7 +953,7 @@ function list_jobs() {
         })
 
         table.on('dblclick', 'tbody tr', function() {
-            show_job(table.row(this).data()[4]);
+            show_job(table.row(this).data()[5]);
         });
 
         $('.main-section').removeClass('hidden');
@@ -702,7 +1071,7 @@ function timeline_render_elements(data) {
 
 
 
-            timeline_item.find('.timeline-header').html('<strong>' + log_item[timestamp]['current_tasklet'] + ':</strong> ' + short_msg);
+            timeline_item.find('.timeline-header').html('<strong>' + log_item[timestamp]['current_tasklet'] + '</strong> ');
 
 
             timeline_item.find('#configuration').html('<div style="white-space: pre-wrap;">' + JSON.stringify(log_item[timestamp]['configuration'], null, 4) + '</div>');
@@ -752,14 +1121,16 @@ function show_job(job_id) {
             var timeline = timeline_templates.filter('#timeline-template');
             var timeline_overview_box = timeline_templates.filter('#timeline-overview-box-template');
             timeline_overview_box.find('#job_id').html(job_id);
+            
 
             timeline.find('.timeline').append(timeline_overview_box.html());
             $(".all-content").html('<section class="content">' + timeline.html() + '</section>');
 
             client.jobs.read(job_id).done(function(data) {
-
+                $("#user_name").html(data['created_by_user_name']);
                 timeline_render_elements(data);
                 $("#job_path").html(data['jinjamator_task']);
+                
 
             });
 

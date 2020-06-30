@@ -46,6 +46,7 @@ from jsonschema import validate as validate_jsonschema
 import uuid
 from dotty_dict import dotty
 from jinjamator.plugin_loader.output import load_output_plugin
+from pprint import pformat
 
 
 def tree():
@@ -69,6 +70,13 @@ def import_code(code, name, add_to_sys_modules=False):
     return module
 
 
+class TaskletFailed(ValueError):
+    def __init__(self, results, message):
+        self.results = results
+        self.message = message
+        super().__init__(self.message)
+
+
 class JinjamatorTask(object):
     def __init__(self, run_mode="background"):
         self._global_ldr = None
@@ -76,7 +84,9 @@ class JinjamatorTask(object):
         self._parent_tasklet = "jinamator-core"
         self._parent_task_id = None
         self._log = logging.getLogger()
-
+        self._id = id(self)
+        self._current_global_base_dir = None
+        self._unresolved_task_base_dir = None
         self._tasklets = []
         self.configuration = TaskConfiguration()
         self._configuration = TaskConfiguration()
@@ -98,7 +108,7 @@ class JinjamatorTask(object):
 
     def load(self, path):
         self.task_base_dir = path
-
+        self._unresolved_task_base_dir = path
         self._log.debug(f"---------------- load task: {path} ----------------")
 
         search_paths = self._configuration.get("global_tasks_base_dirs", [])
@@ -110,6 +120,7 @@ class JinjamatorTask(object):
                 tried_path = os.path.join(global_base_dir, path)
                 if os.path.exists(tried_path):
                     self._log.debug(f"resolved path to {tried_path}")
+                    self._current_global_base_dir = global_base_dir
                     path = tried_path
                     break
 
@@ -244,8 +255,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
     def handle_undefined_var(self, var_name):
         if var_name == "undo":
             self.configuration["undo"] = False
+            return False
         if var_name == "best_effort":
             self.configuration["best_effort"] = False
+            return False
         if self._configuration["task_run_mode"] == "background":
             raise KeyError(
                 "undefined variable found {0} and running in background -> cannot proceed".format(
@@ -327,7 +340,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         return obj
 
     def load_schema_yaml(self, path):
-        from pprint import pformat
 
         try:
             with open(path, "r") as stream:
@@ -477,10 +489,11 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             for k, v in builder.to_schema()["properties"].items():
                 schema["schema"]["properties"][k] = v
                 schema["schema"]["properties"][k]["default"] = self._default_values[k]
-                schema["schema"]["properties"][k]["required"] = True
+                if self._default_values[k]:
+                    schema["schema"]["properties"][k]["required"] = True
                 if "pass" in k:
                     schema["schema"]["properties"][k]["format"] = "password"
-                schema["schema"]["properties"][k]["required"] = True
+                # schema["schema"]["properties"][k]["required"] = True
                 schema["view"]["wizard"]["bindings"][k] = 2
                 schema["data"][k] = self._default_values[k]
                 enhanced = self.enhance_schema(self._default_values[k], k)
@@ -641,12 +654,20 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
 
         # validate_jsonschema(instance=self.configuration._data, schema=schema)
         # validate_jsonschema(instance=self.configuration._data, schema=self._output_plugin.get_json_schema(self.configuration._data)['schema'])
-        results = {}
+        results = []
+        to_process = copy.copy(self._tasklets)
         for tasklet in self._tasklets:
+            self._global_ldr = init_loader(self)
+            for content_plugin_dir in self._configuration.get(
+                "global_content_plugins_base_dirs", []
+            ):
+                self._global_ldr.load(f"{content_plugin_dir}")
             self._current_tasklet = tasklet
             retval = ""
             self._log.debug(
-                "running with dataset: {0}".format(self.configuration)
+                "running with dataset: \n{0}".format(
+                    json.dumps(self.configuration._data, indent=2)
+                )
             )
             if tasklet.endswith("j2"):
                 try:
@@ -681,24 +702,53 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                     retval = module.jinjaTask().__run__()
                 except Exception as e:
                     _, _, tb = sys.exc_info()
-                    filename, lineno, funname, line = traceback.extract_tb(tb)[-1]
-                    if filename == "<string>":
-                        filename = tasklet
-                        code_to_show = task_code.split("\n")[lineno - 1]
-                    else:
-                        code_to_show = ""
+                    error_text = ""
+                    code_to_show = ""
+                    for filename, lineno, funname, line in reversed(
+                        traceback.extract_tb(tb)
+                    ):
+                        if filename == "<string>":
+                            filename = tasklet
+                        if filename == tasklet and funname == "__run__":
+                            try:
+                                code_to_show = (
+                                    "[ line "
+                                    + str(lineno - 7)
+                                    + " ] "
+                                    + task_code.split("\n")[lineno - 1]
+                                )
+                                error_text += f"{e}\n{filename}:{lineno -7}, in {funname}\n    {line}\n {code_to_show}\n\n"
+                            except Exception as inner_e:
+                                self._log.debug(
+                                    f"cannot show code -> this is a bug \n{inner_e }\n task_code: {task_code}\nlineno: {lineno}"
+                                )
+                        else:
+                            error_text += (
+                                f"{e}\n{filename}:{lineno}, in {funname}\n    {line}\n"
+                            )
 
-                    self._log.error(
-                        f"{e}\n{tasklet}:{lineno}, in {funname}\n    {line}\n{code_to_show}"
-                    )
+                    self._log.error(error_text)
 
                     if self.configuration.get("best_effort"):
                         continue
                     else:
-                        self._log.error(
-                            f"tasklet {tasklet} has failed and best_effort is not defined -> exiting"
+                        to_process.pop(0)
+                        skipped = []
+                        for path in to_process:
+                            skipped.append(os.path.basename(path))
+                        results.append(
+                            {
+                                "tasklet_path": tasklet,
+                                "result": "",
+                                "status": "error",
+                                "error": error_text,
+                                "skipped": skipped,
+                            }
                         )
-                        return False
+                        raise TaskletFailed(
+                            results,
+                            f"tasklet {tasklet} has failed and best_effort is not defined -> exiting",
+                        )
 
             else:
                 raise ValueError(
@@ -711,7 +761,16 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 retval, template_path=tasklet, current_data=self.configuration
             )
 
-            results[tasklet] = retval
+            results.append(
+                {
+                    "tasklet_path": tasklet,
+                    "result": retval,
+                    "status": "ok",
+                    "error": "",
+                    "skipped": [],
+                }
+            )
+            to_process.pop(0)
             if self._configuration["task_run_mode"] == "background":
                 self._log.tasklet_result(
                     "{0}".format(retval)

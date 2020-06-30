@@ -52,7 +52,7 @@ class console(outputPluginBase):
         form = {
             "schema": {
                 "type": "object",
-                "title": "Console Output Plugin Parameters",
+                "title": "Output Plugin Parameters",
                 "properties": {
                     "console_pretty_print": {
                         "title": "Enable Pretty Print",

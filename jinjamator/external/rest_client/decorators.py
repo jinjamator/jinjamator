@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 import status
-from httpx import exceptions
+from httpx import _exceptions as exceptions
 
 from .exceptions import (
     AuthError,
