@@ -14,7 +14,11 @@ def redact(obj, is_password=False):
         return redacted_passwords, obj
     elif isinstance(obj, dict):
         for k, v in obj.items():
-            if "pass" in k and isinstance(v, str):
+            if (
+                ("pass" in k and isinstance(v, str))
+                or (k.endswith("_key") and isinstance(v, str))
+                or ("secret" in k and isinstance(v, str))
+            ):
                 obj[k] = redact(v, True)[1]
             else:
                 obj[k] = redact(v)[1]
