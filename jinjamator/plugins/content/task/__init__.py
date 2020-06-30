@@ -55,6 +55,7 @@ def run(path, task_data=False, **kwargs):
     else:
         task.configuration.merge_dict(parent_data)
 
+    task.configuration["output_plugin"] = output_plugin
     task._configuration["global_tasks_base_dirs"].insert(0, _jinjamator.task_base_dir)
 
     task.load(path)
