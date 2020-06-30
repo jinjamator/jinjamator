@@ -2,7 +2,7 @@ import setuptools
 import os
 from subprocess import check_output
 
-command = "git describe --tags --long --dirty"
+command = "git describe --tags --dirty"
 version_format = ("{tag}.dev{commitcount}+{gitsha}",)
 
 
