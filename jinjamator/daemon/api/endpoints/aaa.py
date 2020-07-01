@@ -286,7 +286,7 @@ class UserDetail(Resource):
         """
         Update user.
         """
-
+        current_user_roles = [role["name"] for role in g._user["roles"]]
         user = User.query.filter(
             or_(User.id == user_id_or_name, User.username == user_id_or_name)
         ).first()
@@ -297,7 +297,10 @@ class UserDetail(Resource):
             new_password = request.json.get("password")
             if new_password:
                 user.password_hash = user.hash_password(new_password)
-        if "user_administration" in user.roles or "administrator" in user.roles:
+        if (
+            "user_administration" in current_user_roles
+            or "administrator" in current_user_roles
+        ):
             if request.json.get("roles") or request.json.get("roles") == []:
                 user.roles = []
                 for role in request.json.get("roles", []):
