@@ -48,7 +48,7 @@ site_path_by_name = {}
 class JobCollection(Resource):
     @api.marshal_list_with(job_brief)
     @api.response(200, "Success")
-    @require_role(role=None)
+    @require_role(role="operator")
     def get(self):
         """
         Returns a list of all jobs.
@@ -106,7 +106,7 @@ class Job(Resource):
     @api.response(404, "Task not found Error")
     @api.response(400, "Task ID not in UUID V4 format")
     @api.response(200, "Success")
-    @require_role(role=None)
+    @require_role(role="operator")
     def get(self, job_id):
         """
         Returns detailed information about a job, including a full debug log.
