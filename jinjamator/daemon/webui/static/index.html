@@ -8,6 +8,18 @@
     <script src="static/js/jquery.min.js"></script>
 
     <script>
+        let b64DecodeUnicode = str =>
+  decodeURIComponent(
+    Array.prototype.map.call(atob(str), c =>
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''))
+
+let parseJwt = token =>
+  JSON.parse(
+    b64DecodeUnicode(
+      token.split('.')[1].replace('-', '+').replace('_', '/')
+    )
+  )
         var params = new URLSearchParams(window.location.search);
         var access_token = params.get("access_token");
         if (access_token === null) {
@@ -26,6 +38,22 @@
                 dataType: "json",
                 success: function(data) {
                     sessionStorage.setItem('access_token', access_token);
+                    token_data=parseJwt(access_token)
+                    
+                    $.ajax({
+                        type: "GET",
+                        url: "/api/aaa/users/"+token_data.id,
+                        contentType: "application/json; charset=utf-8",
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                        },
+                        dataType: "json",
+                        success: function(data) {
+                            sessionStorage.setItem('logged_in_username', data.username);
+                            
+                        },
+                    });
+
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     window.location.pathname = '/login.html';
@@ -169,7 +197,7 @@
                                         <a href="#" class="btn btn-default btn-flat">Profile</a>
                                     </div>
                                     <div class="pull-right">
-                                        <a href="#" class="btn btn-default btn-flat" onclick="sessionStorage.removeItem('access_token');location.href = '/login.html'">Sign out</a>
+                                        <a href="#" class="btn btn-default btn-flat" onclick="logout();">Sign out</a>
                                     </div>
                                 </li>
                             </ul>
