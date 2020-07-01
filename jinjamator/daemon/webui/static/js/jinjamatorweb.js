@@ -212,6 +212,12 @@ function update_breadcrumb(level1, level2) {
     $('.breadcrumb').html('<li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li><li><a href="#">' + level1 + '</a></li><li class="active">' + level2 + '</li>')
 }
 
+function logout(){
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('logged_in_username');
+    location.href = '/login.html';
+}
+
 function list_roles() {
 
     // $(".treeview-item").removeClass("active")
