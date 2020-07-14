@@ -1002,6 +1002,26 @@ function update_timeline(job_id) {
 
 }
 
+
+function download_file(url,filename){
+    access_token = sessionStorage.getItem('access_token');
+    var req = new XMLHttpRequest();
+    req.open("GET", url, true);
+    req.setRequestHeader('Authorization', 'Bearer ' + access_token); 
+    req.responseType = "blob";
+    req.onload = function (event) {
+        event.preventDefault();
+        var blob = req.response;
+        
+        var link=document.createElement('a');
+        link.href=window.URL.createObjectURL(blob);
+        link.download=filename;
+        link.click();
+    };
+    req.send();
+}
+
+
 function timeline_render_elements(data) {
     var last_task = '';
     var timeline = $('.timeline');
@@ -1018,8 +1038,8 @@ function timeline_render_elements(data) {
             $('<a>', {
                 text: value,
                 title: value,
-                href: '/api/files/download/' + data.id + '/' + value
-            }).appendTo('#job_files');
+                href: '#',
+            }).on('click', function () {download_file('/api/files/download/' + data.id + '/' + value, value)}).appendTo('#job_files');
             $('<br>').appendTo('#job_files');
         });
     }
