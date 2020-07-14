@@ -75,6 +75,11 @@ class JobCollection(Resource):
 
         for job in rs.fetchall():
             user = User.query.filter(User.id == int(job.created_by_user_id)).first()
+            if user:
+                username = str(user.username)
+            else:
+                username = f"deleted (id is {job.created_by_user_id})"
+
             response.append(
                 {
                     "job": {
@@ -86,7 +91,7 @@ class JobCollection(Resource):
                         "date_scheduled": str(job.date_scheduled),
                         "task": str(job.jinjamator_task),
                         "created_by_user_id": int(job.created_by_user_id),
-                        "created_by_user_name": str(user.username),
+                        "created_by_user_name": username,
                     }
                 }
             )
