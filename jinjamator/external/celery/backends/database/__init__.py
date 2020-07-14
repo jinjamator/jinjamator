@@ -112,18 +112,19 @@ class DatabaseBackend(BaseBackend):
         """Store return value and state of an executed task."""
         session = self.ResultSession()
         with session_cleanup(session):
-            task = list(session.query(Task).filter(Task.task_id == task_id))
-            task = task and task[0]
+            if not result:
+                return []
+            task = session.query(Task).filter(Task.task_id == task_id).first()
             if not task:
                 task = Task(task_id)
+                task.created_by_user_id = -1
                 session.add(task)
                 session.flush()
             task.result = result
             task.status = state
             task.traceback = traceback
             task_id = task.task_id
-            if not result:
-                return []
+
             if task_id:
                 try:
                     result["log"]
@@ -131,6 +132,7 @@ class DatabaseBackend(BaseBackend):
                     result["log"] = []
 
                 for entry in result["log"]:
+
                     log_time = list(entry.keys())[0]
                     log = entry[log_time]
                     task.jinjamator_task = log["root_task"]
