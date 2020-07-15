@@ -208,9 +208,13 @@ class XLSXWriter(object):
                 self._data = json.loads(self._data)
             except ValueError:
                 pass
+            except TypeError:
+                pass
             try:
                 self._data = xmltodict.parse(self._data)
             except ValueError:
+                pass
+            except TypeError:
                 pass
 
         if isinstance(self._data, dict):
