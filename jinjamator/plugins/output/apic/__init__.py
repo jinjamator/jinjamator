@@ -34,7 +34,7 @@ class apic(outputPluginBase):
         self._log = logging.getLogger()
         self._parent = parent
         self.apic_dn_acl_rules = [
-            "uni/tn-\S+/ctx-(?!jmt_).*,c,protect VRFs from deletion and configuration updates",
+            "uni/tn-\S+/ctx-.*,c,protect VRFs from deletion and configuration updates",
             "uni/tn-[a-zA-Z0-9]+$,c,protect Tenant objects from deletion",
         ]
         self._dn_acls = {}
