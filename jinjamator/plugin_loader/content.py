@@ -95,6 +95,7 @@ py_load_plugins(globals())
                     setattr(cur, func_name, func)
                     argspec = inspect.getfullargspec(func)
                     setattr(module, "_jinjamator", self._parent)
+                    setattr(module, "__file__", file)
                     if len(argspec.args) == 1:
                         self._filters[f"{class_path}.{func_name}"] = func
 
