@@ -41,31 +41,6 @@ def fsm_process(device_type=None, command=None, data=None):
     )
 
     attrs = dict(Command=command, Platform=device_type)
-    try:
-        cli_table.ParseCmd(data, attrs)
-        structured_data = _clitable_to_dict(cli_table)
-    except clitable.CliTableError as e:
-        if _jinjamator._args.best_effort:
-            _jinjamator._log.error(
-                'Unable to parse command "%s" on platform %s - %s'
-                % (command, device_type, str(e))
-            )
-            return []
-        else:
-            raise Exception(
-                'Unable to parse command "%s" on platform %s - %s'
-                % (command, device_type, str(e))
-            )
-    except textfsm.TextFSMError as e:
-        if _jinjamator._args.best_effort:
-            _jinjamator._log.error(
-                'Unable to parse command "%s" on platform %s - %s'
-                % (command, device_type, str(e))
-            )
-            return []
-        else:
-            raise Exception(
-                'Unable to parse command "%s" on platform %s - %s'
-                % (command, device_type, str(e))
-            )
+    cli_table.ParseCmd(data, attrs)
+    structured_data = _clitable_to_dict(cli_table)
     return structured_data
