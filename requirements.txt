@@ -7,7 +7,7 @@ xxhash
 xml2dict
 pika
 deepmerge
-flatten_json
+flatten_json==0.1.7
 netaddr
 future
 pyflakes
