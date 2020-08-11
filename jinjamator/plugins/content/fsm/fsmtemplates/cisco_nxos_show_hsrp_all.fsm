@@ -52,6 +52,7 @@ Start
   ^\s+IP\s+redundancy\s+name\s+is\s+${SESSION_NAME}\s.*$$
   ^\s+Track.*$$
   ^\s+Secondary VIP.*$$
+  ^\s+\(Ignoring MD5, using text authentication, as this is V1\).*$$
   # Catch secondary VIPs:
   ^\s+\d+\.\d+\.\d+\.\d+$$
   # Record data when empty line is found
