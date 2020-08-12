@@ -1,0 +1,72 @@
+Value INTERFACE (\S+)
+Value GROUP_NUMBER (\d+)
+Value PRIORITY (\d+)
+Value GLBP_ROUTER_STATE (\S+)
+Value TIMERS_HELLO_SEC (\d+)
+Value TIMERS_HOLD_SEC (\d+)
+Value PRIMARY_IPV4_ADDRESS (\S+)
+Value SECONDARY_IPV4_ADDRESS (\S+)
+Value STANDBY_PRIORITY (\d+)
+Value AUTHENTICATION (.*)
+Value NUM_STATE_CHANGES (\d+)
+Value LAST_STATE_CHANGE (\S+)
+Value REDIRECT_TIME (\S+)
+Value FORWARDER_TIMEOUT (\S+)
+Value PREEMPTION_STATE (\S+)
+Value PREEMPTION_DELAY (\S+)
+Value LOAD_BALANCING_ALGORITHM (\S+)
+Value List GROUP_MEMBER_MAC ([A-F0-9]{4}\.[A-F0-9]{4}\.[A-F0-9]{4})
+Value List GROUP_MEMBER_IP (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
+Value List GROUP_MEMBER_STATE (\S+)
+Value FORWARDER_COUNT (\d+)
+Value ACTIVE_FORWARDER_COUNT (\d+)
+Value List FORWARDER_ID (\d+)
+Value List FORWARDER_STATE (\S+)
+Value List FORWARDER_STATE_CHANGES (\d+)
+Value List LAST_FORWARDER_STATE_CHANGE (\S+)
+Value List FORWARDER_MAC ([A-F0-9]{4}\.[A-F0-9]{4}\.[A-F0-9]{4})
+Value List FORWARDER_MAC_STATUS (\S+)
+Value List FORWARDER_OWNER_ID ([A-F0-9]{4}\.[A-F0-9]{4}\.[A-F0-9]{4})
+Value List FORWARDER_ARP_COUNT (\d+)
+
+
+Start
+  ^\S+.*$$ -> Continue.Record
+  ^${INTERFACE}\s+-\s+Group\s${GROUP_NUMBER}$$
+  ^\s+State\s+is\s+${GLBP_ROUTER_STATE}\s*$$  
+  ^\s+${NUM_STATE_CHANGES}\s+state\s+change\(s\),\s+last\s+state\s+change\(s\)\s+${LAST_STATE_CHANGE}\s*$$
+  ^\s+Virtual\s+IP\s+address\s+is\s+${PRIMARY_IPV4_ADDRESS}.*$$
+  ^\s+Hello\s+time\s+${TIMERS_HELLO_SEC}.*hold time\s+${TIMERS_HOLD_SEC}.*$$
+  ^\s+Next\s+hello\s+sent.*$$
+  ^\s+Redirect\s+time\s+${REDIRECT_TIME}\s+sec,\s+forwarder\s+time-out\s+${FORWARDER_TIMEOUT}\s+sec
+  ^\s+Authentication\s+${AUTHENTICATION}$$
+  ^\s+Preemption\s+${PREEMPTION_STATE},\s+min\s+delay\s+${PREEMPTION_DELAY}\s+sec$$
+  ^\s+Active is local$$
+  ^\s+Standby\s+is\s+${SECONDARY_IPV4_ADDRESS},\s+priority\s+${STANDBY_PRIORITY}.*$$
+  ^\s+Priority\s+${PRIORITY}\s+\(configured\)$$
+  ^\s+Weighting.*$$
+  ^\s+Load\s+balancing:\s+${LOAD_BALANCING_ALGORITHM}$$
+  ^\s+Group\s+members:$$ 
+  ^\s+${GROUP_MEMBER_MAC}\s+\(${GROUP_MEMBER_IP}\)\s+${GROUP_MEMBER_STATE}$$
+  ^\s+There\s+are\s+${FORWARDER_COUNT}\s+forwarders\s+\(${ACTIVE_FORWARDER_COUNT}\s+active\)$$
+  ^\s+Forwarder\s+${FORWARDER_ID}$$ -> parse_forwarder
+  
+
+parse_forwarder
+  ^\s+State\s+is\s+${FORWARDER_STATE}\s*$$
+  ^\s+${FORWARDER_STATE_CHANGES}\s+state\s+change\(s\),\s+last\s+state\s+change\s+${LAST_FORWARDER_STATE_CHANGE}\s*$$
+  ^\s+MAC\s+address\s+is\s+${FORWARDER_MAC}\s+\(${FORWARDER_MAC_STATUS}\)\s*$$
+  ^\s+Owner\s+ID\s+is\s+${FORWARDER_OWNER_ID}$$
+  ^\s+Redirection\s+enabled.*$$
+  ^\s+Time\s+to\s+live:.*$$
+  ^\s+Preemption.*$$
+  ^\s+Active\s+is\s+unknown\s+Arp\s+replies\s+sent:\s+${FORWARDER_ARP_COUNT}\s*$$ -> Start
+  ^\s+Active\s+is\s+\d+.*$$
+  ^\s+Arp\s+replies\s+sent:\s+${FORWARDER_ARP_COUNT}\s*$$ -> Start
+  ^\s*$$ -> Start
+
+
+  
+
+  
+
