@@ -335,6 +335,9 @@ class XLSXWriter(object):
                     txt = float(item)
                 except ValueError:
                     txt = item
+                except TypeError:
+                    txt = item
+
                 cell = ws.cell(row=row, column=col, value=txt)
                 cell.fill = fill
                 cell.border = border
