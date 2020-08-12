@@ -47,7 +47,7 @@ Start
   ^\s+Weighting.*$$
   ^\s+Load\s+balancing:\s+${LOAD_BALANCING_ALGORITHM}$$
   ^\s+Group\s+members:$$ 
-  ^\s+${GROUP_MEMBER_MAC}\s+\(${GROUP_MEMBER_IP}\)\s+${GROUP_MEMBER_STATE}$$
+  ^\s+${GROUP_MEMBER_MAC}\s+\(${GROUP_MEMBER_IP}\)\s*${GROUP_MEMBER_STATE}?$$
   ^\s+There\s+are\s+${FORWARDER_COUNT}\s+forwarders\s+\(${ACTIVE_FORWARDER_COUNT}\s+active\)$$
   ^\s+Forwarder\s+${FORWARDER_ID}$$ -> parse_forwarder
   
