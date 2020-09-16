@@ -20,12 +20,8 @@ let parseJwt = token =>
       token.split('.')[1].replace('-', '+').replace('_', '/')
     )
   )
-        var params = new URLSearchParams(window.location.search);
-        var access_token = params.get("access_token");
-        if (access_token === null) {
-            access_token = sessionStorage.getItem('access_token');
-        }
-
+       
+    access_token = sessionStorage.getItem('access_token');
         if (access_token !== null) {
 
             $.ajax({
