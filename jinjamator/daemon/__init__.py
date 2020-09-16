@@ -218,7 +218,7 @@ def run(cfg):
                 if not cfg.get("just_worker"):
                     log.info(f">>>>> Starting daemon at http://{host}:{port}// <<<<<")
                     app.run(
-                        debug=True,
+                        debug=False,
                         host=cfg.get("daemon_listen_address", "127.0.0.1"),
                         port=cfg.get("daemon_listen_port", "5000"),
                     )
@@ -226,10 +226,10 @@ def run(cfg):
         else:
             log.info(f">>>>> Starting daemon at http://{host}:{port}// <<<<<")
             app.run(
-                debug=True,
+                debug=False,
                 host=cfg.get("daemon_listen_address", "127.0.0.1"),
                 port=cfg.get("daemon_listen_port", "5000"),
             )
     else:
         log.info(f">>>>> Restarting daemon at http://{host}:{port}/ <<<<<")
-        app.run(debug=True, host=host, port=port)
+        app.run(debug=False, host=host, port=port)
