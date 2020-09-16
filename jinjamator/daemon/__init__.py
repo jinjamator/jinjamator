@@ -107,6 +107,8 @@ def configure(flask_app, _configuration):
     flask_app.config["RESTPLUS_VALIDATE"] = True
     flask_app.config["RESTPLUS_MASK_SWAGGER"] = False
     flask_app.config["ERROR_404_HELP"] = False
+    flask_app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
     flask_app.config["CELERY_BROKER_URL"] = _configuration.get("celery_broker")
     flask_app.config["CELERY_RESULT_BACKEND"] = _configuration.get(
         "celery_result_backend"
