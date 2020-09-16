@@ -28,12 +28,13 @@ Value List FORWARDER_MAC ([A-F0-9]{4}\.[A-F0-9]{4}\.[A-F0-9]{4})
 Value List FORWARDER_MAC_STATUS (\S+)
 Value List FORWARDER_OWNER_ID ([A-F0-9]{4}\.[A-F0-9]{4}\.[A-F0-9]{4})
 Value List FORWARDER_ARP_COUNT (\d+)
+Value GLBP_ROUTER_STATE_REASON (\(.+\))
 
 
 Start
   ^\S+.*$$ -> Continue.Record
   ^${INTERFACE}\s+-\s+Group\s${GROUP_NUMBER}$$
-  ^\s+State\s+is\s+${GLBP_ROUTER_STATE}\s*$$  
+  ^\s+State\s+is\s+${GLBP_ROUTER_STATE}\s*${GLBP_ROUTER_STATE_REASON}?\s*$$  
   ^\s+${NUM_STATE_CHANGES}\s+state\s+change\(s\),\s+last\s+state\s+change\(s\)\s+${LAST_STATE_CHANGE}\s*$$
   ^\s+Virtual\s+IP\s+address\s+is\s+${PRIMARY_IPV4_ADDRESS}.*$$
   ^\s+Hello\s+time\s+${TIMERS_HELLO_SEC}.*hold time\s+${TIMERS_HOLD_SEC}.*$$
