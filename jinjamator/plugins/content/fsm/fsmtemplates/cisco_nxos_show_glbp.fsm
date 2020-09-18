@@ -61,7 +61,7 @@ parse_forwarder
   ^\s+Redirection\s+enabled.*$$
   ^\s+Time\s+to\s+live:.*$$
   ^\s+Preemption.*$$
-  ^\s+Active\s+is\s+unknown\s+Arp\s+replies\s+sent:\s+${FORWARDER_ARP_COUNT}\s*$$ -> Start
+  ^\s+Active\s+is\s+unknown.*$$ -> Start
   ^\s+Active\s+is\s+\d+.*$$
   ^\s+Arp\s+replies\s+sent:\s+${FORWARDER_ARP_COUNT}\s*$$ -> Start
   ^\s*$$ -> Start
