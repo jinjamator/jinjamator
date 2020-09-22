@@ -26,6 +26,8 @@ def load(path, **kwargs):
     load data from file. local or http/https
     """
     mode = kwargs.get("mode", "r")
+    if not path.startswith("/"):
+        path = f"{_jinjamator.task_base_dir}{os.path.sep}{path}"
     if os.path.isfile(path):
         with open(path, mode) as fh:
             return fh.read()
@@ -37,7 +39,6 @@ def open(url, flags="r"):
     """
     Opens files from local filesystem or http/https and returns a file descriptor
     """
-
     if url.startswith("http"):
         r = requests.get(url, stream=True, verify=False)
         return r.raw
