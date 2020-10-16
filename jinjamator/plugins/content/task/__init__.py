@@ -69,3 +69,7 @@ def run(path, task_data=False, **kwargs):
         task._parent_tasklet = backup._parent_tasklet
     del task
     return retval
+
+
+def directory():
+    return _jinjamator._configuration.get("taskdir", None)
