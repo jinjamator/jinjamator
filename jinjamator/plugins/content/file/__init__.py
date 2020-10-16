@@ -16,6 +16,7 @@ def save(data, target, **kwargs):
     ):
         with open(target, mode) as fh:
             fh.write(data)
+            log.debug(f"successfully written file {target}")
         return True
     log.error(f"Path {target} exists and overwrite is not true or path is a directory")
     return False
