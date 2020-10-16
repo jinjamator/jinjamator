@@ -128,6 +128,7 @@ class JinjamatorTask(object):
             self.task_base_dir = os.path.dirname(path)
             self._tasklets = [path]
             path = self.task_base_dir
+            self._configuration["taskdir"] = self.task_base_dir
 
         elif os.path.isdir(path):
             self.task_base_dir = path
