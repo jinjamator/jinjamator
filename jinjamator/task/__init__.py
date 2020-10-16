@@ -127,6 +127,8 @@ class JinjamatorTask(object):
         if os.path.isfile(path):
             self.task_base_dir = os.path.dirname(path)
             self._tasklets = [path]
+            path = self.task_base_dir
+
         elif os.path.isdir(path):
             self.task_base_dir = path
             for file_type in self._supported_file_types:
