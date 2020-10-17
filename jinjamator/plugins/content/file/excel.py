@@ -14,7 +14,9 @@
 
 from jinjamator.tools.xlsx_tools import XLSXReader, XLSXWriter
 
+py_load_plugins(globals())
 import os
+from jinjamator.plugin_loader.content import py_load_plugins
 
 
 def load(path, **kwargs):
@@ -26,3 +28,10 @@ def load(path, **kwargs):
     xlsx.parse_header(kwargs.get("header_lines", 1))
     xlsx.parse_data()
     return xlsx.data
+
+
+def to_csv(src_path, target_path, **kwargs):
+
+    data = [v for k, v in load(src_path, cache=False).items()]
+    file.csv.save(data, target_path)
+    return True
