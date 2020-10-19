@@ -13,10 +13,7 @@
 # limitations under the License.
 
 from jinjamator.tools.xlsx_tools import XLSXReader, XLSXWriter
-
-py_load_plugins(globals())
 import os
-from jinjamator.plugin_loader.content import py_load_plugins
 
 
 def load(path, **kwargs):
@@ -30,7 +27,17 @@ def load(path, **kwargs):
     return xlsx.data
 
 
-def to_csv(src_path, target_path, **kwargs):
+def to_csv(src_path, target_path=None, **kwargs):
+    """This function converts an excel file to an CSV file. If the target_path parameter
+    is omitted, it will be constructed from the src_path. Eg. /home/user/test.xlsx -> /home/user/test.csv
+
+    :param src_path: Path to source excel file which should be converted
+    :type src_path: str
+    :param target_path: Target path for the converted CSV file, defaults to None
+    :type target_path: str, optional
+    :return: Returns True on success
+    :rtype: boolean
+    """
 
     data = [v for k, v in load(src_path, cache=False).items()]
     file.csv.save(data, target_path)
