@@ -5,8 +5,6 @@ cisco.migration
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: cisco.migration.calc_infra_port_blk_dn(switchname, port, card):
 
@@ -51,6 +49,5 @@ Module contents
 .. py:function:: cisco.migration.tree():
 
         not documented yet
-
 
 

@@ -1,16 +1,12 @@
 cisco.aci
 ===============================================
 
-Sub Plugins
------------------
 .. toctree::
     :maxdepth: 1
 
     cisco.aci.apic.rst
     cisco.aci.test.rst
 
-Module contents
----------------
 
 .. py:function:: cisco.aci.connect_apic(subscription_enabled=False):
 
@@ -192,6 +188,5 @@ Module contents
 .. py:function:: cisco.aci.vlan_pool_contains_vlan(pool_name, vlan_id):
 
         not documented yet
-
 
 

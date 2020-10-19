@@ -1,9 +1,8 @@
 {{node.full_path}}
 ===============================================
 
-Sub Plugins
------------------
-
+{% if node.children|length > 0 %}
+{% endif %}
 .. toctree::
     :maxdepth: 1
 
@@ -11,8 +10,7 @@ Sub Plugins
     {{node.children[child_plugin_name].full_path}}.rst
 {% endfor %}
 
-Module contents
----------------
+{% if node.methods|length > 0 %}
 
 {% for method_name in node.methods.keys()|sort: %}
 .. py:function:: {{node.methods[method_name].function_header}}:
@@ -20,6 +18,6 @@ Module contents
         {{node.methods[method_name].doc}}
 
 {% endfor %}
-
+{% endif %}
 
 

@@ -5,8 +5,6 @@ yaml
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: yaml.dumps(data):
 
@@ -15,6 +13,5 @@ Module contents
 .. py:function:: yaml.loads(data):
 
         not documented yet
-
 
 

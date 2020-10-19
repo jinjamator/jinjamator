@@ -5,8 +5,6 @@ os.environment
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: os.environment.get(var, default=None):
 
@@ -17,6 +15,5 @@ Module contents
 
         jinja2 helper function to access the os environment
     
-
 
 

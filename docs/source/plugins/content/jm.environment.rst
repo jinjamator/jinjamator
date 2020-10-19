@@ -5,8 +5,6 @@ jm.environment
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: jm.environment.jinjamator_base_directory():
 
@@ -23,6 +21,5 @@ Module contents
 .. py:function:: jm.environment.site_path():
 
         not documented yet
-
 
 

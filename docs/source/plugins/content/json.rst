@@ -5,8 +5,6 @@ json
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: json.dumps(data):
 
@@ -15,6 +13,5 @@ Module contents
 .. py:function:: json.loads(data):
 
         not documented yet
-
 
 
