@@ -42,6 +42,9 @@ def import_code(code, name, add_to_sys_modules=False):
 
 
 class contentPlugin(object):
+    def __init__(self, name):
+        self.__name__ = name
+
     pass
 
 
@@ -65,12 +68,12 @@ class ContentPluginLoader(object):
             key = tmp.pop(0)
 
             if not self._functions.get(key):
-                self._functions[key] = contentPlugin()
+                self._functions[key] = contentPlugin(key)
             cur = self._functions[key]
 
             for item in tmp:
                 if not hasattr(cur, item):
-                    setattr(cur, item, contentPlugin())
+                    setattr(cur, item, contentPlugin(key))
                 cur = getattr(cur, item)
             code = """
 from jinjamator.plugin_loader.content import py_load_plugins
@@ -78,7 +81,7 @@ py_load_plugins(globals())
 """
             with open(file, "r") as fh:
                 code += fh.read()
-            module = import_code(code, class_path)
+            module = import_code(code, "jinjamator.plugins.content" + class_path)
 
             # spec = importlib.util.spec_from_file_location(class_path, file)
             # if not spec:
@@ -91,8 +94,15 @@ py_load_plugins(globals())
             for func_name in dir(module):
                 func = getattr(module, func_name)
                 if isinstance(func, types.FunctionType):
-                    # self._log.debug(f"registering {class_path}.{func_name}")
+                    if sys.modules.get(func.__module__):
+                        self._log.debug(
+                            f"skipping imported function {class_path}.{func_name}"
+                        )
+                        continue
+                    self._log.debug(f"registering {class_path}.{func_name}")
+
                     setattr(cur, func_name, func)
+
                     argspec = inspect.getfullargspec(func)
                     setattr(module, "_jinjamator", self._parent)
                     setattr(module, "__file__", file)
