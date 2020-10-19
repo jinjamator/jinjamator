@@ -1,0 +1,9 @@
+Jinjamator Content Plugins
+===============================================
+
+.. toctree::
+    :maxdepth: 1
+
+{% for file_name in file_list | sort: %}
+    {{file_name}}.rst
+{% endfor %}
