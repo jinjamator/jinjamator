@@ -5,8 +5,6 @@ ssh
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: ssh.query(command, **kwargs):
 
@@ -15,6 +13,5 @@ Module contents
 .. py:function:: ssh.run(command, **kwargs):
 
         not documented yet
-
 
 

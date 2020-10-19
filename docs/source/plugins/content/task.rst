@@ -5,8 +5,6 @@ task
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: task.directory():
 
@@ -15,6 +13,5 @@ Module contents
 .. py:function:: task.run(path, task_data=False, **kwargs):
 
         calls another jinjamator task
-
 
 

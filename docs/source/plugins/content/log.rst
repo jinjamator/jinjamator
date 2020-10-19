@@ -5,8 +5,6 @@ log
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: log.console(message):
 
@@ -31,6 +29,5 @@ Module contents
 .. py:function:: log.warning(message):
 
         Log helper function for jinja2 tasks
-
 
 

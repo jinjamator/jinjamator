@@ -5,8 +5,6 @@ cisco.aci.test
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: cisco.aci.test.create_verify(task_dir, config={}, ignore_fields=[]):
 
@@ -25,6 +23,5 @@ Module contents
     :returns: None
     :rtype: None
     
-
 
 

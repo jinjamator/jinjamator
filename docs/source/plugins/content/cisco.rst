@@ -1,8 +1,6 @@
 cisco
 ===============================================
 
-Sub Plugins
------------------
 .. toctree::
     :maxdepth: 1
 
@@ -10,10 +8,5 @@ Sub Plugins
     cisco.ios.rst
     cisco.migration.rst
     cisco.nxos.rst
-
-Module contents
----------------
-
-    This Plugin has no callable methods.
 
 

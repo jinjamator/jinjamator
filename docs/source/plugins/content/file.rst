@@ -1,16 +1,12 @@
 file
 ===============================================
 
-Sub Plugins
------------------
 .. toctree::
     :maxdepth: 1
 
     file.csv.rst
     file.excel.rst
 
-Module contents
----------------
 
 .. py:function:: file.load(path, **kwargs):
 
@@ -26,6 +22,5 @@ Module contents
 
         save data to a local file
     
-
 
 

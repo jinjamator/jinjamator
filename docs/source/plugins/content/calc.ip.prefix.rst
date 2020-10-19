@@ -5,8 +5,6 @@ calc.ip.prefix
     :maxdepth: 1
 
 
-Module contents
----------------
 
 .. py:function:: calc.ip.prefix.gateway(prefix):
 
@@ -27,6 +25,5 @@ Module contents
 .. py:function:: calc.ip.prefix.subnet_mask(prefix):
 
         not documented yet
-
 
 
