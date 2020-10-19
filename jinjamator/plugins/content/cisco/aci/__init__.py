@@ -72,17 +72,9 @@ switchdb = {
         "downlinks": range(1, 49),
         "type": "leaf",
     },
-    "TEST-LEAF": {
-        "uplinks": range(49, 50),
-        "downlinks": range(1, 2),
-        "type": "leaf",
-    },
+    "TEST-LEAF": {"uplinks": range(49, 50), "downlinks": range(1, 2), "type": "leaf"},
     "TEST-SPINE": {"uplinks": [], "downlinks": range(1, 2), "type": "spine"},
-    "TEST-FEX": {
-        "uplinks": range(49, 50),
-        "downlinks": range(1, 2),
-        "type": "fex",
-    }
+    "TEST-FEX": {"uplinks": range(49, 50), "downlinks": range(1, 2), "type": "fex"},
 }
 
 log = logging.getLogger()
@@ -372,22 +364,24 @@ def get_podid_by_switch_id(switch_id):
     )
 
 
-def version(node_id=1):
+def version(apic_node_id=1):
     """
     Returns the firmware version of an APIC
 
-    :param node_id: integer from 1 to 10
-    :type node_id: integer
-    :returns: Version information as returned from APIC
+    :param apic_node_id: Node id of the apic to query for the version from 1 to 10, defaults to 1
+    :type apic_node_id: integer, optional
+    :returns: Version information as returned from APIC e.g.: 4.2(1p)
     :rtype: string
+    :raises ValueError: If the node with the specified apic_node_id cannot be found.
+
     """
     result = query(
-        f'/api/node/class/firmwareCtrlrRunning.json?query-target-filter=and(wcard(firmwareCtrlrRunning.dn,"node-{node_id}"))'
+        f'/api/node/class/firmwareCtrlrRunning.json?query-target-filter=and(wcard(firmwareCtrlrRunning.dn,"node-{apic_node_id}"))'
     )
     try:
         return result["imdata"][0]["firmwareCtrlrRunning"]["attributes"]["version"]
     except KeyError:
-        raise ValueError("Node {node_id} does not exist or is not an APIC")
+        raise ValueError("Node {apic_node_id} does not exist or is not an APIC")
 
 
 def is_min_version(major, minor, patch_level, node_id=1):
