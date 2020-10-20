@@ -22,12 +22,12 @@ cisco.aci
 
 .. py:function:: cisco.aci.dn_exists(dn):
 
-    Checks if the dn exists. Also returns true when there was an API-Error. Writes the error to error-out
+    Checks if the dn exists. Logs API Error to error log. 
 
-    :param dn: dn-string
-    :type dn: string
+    :param dn: APIC dn-string
+    :type dn: ``str``
     :returns: True if dn exists (or contains an error), false if not existing
-    :rtype: boolean
+    :rtype: ``bool``
     
 
 .. py:function:: cisco.aci.dn_has_attribute(dn, key, value):
@@ -117,9 +117,10 @@ cisco.aci
     Retrive the pod_id for a switch_id from APIC, if not possible ask user to enter pod_id
 
     :param switch_id: integer from 100 to 3999
-    :type switch_id: integer
+    :type switch_id: ``int``
     :returns: pod_id
-    :rtype: integer
+    :rtype: ``int``
+    :raises ValueError: If the node with the specified apic_node_id is invalid.
     
 
 .. py:function:: cisco.aci.get_role_by_model(model):
@@ -135,19 +136,50 @@ cisco.aci
     Check the API-Response for errors
 
     :param response: Dict of the request response ([imdata][0][....])
-    :type response: dict
+    :type response: ``dict``
     :returns: True if response contains an error, false if not
-    :rtype: boolean
+    :rtype: ``bool``
     
 
 .. py:function:: cisco.aci.is_dn_in_use(dn, ignore_children=False):
 
     not documented yet
 
-.. py:function:: cisco.aci.is_min_version(major, minor, patch_level, node_id=1):
+.. py:function:: cisco.aci.is_min_version(major, minor, patch_level=None, node_id=1):
 
-    {% if aci_is_min_version(4, 0, None) %}
-    {% endif %}
+    Checks if the APIC run a minimum version specified
+
+    :param major: minimum APIC major version, eg.: 4 for ACI 4.x.x
+    :type major: ``int``
+    :param minor: minimum APIC major version, eg.: 2 for ACI x.2.x
+    :type minor: ``int``
+    :param patch_level: minimum APIC patchlevel . eg.: 4i for ACI x.x.(4i) or None if it should be ignored
+    :type patch_level: ``str`` or ``None``
+    :param node_id: APIC node id to query, defaults to 1
+    :type node_id: ``int``, optional
+    :return: True if the APIC run specified version or greater, False if not.
+    :rtype: ``bool``
+
+    :Examples:
+
+        jinja2 tasklet:
+        
+            .. code-block:: jinja
+
+                {% if aci_is_min_version(4, 2, None) %} {#check if APIC runs at least 4.2 version of code#}
+                bla bla
+                {% endif %}
+        
+        python tasklet:
+
+            .. code-block:: python
+
+                if aci_is_min_version(4, 2, None): //check if APIC runs at least 4.2 version of code
+                    do_something_fancy()
+                else:
+                    do_other_things()
+    
+    
     
 
 .. py:function:: cisco.aci.model_is_leaf(model):
@@ -164,14 +196,22 @@ cisco.aci
     Assumes, that a check if there is an error present was done beforehand.
 
     :param response: Dict of the request response ([imdata][0][....])
-    :type response: dict
+    :type response: ``dict``
     :returns: Parsed Error-Text
-    :rtype: string
+    :rtype: ``str``
     
 
-.. py:function:: cisco.aci.query(queryURL, timeout=60):
+.. py:function:: cisco.aci.query(query_url, timeout=60):
 
-    not documented yet
+    [summary]
+
+    :param query_url: URL for the query, eg. "/api/node/class/topology/pod-1/node-101/faultSummary.json". If the URL contains "subscription=yes as parameter", a websocket session will be opened automatically.
+    :type query_url: ``str``
+    :param timeout: Timeout waiting for an http response from the apic, defaults to 60
+    :type timeout: int, optional
+    :return: dictionary containing the response from the APIC
+    :rtype: ``dict``
+    
 
 .. py:function:: cisco.aci.version(apic_node_id=1):
 

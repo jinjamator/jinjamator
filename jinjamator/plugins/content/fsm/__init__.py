@@ -22,7 +22,13 @@ except ImportError:
 
 
 def _clitable_to_dict(cli_table):
-    """Convert TextFSM cli_table object to list of dictionaries."""
+    """Convert TextFSM cli_table object to list of dictionaries.
+
+    :param cli_table: 
+    :type cli_table: textfsm CliTable object
+    :return: a list of dict containing the data of the textfsm CliTable object.
+    :rtype: list of dict
+    """
     objs = []
     for row in cli_table:
         temp_dict = {}
