@@ -57,7 +57,6 @@ def process(device_type, command, data):
             * dell_force10
             * hp_comware
             * hp_procurve
-            * index
             * juniper_junos
             * juniper_screenos
             * paloalto_panos
