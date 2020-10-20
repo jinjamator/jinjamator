@@ -14,14 +14,29 @@
 import csv
 
 
-def save(data, path):
+def save(data, destination_path, **kwargs):
+    """Generate a csv file from a datastructure.
+
+    :param data: Currently data must be a list of dicts.
+    :type data: list of dict
+    :param destination_path: Path of the resulting CSV file.
+    :type destination_path: str
+    :raises ValueError: If the format of data cannot be determined.
+    :return: Returns True on success.
+    :rtype: bool
+
+    :Keyword Arguments:
+        Currently None
+    """
     if isinstance(data, list):
         if isinstance(data[0], dict):
-            with open(path, "w") as f:
+            with open(destination_path, "w") as f:
                 writer = csv.DictWriter(f, fieldnames=data[0].keys(), dialect=csv.excel)
                 writer.writeheader()
                 writer.writerows(data)
-                log.debug(f"successfully written {len(data)} lines of data to {path}")
+                log.debug(
+                    f"successfully written {len(data)} lines of data to {destination_path}"
+                )
             return True
         raise ValueError(f"csv save not implemented for list of {type(data[0])}")
     raise ValueError(f"csv save not implemented for {type(data)}")
