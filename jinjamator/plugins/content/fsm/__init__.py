@@ -33,7 +33,7 @@ def _clitable_to_dict(cli_table):
     return objs
 
 
-def fsm_process(device_type=None, command=None, data=None):
+def process(device_type=None, command=None, data=None):
     """Return the structured data based on the output from a network device."""
 
     cli_table = clitable.CliTable(

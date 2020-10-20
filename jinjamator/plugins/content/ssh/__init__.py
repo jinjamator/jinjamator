@@ -15,7 +15,7 @@
 from netmiko import ConnectHandler, ssh_exception
 import textfsm
 import os
-from jinjamator.plugins.content.fsm import fsm_process
+from jinjamator.plugins.content.fsm import process
 import logging
 
 log = logging.getLogger()
@@ -82,4 +82,4 @@ def query(command, **kwargs):
     kwargs["device_type"] = device_type
     config = run(command, **kwargs)
 
-    return fsm_process(device_type, command, config)
+    return process(device_type, command, config)
