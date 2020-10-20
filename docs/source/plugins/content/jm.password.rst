@@ -8,7 +8,7 @@ jm.password
 
 .. py:function:: jm.password.generate(length=16):
 
-        Generate a strong Password
+    Generate a strong Password
     
 
 

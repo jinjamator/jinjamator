@@ -8,10 +8,10 @@ yaml
 
 .. py:function:: yaml.dumps(data):
 
-        helper for jinja2
+    helper for jinja2
 
 .. py:function:: yaml.loads(data):
 
-        not documented yet
+    not documented yet
 
 

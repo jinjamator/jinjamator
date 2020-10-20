@@ -10,17 +10,17 @@ file
 
 .. py:function:: file.load(path, **kwargs):
 
-        load data from file. local or http/https
+    load data from file. local or http/https
     
 
 .. py:function:: file.open(url, flags='r'):
 
-        Opens files from local filesystem or http/https and returns a file descriptor
+    Opens files from local filesystem or http/https and returns a file descriptor
     
 
 .. py:function:: file.save(data, target, **kwargs):
 
-        save data to a local file
+    save data to a local file
     
 
 

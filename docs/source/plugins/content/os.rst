@@ -9,6 +9,6 @@ os
 
 .. py:function:: os.path():
 
-        not documented yet
+    not documented yet
 
 
