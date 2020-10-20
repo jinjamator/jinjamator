@@ -15,7 +15,7 @@
 {% for method_name in node.methods.keys()|sort: %}
 .. py:function:: {{node.methods[method_name].function_header}}:
 
-        {{node.methods[method_name].doc}}
+    {{node.methods[method_name].doc}}
 
 {% endfor %}
 {% endif %}
