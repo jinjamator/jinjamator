@@ -14,10 +14,8 @@ file
 
     :param path: Can be a local path or a http/https URL. For relative paths the current task base directory is set as basepath so test.txt will become /path/to/task/test.txt
     :type path: ``str``
-    :return: On error opening the File `False` is returned
-    :rtype: ``bool``
-    :return: On success the content of the textfile is returned. 
-    :rtype: ``str``
+    :return: On error opening the File `False` is returned. On success the content of the textfile is returned. 
+    :rtype: ``bool`` or  ``str``
 
     :Keyword Arguments:
         None at the moment.
