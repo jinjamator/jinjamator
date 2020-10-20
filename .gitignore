@@ -115,3 +115,5 @@ jinjamator/tasks/vendor
 jinjamator/tasks/customer
 
 *.code-workspace
+
+docs/_build/
