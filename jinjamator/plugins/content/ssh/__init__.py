@@ -37,20 +37,20 @@ def run(command, **kwargs):
     :rtype: ``str``
 
     :Keyword Arguments:
-        * *ssh_username* ``str``, ``optional``, ``jinjamator enforced`` --
+        * *ssh_username* (``str``), ``optional``, ``jinjamator enforced`` --
            Username for the SSH connection. If not set in task configuration or via keyword argument jinjamator asks the user to input the data.
-        * *ssh_password* ``str``, ``optional``, ``jinjamator enforced`` --
+        * *ssh_password* (``str``), ``optional``, ``jinjamator enforced`` --
            Password for the SSH connection. If not set in task configuration or via keyword argument jinjamator asks the user to input the data.
-        * *ssh_host*  ``str``, ``optional``, ``jinjamator enforced`` --
+        * *ssh_host*  (``str``), ``optional``, ``jinjamator enforced`` --
            Target hostname or IP address for the SSH connection. If not set in task configuration or via keyword argument jinjamator asks the user to input the data.
         * *ssh_port* (``int``), ``optional`` --
            SSH TCP port, defaults to 22
-        * *ssh_device_type* ``str``, ``optional`` --
+        * *ssh_device_type* (``str``), ``optional`` --
            Netmiko device type, defaults to "cisco_nxos". 
            Currently supported device_types can be found here: https://github.com/ktbyers/netmiko/tree/develop/netmiko 
-        * *fast_cli* ``bool``, ``optional`` --
+        * *fast_cli* (``bool``), ``optional`` --
            Use Netmiko fast_cli mode, defaults to False
-        * *verbose* ``bool``, ``optional`` --
+        * *verbose* (``bool``), ``optional`` --
            Set Netmiko to debug mode, defaults to False
 
     :Examples:
