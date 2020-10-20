@@ -8,7 +8,7 @@ file.csv
 
 .. py:function:: file.csv.save(data, destination_path, **kwargs):
 
-        Generate a csv file from a datastructure.
+    Generate a csv file from a datastructure.
 
     :param data: Currently data must be a list of dicts.
     :type data: list of dict

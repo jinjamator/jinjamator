@@ -8,6 +8,6 @@ cisco.nxos
 
 .. py:function:: cisco.nxos.query(command, **kwargs):
 
-        not documented yet
+    not documented yet
 
 

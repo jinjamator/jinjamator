@@ -8,6 +8,6 @@ cisco.ios
 
 .. py:function:: cisco.ios.query(command, **kwargs):
 
-        not documented yet
+    not documented yet
 
 

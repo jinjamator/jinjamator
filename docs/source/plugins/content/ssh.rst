@@ -8,10 +8,10 @@ ssh
 
 .. py:function:: ssh.query(command, **kwargs):
 
-        not documented yet
+    not documented yet
 
 .. py:function:: ssh.run(command, **kwargs):
 
-        not documented yet
+    not documented yet
 
 

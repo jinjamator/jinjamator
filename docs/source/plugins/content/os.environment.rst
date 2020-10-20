@@ -8,12 +8,12 @@ os.environment
 
 .. py:function:: os.environment.get(var, default=None):
 
-        jinja2 helper function to access the os environment
+    jinja2 helper function to access the os environment
     
 
 .. py:function:: os.environment.pop(var, default=None):
 
-        jinja2 helper function to access the os environment
+    jinja2 helper function to access the os environment
     
 
 

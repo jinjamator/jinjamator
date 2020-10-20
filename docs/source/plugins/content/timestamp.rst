@@ -8,7 +8,7 @@ timestamp
 
 .. py:function:: timestamp.today():
 
-        returns a timestamp of today
+    returns a timestamp of today
     
 
 
