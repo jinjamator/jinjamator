@@ -21,20 +21,20 @@ ssh
     :rtype: ``str``
 
     :Keyword Arguments:
-        * *ssh_username* ``str``, ``optional``, ``jinjamator enforced`` --
+        * *ssh_username* (``str``), ``optional``, ``jinjamator enforced`` --
            Username for the SSH connection. If not set in task configuration or via keyword argument jinjamator asks the user to input the data.
-        * *ssh_password* ``str``, ``optional``, ``jinjamator enforced`` --
+        * *ssh_password* (``str``), ``optional``, ``jinjamator enforced`` --
            Password for the SSH connection. If not set in task configuration or via keyword argument jinjamator asks the user to input the data.
-        * *ssh_host*  ``str``, ``optional``, ``jinjamator enforced`` --
+        * *ssh_host*  (``str``), ``optional``, ``jinjamator enforced`` --
            Target hostname or IP address for the SSH connection. If not set in task configuration or via keyword argument jinjamator asks the user to input the data.
         * *ssh_port* (``int``), ``optional`` --
            SSH TCP port, defaults to 22
-        * *ssh_device_type* ``str``, ``optional`` --
+        * *ssh_device_type* (``str``), ``optional`` --
            Netmiko device type, defaults to "cisco_nxos". 
            Currently supported device_types can be found here: https://github.com/ktbyers/netmiko/tree/develop/netmiko 
-        * *fast_cli* ``bool``, ``optional`` --
+        * *fast_cli* (``bool``), ``optional`` --
            Use Netmiko fast_cli mode, defaults to False
-        * *verbose* ``bool``, ``optional`` --
+        * *verbose* (``bool``), ``optional`` --
            Set Netmiko to debug mode, defaults to False
 
     :Examples:
@@ -51,13 +51,13 @@ ssh
         
             .. code-block:: jinja
                 
-                {{ssh_run('show inventory')}} 
+                {{ssh.run('show inventory')}} 
 
         python tasklet:
 
             .. code-block:: python
 
-                return ssh_run('show inventory')
+                return ssh.run('show inventory')
 
         To set the arguments directly on call of the function. The example will ask for the password and connects to 1.2.3.4 port 22 and runs the command "show inventory"
 
@@ -65,13 +65,13 @@ ssh
         
             .. code-block:: jinja
                 
-                {{ssh_run('show inventory',ssh_username=admin,ssh_hostname='1.2.3.4')}} 
+                {{ssh.run('show inventory',ssh_username=admin,ssh_hostname='1.2.3.4')}} 
 
         python tasklet:
 
             .. code-block:: python
 
-                return ssh_run('show inventory',ssh_username='admin','ssh_hostname'='1.2.3.4')
+                return ssh.run('show inventory',ssh_username='admin','ssh_hostname'='1.2.3.4')
 
 
     

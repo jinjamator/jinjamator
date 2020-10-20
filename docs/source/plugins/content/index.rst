@@ -6,6 +6,7 @@ Jinjamator Content Plugins
 
     calc.rst
     cisco.rst
+    db.rst
     file.rst
     fsm.rst
     jm.rst
