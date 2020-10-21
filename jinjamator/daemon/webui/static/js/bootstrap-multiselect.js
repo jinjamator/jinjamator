@@ -187,7 +187,11 @@
 
         this.$select = $(select);
         this.options = this.mergeOptions($.extend({}, options, this.$select.data()));
-
+        // create function for on change
+        if (Object.prototype.toString.call(this.options.onChange) === "[object String]") {
+            this.options.onChange = new Function("return " + this.options.onChange.replace(/(\r\n|\n|\r)/gm, ""))();
+        }
+        
         // Placeholder via data attributes
         if (this.$select.attr("data-placeholder")) {
             this.options.nonSelectedText = this.$select.data("placeholder");
