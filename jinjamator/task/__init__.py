@@ -382,6 +382,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                         final_data = {}
                     return final_data
                 except yaml.YAMLError as e:
+                    self._log.debug(parsed_data)
                     self._log.error(e)
         except IOError:
             self._log.debug("{0} not found".format(path))
