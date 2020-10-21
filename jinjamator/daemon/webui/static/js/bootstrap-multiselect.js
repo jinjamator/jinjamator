@@ -191,6 +191,12 @@
         if (Object.prototype.toString.call(this.options.onChange) === "[object String]") {
             this.options.onChange = new Function("return " + this.options.onChange.replace(/(\r\n|\n|\r)/gm, ""))();
         }
+        if (Object.prototype.toString.call(this.options.onSelectAll) === "[object String]") {
+            this.options.onSelectAll = new Function("return " + this.options.onSelectAll.replace(/(\r\n|\n|\r)/gm, ""))();
+        }
+        if (Object.prototype.toString.call(this.options.onDeselectAll) === "[object String]") {
+            this.options.onDeselectAll = new Function("return " + this.options.onDeselectAll.replace(/(\r\n|\n|\r)/gm, ""))();
+        }
         
         // Placeholder via data attributes
         if (this.$select.attr("data-placeholder")) {
