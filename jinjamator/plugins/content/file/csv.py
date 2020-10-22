@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import csv
+import io
 
 
 def save(data, destination_path, **kwargs):
@@ -40,3 +41,20 @@ def save(data, destination_path, **kwargs):
             return True
         raise ValueError(f"csv save not implemented for list of {type(data[0])}")
     raise ValueError(f"csv save not implemented for {type(data)}")
+
+
+def load(source_path, **kwargs):
+    """Load data from CSV file
+
+    :param source_path: URL or local path
+    :type source_path: ``str``
+
+    :Keyword Arguments:
+        Currently None
+    """
+    retval = []
+    log.debug(f"trying to import file {source_path}")
+    with file.open(source_path, "r") as f:
+        for row in csv.DictReader(f):
+            retval.append(row)
+    return retval
