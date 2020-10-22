@@ -44,7 +44,7 @@ def save(data, destination_path, **kwargs):
 
 
 def load(source_path, **kwargs):
-    """Load data from CSV file
+    """Load data from a CSV file
 
     :param source_path: URL or local path
     :type source_path: ``str``
