@@ -81,13 +81,13 @@ def run(command, **kwargs):
         
             .. code-block:: jinja
                 
-                {{ssh.run('show inventory',ssh_username=admin,ssh_hostname='1.2.3.4')}} 
+                {{ssh.run('show inventory',ssh_username=admin,ssh_host='1.2.3.4')}} 
 
         python tasklet:
 
             .. code-block:: python
 
-                return ssh.run('show inventory',ssh_username='admin','ssh_hostname'='1.2.3.4')
+                return ssh.run('show inventory',ssh_username='admin','ssh_host'='1.2.3.4')
 
 
     """
@@ -103,7 +103,8 @@ def run(command, **kwargs):
     opts = {}
     for var_name in ["host", "username", "password", "port", "device_type"]:
         cfg[var_name] = (
-            kwargs.get(var_name)
+            kwargs.get(f"ssh_{var_name}")
+            or kwargs.get(var_name)
             or _jinjamator.configuration.get(f"ssh_{var_name}")
             or defaults.get(var_name)
             or _jinjamator.handle_undefined_var(f"ssh_{var_name}")
@@ -144,6 +145,7 @@ def query(command, **kwargs):
         or _jinjamator.handle_undefined_var("ssh_device_type")
     )
     kwargs["device_type"] = device_type
+
     config = run(command, **kwargs)
 
     return process(device_type, command, config)
