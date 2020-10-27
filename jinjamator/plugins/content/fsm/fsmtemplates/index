@@ -226,7 +226,7 @@ cisco_nxos_show_vlan.fsm, .*, cisco_nxos, sh[[ow]] vl[[an]]
 cisco_nxos_show_fex.fsm, .*, cisco_nxos, sh[[ow]] fex
 cisco_nxos_show_vpc.fsm, .*, cisco_nxos, sh[[ow]] vpc
 cisco_nxos_show_vrf.fsm, .*, cisco_nxos, sh[[ow]] vrf
-cisco_nxos_show_platform_interface_counters_port.fsm, .*, cisco_nxos, vsh_lc -c "show platform int[[er]] counters port"
+cisco_nxos_show_platform_interface_counters_port.fsm, .*, cisco_nxos, vsh_lc -c "show platform int[[er]] counters port (\d+)"
 cisco_nxos_show_hsrp_all.fsm, .*, cisco_nxos, sh[[ow]] hsrp all
 cisco_nxos_show_glbp.fsm, .*, cisco_nxos, sh[[ow]] glbp
 cisco_nxos_show_ip_mroute_vrf.fsm, .*, cisco_nxos, sh[[ow]] ip mroute vrf (\S+)
