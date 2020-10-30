@@ -151,6 +151,11 @@ $(function() {
                 $('[data-layout="sidebar-collapse"]').click()
         })
 
+
+        $('#jinjamator_environment').on('change', function() {
+            store('jinjamator_environment',this.value)
+        })
+
         //  Reset options
         if ($('body').hasClass('fixed')) {
             $('[data-layout="fixed"]').attr('checked', 'checked')
@@ -185,10 +190,16 @@ $(function() {
     $('.render_username').each(function(){ this.innerHTML=sessionStorage.getItem('logged_in_username'); })
     var client = new $.RestClient('/api/');
     client.add('environments');
+    let cur_env= get('jinjamator_environment');
     client.environments.read().done(function(data) {
         $.each(data.environments, function(key, environment) {
             $.each(environment.sites, function(key, site) {
-                $('#jinjamator_environment').append(new Option(environment.name + '/' + site.name, environment.name + '/' + site.name))
+                let env_name=environment.name + '/' + site.name;
+                let select=false;
+                if (cur_env == env_name) {
+                    select=true;
+                }
+                $('#jinjamator_environment').append(new Option(env_name,env_name,select,select))
             });
         });
     });
