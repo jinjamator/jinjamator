@@ -247,8 +247,6 @@ class JinjamatorTask(object):
         )[0]
         parsed_content = self.j2_environment.parse(template_source)
 
-        for cmd in list(self.function_calls(parsed_content)):
-            self.inject_dependency(cmd)
         for undef_var in list(j2_meta.find_undeclared_variables(parsed_content)):
             if (
                 undef_var not in self.configuration._data
@@ -257,6 +255,9 @@ class JinjamatorTask(object):
                 and undef_var not in self._undefined_vars
             ):
                 self._undefined_vars.append(undef_var)
+
+        for cmd in list(self.function_calls(parsed_content)):
+            self.inject_dependency(cmd)
 
     def get_py_tasklet_code(self, path):
         user_code = ""
