@@ -83,23 +83,15 @@ py_load_plugins(globals())
                 code += fh.read()
             module = import_code(code, "jinjamator.plugins.content" + class_path)
 
-            # spec = importlib.util.spec_from_file_location(class_path, file)
-            # if not spec:
-            #     continue
-            # else:
-            # module = importlib.util.module_from_spec(spec)
-            # self._log.info(dir(spec.loader)   )
-            # self._log.info(spec.loader)
-            # spec.loader.exec_module(module)
             for func_name in dir(module):
                 func = getattr(module, func_name)
                 if isinstance(func, types.FunctionType):
                     if sys.modules.get(func.__module__):
-                        self._log.debug(
-                            f"skipping imported function {class_path}.{func_name}"
-                        )
+                        # self._log.debug(
+                        #     f"skipping imported function {class_path}.{func_name}"
+                        # )
                         continue
-                    self._log.debug(f"registering {class_path}.{func_name}")
+                    # self._log.debug(f"registering {class_path}.{func_name}")
 
                     setattr(cur, func_name, func)
 
