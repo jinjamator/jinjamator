@@ -676,7 +676,10 @@ class Session(object):
         if not ret.ok:
             logging.error("Could not relogin to APIC. Aborting login thread.")
             self.login_thread.exit()
-            self.subscription_thread.exit()
+            try:
+                self.subscription_thread.exit()
+            except AttributeError:
+                pass
             return ret
         self._logged_in = True
         ret_data = json.loads(ret.text)["imdata"][0]
@@ -728,8 +731,9 @@ class Session(object):
         """
         refresh_url = "/api/aaaRefresh.json"
         resp = self.get(refresh_url, timeout=timeout)
-        ret_data = json.loads(resp.text)["imdata"][0]
-        self.token = str(ret_data["aaaLogin"]["attributes"]["token"])
+        if resp.text:
+            ret_data = json.loads(resp.text)["imdata"][0]
+            self.token = str(ret_data["aaaLogin"]["attributes"]["token"])
         return resp
 
     def close(self):
