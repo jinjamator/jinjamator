@@ -49,6 +49,7 @@ from dotty_dict import dotty
 from jinjamator.plugin_loader.output import load_output_plugin
 from pprint import pformat
 import types
+from jinja2 import nodes
 
 
 class CustomUndefinedName(pyflakes.messages.Message):
@@ -208,11 +209,46 @@ class JinjamatorTask(object):
 
         self.j2_environment = j2_load_plugins(self.j2_environment)
 
+    def find_calls(self, ast):
+        """Find all the nodes of a given type.  If the type is a tuple,
+        the check is performed for any of the tuple items.
+        """
+        for child in ast.iter_child_nodes():
+            if isinstance(child, nodes.Call):
+                yield child
+            else:
+                for result in self.find_calls(child):
+                    yield result
+
+    def resolve_function_name(self, node):
+        try:
+            retval = node.attr
+        except:
+            retval = node.name
+
+        try:
+            retval = self.resolve_function_name(node.node) + "." + retval
+        except AttributeError:
+            pass
+        return retval
+
+    def function_calls(self, ast):
+        """Return function calls
+        """
+
+        results = []
+        for i, node in enumerate(self.find_calls(ast)):
+            results.append(self.resolve_function_name(node.node))
+        return results
+
     def analyze_j2_tasklet(self, tasklet):
         template_source = self.j2_environment.loader.get_source(
             self.j2_environment, os.path.basename(tasklet)
         )[0]
         parsed_content = self.j2_environment.parse(template_source)
+
+        for cmd in list(self.function_calls(parsed_content)):
+            self.inject_dependency(cmd)
         for undef_var in list(j2_meta.find_undeclared_variables(parsed_content)):
             if (
                 undef_var not in self.configuration._data
@@ -240,6 +276,22 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             )
         return task_code
 
+    def inject_dependency(self, cmd):
+        try:
+            var_dependencies = self._global_ldr._filters.get(
+                cmd, print
+            ).__kwdefaults__.get("_requires", [])
+            if isinstance(var_dependencies, types.FunctionType):
+                for dep_var in var_dependencies():
+                    if dep_var not in self._undefined_vars:
+                        self._undefined_vars.append(dep_var)
+            if isinstance(var_dependencies, types.list):
+                for dep_var in var_dependencies:
+                    if dep_var not in self._undefined_vars:
+                        self._undefined_vars.append(dep_var)
+        except AttributeError:
+            pass
+
     def analyze_py_tasklet(self, tasklet):
         tasklet_code = self.get_py_tasklet_code(tasklet)
         errors = StringIO()
@@ -258,21 +310,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             res = re.match(r"(.*)[\(|\ ].*", code_line)
             if res:
                 cmd = res.group(1)
-                try:
-                    var_dependencies = self._global_ldr._filters.get(
-                        cmd, print
-                    ).__kwdefaults__.get("_requires", [])
-                    if isinstance(var_dependencies, types.FunctionType):
-                        for dep_var in var_dependencies():
-                            if dep_var not in self._undefined_vars:
-                                self._undefined_vars.append(dep_var)
-                    if isinstance(var_dependencies, types.list):
-                        for dep_var in var_dependencies:
-                            if dep_var not in self._undefined_vars:
-                                self._undefined_vars.append(dep_var)
-                except AttributeError:
-                    pass
-
+                self.inject_dependency(cmd)
             if (
                 undef_var[0] not in self.configuration._data
                 and undef_var[0] not in self.j2_environment.globals.keys()
