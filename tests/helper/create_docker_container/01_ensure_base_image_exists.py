@@ -10,7 +10,7 @@ docker.api.build.process_dockerfile = lambda dockerfile, path: (
 )
 
 
-tag = f"jinjamator/ubuntu_{ubuntu_version}_base:{timestamp.today()}"
+tag = f"jinjamator/jinjamator-runtime:latest"
 client = docker.from_env()
 
 
@@ -23,13 +23,14 @@ try:
 except ImageNotFound:
     log.info("base image not found building")
     docker_file = task.run("dockerfile", output_plugin="null")[0]["result"]
+    log.debug(docker_file)
     try:
         image, logs = client.images.build(
             path=".", dockerfile=docker_file, tag=tag, nocache=True
         )
     except BuildError as e:
-        for line in logs:
-            log.debug(line)
+        # for line in logs:
+        #    log.debug(line)
         log.error(e)
         raise
 

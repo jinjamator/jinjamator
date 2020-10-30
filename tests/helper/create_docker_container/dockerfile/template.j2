@@ -1,8 +1,5 @@
-FROM ubuntu:{{ubuntu_version}}
+FROM jinjamator/jinjamator-runtime:latest
 ENV JINJAMATOR_DAEMON_LISTEN_ADDRESS=0.0.0.0
-RUN apt-get update
-RUN apt-get -y install python3-pip git-core sudo apt-utils
-RUN apt-get upgrade -y && apt-get clean
 RUN mkdir -p /opt/jinjamator
 RUN echo "{{ "\\n".join(jm.environment.python_requirements()) }}" > /tmp/requirements.txt \
      && pip3 install --no-warn-script-location --upgrade -r /tmp/requirements.txt

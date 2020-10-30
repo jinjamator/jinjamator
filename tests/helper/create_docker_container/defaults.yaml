@@ -1,5 +1,4 @@
-ubuntu_version: 20.04
-baseimage: jinjamator/ubuntu_{{ubuntu_version}}_base:{{timestamp.today()}}
+baseimage: jinjamator/jinjamator-runtime:latest
 environment:
     - JINJAMATOR_AAA_LOCAL_ADMIN_PASSWORD={{ jm.password.generate()  }}
     - JINJAMATOR_AAA_LOCAL_ADMIN_USERNAME=testing
