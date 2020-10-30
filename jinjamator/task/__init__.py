@@ -260,13 +260,16 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 cmd = res.group(1)
                 try:
                     var_dependencies = self._global_ldr._filters.get(
-                        cmd
-                    ).__kwdefaults__["_requires"]
+                        cmd, print
+                    ).__kwdefaults__.get("_requires", [])
                     if isinstance(var_dependencies, types.FunctionType):
                         for dep_var in var_dependencies():
                             if dep_var not in self._undefined_vars:
                                 self._undefined_vars.append(dep_var)
-
+                    if isinstance(var_dependencies, types.list):
+                        for dep_var in var_dependencies:
+                            if dep_var not in self._undefined_vars:
+                                self._undefined_vars.append(dep_var)
                 except AttributeError:
                     pass
 
