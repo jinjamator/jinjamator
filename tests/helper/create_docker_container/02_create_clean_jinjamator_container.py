@@ -39,7 +39,7 @@ container = client.containers.run(
     environment=environment,
 )
 
-ready_rgx = re.compile(r".*Debugger PIN:.*")
+ready_rgx = re.compile(r".*\* Running on.*")
 
 for logline in container.logs(stream=True):
     logline = logline.decode("utf-8")
