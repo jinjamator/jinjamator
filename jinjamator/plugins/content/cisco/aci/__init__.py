@@ -99,11 +99,20 @@ def credentials_set():
     return False
 
 
-def connect_apic(subscription_enabled=False):
+def _get_missing_apic_connection_vars():
+    inject = []
     if not _jinjamator.configuration["apic_url"]:
-        _jinjamator.handle_undefined_var("apic_url")
+        inject.append("apic_url")
     if not _jinjamator.configuration["apic_username"]:
-        _jinjamator.handle_undefined_var("apic_username")
+        inject.append("apic_username")
+    if not credentials_set():
+        inject.append("apic_password")
+    return inject
+
+
+def connect_apic(
+    subscription_enabled=False, *, _requires=_get_missing_apic_connection_vars
+):
     if not _jinjamator.configuration["apic_key"]:
         del _jinjamator.configuration["apic_key"]
     if not _jinjamator.configuration["apic_cert_name"]:
@@ -132,7 +141,7 @@ def connect_apic(subscription_enabled=False):
     return apic_session
 
 
-def query(query_url, timeout=60):
+def query(query_url, timeout=60, *, _requires=_get_missing_apic_connection_vars):
     """[summary]
 
     :param query_url: URL for the query, eg. "/api/node/class/topology/pod-1/node-101/faultSummary.json". \
@@ -143,6 +152,7 @@ If the URL contains "subscription=yes as parameter", a websocket session will be
     :return: dictionary containing the response from the APIC
     :rtype: ``dict``
     """
+
     if not query_url.startswith("/"):
         query_url = f"/{query_url}"
     if "subscription=yes" in query_url:
@@ -237,7 +247,9 @@ def get_parent_dn_from_child_dn(dn):
     return "/".join(tmp[:-1])
 
 
-def is_dn_in_use(dn, ignore_children=False):
+def is_dn_in_use(
+    dn, ignore_children=False, *, _requires=_get_missing_apic_connection_vars
+):
     in_use = False
     retval = query("/api/node/mo/{0}.json?query-target=children".format(dn))
     log.debug(retval)
@@ -289,7 +301,7 @@ def is_dn_in_use(dn, ignore_children=False):
     return in_use
 
 
-def dn_exists(dn):
+def dn_exists(dn, *, _requires=_get_missing_apic_connection_vars):
     """
     Checks if the dn exists. Logs API Error to error log. 
 
@@ -346,7 +358,7 @@ def is_api_error(response):
         return False
 
 
-def get_podid_by_switch_id(switch_id):
+def get_podid_by_switch_id(switch_id, *, _requires=_get_missing_apic_connection_vars):
     """
     Retrive the pod_id for a switch_id from APIC, if not possible ask user to enter pod_id
 
@@ -377,7 +389,7 @@ def get_podid_by_switch_id(switch_id):
     )
 
 
-def version(apic_node_id=1):
+def version(apic_node_id=1, *, _requires=_get_missing_apic_connection_vars):
     """
     Returns the firmware version of an APIC
 
@@ -453,7 +465,7 @@ def is_min_version(major, minor, patch_level=None, node_id=1):
     return False
 
 
-def get_next_free_vpc_domain_id():
+def get_next_free_vpc_domain_id(*, _requires=_get_missing_apic_connection_vars):
     data = query(
         "/api/node/class/fabricExplicitGEp.json?&order-by=fabricExplicitGEp.id|desc&page=0&page-size=1"
     )
@@ -462,7 +474,9 @@ def get_next_free_vpc_domain_id():
     return 1
 
 
-def get_access_aep_name_by_vlan_id(vlan_id, dn_filter="Access"):
+def get_access_aep_name_by_vlan_id(
+    vlan_id, dn_filter="Access", *, _requires=_get_missing_apic_connection_vars
+):
     try:
         access_aep = query(
             '/api/node/class/infraRsFuncToEpg.json?query-target-filter=and(wcard(infraRsFuncToEpg.dn,"{1}"),eq(infraRsFuncToEpg.encap,"vlan-{0}"),eq(infraRsFuncToEpg.mode,"untagged"))&order-by=infraRsFuncToEpg.dn'.format(
@@ -484,7 +498,7 @@ def get_access_aep_name_by_vlan_id(vlan_id, dn_filter="Access"):
 #     return thread
 
 
-def get_all_vlans_from_pool(pool_name):
+def get_all_vlans_from_pool(pool_name, *, _requires=_get_missing_apic_connection_vars):
     data = query(
         '/api/node/class/fvnsEncapBlk.json?query-target-filter=and(wcard(fvnsEncapBlk.dn,"{0}"))&order-by=fvnsEncapBlk.modTs|desc'.format(
             pool_name
@@ -506,7 +520,7 @@ def vlan_pool_contains_vlan(pool_name, vlan_id):
         return False
 
 
-def dn_has_attribute(dn, key, value):
+def dn_has_attribute(dn, key, value, *, _requires=_get_missing_apic_connection_vars):
     url = "/api/node/mo/{0}.json".format(dn)
     _jinjamator._log.debug(url)
     for obj in query(url)["imdata"]:
@@ -519,7 +533,7 @@ def dn_has_attribute(dn, key, value):
     return True
 
 
-def get_all_configured_spine_uplinks():
+def get_all_configured_spine_uplinks(*, _requires=_get_missing_apic_connection_vars):
     infra_ports = {}
     try:
 
@@ -554,7 +568,7 @@ def get_all_configured_spine_uplinks():
     return infra_ports
 
 
-def get_all_fabric_ports():
+def get_all_fabric_ports(*, _requires=_get_missing_apic_connection_vars):
     fab_ports = query("/api/node/class/eqptFabP.json")["imdata"]
     retval = []
     for fab_port in fab_ports:
@@ -577,7 +591,7 @@ def get_all_fabric_ports():
     return retval
 
 
-def get_all_lldp_neighbours():
+def get_all_lldp_neighbours(*, _requires=_get_missing_apic_connection_vars):
     lldp_neighbours = query("/api/node/class/lldpAdjEp.json")["imdata"]
     retval = []
     # topology/pod-2/node-1223/sys/lldp/inst/if-[eth1/54]/adj-1
@@ -594,7 +608,7 @@ def get_all_lldp_neighbours():
     return retval
 
 
-def get_all_nodes(index_by="id"):
+def get_all_nodes(index_by="id", *, _requires=_get_missing_apic_connection_vars):
     retval = {}
     fabric_nodes = query("/api/node/class/fabricNode.json")["imdata"]
     for node in fabric_nodes:
@@ -604,7 +618,7 @@ def get_all_nodes(index_by="id"):
     return retval
 
 
-def get_endpoint_table():
+def get_endpoint_table(*, _requires=_get_missing_apic_connection_vars):
     endpoint_data = {}
     vpc_fabric_path_ep_rxg = re.compile(
         r"topology/pod-(\d+)/protpaths-(\d+)-(\d+)/pathep-\[(.*)\]"

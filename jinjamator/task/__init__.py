@@ -27,6 +27,7 @@ import jinja2
 import jinja2.meta as j2_meta
 from pyflakes.api import check as pyflakes_check
 from pyflakes.reporter import Reporter as pyflakes_reporter
+import pyflakes.messages
 import re
 from io import StringIO
 from future.utils import iteritems
@@ -47,6 +48,24 @@ import uuid
 from dotty_dict import dotty
 from jinjamator.plugin_loader.output import load_output_plugin
 from pprint import pformat
+import types
+
+
+class CustomUndefinedName(pyflakes.messages.Message):
+    message = "undefined name %r %r %r %r %r"
+
+    def __init__(self, filename, loc, name):
+        pyflakes.messages.Message.__init__(self, filename, loc)
+        self.message_args = (
+            name,
+            loc.lineno,
+            loc.col_offset,
+            loc.end_lineno,
+            loc.end_col_offset,
+        )
+
+
+pyflakes.messages.UndefinedName = CustomUndefinedName
 
 
 def tree():
@@ -228,15 +247,35 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
         reporter = pyflakes_reporter(warnings, errors)
         pyflakes_check(tasklet_code, self.task_base_dir, reporter)
         undefined_vars = re.findall(
-            r"(?<=undefined name ')(\S+)(?=')", warnings.getvalue(), re.MULTILINE
+            r"(?<=undefined name ')(\S+)'\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)",
+            warnings.getvalue(),
+            re.MULTILINE,
         )
+        code_lines = tasklet_code.split("\n")
+
         for undef_var in undefined_vars:
+            code_line = code_lines[int(undef_var[1]) - 1][int(undef_var[2]) :]
+            res = re.match(r"(.*)[\(|\ ].*", code_line)
+            if res:
+                cmd = res.group(1)
+                try:
+                    var_dependencies = self._global_ldr._filters.get(
+                        cmd
+                    ).__kwdefaults__["_requires"]
+                    if isinstance(var_dependencies, types.FunctionType):
+                        for dep_var in var_dependencies():
+                            if dep_var not in self._undefined_vars:
+                                self._undefined_vars.append(dep_var)
+
+                except AttributeError:
+                    pass
+
             if (
-                undef_var not in self.configuration._data
-                and undef_var not in self.j2_environment.globals.keys()
-                and undef_var not in self._undefined_vars
+                undef_var[0] not in self.configuration._data
+                and undef_var[0] not in self.j2_environment.globals.keys()
+                and undef_var[0] not in self._undefined_vars
             ):
-                self._undefined_vars.append(undef_var)
+                self._undefined_vars.append(undef_var[0])
 
     def set_output_plugin(self, output_plugin):
         self._output_plugin = output_plugin
