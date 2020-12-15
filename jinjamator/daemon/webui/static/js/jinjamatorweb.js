@@ -217,25 +217,32 @@ client.aaa.users.add('roles', { isSingle: true });
 
 client.plugins.add('output');
 
-function aci_bootstrap_multiselect_on_change_callback(url, destination_select_name, checked){
+function aci_bootstrap_multiselect_on_change_callback(url, destination_select_path, checked){
     proxy_request = {};
     proxy_request['query']=url;
+    var control = $("#form").alpaca("get").getControlByPath(destination_select_path);
+    var control_name = control.propertyId;
+    console.dir(control);
+
     if (checked === true){
         client.tasks.read('vendor/cisco/ACI/lib/helper/apic-api-proxy' , {}, { 'preload-data': JSON.stringify(proxy_request), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function(data) {
             for (const [key, value] of Object.entries(data['data']['result'])) {
-                $('select[name ="' + destination_select_name + '"]').append(new Option(value, key, false, false));
+                control.schema.enum.push(key);
+                control.options.optionLabels.push(value);
             };
-            $('select[name ="' + destination_select_name +'"]').multiselect('rebuild');
-            // console.dir(data['data']['result']);
+            control.refresh();
         });
     }
     else{        
         client.tasks.read('vendor/cisco/ACI/lib/helper/apic-api-proxy' , {}, { 'preload-data': JSON.stringify(proxy_request), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function(data) {
             for (const [key, value] of Object.entries(data['data']['result'])) {
-                $('select[name ="' + destination_select_name + '"] option[value="' + key + '"]').remove();
+                var index = control.schema.enum.indexOf(key);
+                if(index!=-1) {
+                    control.schema.enum.splice(index, 1);
+                    control.options.optionLabels.splice(index, 1);
+                };
             };
-            $('select[name ="' + destination_select_name + '"]').multiselect('rebuild');
-            // console.dir(data['data']['result']);
+            control.refresh();
         });
     }
 
