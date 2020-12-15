@@ -217,6 +217,35 @@ client.aaa.users.add('roles', { isSingle: true });
 
 client.plugins.add('output');
 
+function aci_bootstrap_multiselect_on_change_callback(url, destination_select_name, checked){
+    proxy_request = {};
+    proxy_request['query']=url;
+    if (checked === true){
+        client.tasks.read('vendor/cisco/ACI/lib/helper/apic-api-proxy' , {}, { 'preload-data': JSON.stringify(proxy_request), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function(data) {
+            for (const [key, value] of Object.entries(data['data']['result'])) {
+                $('select[name ="' + destination_select_name + '"]').append(new Option(value, key, false, false));
+            };
+            $('select[name ="' + destination_select_name +'"]').multiselect('rebuild');
+            // console.dir(data['data']['result']);
+        });
+    }
+    else{        
+        client.tasks.read('vendor/cisco/ACI/lib/helper/apic-api-proxy' , {}, { 'preload-data': JSON.stringify(proxy_request), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function(data) {
+            for (const [key, value] of Object.entries(data['data']['result'])) {
+                $('select[name ="' + destination_select_name + '"] option[value="' + key + '"]').remove();
+            };
+            $('select[name ="' + destination_select_name + '"]').multiselect('rebuild');
+            // console.dir(data['data']['result']);
+        });
+    }
+
+
+}
+
+
+
+
+
 
 function update_breadcrumb(level1, level2) {
     $('.content-header-big').html(level1 + "<small class='content-header-small'>" + level2 + "</small>");
