@@ -616,6 +616,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
             "ssh",
             "null",
             "excel",
+            "zabbix",
         ]
         schema["schema"]["properties"]["output_plugin"]["default"] = "console"
         schema["schema"]["properties"]["output_plugin"]["required"] = True
