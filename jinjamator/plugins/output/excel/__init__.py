@@ -75,6 +75,13 @@ class excel(outputPluginBase):
             help="Set columns. Format: <col_name_1>:<col_name_2>:<col_name_n> [default: %(default)s]",
         )
 
+        self._parent._parser.add_argument(
+            "--excel-filename",
+            dest="excel_file_name",
+            help="Set static filename for generated file [default: %(default)s]",
+            default=None,
+        )
+
     def connect(self, **kwargs):
         pass
 
@@ -107,11 +114,14 @@ class excel(outputPluginBase):
                 raise
             pass
 
-        file_name = kwargs["template_path"]
-        for directory in self._parent._configuration.get("global_tasks_base_dirs"):
-            file_name = file_name.replace(directory, "")
-        if file_name[0] == os.path.sep:
-            file_name = file_name[1:]
+        if self._parent.configuration.get("excel_file_name"):
+            file_name = self._parent.configuration.get("excel_file_name")
+        else:
+            file_name = kwargs["template_path"]
+            for directory in self._parent._configuration.get("global_tasks_base_dirs"):
+                file_name = file_name.replace(directory, "")
+            if file_name[0] == os.path.sep:
+                file_name = file_name[1:]
 
         dest = "{0}/{1}{2}.xlsx".format(
             self._parent.configuration.get("output_directory", "./"),
