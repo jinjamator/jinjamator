@@ -160,6 +160,14 @@ class JinjamatorTask(object):
             raise ValueError(f"cannot load path {path}")
 
         self._global_ldr = init_loader(self)
+        if os.path.isdir(self._configuration["taskdir"] + "/plugins/content"):
+            self._log.debug(
+                "found task plugins directory "
+                + self._configuration["taskdir"]
+                + "/plugins/content"
+            )
+            self._global_ldr.load(self._configuration["taskdir"] + "/plugins/content")
+
         for content_plugin_dir in self._configuration.get(
             "global_content_plugins_base_dirs", []
         ):
@@ -266,11 +274,11 @@ class JinjamatorTask(object):
             if user_code[0].startswith("#!"):
                 del user_code[0]
             task_code = "{0}\n{1}".format(
-                'from jinjamator.task.python import PythonTask\n\
+                "from jinjamator.task.python import PythonTask\n\
 import sys,os\n\
 from jinjamator.plugin_loader.content import py_load_plugins\n\
-py_load_plugins(globals(),"{0}/plugins/content/*.py")\n\
-class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
+py_load_plugins(globals())\n\
+class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                     self.task_base_dir
                 ),
                 "\n".join(["    " + s for s in user_code]),
@@ -748,6 +756,16 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n'.format(
                 "global_content_plugins_base_dirs", []
             ):
                 self._global_ldr.load(f"{content_plugin_dir}")
+            if os.path.isdir(self._configuration["taskdir"] + "/plugins/content"):
+                self._log.debug(
+                    "found task plugins directory "
+                    + self._configuration["taskdir"]
+                    + "/plugins/content"
+                )
+                self._global_ldr.load(
+                    self._configuration["taskdir"] + "/plugins/content"
+                )
+
             self._current_tasklet = tasklet
             retval = ""
             self._log.debug(
