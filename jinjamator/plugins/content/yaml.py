@@ -17,7 +17,7 @@ import yaml as pyyaml
 
 def dumps(data):
     """helper for jinja2"""
-    return pyyaml.dumps(data)
+    return pyyaml.dump(data)
 
 
 def loads(data):
