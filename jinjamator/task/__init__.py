@@ -178,7 +178,7 @@ class JinjamatorTask(object):
         self._tasklets = natsorted(self._tasklets)
         try:
             self._default_values = self.configuration.merge_yaml(
-                "{0}/defaults.yaml".format(path)
+                "{0}/defaults.yaml".format(path), private_data=self._configuration._data
             )
             self._log.debug("loaded {0}/defaults.yaml".format(path))
             for var in self._undefined_vars:

@@ -164,6 +164,7 @@ class TaskConfiguration(object):
         list_strategy="exclusive",
         other_types_strategy="use_existing",
         type_conflict_strategy="use_existing",
+        private_data=None,
     ):
         try:
             with open(path, "r") as stream:
@@ -188,6 +189,10 @@ class TaskConfiguration(object):
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
                     environment = j2_load_plugins(environment)
+
+                    parsed_raw_data["configuration"] = self._data
+                    if private_data:
+                        parsed_raw_data["_configuration"] = deepcopy(private_data)
                     parsed_data = environment.from_string(raw_data).render(
                         parsed_raw_data
                     )
