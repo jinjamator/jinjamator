@@ -783,7 +783,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                                 del tmp[0]
                         except IndexError:
                             pass
-                        template_string = tmp.join("\n")
+                        template_string = "\n".join(tmp)
 
                     t = self.j2_environment.from_string(template_string)
                     retval = t.render(self.configuration)
