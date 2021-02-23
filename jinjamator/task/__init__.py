@@ -776,7 +776,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
             if tasklet.endswith("j2"):
                 try:
                     template_string = ""
-                    with open(os.path.basename(tasklet)) as fh:
+                    with open(tasklet) as fh:
                         tmp = fh.read().split("\n")
                         try:
                             if tmp[0][:2] == "#!":
