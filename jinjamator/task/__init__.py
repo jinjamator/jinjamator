@@ -775,7 +775,17 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
             )
             if tasklet.endswith("j2"):
                 try:
-                    t = self.j2_environment.get_template(os.path.basename(tasklet))
+                    template_string = ""
+                    with open(os.path.basename(tasklet)) as fh:
+                        tmp = fh.read().split("\n")
+                        try:
+                            if tmp[0][:2] == "#!":
+                                del tmp[0]
+                        except IndexError:
+                            pass
+                        template_string = tmp.join("\n")
+
+                    t = self.j2_environment.from_string(template_string)
                     retval = t.render(self.configuration)
                 except jinja2.exceptions.UndefinedError as e:
                     self._log.error(
