@@ -41,3 +41,4 @@ deepdiff
 jsonpickle
 py-zabbix
 pyjq
+netaddr
