@@ -39,3 +39,5 @@ setuptools-git-version
 docker
 deepdiff
 jsonpickle
+py-zabbix
+pyjq
