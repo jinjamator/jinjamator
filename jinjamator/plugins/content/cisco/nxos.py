@@ -15,7 +15,7 @@
 from jinjamator.plugin_loader.content import py_load_plugins
 
 
-def query(command, **kwargs):
+def query(command, connection=None, **kwargs):
     py_load_plugins(globals())
     kwargs["device_type"] = "cisco_nxos"
-    return ssh.query(command, **kwargs)
+    return ssh.query(command, connection, **kwargs)
