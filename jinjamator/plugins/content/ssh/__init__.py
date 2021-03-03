@@ -27,7 +27,7 @@ except ImportError:
     import clitable
 
 
-def run(command, **kwargs):
+def connect(**kwargs):
     """Run a command via SSH and return the text output.
 
     :param command: The command that should be run.
@@ -117,11 +117,12 @@ def run(command, **kwargs):
         opts[var_name] = kwargs[var_name]
 
     try:
-        backup_log_level = log.level
+        # backup_log_level = log.level
         netmiko_log.setLevel(logging.INFO)
         connection = ConnectHandler(**cfg)
+        return connection
     except ssh_exception.NetMikoAuthenticationException as e:
-        netmiko_log.setLevel(backup_log_level)
+        # netmiko_log.setLevel(backup_log_level)
         if _jinjamator.configuration["best_effort"]:
             _jinjamator._log.error(
                 f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
@@ -132,13 +133,8 @@ def run(command, **kwargs):
                 f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
             )
 
-    retval = connection.send_command_expect(command, max_loops=10000, **opts)
-    connection.cleanup()
-    netmiko_log.setLevel(backup_log_level)
-    return retval
 
-
-def query(command, **kwargs):
+def query(command, connection=None, **kwargs):
     device_type = (
         kwargs.get("device_type")
         or _jinjamator.configuration.get(f"ssh_device_type")
@@ -146,6 +142,31 @@ def query(command, **kwargs):
     )
     kwargs["device_type"] = device_type
 
-    config = run(command, **kwargs)
+    config = run(command, connection, **kwargs)
 
     return process(device_type, command, config)
+
+
+def disconnect(connection):
+    connection.cleanup()
+
+
+def run(command, connection=None, **kwargs):
+    auto_disconnect = False
+    if not connection:
+        connection = connect(**kwargs)
+        auto_disconnect = True
+
+    opts = {}
+    for var_name in ["host", "username", "password", "port", "device_type"]:
+        try:
+            del kwargs[var_name]
+        except KeyError:
+            pass
+    for var_name in kwargs:
+        opts[var_name] = kwargs[var_name]
+    retval = connection.send_command_expect(command, max_loops=10000, **opts)
+    if auto_disconnect:
+        disconnect(connection)
+    # netmiko_log.setLevel(backup_log_level)
+    return retval
