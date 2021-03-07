@@ -1,4 +1,7 @@
-def ensure_portgroup_exists(
+from pyVmomi import vim
+
+
+def create(
     vlan_id,
     portgroup_name=None,
     hosts=None,
@@ -35,7 +38,7 @@ def ensure_portgroup_exists(
     portgroup_spec.policy = network_policy
 
     if not hosts:
-        hosts = vmware.vsphere.connect()
+        hosts = vmware.vsphere.hosts.list()
 
     if not isinstance(hosts, list):
         hosts = [hosts]
