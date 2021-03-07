@@ -32,6 +32,8 @@ def list_names(content=None):
 
 
 def find(search, return_type="obj", service_instance_content=None):
+    if not search:
+        return list()
     rgx = re.compile(search)
     retval = []
     for obj in list():
