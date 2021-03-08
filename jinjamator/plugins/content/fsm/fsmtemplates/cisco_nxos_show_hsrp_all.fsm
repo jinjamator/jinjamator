@@ -3,7 +3,7 @@ Value INTERFACE (\S+)
 Value VERSION (\d+)
 Value GROUP_NUMBER (\d+)
 Value PRIORITY (\d+)
-Value HSRP_ROUTER_STATE (\S+)
+Value HSRP_ROUTER_STATE (.+)
 Value CONFIGURED_PRIORITY (\d+)
 Value PREEMPT (.*)
 Value LOWER_FWD_TRESHOLD (\d+)
@@ -31,6 +31,7 @@ Value LAST_STATE_CHANGE (\S+)
 Value SESSION_NAME (\S+)
 Value BFD_CONFIG_STATE (\S+)
 Value BFD_SESSION_STATE (\S+)
+
 
 Start
   ^${INTERFACE}\s+-\s+Group\s${GROUP_NUMBER}\s+\(HSRP-V${VERSION}\)\s\(IPv[46]\)\s*$$
