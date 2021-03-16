@@ -16,15 +16,24 @@ from pyVim.connect import SmartConnect, SmartConnectNoSSL, Disconnect
 from pyVmomi import vim
 import re
 
+host_cache = {}
 
-def list(service_instance_content=None):
+
+def list(service_instance_content=None, cache=True):
     if not service_instance_content:
         service_instance_content = vmware.vsphere.get_content()
+    if cache:
+        if host_cache.get(id(service_instance_content)):
+            log.debug("Using cached hosts")
+            return host_cache.get(id(service_instance_content))
+
     log.debug("Getting all ESX hosts ...")
     host_view = service_instance_content.viewManager.CreateContainerView(
         service_instance_content.rootFolder, [vim.HostSystem], True
     )
     obj = [host for host in host_view.view]
+    if cache:
+        host_cache[id(service_instance_content)] = obj
     host_view.Destroy()
     return obj
 
