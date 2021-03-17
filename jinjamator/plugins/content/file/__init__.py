@@ -1,6 +1,7 @@
 import os
 import logging
 import requests
+from jinjamator.plugins.content.file import ftp
 
 log = logging.getLogger(__name__)
 py_open = open
@@ -56,7 +57,7 @@ def load(path, **kwargs):
 
 
 def open(url, flags="r"):
-    """Opens files from local filesystem or http/https and returns a corresponding descriptor
+    """Opens files from local filesystem or http/https/ftp and returns a corresponding descriptor
 
     :param url: URL
     :type url: ``str``
@@ -71,5 +72,7 @@ def open(url, flags="r"):
     if url.startswith("http"):
         r = requests.get(url, stream=True, verify=False)
         return r.raw
+    if url.startswith("ftp"):
+        return ftp.open(url, flags)
     else:
         return py_open(url, flags)
