@@ -7,7 +7,6 @@ log = logging.getLogger()
 
 
 def open(url, flags="rp"):
-    print("da")
     parsed_url = urlparse(url)
     username = "anonymous"
     password = ""
