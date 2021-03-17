@@ -121,7 +121,7 @@ def connect(**kwargs):
         opts[var_name] = kwargs[var_name]
 
     try:
-        # backup_log_level = log.leve
+
         if cfg["verbose"]:
             netmiko_log.setLevel(logging.DEBUG)
         else:
@@ -130,7 +130,7 @@ def connect(**kwargs):
         connection = ConnectHandler(**cfg)
         return connection
     except ssh_exception.NetMikoAuthenticationException as e:
-        # netmiko_log.setLevel(backup_log_level)
+
         if _jinjamator.configuration["best_effort"]:
             _jinjamator._log.error(
                 f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
