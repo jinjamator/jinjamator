@@ -64,7 +64,7 @@ class User(db.Model, SerializerMixin):
         token.user_id = self.id
         token.expires_in = expires_in
         token.expires_at = exp
-        token.access_token = jwt_token.decode(encoding="UTF-8")
+        token.access_token = jwt_token
         db.session.merge(token)
         db.session.commit()
 
