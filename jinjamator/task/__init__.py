@@ -152,6 +152,7 @@ class JinjamatorTask(object):
 
         elif os.path.isdir(path):
             self.task_base_dir = path
+            self._configuration["taskdir"] = path
             for file_type in self._supported_file_types:
                 self._tasklets.extend(
                     glob.glob("{0}/{1}".format(self.task_base_dir, file_type))
