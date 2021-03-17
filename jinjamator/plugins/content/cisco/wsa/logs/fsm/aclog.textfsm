@@ -1,0 +1,36 @@
+Value Filldown LOG_VERSION (\d+\.\d+)
+Value Filldown SW_VERSION (\S+)
+Value Filldown SYSTEM_IP (\d+\.\d+\.\d+\.\d+)
+Value Filldown SYSTEM_FQDN (\S+)
+Value Required TIMESTAMP (\d+\.\d+)
+Value ELAPSED_TIME (\d+)
+Value CLIENT_IP (\d+\.\d+\.\d+\.\d+)
+Value CACHE_RESULT (\S+)
+Value HTTP_CODE (\d+)
+Value RESPONSE_SIZE (\d+)
+Value REQUEST_METHOD (\S+)
+Value REQUEST_URL (.+)
+Value USER_IDENTITY (\S+)
+Value HIERACHY (\S+)
+Value FROM (\S+)
+Value MIME_TYPE (\S+)
+Value ACTION ([A-Za-z0-9_]+)
+Value POLICY ([A-Za-z0-9_]+)
+Value IDENTITY_GROUP ([A-Za-z0-9_]+)
+Value POLICY_1 ([A-Za-z0-9_]+)
+Value POLICY_2 ([A-Za-z0-9_]+)
+Value POLICY_3 ([A-Za-z0-9_]+)
+Value POLICY_4 ([A-Za-z0-9_]+)
+Value POLICY_5 ([A-Za-z0-9_]+)
+Value ACL_DECISCION_TAG (.+)
+Value UNDOCUMENTED_1 (\S+)
+Value UNDOCUMENTED_2 (\S+)
+
+Start
+  ^#System: ${SYSTEM_IP} - ${SYSTEM_FQDN}
+  ^#Version: ${LOG_VERSION}
+  ^#Software: AsyncOS for Web ${SW_VERSION}
+  ^#Date: .*
+  ^#Fields: .*
+  ^${TIMESTAMP} ${ELAPSED_TIME} ${CLIENT_IP} ${CACHE_RESULT}/${HTTP_CODE} ${RESPONSE_SIZE} ${REQUEST_METHOD} ${REQUEST_URL} ${USER_IDENTITY} ${HIERACHY}/${FROM} ${MIME_TYPE} ${ACTION}-${POLICY}-${IDENTITY_GROUP}-${POLICY_1}-${POLICY_2}-${POLICY_3}-${POLICY_4}-${POLICY_5} <${ACL_DECISCION_TAG}> ${UNDOCUMENTED_1} ?${UNDOCUMENTED_2}? -> Record
+  ^. -> Error
