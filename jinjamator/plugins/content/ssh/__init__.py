@@ -101,14 +101,18 @@ def connect(**kwargs):
 
     cfg = {}
     opts = {}
-    for var_name in ["host", "username", "password", "port", "device_type"]:
-        cfg[var_name] = (
-            kwargs.get(f"ssh_{var_name}")
-            or kwargs.get(var_name)
-            or _jinjamator.configuration.get(f"ssh_{var_name}")
-            or defaults.get(var_name)
-            or _jinjamator.handle_undefined_var(f"ssh_{var_name}")
+    for var_name in ["host", "username", "password", "port", "device_type", "verbose"]:
+        cfg[var_name] = kwargs.get(
+            f"ssh_{var_name}",
+            kwargs.get(
+                var_name,
+                _jinjamator.configuration.get(
+                    f"ssh_{var_name}", defaults.get(var_name)
+                ),
+            ),
         )
+        if cfg[var_name] == None:
+            cfg[var_name] = _jinjamator.handle_undefined_var(f"ssh_{var_name}")
         try:
             del kwargs[var_name]
         except KeyError:
@@ -117,8 +121,12 @@ def connect(**kwargs):
         opts[var_name] = kwargs[var_name]
 
     try:
-        # backup_log_level = log.level
-        netmiko_log.setLevel(logging.INFO)
+        # backup_log_level = log.leve
+        if cfg["verbose"]:
+            netmiko_log.setLevel(logging.DEBUG)
+        else:
+            netmiko_log.setLevel(logging.ERROR)
+
         connection = ConnectHandler(**cfg)
         return connection
     except ssh_exception.NetMikoAuthenticationException as e:
