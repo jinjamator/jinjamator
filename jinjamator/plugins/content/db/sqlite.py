@@ -29,7 +29,7 @@ def create_table_from_data(table_name, data, db_path=":memory:"):
         values = []
         for k, v in row.items():
             keys.append("'{0}'".format(k))
-            values.append("'{0}'".format(v))
+            values.append("'{0}'".format(v.replace("'", "''")))
 
         c.execute("insert into {0} values({1})".format(table_name, ",".join(values)))
     conn.commit()
