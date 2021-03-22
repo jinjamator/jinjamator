@@ -1,12 +1,17 @@
 from textfsm import TextFSM
 import os
 from jinjamator.plugins.content import file
+from jinjamator import plugin_loader
 from io import StringIO
 
 
 def parse(path):
+    plugin_loader.content.py_load_plugins(globals())
+    from os.path import dirname
+
     raw_data = file.load(path)
-    base_path = os.path.dirname(__file__)
+    base_path = dirname(__file__)
+
     fields = None
     for line in raw_data.split("\n"):
         if line.startswith("#Fields"):
@@ -41,8 +46,9 @@ def parse(path):
             fields = fields.replace("%" + field, replacement)
     if "%" in fields:
         raise NotImplementedError(f"Missing mapping for field. {fields}")
+
     dynamic_fsm_template = task.run(
-        os.path.dirname(__file__) + "/fsm/aclog.textfsm.j2",
+        dirname(__file__) + "/fsm/aclog.textfsm.j2",
         {"MAPPINGS": "\n".join(fsm_mappings), "LINE_SPEC": fields},
         output_plugin="null",
     )[0]["result"]
