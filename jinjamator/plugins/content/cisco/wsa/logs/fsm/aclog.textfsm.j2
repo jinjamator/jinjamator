@@ -1,0 +1,14 @@
+Value Filldown LOG_VERSION (\d+\.\d+)
+Value Filldown SW_VERSION (\S+)
+Value Filldown SYSTEM_IP (\d+\.\d+\.\d+\.\d+)
+Value Filldown SYSTEM_FQDN (\S+)
+{{MAPPINGS}}
+
+Start
+  ^#System: ${SYSTEM_IP} - ${SYSTEM_FQDN}
+  ^#Version: ${LOG_VERSION}
+  ^#Software: AsyncOS for Web ${SW_VERSION}
+  ^#Date: .*
+  ^#Fields: .*
+  ^{{LINE_SPEC}} -> Record
+  ^. -> Error

@@ -1,0 +1,101 @@
+default: .+
+fields:
+  t:
+    name: TIMESTAMP
+    regex: (\d+\.\d+)
+  e:
+    name: ELAPSED_TIME
+    regex: (\d+)
+  a:
+    name: CLIENT_IP
+    regex: (\d+\.\d+\.\d+\.\d+)
+  w:
+    name: CACHE_RESULT
+    regex: (\S+)
+  h:
+    name: HTTP_CODE
+    regex: (\d+)
+  s:
+    name: RESPONSE_SIZE
+    regex: (\d+)
+  2r:
+    name: 
+        - REQUEST_METHOD
+        - ''
+        - REQUEST_URL
+    regex: 
+        - (\S+)
+        - ' '
+        - (.+)
+  A:
+    name: USER_IDENTITY
+    regex: (\S+)
+  H:
+    name: HIERACHY
+    regex: (\S+)
+  d:
+    name: DATA_SOURCE
+    regex: (\S+)
+  c:
+    name: MIME_TYPE
+    regex: (\S+)
+  M:
+    name: CACHE_MISS_FLAGS
+    regex: (\S+)
+  j:
+    name: DO_NOT_CACHE_FLAGS
+    regex: (\S+)
+  E:
+    name: X_ERROR_CODE
+    regex: (\S+)
+  D:
+    name: 
+        - ACTION
+        - ''
+        - POLICY
+        - ''
+        - IDENTITY_GROUP
+        - ''
+        - POLICY_1
+        - ''
+        - POLICY_2
+        - ''
+        - POLICY_3
+        - ''
+        - POLICY_4
+        - ''
+        - POLICY_5
+    regex:
+        - ([A-Za-z0-9_]+)
+        - '-'
+        - ([A-Za-z0-9_]+)
+        - '-'
+        - ([A-Za-z0-9_]+)
+        - '-' 
+        - ([A-Za-z0-9_]+)
+        - '-'
+        - ([A-Za-z0-9_]+)
+        - '-'
+        - ([A-Za-z0-9_]+)
+        - '-'
+        - ([A-Za-z0-9_]+)
+        - '-' 
+        - ([A-Za-z0-9_]+)
+  Xr:
+    name: ACL_DECISCION_TAG
+    regex: (\<.+\>)
+  ?BLOCK_SUSPECT_USER_AGENT,MONITOR_SUSPECT_USER_AGENT?%<User-Agent:%!%-%.:
+    name: SUSPECT_USERAGENT
+    regex: (\S+)
+  u:
+    name: USER_AGENT
+    regex: (.+)
+  L:
+    name: HUMAN_READABLE_TIME
+    regex: (\d+/[A-Za-z]{3}/\d{4}:\d{2}:\d{2}:\d{2} \+\d{4})
+  XF:
+    name: WEB_CATEGORY
+    regex: (.+)
+  k:
+    name: DATA_SOURCE_IP
+    regex: (\d+\.\d+\.\d+\.\d+|-)
