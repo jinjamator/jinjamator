@@ -14,7 +14,7 @@
 
 import logging
 
-from flask import request, g
+from flask import request, g, Response
 from flask_restx import Resource, abort
 from jinjamator.daemon.api.serializers import tasks
 from jinjamator.daemon.api.parsers import task_arguments
@@ -241,6 +241,21 @@ def discover_tasks(app):
                                     response = jsonify(full_schema.get("options", {}))
                                 elif schema_type in ["view"]:
                                     response = jsonify(full_schema.get("view", {}))
+                                elif schema_type in ["jsinclude"]:
+                                    include_path = f"{inner_task.task_base_dir}/form.js"
+                                    if os.path.isfile(include_path):
+                                        log.debug(
+                                            f"javascript include found {include_path}"
+                                        )
+                                        with open(include_path, "r") as fh:
+                                            return Response(
+                                                fh.read(), mimetype="text/javascript"
+                                            )
+                                    else:
+                                        return Response("", mimetype="text/javascript")
+                                        log.debug(
+                                            f"no javascript include found {include_path}"
+                                        )
                                 del inner_task
                                 return response
 

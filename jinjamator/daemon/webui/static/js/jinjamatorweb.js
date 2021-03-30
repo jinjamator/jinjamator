@@ -217,37 +217,6 @@ client.aaa.users.add('roles', { isSingle: true });
 
 client.plugins.add('output');
 
-function aci_bootstrap_multiselect_on_change_callback(url, destination_select_path, checked){
-    proxy_request = {};
-    proxy_request['query']=url;
-    var control = $("#form").alpaca("get").getControlByPath(destination_select_path);
-    var control_name = control.propertyId;
-    console.dir(control);
-
-    if (checked === true){
-        client.tasks.read('vendor/cisco/ACI/lib/helper/apic-api-proxy' , {}, { 'preload-data': JSON.stringify(proxy_request), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function(data) {
-            for (const [key, value] of Object.entries(data['data']['result'])) {
-                control.schema.enum.push(key);
-                control.options.optionLabels.push(value);
-            };
-            control.refresh();
-        });
-    }
-    else{        
-        client.tasks.read('vendor/cisco/ACI/lib/helper/apic-api-proxy' , {}, { 'preload-data': JSON.stringify(proxy_request), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function(data) {
-            for (const [key, value] of Object.entries(data['data']['result'])) {
-                var index = control.schema.enum.indexOf(key);
-                if(index!=-1) {
-                    control.schema.enum.splice(index, 1);
-                    control.options.optionLabels.splice(index, 1);
-                };
-            };
-            control.refresh();
-        });
-    }
-
-
-}
 
 
 
@@ -705,6 +674,16 @@ function create_job(job_path, pre_defined_vars) {
         </div>
         {{/if}}
       </script>`);
+
+        $.ajax({
+            url: "/api/tasks/" + job_path + "?schema-type=jsinclude",
+            dataType: "script",
+            beforeSend: function(xhr) {
+                access_token = sessionStorage.getItem('access_token');
+                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+            }
+        });
+
 
         client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(pre_defined_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function(data) {
 
