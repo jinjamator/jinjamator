@@ -652,13 +652,9 @@ function create_job(job_path, pre_defined_vars) {
     if (!pre_defined_vars) {
         pre_defined_vars = {}
     }
-
-    // $(".treeview-item").removeClass("active")
-    // if (parent) {
-
-    //     parent.parents('li').addClass('active');
-    // }
     update_breadcrumb('Jobs', 'Create');
+
+    
     $.get("static/templates/main_content_section.html", function(data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
         $(".main-content-box").replaceWith(`<div id="form"></div><script type="text/x-handlebars-template" id="ationbar">
@@ -676,12 +672,9 @@ function create_job(job_path, pre_defined_vars) {
       </script>`);
 
         $.ajax({
-            url: "/api/tasks/" + job_path + "?schema-type=jsinclude",
+            url: "/api/tasks/" + job_path + "/resources/js/form.js",
             dataType: "script",
-            beforeSend: function(xhr) {
-                access_token = sessionStorage.getItem('access_token');
-                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-            }
+            error: function () {}
         });
 
 
