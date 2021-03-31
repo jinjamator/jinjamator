@@ -33,13 +33,16 @@ from jinjamator.daemon.aaa.models import User, JinjamatorRole
 from jinjamator.daemon.aaa import require_role
 from jinjamator.daemon.database import db
 
-from flask import jsonify
+from flask import jsonify, send_from_directory
 from sqlalchemy import or_, and_
 import glob
 import os
 import xxhash
 import json
 import uuid
+
+from werkzeug.utils import secure_filename
+from copy import deepcopy
 
 log = logging.getLogger()
 
@@ -241,21 +244,6 @@ def discover_tasks(app):
                                     response = jsonify(full_schema.get("options", {}))
                                 elif schema_type in ["view"]:
                                     response = jsonify(full_schema.get("view", {}))
-                                elif schema_type in ["jsinclude"]:
-                                    include_path = f"{inner_task.task_base_dir}/form.js"
-                                    if os.path.isfile(include_path):
-                                        log.debug(
-                                            f"javascript include found {include_path}"
-                                        )
-                                        with open(include_path, "r") as fh:
-                                            return Response(
-                                                fh.read(), mimetype="text/javascript"
-                                            )
-                                    else:
-                                        return Response("", mimetype="text/javascript")
-                                        log.debug(
-                                            f"no javascript include found {include_path}"
-                                        )
                                 del inner_task
                                 return response
 
@@ -358,3 +346,28 @@ class TaskList(Resource):
                 if f"task_{k}" in user_roles:
                     response["tasks"].append(v)
         return response
+
+
+@ns.route(f"/<path:task_path>/resources/<resource_type>/<path:path>", methods=["GET"])
+class StaticResources(Resource):
+    def get(self, task_path, resource_type, path):
+        """
+        Just send task static resource files
+        """
+        if not available_tasks_by_path.get(task_path):
+            abort(404)
+
+        task_info = available_tasks_by_path.get(task_path)
+
+        secure_base_dir = os.path.join(
+            task_info["base_dir"],
+            task_info["path"],
+            "_form",
+            secure_filename(resource_type),
+        )
+
+        if path == "form.js" and not os.path.isfile(
+            os.path.join(secure_base_dir, path)
+        ):  # supress 404 in fe for form.js include
+            return Response("", mimetype="text/plain")
+        return send_from_directory(secure_base_dir, path)
