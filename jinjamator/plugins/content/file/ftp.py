@@ -6,7 +6,7 @@ import logging
 log = logging.getLogger()
 
 
-def open(url, flags="rp"):
+def login(url):
     parsed_url = urlparse(url)
     username = "anonymous"
     password = ""
@@ -15,10 +15,16 @@ def open(url, flags="rp"):
     if parsed_url.password:
         password = parsed_url.password
     ftp = FTP(parsed_url.hostname)
+
     if not ftp.login(username, password).startswith("230"):
         raise ValueError("invalid username or password")
     else:
         log.debug("Logged in successfully")
+    return ftp
+
+
+def open(url, flags="rp"):
+    ftp = login(url)
 
     if "p" in flags:
         ftp.set_pasv(True)
