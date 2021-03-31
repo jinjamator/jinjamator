@@ -295,6 +295,13 @@ class Program(object):
             help="Renew API JWT token automatically if token lifetime is below this. Set to 0 to disable auto renew [default: %(default)s]",
             env_var="JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME",
         )
+        self._parser.add_argument(
+            "--web-ui-class",
+            dest="_web_ui_class",
+            default="jinjamator.daemon.webui",
+            help="classpath to web UI [default: %(default)s]",
+            env_var="JINJAMATOR_WEB_UI_CLASS",
+        )
 
     def setupLogging(self):
         global logging
@@ -424,11 +431,25 @@ USAGE
             sys.exit(0)
 
     def main(self):
-        for d in ["environments", "logs", "tasks", "uploads", "aaa", "conf.d"]:
+        for d in [
+            "environments",
+            "logs",
+            "tasks",
+            "uploads",
+            "aaa",
+            "conf.d",
+            "resources/python",
+        ]:
             os.makedirs(
                 os.path.sep.join([self._configuration["jinjamator_user_directory"], d]),
                 exist_ok=True,
             )
+        sys.path.insert(
+            0,
+            os.path.join(
+                self._configuration["jinjamator_user_directory"], "resources/python"
+            ),
+        )
 
         if self._configuration["daemonize"]:
             from jinjamator.daemon import run as app_run

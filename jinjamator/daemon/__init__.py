@@ -27,7 +27,6 @@ from jinjamator.daemon.api.endpoints.output_plugins import (
     discover_output_plugins,
 )
 from jinjamator.daemon.api.endpoints.files import ns as files_namespace
-from jinjamator.daemon.webui import webui as webui_blueprint
 from jinjamator.daemon.database import db
 from jinjamator.daemon.aaa import aaa_providers, initialize as init_aaa
 
@@ -36,7 +35,7 @@ import os, sys
 
 
 import logging
-
+import importlib
 
 from celery import Celery
 from jinjamator.external.celery.backends.database import DatabaseBackend
@@ -149,6 +148,7 @@ def configure(flask_app, _configuration):
     flask_app.config["JINJAMATOR_AAA_TOKEN_AUTO_RENEW_TIME"] = int(
         _configuration.get("aaa_token_auto_renew_time")
     )
+    flask_app.config["JINJAMATOR_WEB_UI_CLASS"] = _configuration.get("web_ui_class")
 
     flask_app.config["JINJAMATOR_FULL_CONFIGURATION"] = _configuration
 
@@ -176,10 +176,20 @@ def initialize(flask_app, cfg):
     api.add_namespace(files_namespace)
     api.add_namespace(aaa_namespace)
     flask_app.register_blueprint(api_blueprint)
-    flask_app.register_blueprint(webui_blueprint)
-    # log.debug('--------------------------------------')
-    # log.debug(pformat(dict(app.config)))
-    # log.debug('--------------------------------------')
+    if flask_app.config["JINJAMATOR_WEB_UI_CLASS"].lower() in [
+        "none",
+        "false",
+        "disable",
+        "no",
+        "disabled",
+    ]:
+        log.debug("WEBUI disabled")
+    else:
+        log.debug(f'using class {flask_app.config["JINJAMATOR_WEB_UI_CLASS"]} as webui')
+        webui_blueprint = importlib.import_module(
+            flask_app.config["JINJAMATOR_WEB_UI_CLASS"]
+        )
+        flask_app.register_blueprint(webui_blueprint.webui)
 
 
 def run(cfg):
