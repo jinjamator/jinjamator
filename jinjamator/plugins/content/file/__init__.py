@@ -1,6 +1,7 @@
 import os
 import logging
 import requests
+import pathlib
 from jinjamator.plugins.content.file import ftp
 
 log = logging.getLogger(__name__)
@@ -76,3 +77,53 @@ def open(url, flags="r"):
         return ftp.open(url, flags)
     else:
         return py_open(url, flags)
+
+def get_filename (filename):
+    """
+    Get only the filename
+    /some/path/my.file --> my.file
+
+    :param filename: The filename
+    :type filename: ``str``
+    :return: Filename without path
+    :rtype: ``str``
+    """
+    return pathlib.Path(filename).name
+
+def strip_suffix (filename):
+    """
+    Strip the suffix from the filename
+    /some/path/my.file --> /some/path/my
+
+    :param filename: The filename
+    :type filename: ``str``
+    :return: Filename without suffix
+    :rtype: ``str``
+    """
+    return pathlib.Path(filename).with_suffix("")
+
+def get_suffix (filename):
+    """
+    Get the suffix from the filename
+    /some/path/my.file --> file
+
+    :param filename: The filename
+    :type filename: ``str``
+    :return: The suffix
+    :rtype: ``str``
+    """
+    return pathlib.Path(filename).suffix
+
+def change_suffix (filename,suffix=False):
+    """
+    Change the suffix of the file
+    /some/path/my.file --> /some/path/my.othersuffix
+
+    :param filename: The filename
+    :type filename: ``str``
+    :param suffix: The new suffix (must start with a .). If omitted the suffix will be stripped.
+    :type suffix: ``str``
+    :return: The filename with the new suffix
+    :rtype: ``str``
+    """
+    return pathlib.Path(filename).with_suffix(suffix)

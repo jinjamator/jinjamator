@@ -171,6 +171,9 @@ class XLSXReader(object):
         if not cell.value:
             return ""
         return cell.value
+    
+    def get_worksheets(self):
+        return self.wb.sheetnames
 
 
 class XLSXWriter(object):
