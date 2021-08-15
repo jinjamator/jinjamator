@@ -1,0 +1,29 @@
+Value FABRIC_PORT (\S+)
+Value FEX_UPLINK (\d+)
+Value SUPPORTED (\S+)
+Value PRESENT (\S+)
+Value NAME (\S+)
+Value TYPE (\S+)
+Value PART_NO (\S+)
+Value REVISION (\S+)
+Value SERIAL (\S+)
+Value BITRATE (\S+)
+Value CISCO_ID (\S+)
+Value CISCO_EXTENDED_ID (\S+)
+
+
+
+Start
+  ^Fabric Port: ${FABRIC_PORT}
+  ^Fex Uplink: ${FEX_UPLINK}
+  ^\s+sfp is ${SUPPORTED}
+  ^\s+sfp is ${PRESENT}
+  ^\s+name is ${NAME}
+  ^\s+type is ${TYPE}
+  ^\s+part number is ${PART_NO}
+  ^\s+revision is ${REVISION}
+  ^\s+serial number is ${SERIAL}     
+  ^\s+nominal bitrate is ${BITRATE} MBits/sec
+  ^\s+cisco id is ${CISCO_ID}
+  ^\s+cisco extended id number is ${CISCO_EXTENDED_ID}
+  ^\S -> Record
