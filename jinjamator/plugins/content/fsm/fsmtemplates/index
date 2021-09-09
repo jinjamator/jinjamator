@@ -218,6 +218,7 @@ cisco_nxos_show_ip_route.fsm, .*, cisco_nxos, sh[[ow]] ip route
 cisco_nxos_show_feature.fsm, .*, cisco_nxos, sh[[ow]] feat[[ure]]
 cisco_nxos_show_version.fsm, .*, cisco_nxos, sh[[ow]] ver[[sion]]
 cisco_nxos_show_fex_id.fsm, .*, cisco_nxos, sh[[ow]] fex (\S+)
+cisco_nxos_show_fex_id_transceiver.fsm, .*, cisco_nxos, sh[[ow]] fex (\S+) tr[[ansceiver]]
 cisco_nxos_show_ip_arp.fsm, .*, cisco_nxos, sh[[ow]] i[[p]] a[[rp]]
 cisco_nxos_show_ip_bgp.fsm, .*, cisco_nxos, sh[[ow]] i[[p]] bgp
 cisco_nxos_show_module.fsm, .*, cisco_nxos, sh[[ow]] mod[[ule]]
