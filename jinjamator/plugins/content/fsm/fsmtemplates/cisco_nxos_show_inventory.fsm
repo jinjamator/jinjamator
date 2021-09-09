@@ -1,8 +1,8 @@
 Value NAME (.*)
 Value DESCR (.*)
 Value PID ([^,]\S+)
-Value VID (V\d+)
-Value SN ([\d+\w+/]+)
+Value VID (V\d+|N/A)
+Value SN ([\d+\w+/]+|N/A)
 
 Start
   ^NAME:\s+"${NAME}",\s+DESCR:\s+"${DESCR}"
