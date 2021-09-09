@@ -247,6 +247,8 @@ CLIBaseMatrix = {
     r"^mpls ldp igp sync": None,
     r"^(no )?ip dampening-change eigrp (\d+)": None,
     r"^(no )?ip dampening-interval eigrp (\d+)": None,
+    r"authentication periodic": None,
+    r"dot1x pae authenticator": None,
 }
 
 
