@@ -42,3 +42,4 @@ jsonpickle
 py-zabbix
 pyjq
 netaddr
+pyvmomi
