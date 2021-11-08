@@ -127,3 +127,50 @@ def change_suffix (filename,suffix=False):
     :rtype: ``str``
     """
     return pathlib.Path(filename).with_suffix(suffix)
+
+def is_file (filename):
+    """
+    Check if filename is a file
+
+    :param filename: The filename
+    :type filename: ``str``
+    :return: True if it is a file, False if not
+    :rtype: ``bool``
+    """
+    return pathlib.Path(filename).is_file()
+
+def is_dir (filename):
+    """
+    Check if filename is a directory
+
+    :param filename: The filename
+    :type filename: ``str``
+    :return: True if it is a directory, False if not
+    :rtype: ``bool``
+    """
+    return pathlib.Path(filename).is_dir()
+
+def exists (filename):
+    """
+    Check if filename exists
+
+    :param filename: The filename
+    :type filename: ``str``
+    :return: True if it exists, False if not
+    :rtype: ``bool``
+    """
+    return pathlib.Path(filename).exists()
+
+def resolve (fn=__file__):
+    """
+    Return the absolute path of the parent directory of the file
+
+    :param fn: The filename. Defaults to __file__
+    :type fn: ``str``
+    :return: Absolute path of the files directory
+    :rtype: ``str``
+    """
+    source_path = pathlib.Path(fn).resolve()
+    source_dir = source_path.parent
+
+    return source_dir
