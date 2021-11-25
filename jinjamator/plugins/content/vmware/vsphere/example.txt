@@ -1,0 +1,99 @@
+#!/usr/bin/env -S jinjamator -vvvvv -t
+
+from pprint import pprint
+from pyVmomi import vim
+
+
+conn = vmware.vsphere.connect()
+vc = vmware.vsphere.get_content(conn)
+
+#Set vc as default-vc object
+#do this to save you pain.
+#also, some functions REQUIRE this
+vmware.vsphere.default(vc)
+
+
+
+dc_net = vmware.vsphere.datacenter.get("name","Labor-Netzwerk",vc)
+
+print(f"================= Network-Datacenter is: =================")
+pprint(dc_net)
+
+pprint(vmware.vsphere.datacenter.get_dict(vc))
+dc = vmware.vsphere.datacenter.get("rel_path","Datacenters/DC-Folder/DC-Subfolder2/Subfolder2-DC",vc)
+
+print(f"================= Other Datacenter is: =================")
+pprint(dc)
+
+print("Cluster in Folder")
+pprint(vmware.vsphere.cluster.get_dict(dc))
+cl_empty = vmware.vsphere.cluster.get("name","Foldered-Cluster-1",dc)
+
+print("Labor Cluster")
+pprint(vmware.vsphere.cluster.get_list(dc_net))
+cl_net = vmware.vsphere.cluster.get("name","Labor",dc_net)
+print(f"Network-Cluster is:")
+pprint(cl_net)
+
+standalone_dc = vmware.vsphere.datacenter.get("name","Produktiv Netzwerk",vc)
+print("######### Both ##########")
+pprint(vmware.vsphere.cluster.get_dict(standalone_dc))
+print("######### Cluster ##########")
+pprint(vmware.vsphere.cluster.get_list(standalone_dc,cluster=True,vc_obj=vc))
+print("######### Standalone ##########")
+pprint(vmware.vsphere.cluster.get_list(standalone_dc,standalone=True))
+
+print("================= Cluster Hosts Empty =================")
+pprint(vmware.vsphere.host.get_dict(cl_empty))
+
+print("================= Cluster Hosts Network =================")
+pprint(vmware.vsphere.host.get_list(cl_net))
+
+print("================= Datacenter netlab Hosts =================")
+pprint(vmware.vsphere.host.get_list(dc_net))
+
+
+print("================= Standalone Hosts =================")
+standalone_host = vmware.vsphere.host.get_dict(standalone_dc)
+pprint(standalone_host)
+
+
+print("================= vCenter =================")
+vm = vmware.vsphere.vm.get('name','LAB-VC01',cl_net)
+print(f"{vm.name} running on {vmware.vsphere.vm.get_host(vm).name}")
+
+
+print("================= Datastores of VM =================")
+for ds in vmware.vsphere.vm.get_datastores(vm):
+    print(ds.name)
+
+print("Datastore-Clusters:")
+pprint(vmware.vsphere.vm.get_datastore_clusters(vm))
+
+print("================= Respool VM =================")
+print(vmware.vsphere.vm.get_respool(vm))
+
+print("================= VM Cluster =================")
+cl = vmware.vsphere.vm.get_cluster(vm)
+print(cl)
+print(cl.name)
+
+print("================= VM Standalone =================")
+scl = vmware.vsphere.vm.get_cluster(svm)
+print(scl)
+print(scl.name)
+
+print("================= Respools in Compute-Cluster =================")
+for rp in vmware.vsphere.cluster.respool.get_list(cl_net):
+    print(rp.name)
+
+pprint(vmware.vsphere.cluster.get_respools(cl_net))
+print("================= Datastores in Compute-Cluster =================")
+for ds in vmware.vsphere.cluster.get_datastores(cl_net):
+    print(ds.name)
+
+print("================= Datastore Clusters in Compute-Cluster =================")
+for dsc in vmware.vsphere.cluster.get_datastore_clusters(cl_net):
+    print(dsc.name)
+
+print(vmware.vsphere.cluster.get_datastore_clusters(cl_net))
