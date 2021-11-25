@@ -24,6 +24,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.utils.cell import coordinate_from_string
+from openpyxl.worksheet.table import Table, TableStyleInfo
 import xmltodict
 from flatten_json import flatten
 from natsort import natsorted
@@ -171,7 +172,7 @@ class XLSXReader(object):
         if not cell.value:
             return ""
         return cell.value
-    
+
     def get_worksheets(self):
         return self.wb.sheetnames
 
@@ -188,6 +189,8 @@ class XLSXWriter(object):
         self._freeze_panes = kwargs.get("freeze_panes") or "B1"
         self._column_order = kwargs.get("column_order") or False
         self._rename_columns = kwargs.get("rename_columns") or []
+        self._table_style_name = "TableStyleMedium15"
+        self._table_name = "Table1"
 
         if os.path.isfile(self._destintaion_path) and self._append_sheet:
             self._log.info(f"appending to {self._destintaion_path}")
@@ -298,58 +301,38 @@ class XLSXWriter(object):
         self._data = data
         self.sanitize_data()
 
-        fill = PatternFill(fill_type="solid", start_color="FF000000")
-        font = Font(color="FFFFFFFF", bold=True)
-        border = Border(
-            bottom=Side(border_style="thin", color="FF000000"),
-            left=Side(border_style="thin", color="FF000000"),
-            right=Side(border_style="thin", color="FF000000"),
-        )
-
         if self._append_sheet:
             try:
                 ws = self._wb[sheet_name[:30]]
             except BaseException:
                 ws = self._wb.create_sheet(title=sheet_name[:30], index=0)
                 ws.append(self._header)
-                for i in range(1, len(self._header) + 1):
-                    ws.cell(row=1, column=i).fill = fill
-                    ws.cell(row=1, column=i).font = font
         else:
             ws = self._wb.create_sheet(title=sheet_name[:30], index=0)
             ws.append(self._header)
-            for i in range(1, len(self._header) + 1):
-                ws.cell(row=1, column=i).fill = fill
-                ws.cell(row=1, column=i).font = font
-        row = ws.max_row + 1
+        for row in data:
+            values = (row[k] for k in self._header)
+            ws.append(values)
 
-        for line in self._data:
-            col = 1
-            if row % 2 == 0:
-                fill = PatternFill(fill_type="solid", start_color="FFCFCFCF")
-            else:
-                fill = PatternFill(fill_type="solid", start_color="FFEDEDED")
-            try:
-                vals = line.values()
-            except AttributeError:
-                vals = line
-            for item in vals:
-                try:
-                    txt = float(item)
-                except ValueError:
-                    txt = item
-                except TypeError:
-                    txt = item
+        tab = Table(
+            displayName=self._table_name,
+            ref=f"A1:{get_column_letter(ws.max_column)}{ws.max_row}",
+        )
 
-                cell = ws.cell(row=row, column=col, value=txt)
-                cell.fill = fill
-                cell.border = border
-                col = col + 1
-            row = row + 1
+        # Add a default style with striped rows and banded columns
+        style = TableStyleInfo(
+            name=self._table_style_name,
+            showFirstColumn=False,
+            showLastColumn=False,
+            showRowStripes=True,
+            showColumnStripes=True,
+        )
+        tab.tableStyleInfo = style
+
+        ws.add_table(tab)
 
         ws.freeze_panes = self._freeze_panes
         self.optimize_column_widths(ws)
-        ws.auto_filter.ref = ws.dimensions
 
         return ws
 
