@@ -90,6 +90,10 @@ def import_code(code, name, add_to_sys_modules=False):
     return module
 
 
+class JinjamatorTaskRunException(BaseException):
+    pass
+
+
 class TaskletFailed(ValueError):
     def __init__(self, results, message):
         self.results = results
@@ -380,7 +384,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                     self.configuration[var_name] = False
 
         else:
-            raise Exception(
+            raise JinjamatorTaskRunException(
                 "run mode {0} not implemented".format(
                     self._configuration["task_run_mode"]
                 )
@@ -733,7 +737,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
     def run(self):
         if len(self._undefined_vars) > 0:
             if self._configuration["task_run_mode"] == "background":
-                raise Exception(
+                raise JinjamatorTaskRunException(
                     "cannot run task because of undefined variables: {0}".format(
                         self._undefined_vars
                     )
