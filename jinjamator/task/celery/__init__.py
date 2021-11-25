@@ -27,6 +27,8 @@ from jinjamator.task.celery.loghandler import CeleryLogHandler, CeleryLogFormatt
 from jinjamator.task import TaskletFailed
 from copy import deepcopy
 
+from jinjamator.task import JinjamatorTaskRunException
+
 
 @celery.task(bind=True)
 def run_jinjamator_task(self, path, data, output_plugin, user_id):
@@ -113,7 +115,7 @@ def run_jinjamator_task(self, path, data, output_plugin, user_id):
     try:
         task.run()
     except TaskletFailed:
-        raise Exception("task failed")
+        raise JinjamatorTaskRunException("task failed")
 
     return {
         "status": "finished task",
