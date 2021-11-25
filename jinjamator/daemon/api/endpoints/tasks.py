@@ -104,7 +104,10 @@ def discover_tasks(app):
                 for dir_chunk in task_dir.replace(tasks_base_dir, "").split(
                     os.path.sep
                 ):  # filter out hidden directories
-                    if dir_chunk.startswith(".") or dir_chunk in ["__pycache__"]:
+                    if dir_chunk.startswith(".") or dir_chunk in [
+                        "__pycache__",
+                        "plugins",
+                    ]:
                         append = False
                         break
 
