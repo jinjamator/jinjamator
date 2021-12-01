@@ -148,6 +148,7 @@ class excel(outputPluginBase):
             append_sheet=False,
             column_order=column_order,
             rename_columns=rename_columns,
+            freeze_pane_cell=self._parent.configuration.get("freeze_pane_cell", "B2"),
         )
 
         writer.create_sheet_from_data(
