@@ -186,7 +186,7 @@ class XLSXWriter(object):
         self._append_sheet = kwargs.get("append_sheet") or False
         self._overwrite_file = kwargs.get("overwrite") or False
         self._destintaion_path = path
-        self._freeze_panes = kwargs.get("freeze_panes") or "B1"
+        self._freeze_panes = kwargs.get("freeze_pane_cell") or "B1"
         self._column_order = kwargs.get("column_order") or False
         self._rename_columns = kwargs.get("rename_columns") or []
         self._table_style_name = "TableStyleMedium15"
