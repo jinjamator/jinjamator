@@ -1,0 +1,12 @@
+Value LICENSE_PID (\S+)
+Value INSTALLED (\S+)
+Value COUNT (\d+|-)
+Value STATUS (Unused|In use)
+Value EXP_DATE (Never|\d+ \w+ \d+|\s)
+Value COMMENTS (.*)
+				
+Start
+  ^-+
+  ^Feature.*
+  ^\s+.*
+  ^${LICENSE_PID}\s+${INSTALLED}\s+${COUNT}\s+${STATUS}\s+${EXP_DATE}?\s+${COMMENTS}$$ -> Record
