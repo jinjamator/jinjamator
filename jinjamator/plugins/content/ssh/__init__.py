@@ -16,6 +16,8 @@ from netmiko import ConnectHandler, ssh_exception
 import textfsm
 import os
 from jinjamator.plugins.content.fsm import process
+from jinjamator.plugins.content.file import is_file
+
 import logging
 
 log = logging.getLogger()
@@ -174,6 +176,39 @@ def run(command, connection=None, **kwargs):
     for var_name in kwargs:
         opts[var_name] = kwargs[var_name]
     retval = connection.send_command_expect(command, max_loops=10000, **opts)
+    if auto_disconnect:
+        disconnect(connection)
+    # netmiko_log.setLevel(backup_log_level)
+    return retval
+
+
+def configure(commands_or_path, connection=None, **kwargs):
+    auto_disconnect = False
+    commands = commands_or_path
+    if is_file(commands_or_path):
+        log.debug(f"loaded configuration from file {commands_or_path}")
+        commands = [
+            line.replace("\r", "") for line in file.load(commands_or_path).split("\n")
+        ]
+    elif isinstance(commands_or_path, str):
+        log.debug(f"splitting configuration string into list {commands_or_path}")
+        commands = [line.replace("\r", "") for line in commands_or_path.split("\n")]
+
+    if not connection:
+        connection = connect(**kwargs)
+        auto_disconnect = True
+
+    opts = {}
+    for var_name in ["host", "username", "password", "port", "device_type"]:
+        try:
+            del kwargs[var_name]
+        except KeyError:
+            pass
+    for var_name in kwargs:
+        opts[var_name] = kwargs[var_name]
+
+    retval = connection.send_config_set(commands, **opts)
+
     if auto_disconnect:
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
