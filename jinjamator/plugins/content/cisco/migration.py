@@ -249,6 +249,9 @@ CLIBaseMatrix = {
     r"^(no )?ip dampening-interval eigrp (\d+)": None,
     r"authentication periodic": None,
     r"dot1x pae authenticator": None,
+    r"fabricpath isis metric (\d+)": None,
+    r"^(no) ?ip port-unreachable": None,
+    r"^vpc orphan-port suspend": None,
 }
 
 
@@ -924,6 +927,9 @@ class TargetGeneric(object):
         else:
             val = True
         return {"lacp": {"suspend_individual": val}}
+
+    def vpc_peer_link(self, data, match, int_obj):
+        return {"is_vpc_peerlink": True}
 
 
 class portMigrationHelper(object):
