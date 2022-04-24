@@ -180,7 +180,7 @@ class VerifyToken(Resource):
                         "status": "logged_in",
                         "user_id": token_data["id"],
                         "token_ttl": token_data["exp"] - now,
-                        "auto_renew_in": token_data["exp"] - now - 300,
+                        "auto_renew_in": ((token_data["exp"] - now) / 2),
                     }
 
                 else:
