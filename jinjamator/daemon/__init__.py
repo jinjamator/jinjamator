@@ -151,6 +151,7 @@ def configure(flask_app, _configuration):
     flask_app.config["JINJAMATOR_WEB_UI_CLASS"] = _configuration.get("web_ui_class")
 
     flask_app.config["JINJAMATOR_FULL_CONFIGURATION"] = _configuration
+    flask_app.config["JSON_SORT_KEYS"] = False
 
 
 def initialize(flask_app, cfg):
