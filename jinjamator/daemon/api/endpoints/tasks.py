@@ -32,6 +32,7 @@ from flask import current_app as app
 from jinjamator.daemon.aaa.models import User, JinjamatorRole
 from jinjamator.daemon.aaa import require_role
 from jinjamator.daemon.database import db
+from jinjamator.daemon.api.endpoints.jobs import Job
 
 from flask import jsonify, send_from_directory
 from sqlalchemy import or_, and_
@@ -43,6 +44,7 @@ import uuid
 
 from werkzeug.utils import secure_filename
 from copy import deepcopy
+from time import sleep
 
 log = logging.getLogger()
 
@@ -311,7 +313,35 @@ def discover_tasks(app):
                                     db.session.add(db_job)
                                     db.session.flush()
                                     db.session.commit()
+                                if data.get("output_plugin", "") == "json":
+                                    timeout = app.config[
+                                        "JINJAMATOR_JSON_OUTPUT_PLUGIN_TIMEOUT"
+                                    ]
+                                    while timeout > 0:
 
+                                        db_job = list(
+                                            db.session.query(DB_Job).filter(
+                                                DB_Job.task_id == job.id
+                                            )
+                                        )
+                                        db.session.flush()
+                                        db.session.commit()
+
+                                        if db_job[0].status not in [
+                                            "SCHEDULED",
+                                            "PROGRESS",
+                                        ]:
+                                            return jsonify(
+                                                json.loads(
+                                                    db_job[0].to_dict()["result"][
+                                                        "stdout"
+                                                    ]
+                                                )
+                                            )
+                                        sleep(0.2)
+                                        timeout = timeout - 200
+                                else:
+                                    log.error("Sync Task run failed -> Timeout")
                                 return jsonify({"job_id": job.id})
 
                             if task_info["description"]:
