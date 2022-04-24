@@ -630,6 +630,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
             "null",
             "excel",
             "zabbix",
+            "json",
         ]
         schema["schema"]["properties"]["output_plugin"]["default"] = "console"
         schema["schema"]["properties"]["output_plugin"]["required"] = True
