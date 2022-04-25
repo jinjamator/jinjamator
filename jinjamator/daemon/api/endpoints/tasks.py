@@ -331,13 +331,14 @@ def discover_tasks(app):
                                             "SCHEDULED",
                                             "PROGRESS",
                                         ]:
-                                            return jsonify(
-                                                json.loads(
-                                                    db_job[0].to_dict()["result"][
-                                                        "stdout"
-                                                    ]
-                                                )
+                                            resp = Response(
+                                                db_job[0].to_dict()["result"]["stdout"]
                                             )
+                                            resp.headers[
+                                                "Content-Type"
+                                            ] = "application/json"
+                                            return resp
+
                                         sleep(0.2)
                                         timeout = timeout - 200
                                 else:
