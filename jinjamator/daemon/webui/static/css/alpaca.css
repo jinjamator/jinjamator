@@ -454,7 +454,7 @@ table.dt-rowReorder-float tr td .alpaca-field
 .alpaca-field-table table tr td .alpaca-field .form-control,
 table.dt-rowReorder-float tr td .alpaca-field .form-control
 {
-    width: 100%;
+    width: unset;
 }
 
 .alpaca-field-table .form-group,
