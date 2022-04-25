@@ -31299,45 +31299,45 @@
                         // logic in data tables to really take control of this and do it right
                         // this "sort of" works for now
                         //
-                        $.fn.dataTableExt.afnFiltering.push(function(settings, fields, fieldIndex, data, dataIndex) {
+                        // $.fn.dataTableExt.afnFiltering.push(function(settings, fields, fieldIndex, data, dataIndex) {
 
-                            // TODO
-                            var text = $(settings.nTableWrapper).find(".dataTables_filter input[type='search']").val();
+                        //     // TODO
+                        //     var text = $(settings.nTableWrapper).find(".dataTables_filter input[type='search']").val();
 
-                            if (!text) {
-                                return true;
-                            }
+                        //     if (!text) {
+                        //         return true;
+                        //     }
 
-                            text = "" + text;
+                        //     text = "" + text;
 
-                            text = $.trim(text);
-                            text = text.toLowerCase();
+                        //     text = $.trim(text);
+                        //     text = text.toLowerCase();
 
-                            var match = false;
+                        //     var match = false;
 
-                            for (var i = 0; i < data.length; i++) {
-                                var dataValue = data[i];
-                                if (dataValue) {
-                                    var z = dataValue.indexOf("data-alpaca-field-id=");
-                                    if (z > -1) {
-                                        var alpacaId = $(dataValue).attr("data-alpaca-field-id");
+                        //     for (var i = 0; i < data.length; i++) {
+                        //         var dataValue = data[i];
+                        //         if (dataValue) {
+                        //             var z = dataValue.indexOf("data-alpaca-field-id=");
+                        //             if (z > -1) {
+                        //                 var alpacaId = $(dataValue).attr("data-alpaca-field-id");
 
-                                        var alpacaValue = Alpaca.fieldInstances[alpacaId].getValue();
-                                        if (alpacaValue) {
-                                            alpacaValue = "" + alpacaValue;
-                                            alpacaValue = alpacaValue.toLowerCase();
+                        //                 var alpacaValue = Alpaca.fieldInstances[alpacaId].getValue();
+                        //                 if (alpacaValue) {
+                        //                     alpacaValue = "" + alpacaValue;
+                        //                     alpacaValue = alpacaValue.toLowerCase();
 
-                                            if (alpacaValue.indexOf(text) > -1) {
-                                                match = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        //                     if (alpacaValue.indexOf(text) > -1) {
+                        //                         match = true;
+                        //                         break;
+                        //                     }
+                        //                 }
+                        //             }
+                        //         }
+                        //     }
 
-                            return match;
-                        });
+                        //     return match;
+                        // });
                     }
                 },
 
