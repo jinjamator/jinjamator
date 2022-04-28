@@ -27,7 +27,6 @@ flask
 Flask-SQLAlchemy==2.5.1
 SQLAlchemy==1.4.27
 SQLAlchemy-serializer==1.4.1
-python3-gdbm
 python-magic
 dotty_dict
 docutils
