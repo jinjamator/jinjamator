@@ -33,7 +33,7 @@
         <div class="login-box-body">
             <p class="login-box-msg">Sign in to start your session</p>
 
-            <form id='login_form' action="#" method="post">
+            <form id='login_form'>
                 <div class="form-group has-feedback">
                     <input name='username' type="username" class="form-control" placeholder="Username">
                     <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
@@ -52,7 +52,7 @@
                     </div>
                     <!-- /.col -->
                     <div class="col-xs-4">
-                        <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+                        <div onclick="login()" class="btn btn-primary btn-block btn-flat">Sign In</div>
                     </div>
                     <!-- /.col -->
                 </div>
@@ -78,6 +78,45 @@
     <!-- iCheck -->
     <script src="/static/js/icheck.min.js"></script>
     <script>
+        const serialize_form = form => JSON.stringify(
+                Array.from(new FormData(form).entries())
+                .reduce((m, [key, value]) => Object.assign(m, {
+                    [key]: value
+                }), {})
+            );
+
+        function login(){
+                new FormData(document.querySelector('#login_form'));
+                const json=serialize_form(document.querySelector('#login_form'));
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/aaa/login/local',
+                    dataType: 'json',
+                    data: json,
+                    contentType: 'application/json',
+                    success: function(response) {
+                        access_token = response.access_token.split(' ')[1]
+                        sessionStorage.setItem('logged_in_username', $("input[name=username]").val());
+                        sessionStorage.setItem('access_token', access_token);
+                        window.location.replace("/")
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        if (xhr.status == 401) {
+                            alert('Login Failed');
+                        }
+
+
+                    }
+                });
+        };
+        function listen_for_keypress(e){
+            if (e.code=="Enter")
+                login();
+        }
+
+        document.addEventListener('keydown', listen_for_keypress);
+
+
         $(function() {
             $.ajax({
                     type: 'GET',
@@ -100,47 +139,44 @@
                 radioClass: 'iradio_square-blue',
                 increaseArea: '20%' /* optional */
             });
-            const serialize_form = form => JSON.stringify(
-                Array.from(new FormData(form).entries())
-                .reduce((m, [key, value]) => Object.assign(m, {
-                    [key]: value
-                }), {})
-            );
-            $('#login_form').on('submit', function(event) {
-                event.preventDefault();
-                const json = serialize_form(this);
 
-                $.ajax({
-                    type: 'POST',
-                    url: '/api/aaa/login/local',
-                    dataType: 'json',
-                    data: json,
-                    contentType: 'application/json',
-                    success: function(response) {
-                        access_token = response.access_token.split(' ')[1]
-                        sessionStorage.setItem('logged_in_username', $("input[name=username]").val());
-                        sessionStorage.setItem('access_token', access_token);
-                        window.location.replace("/")
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        if (xhr.status == 401) {
-                            alert('Login Failed');
-                        }
+ 
+
+        //     $('#login_form').on('submit', function(event) {
+        //         event.preventDefault();
+        //         const json = serialize_form(this);
+
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: '/api/aaa/login/local',
+        //             dataType: 'json',
+        //             data: json,
+        //             contentType: 'application/json',
+        //             success: function(response) {
+        //                 access_token = response.access_token.split(' ')[1]
+        //                 sessionStorage.setItem('logged_in_username', $("input[name=username]").val());
+        //                 sessionStorage.setItem('access_token', access_token);
+        //                 window.location.replace("/")
+        //             },
+        //             error: function(xhr, ajaxOptions, thrownError) {
+        //                 if (xhr.status == 401) {
+        //                     alert('Login Failed');
+        //                 }
 
 
-                    }
-                });
-            });
+        //             }
+        //         });
+        //     });
 
 
 
         });
-        const serialize_form = form => JSON.stringify(
-            Array.from(new FormData(form).entries())
-            .reduce((m, [key, value]) => Object.assign(m, {
-                [key]: value
-            }), {})
-        );
+        // const serialize_form = form => JSON.stringify(
+        //     Array.from(new FormData(form).entries())
+        //     .reduce((m, [key, value]) => Object.assign(m, {
+        //         [key]: value
+        //     }), {})
+        // );
     </script>
 </body>
 
