@@ -1,3 +1,4 @@
+Werkzeug<2.1.0
 Jinja2
 ipcalc
 netmiko
@@ -15,7 +16,7 @@ openpyxl>=3
 ciscoconfparse
 xmltodict
 pyopenssl
-celery<5
+celery==4.4.7
 dictdiffer
 json_log_formatter
 pyyaml
@@ -23,7 +24,10 @@ jsonschema
 requests
 websocket-client
 flask
-flask-sqlalchemy
+Flask-SQLAlchemy==2.5.1
+SQLAlchemy==1.4.27
+SQLAlchemy-serializer==1.4.1
+python3-gdbm
 python-magic
 dotty_dict
 docutils
