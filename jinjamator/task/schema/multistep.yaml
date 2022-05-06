@@ -1,6 +1,6 @@
 
 schema:
-  title: schema test
+  title: {{jm.environment.current_task_basedir()}}
   type: object
   properties: 
     output_plugin:
