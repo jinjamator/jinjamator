@@ -1,0 +1,47 @@
+
+schema:
+  title: {{jm.environment.current_task_basedir()}}
+  type: object
+  properties: 
+    output_plugin:
+      title: Output Plugin
+      type: string
+      default: console
+      required: True
+      description: Flags instance as undo run. This will reverse the tasklet execution order. If properly implemented by the task, it should undo all changes.
+      enum:
+        - apic
+        - console
+        - excel
+        - "null"
+        - ssh
+        - json
+        - zabbix
+    
+    undo:
+      title: Undo
+      type: boolean
+      default: False
+  dependencies: {}
+
+view:
+  parent: bootstrap-edit-horizontal
+  wizard:
+    steps:
+      - title: Task Configuration
+        description: Required Information
+    bindings:
+      output_plugin: 3
+      undo: 3
+      best_effort: 3
+options:
+  hideInitValidationError: True
+  fields:
+    output_plugin:
+      helper: Select the output plugin which jinjamator uses to process the tasklet return values
+      onFieldChange: ""
+    undo:
+      helper: Run Task in undo mode if supported
+
+data: {}
+
