@@ -541,7 +541,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
         self._default_values = dictdiffer.patch(diff, tmp)
 
         for var in undefined_vars:
-            schema["schema"]["properties"][var] = {}
+            if not var in schema["schema"]["properties"]:
+                schema["schema"]["properties"][var] = {}
+            if not var in schema["options"]["fields"]:
+                schema["options"]["fields"][var] = {}
             if var not in ["undo"]:
                 title = ""
                 for word in var.split("_"):
@@ -556,7 +559,11 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 schema["view"]["wizard"]["bindings"][var] = 1
 
         for var, value in external_vars.items():
-            schema["schema"]["properties"][var] = {}
+            if not var in schema["schema"]["properties"]:
+                schema["schema"]["properties"][var] = {}
+            if not var in schema["options"]["fields"]:
+                schema["options"]["fields"][var] = {}
+
             if var not in ["undo"]:
                 title = ""
                 for word in var.split("_"):
@@ -580,6 +587,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
 
             for k, v in builder.to_schema()["properties"].items():
                 schema["schema"]["properties"][k] = v
+                schema["options"]["fields"][k] = {}
                 schema["schema"]["properties"][k]["default"] = self._default_values[k]
                 if self._default_values[k]:
                     schema["schema"]["properties"][k]["required"] = True
