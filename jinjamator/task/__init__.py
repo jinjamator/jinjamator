@@ -496,38 +496,12 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
             )
             pass
 
-        # schema_settings = TaskConfiguration()
-        # schema_settings.merge_dict(self.configuration._data)
-        # schema_settings.merge_yaml(self.task_base_dir + '/schema.yaml','merge','exclusive','override','override')
         schema_settings = self.load_schema_yaml(self.task_base_dir + "/schema.yaml")
         schema = self.load_schema_yaml(
             self._configuration["jinjamator_base_directory"]
             + "/jinjamator/task/schema/multistep.yaml"
         )
-        self._log.debug(pformat(schema))
-        # schema = tree()
-        # schema["schema"]["title"] = self.task_base_dir
-
-        # schema["schema"]["type"] = "object"
-        # schema["view"]["wizard"] = {
-        #     "title": "Welcome to the Wizard",
-        #     "description": "Please fill things in as you wish",
-        #     "bindings": tree(),
-        #     "steps": [
-        #         {
-        #             "title": "Task Configuration (1/2)",
-        #             "description": "Required Information",
-        #         },
-        #         {
-        #             "title": "Task Configuration (2/2)",
-        #             "description": "Optional Information",
-        #         },
-        #         {"title": "Job Configuration", "description": "Required Information"},
-        #     ],
-        # }
-
-        # schema['view']['templates']['container-array-actionbar']='#ationbar'
-        # schema["options"]["hideInitValidationError"] = True
+        # self._log.debug(pformat(schema))
 
         undefined_vars = self.get_undefined_task_variables()
 
@@ -598,41 +572,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 schema["data"][k] = self._default_values[k]
                 enhanced = self.enhance_schema(self._default_values[k], k)
                 m.merge(schema["schema"]["properties"][k], enhanced)
-
-        # schema["view"]["parent"] = "bootstrap-edit-horizontal"
-        # todo make dynamic
-        # schema["schema"]["properties"]["output_plugin"]["title"] = "Output Plugin"
-        # schema["schema"]["properties"]["output_plugin"]["type"] = "string"
-        # schema["schema"]["properties"]["output_plugin"]["enum"] = [
-        #     "apic",
-        #     "console",
-        #     "ssh",
-        #     "null",
-        #     "excel",
-        #     "zabbix",
-        #     "json",
-        # ]
-        # schema["schema"]["properties"]["output_plugin"]["default"] = "console"
-        # schema["schema"]["properties"]["output_plugin"]["required"] = True
-        # schema["options"]["fields"]["output_plugin"][
-        #     "helper"
-        # ] = "Select the output plugin which jinjamator uses to process the tasklet return values"
-        # schema["options"]["fields"]["output_plugin"]["onFieldChange"] = ""
-
-        # schema["view"]["wizard"]["bindings"]["output_plugin"] = 3
-        # schema["view"]["wizard"]["bindings"]["undo"] = 3
-        # schema["view"]["wizard"]["bindings"]["best_effort"] = 3
-
-        # schema["schema"]["properties"]["undo"]["title"] = "Undo"
-        # schema["schema"]["properties"]["undo"]["type"] = "boolean"
-        # schema["schema"]["properties"]["undo"]["default"] = False
-        # schema["schema"]["properties"]["undo"][
-        #     "description"
-        # ] = "Flags instance as undo run. This will reverse the tasklet execution order. If properly implemented by the task, it should undo all changes."
-
-        # schema["options"]["fields"]["undo"][
-        #     "helper"
-        # ] = "Run Task in undo mode if supported"
 
         m = Merger(
             [(list, ["override"]), (dict, ["merge"])], ["override"], ["override"]
