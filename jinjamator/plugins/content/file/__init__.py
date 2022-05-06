@@ -78,7 +78,8 @@ def open(url, flags="r"):
     else:
         return py_open(url, flags)
 
-def get_filename (filename):
+
+def get_filename(filename):
     """
     Get only the filename
     /some/path/my.file --> my.file
@@ -90,7 +91,8 @@ def get_filename (filename):
     """
     return pathlib.Path(filename).name
 
-def strip_suffix (filename):
+
+def strip_suffix(filename):
     """
     Strip the suffix from the filename
     /some/path/my.file --> /some/path/my
@@ -102,7 +104,8 @@ def strip_suffix (filename):
     """
     return pathlib.Path(filename).with_suffix("")
 
-def get_suffix (filename):
+
+def get_suffix(filename):
     """
     Get the suffix from the filename
     /some/path/my.file --> file
@@ -114,7 +117,8 @@ def get_suffix (filename):
     """
     return pathlib.Path(filename).suffix
 
-def change_suffix (filename,suffix=False):
+
+def change_suffix(filename, suffix=False):
     """
     Change the suffix of the file
     /some/path/my.file --> /some/path/my.othersuffix
@@ -128,7 +132,8 @@ def change_suffix (filename,suffix=False):
     """
     return pathlib.Path(filename).with_suffix(suffix)
 
-def is_file (filename):
+
+def is_file(filename):
     """
     Check if filename is a file
 
@@ -139,7 +144,8 @@ def is_file (filename):
     """
     return pathlib.Path(filename).is_file()
 
-def is_dir (filename):
+
+def is_dir(filename):
     """
     Check if filename is a directory
 
@@ -150,7 +156,8 @@ def is_dir (filename):
     """
     return pathlib.Path(filename).is_dir()
 
-def exists (filename):
+
+def exists(filename):
     """
     Check if filename exists
 
@@ -161,7 +168,8 @@ def exists (filename):
     """
     return pathlib.Path(filename).exists()
 
-def resolve (fn=__file__):
+
+def resolve(fn=__file__):
     """
     Return the absolute path of the parent directory of the file
 
@@ -174,3 +182,40 @@ def resolve (fn=__file__):
     source_dir = source_path.parent
 
     return source_dir
+
+
+def copy(src, dst, force_overwrite=False, **kwargs):
+    if not src.startswith("/"):
+        src = f"{_jinjamator.task_base_dir}{os.path.sep}{src}"
+    if not dst.startswith("/"):
+        dst = f"{_jinjamator.task_base_dir}{os.path.sep}{dst}"
+
+    if exists(dst) and not force_overwrite:
+        log.warn(f"skipping existing path {dst}")
+        return False
+
+    if not exists(src):
+        return False
+
+    src_fh = open(src)
+    dst_fh = open(dst, "w")
+
+    while True:
+        buffer = src_fh.read(1000000)
+        if not buffer:
+            break
+        dst_fh.write(buffer)
+    src_fh.close()
+    dst_fh.close()
+    return True
+
+
+def delete(path, recursive=False):
+    if not path.startswith("/"):
+        path = f"{_jinjamator.task_base_dir}{os.path.sep}{path}"
+    os.unlink(path)
+
+
+def move(src, dst, force_overwrite=False, **kwargs):
+    copy(src, dst, force_overwrite, **kwargs)
+    delete(src)
