@@ -1022,7 +1022,8 @@ function update_timeline(job_id) {
 
         timeline_render_elements(data);
         if ($('#job_id').length > 0) {
-            setTimeout(update_timeline, 1000, job_id);
+            if (data['state'] == "PROGRESS" || data['state']=="SCHEDULED")
+                setTimeout(update_timeline, 1000, job_id);
         }
     });
 
@@ -1188,6 +1189,7 @@ function show_job(job_id) {
 
 
             $('.main-section').removeClass('hidden');
+            
             setTimeout(update_timeline, 1000, job_id);
 
 
