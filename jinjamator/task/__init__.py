@@ -497,17 +497,23 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
             pass
 
         schema_settings = self.load_schema_yaml(self.task_base_dir + "/schema.yaml")
-        schema = self.load_schema_yaml(
-            self._configuration["jinjamator_base_directory"]
-            + "/jinjamator/task/schema/multistep.yaml"
-        )
-        # self._log.debug(pformat(schema))
+        schema_template = self.configuration._data.get("wizard_template", "multistep")
+        if schema_template in ["simple", "multistep"]:
+            schema = self.load_schema_yaml(
+                f"{os.path.dirname(__file__)}/schema/{schema_template}.yaml"
+            )
 
         undefined_vars = self.get_undefined_task_variables()
 
         tmp = copy.deepcopy(self.configuration._data)
 
+        self._log.debug(tmp)
+        self._log.debug(self._default_values)
+
         diff = dictdiffer.diff(self._default_values, tmp)
+        # fix dictdiffer bug by iterating over diff????
+        for item in diff:
+            pass
 
         external_vars = dictdiffer.patch(diff, tree())
 
@@ -606,7 +612,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 ]
             except:
                 pass
-        self._log.debug(pformat(schema))
+        # self._log.debug(pformat(schema))
         return schema
 
     def run(self):
