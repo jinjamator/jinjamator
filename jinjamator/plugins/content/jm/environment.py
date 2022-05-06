@@ -21,3 +21,7 @@ def python_requirements():
     return load(os.path.join(jinjamator_base_directory(), "requirements.txt")).split(
         "\n"
     )
+
+
+def current_task_basedir():
+    return _jinjamator.task_base_dir
