@@ -500,30 +500,34 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
         # schema_settings.merge_dict(self.configuration._data)
         # schema_settings.merge_yaml(self.task_base_dir + '/schema.yaml','merge','exclusive','override','override')
         schema_settings = self.load_schema_yaml(self.task_base_dir + "/schema.yaml")
+        schema = self.load_schema_yaml(
+            self._configuration["jinjamator_base_directory"]
+            + "/jinjamator/task/schema/multistep.yaml"
+        )
+        self._log.debug(pformat(schema))
+        # schema = tree()
+        # schema["schema"]["title"] = self.task_base_dir
 
-        schema = tree()
-        schema["schema"]["title"] = self.task_base_dir
-
-        schema["schema"]["type"] = "object"
-        schema["view"]["wizard"] = {
-            "title": "Welcome to the Wizard",
-            "description": "Please fill things in as you wish",
-            "bindings": tree(),
-            "steps": [
-                {
-                    "title": "Task Configuration (1/2)",
-                    "description": "Required Information",
-                },
-                {
-                    "title": "Task Configuration (2/2)",
-                    "description": "Optional Information",
-                },
-                {"title": "Job Configuration", "description": "Required Information"},
-            ],
-        }
+        # schema["schema"]["type"] = "object"
+        # schema["view"]["wizard"] = {
+        #     "title": "Welcome to the Wizard",
+        #     "description": "Please fill things in as you wish",
+        #     "bindings": tree(),
+        #     "steps": [
+        #         {
+        #             "title": "Task Configuration (1/2)",
+        #             "description": "Required Information",
+        #         },
+        #         {
+        #             "title": "Task Configuration (2/2)",
+        #             "description": "Optional Information",
+        #         },
+        #         {"title": "Job Configuration", "description": "Required Information"},
+        #     ],
+        # }
 
         # schema['view']['templates']['container-array-actionbar']='#ationbar'
-        schema["options"]["hideInitValidationError"] = True
+        # schema["options"]["hideInitValidationError"] = True
 
         undefined_vars = self.get_undefined_task_variables()
 
@@ -537,6 +541,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
         self._default_values = dictdiffer.patch(diff, tmp)
 
         for var in undefined_vars:
+            schema["schema"]["properties"][var] = {}
             if var not in ["undo"]:
                 title = ""
                 for word in var.split("_"):
@@ -551,6 +556,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 schema["view"]["wizard"]["bindings"][var] = 1
 
         for var, value in external_vars.items():
+            schema["schema"]["properties"][var] = {}
             if var not in ["undo"]:
                 title = ""
                 for word in var.split("_"):
@@ -564,18 +570,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 if "pass" in var:
                     schema["schema"]["properties"][var]["format"] = "password"
                 schema["view"]["wizard"]["bindings"][var] = 1
-
-        # if not undefined_vars and not external_vars.keys():
-        #     no_required_vars = {}
-        #     schema["schema"]["properties"]["no_required_vars"][
-        #         "title"
-        #     ] = "Task has no undefined variables"
-        #     schema["schema"]["properties"]["no_required_vars"]["type"] = "string"
-        #     schema["schema"]["properties"]["no_required_vars"]["description"] = ""
-        #     schema["schema"]["properties"]["no_required_vars"]["required"] = False
-        #     schema["schema"]["properties"]["no_required_vars"]["default"] = ""
-        #     schema["options"]["fields"]["no_required_vars"]["readonly"] = True
-        #     schema["view"]["wizard"]["bindings"]["no_required_vars"] = 1
 
         if self._default_values:
             builder = SchemaBuilder()
@@ -597,108 +591,40 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 enhanced = self.enhance_schema(self._default_values[k], k)
                 m.merge(schema["schema"]["properties"][k], enhanced)
 
-        # else:
-        #     schema["schema"]["properties"]["no_default_vars"][
-        #         "title"
-        #     ] = "Task has no default variables"
-        #     schema["schema"]["properties"]["no_default_vars"]["type"] = "string"
-        #     schema["schema"]["properties"]["no_default_vars"]["description"] = ""
-        #     schema["schema"]["properties"]["no_default_vars"]["required"] = False
-        #     schema["schema"]["properties"]["no_default_vars"]["default"] = ""
-        #     schema["options"]["fields"]["no_default_vars"]["readonly"] = True
-        #     schema["view"]["wizard"]["bindings"]["no_default_vars"] = 2
-
-        schema["view"]["parent"] = "bootstrap-edit-horizontal"
-
-        # schema["schema"]["properties"]["task"]["type"] = "string"
-        # schema["schema"]["properties"]["task"]["default"] = self.task_base_dir
-        # schema["schema"]["properties"]["task"]["required"] = True
-        # schema["options"]["fields"]["task"]["type"] = "hidden"
-
-        # schema["schema"]["properties"]["jinjamator_job_id"]["type"] = "string"
-        # schema["schema"]["properties"]["jinjamator_job_id"]["default"] = uuid.uuid4()
-        # schema["schema"]["properties"]["jinjamator_job_id"]["required"] = True
-        # schema["options"]["fields"]["jinjamator_job_id"]["type"] = "hidden"
-
+        # schema["view"]["parent"] = "bootstrap-edit-horizontal"
         # todo make dynamic
-        schema["schema"]["properties"]["output_plugin"]["title"] = "Output Plugin"
-        schema["schema"]["properties"]["output_plugin"]["type"] = "string"
-        schema["schema"]["properties"]["output_plugin"]["enum"] = [
-            "apic",
-            "console",
-            "ssh",
-            "null",
-            "excel",
-            "zabbix",
-            "json",
-        ]
-        schema["schema"]["properties"]["output_plugin"]["default"] = "console"
-        schema["schema"]["properties"]["output_plugin"]["required"] = True
-        schema["options"]["fields"]["output_plugin"][
-            "helper"
-        ] = "Select the output plugin which jinjamator uses to process the tasklet return values"
-        schema["options"]["fields"]["output_plugin"]["onFieldChange"] = ""
+        # schema["schema"]["properties"]["output_plugin"]["title"] = "Output Plugin"
+        # schema["schema"]["properties"]["output_plugin"]["type"] = "string"
+        # schema["schema"]["properties"]["output_plugin"]["enum"] = [
+        #     "apic",
+        #     "console",
+        #     "ssh",
+        #     "null",
+        #     "excel",
+        #     "zabbix",
+        #     "json",
+        # ]
+        # schema["schema"]["properties"]["output_plugin"]["default"] = "console"
+        # schema["schema"]["properties"]["output_plugin"]["required"] = True
+        # schema["options"]["fields"]["output_plugin"][
+        #     "helper"
+        # ] = "Select the output plugin which jinjamator uses to process the tasklet return values"
+        # schema["options"]["fields"]["output_plugin"]["onFieldChange"] = ""
 
-        schema["view"]["wizard"]["bindings"]["output_plugin"] = 3
-        schema["view"]["wizard"]["bindings"]["undo"] = 3
-        schema["view"]["wizard"]["bindings"]["best_effort"] = 3
+        # schema["view"]["wizard"]["bindings"]["output_plugin"] = 3
+        # schema["view"]["wizard"]["bindings"]["undo"] = 3
+        # schema["view"]["wizard"]["bindings"]["best_effort"] = 3
 
-        # schema["schema"]["properties"]["custom_parameters"][
-        #     "title"
-        # ] = "Custom Variables"
-        # schema["schema"]["properties"]["custom_parameters"]["type"] = "array"
-        # schema["schema"]["properties"]["custom_parameters"][
+        # schema["schema"]["properties"]["undo"]["title"] = "Undo"
+        # schema["schema"]["properties"]["undo"]["type"] = "boolean"
+        # schema["schema"]["properties"]["undo"]["default"] = False
+        # schema["schema"]["properties"]["undo"][
         #     "description"
-        # ] = "add custom variable definitions for this run"
-        # schema["schema"]["properties"]["custom_parameters"]["items"]["type"] = "object"
-        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-        #     "key"
-        # ]["title"] = "Variable Name"
-        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-        #     "key"
-        # ]["type"] = "string"
-        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-        #     "key"
-        # ]["required"] = True
+        # ] = "Flags instance as undo run. This will reverse the tasklet execution order. If properly implemented by the task, it should undo all changes."
 
-        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-        #     "value"
-        # ]["title"] = "Value"
-        # schema["schema"]["properties"]["custom_parameters"]["items"]["properties"][
-        #     "value"
-        # ]["type"] = "string"
-
-        # schema["schema"]["properties"]["output_plugin_parameters"][
-        #     "title"
-        # ] = "Output Plugin Parameters"
-        # schema["schema"]["properties"]["output_plugin_parameters"]["type"] = "array"
-        # schema["schema"]["properties"]["output_plugin_parameters"]["items"] = []
-        # schema["schema"]["properties"]["custom_parameters"]["required"] = False
-        # schema["view"]["wizard"]["bindings"]["custom_parameters"] = 3
-        # schema["view"]["wizard"]["bindings"]["output_plugin_parameters"] = 3
-
-        # schema["schema"]["properties"]["best_effort"]["title"] = "Best Effort"
-        # schema["schema"]["properties"]["best_effort"]["type"] = "boolean"
-        # schema["schema"]["properties"]["best_effort"]["description"] = "Should jinjamator ignore fatal errors of tasklets for this instance?"
-        # schema["schema"]["properties"]["best_effort"]["default"] = False
-        # schema['options']['fields']['best_effort']['order']=''
-
-        # try:
-        #     schema["schema"]["properties"]["undo"]["default"] = bool(
-        #         strtobool(self.configuration._data["undo"])
-        #     )
-        # except:
-
-        schema["schema"]["properties"]["undo"]["title"] = "Undo"
-        schema["schema"]["properties"]["undo"]["type"] = "boolean"
-        schema["schema"]["properties"]["undo"]["default"] = False
-        schema["schema"]["properties"]["undo"][
-            "description"
-        ] = "Flags instance as undo run. This will reverse the tasklet execution order. If properly implemented by the task, it should undo all changes."
-
-        schema["options"]["fields"]["undo"][
-            "helper"
-        ] = "Run Task in undo mode if supported"
+        # schema["options"]["fields"]["undo"][
+        #     "helper"
+        # ] = "Run Task in undo mode if supported"
 
         m = Merger(
             [(list, ["override"]), (dict, ["merge"])], ["override"], ["override"]
@@ -733,6 +659,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 ]
             except:
                 pass
+        self._log.debug(pformat(schema))
         return schema
 
     def run(self):
