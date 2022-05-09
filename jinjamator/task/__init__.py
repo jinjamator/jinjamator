@@ -448,11 +448,13 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                     parsed_data = environment.from_string(raw_data).render(
                         self.configuration._data
                     )
+                    # final_data=yaml.safe_load(parsed_data)
                     final_data = dotty(yaml.safe_load(parsed_data))
 
                     for schema_extension in self._schema_extensions:
-
+                        self._log.error("DEPRECATED")
                         for key, value in schema_extension["data"].items():
+                            # self._log.debug(key)
                             if schema_extension["path"] != ".":
                                 # self._log.error(pformat(final_data))
                                 final_data[schema_extension["path"]][key] = value[
@@ -505,10 +507,13 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
 
         undefined_vars = self.get_undefined_task_variables()
 
+        if "post_render" in schema_settings:
+            schema["post_render"] = schema_settings["post_render"]
+
         tmp = copy.deepcopy(self.configuration._data)
 
-        self._log.debug(tmp)
-        self._log.debug(self._default_values)
+        # self._log.debug(tmp)
+        # self._log.debug(self._default_values)
 
         diff = dictdiffer.diff(self._default_values, tmp)
         # fix dictdiffer bug by iterating over diff????

@@ -816,7 +816,7 @@ function create_job(job_path, pre_defined_vars) {
             }
             data.options['allowNull'] = true;
 
-
+            
             data['postRender'] = function(control) {
                 form_data = control.getValue();
 
@@ -848,7 +848,10 @@ function create_job(job_path, pre_defined_vars) {
                 });
 
 
-
+            if ('post_render' in data){
+                console.log(data['post_render'])
+                window[data['post_render']](control)
+            }
             };
             var step_counter = [0, 0, 0]
             $.each(data['view']['wizard']['bindings'], function(key, value) {
