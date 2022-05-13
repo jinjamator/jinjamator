@@ -626,7 +626,9 @@ function list_tasks() {
         if ($.fn.dataTable.isDataTable('#task_list')) {
             $('#task_list').DataTable().destroy();
         }
-
+        
+        $.fn.dataTable.ext.search=[]
+        delete $.fn.DataTable.ext.order["alpaca"]
         table = $('#task_list').DataTable({
                 "lengthMenu": [
                     [15, 30, 100, -1],
