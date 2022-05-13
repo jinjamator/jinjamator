@@ -454,7 +454,7 @@ table.dt-rowReorder-float tr td .alpaca-field
 .alpaca-field-table table tr td .alpaca-field .form-control,
 table.dt-rowReorder-float tr td .alpaca-field .form-control
 {
-    width: unset;
+    width: 100%;
 }
 
 .alpaca-field-table .form-group,
@@ -999,4 +999,9 @@ legend.alpaca-container-label
     font-style: italic;
     font-weight: 200;
     color: #888;
+}
+
+.alpaca-field.alpaca-edit .CodeMirror-fullscreen
+{
+    z-index: 100;
 }
