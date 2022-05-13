@@ -627,7 +627,7 @@ function list_tasks() {
             $('#task_list').DataTable().destroy();
         }
         
-        $.fn.dataTable.ext.search=[]
+        $.fn.dataTable.ext.search.pop() // dirty but is the only thing that works at the moment
         delete $.fn.DataTable.ext.order["alpaca"]
         table = $('#task_list').DataTable({
                 "lengthMenu": [
@@ -637,8 +637,13 @@ function list_tasks() {
 
             })
             //table.on( 'dblclick', function () {
+        
+        
+        
         table.on('dblclick', 'tbody tr', function() {
             create_job(table.row(this).data()[0]);
+            table.destroy();
+            
         });
 
         $('.main-section').removeClass('hidden');

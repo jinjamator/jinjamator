@@ -34805,7 +34805,8 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
 
             // data tables columns
             this.options.datatables.columns = [];
-
+            console.log(" $.fn.DataTable.ext.type.search[alpaca]")
+            console.dir( $.fn.DataTable.ext.type.search["alpaca"])
             // initialize data tables to detect alpaca field types and perform alpaca field sorting and filtering
             if ($.fn.dataTableExt && !$.fn.DataTable.ext.type.search["alpaca"])
             {
@@ -34849,7 +34850,9 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 // logic in data tables to really take control of this and do it right
                 // this "sort of" works for now
                 //
-                $.fn.dataTableExt.afnFiltering.push(function(settings, fields, fieldIndex, data, dataIndex) {
+                console.log(" $.fn.dataTableExt.afnFiltering")
+                console.dir( $.fn.dataTableExt.afnFiltering)
+                var alpaca_filterfn = function(settings, fields, fieldIndex, data, dataIndex) {
 
                     // TODO
                     var text = $(settings.nTableWrapper).find(".dataTables_filter input[type='search']").val();
@@ -34892,7 +34895,19 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                     }
 
                     return match;
-                });
+                }
+                var have_plugin=false;
+                $.fn.dataTableExt.afnFiltering.forEach(plugin => {
+                    if (plugin.name =="alpaca_filterfn"){
+                        have_plugin=true;
+                    }
+                }) 
+
+                if (! have_plugin){
+                    console.log('register alpaca datatables sort filter')
+                    $.fn.dataTableExt.afnFiltering.push(alpaca_filterfn);
+                }
+                
             }
         },
 
@@ -35275,7 +35290,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             // TODO: change dragRows to use our own drag/drop tooling and get rid of DataTables Row Reorder Plugin
             // we also have do this if we've added the first row to get DataTables to redraw
             var usingDataTables = self.options.datatables && $.fn.DataTable;
-            if (self.options.dragRows || (usingDataTables && self.data.length === 1))
+            if (self.options.dragRows || (usingDataTables && self.data.length === 0))
             {
                 // refresh
                 self.refresh(function() {
@@ -35290,7 +35305,8 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 {
                     // TODO
                     var tr = self.field.find("[data-alpaca-field-path='" + item.path + "']");
-                    self._dt.row.add(tr);//.draw(false);
+                    self._dt.row.add(tr);
+                    self._dt.search("").draw('page');
                 }
 
                 callback();
@@ -35321,6 +35337,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 if (self._dt)
                 {
                     self._dt.rows(childIndex).remove();//.draw(false);
+                    self._dt.search("").draw('page');
                 }
 
                 callback();
