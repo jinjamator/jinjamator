@@ -4479,7 +4479,7 @@
 		invalidated = _fnFilterData( settings );
 	
 		// If the input is blank - we just want the full data set
-		if ( input.length <= 0 ) {
+		if ( (input.length <= 0) || ( DataTable.ext.search.length !== 0 ) ) {
 			settings.aiDisplay = displayMaster.slice();
 		}
 		else {
