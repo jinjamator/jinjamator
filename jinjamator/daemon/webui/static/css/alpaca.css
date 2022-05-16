@@ -454,8 +454,10 @@ table.dt-rowReorder-float tr td .alpaca-field
 .alpaca-field-table table tr td .alpaca-field .form-control,
 table.dt-rowReorder-float tr td .alpaca-field .form-control
 {
-    width: 100%;
+    min-width: 100%;
 }
+
+
 
 .alpaca-field-table .form-group,
 table.dt-rowReorder-float .form-group
@@ -811,6 +813,10 @@ legend.alpaca-container-label
     float: none;
 }
 
+
+.dataTables_wrapper div.row .alpaca-field-select .btn-group button.multiselect {
+    min-width: 100%;
+} 
 /*
 .bootstrap-timepicker-widget table td input
 {
@@ -818,7 +824,17 @@ legend.alpaca-container-label
 }
 */
 
+div.table-responsive {
+    overflow-x: visible;
+}
 
+div.jinjamator-task-wizard {
+    min-height: 80vh;
+}
+
+.table.dataTable  > tbody > tr.alpaca-field-tablerow > td.alpaca-container-item > div.form-group > div.col-sm-9 {
+    min-width: 95%
+}
 
 
 /** FIElDS **/
