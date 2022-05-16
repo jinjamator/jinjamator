@@ -34850,8 +34850,8 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 // logic in data tables to really take control of this and do it right
                 // this "sort of" works for now
                 //
-                console.log(" $.fn.dataTableExt.afnFiltering")
-                console.dir( $.fn.dataTableExt.afnFiltering)
+                // console.log(" $.fn.dataTableExt.afnFiltering")
+                // console.dir( $.fn.dataTableExt.afnFiltering)
                 var alpaca_filterfn = function(settings, fields, fieldIndex, data, dataIndex) {
 
                     // TODO
@@ -34904,7 +34904,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 }) 
 
                 if (! have_plugin){
-                    console.log('register alpaca datatables sort filter')
+                    // console.log('register alpaca datatables sort filter')
                     $.fn.dataTableExt.afnFiltering.push(alpaca_filterfn);
                 }
                 
