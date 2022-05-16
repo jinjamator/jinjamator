@@ -179,6 +179,13 @@ class Program(object):
             env_var="JINJAMATOR_DAEMON_CELERY_RESULT_BACKEND_URL",
         )
         self._parser.add_argument(
+            "--max-celery-worker",
+            dest="_max_celery_worker",
+            default=f"2",
+            help="maximum workers to fork  [default: %(default)s]",
+            env_var="JINJAMATOR_MAX_CELERY_WORKER",
+        )
+        self._parser.add_argument(
             "--celery-heartbeat-database",
             dest="_celery_beat_database",
             default=f'{self._configuration.get("jinjamator_user_directory", tempfile.gettempdir())}/jinjamator-beat.db',
