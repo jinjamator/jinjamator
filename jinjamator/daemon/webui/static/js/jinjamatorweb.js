@@ -670,7 +670,7 @@ function create_job(job_path, pre_defined_vars) {
                 <span class="spinner"></span>
             </div>
         </div>
-        <div id="form">
+        <div id="form" class="jinjamator-task-wizard">
         </div><script type="text/x-handlebars-template" id="ationbar">
         {{#if options.hideActionBar}}
         <div class="alpaca-array-actionbar alpaca-array-actionbar-{{actionbarStyle}} btn-group" data-alpaca-array-actionbar-parent-field-id="{{parentFieldId}}" data-alpaca-array-actionbar-field-id="{{fieldId}}" data-alpaca-array-actionbar-item-index="{{itemIndex}}">
