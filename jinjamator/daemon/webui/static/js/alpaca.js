@@ -28944,7 +28944,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             this.base();
 
             // automatically turn on "hideNone" if we're in multiselect mode and have the multiselect plugin
-            if (self.options.multiple && $.fn.multiselect)
+            if ($.fn.multiselect)
             {
                 if (typeof(self.options.hideNone) === "undefined")
                 {
@@ -29042,7 +29042,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             this.base(model, function() {
 
                 // if we are in multiple mode and the bootstrap multiselect plugin is available, bind it in
-                if (self.options.multiple && $.fn.multiselect && !self.isDisplayOnly())
+                if ($.fn.multiselect && !self.isDisplayOnly())
                 {
                     var settings = null;
                     if (self.options.multiselect) {
