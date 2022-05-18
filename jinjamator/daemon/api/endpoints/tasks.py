@@ -114,8 +114,13 @@ def discover_tasks(app):
                         break
 
                 dir_name = task_dir.replace(tasks_base_dir, "")[1:]
-                if append and dir_name not in available_tasks_by_path:
+                gui = True
+                if os.path.isfile(
+                    tasks_base_dir + os.path.sep + dir_name + os.path.sep + ".no_gui"
+                ):
+                    gui = False
 
+                if append and dir_name not in available_tasks_by_path:
                     task_id = xxhash.xxh64(task_dir).hexdigest()
 
                     task_info = {
@@ -124,6 +129,7 @@ def discover_tasks(app):
                         "base_dir": tasks_base_dir,
                         "description": get_section_from_task_doc(task_dir)
                         or "no description",
+                        "gui": gui,
                     }
                     available_tasks_by_path[dir_name] = task_info
                     try:
