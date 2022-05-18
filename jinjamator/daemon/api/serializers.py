@@ -50,6 +50,7 @@ task_info = api.model(
             required=True, description="Basedir where task was found"
         ),
         "description": fields.String(required=True, description="Description of task"),
+        "gui": fields.Boolean(description="Render in GUI"),
     },
 )
 

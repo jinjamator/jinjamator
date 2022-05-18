@@ -608,14 +608,16 @@ function list_tasks() {
         table_data = '<div class="box-body"><table id="task_list" class="table table-bordered table-hover">\
          <thead><tr><th>Task</th><th width="60%">Description</th><th width="1%">Actions</th></tr></thead>'
         data.tasks.forEach(function(value, index, array) {
-            table_data += '<tr><td>' + value.path + '</td><td width="60%">' + value.description + '</td>\
-            <td align="center" width="1%" style="white-space:nowrap;">\
-            <div class="icon">\
-            <a href="#" class="fa fa-calendar schedule-href" onclick="create_job(\'' + value.path + '\')">\
-            <!-- <a href="#" class="fa fa-edit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
-            <a href="#" class="fa fa-info-circle"></a>-->\
-            </a></div> \
-            </td></tr > '
+            if (value.gui){
+                table_data += '<tr><td>' + value.path + '</td><td width="60%">' + value.description + '</td>\
+                <td align="center" width="1%" style="white-space:nowrap;">\
+                <div class="icon">\
+                <a href="#" class="fa fa-calendar schedule-href" onclick="create_job(\'' + value.path + '\')">\
+                <!-- <a href="#" class="fa fa-edit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+                <a href="#" class="fa fa-info-circle"></a>-->\
+                </a></div> \
+                </td></tr > '
+            }
         });
 
         table_data += '</table></div>';
