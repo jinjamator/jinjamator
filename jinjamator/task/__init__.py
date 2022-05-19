@@ -588,34 +588,37 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
             [(list, ["override"]), (dict, ["merge"])], ["override"], ["override"]
         )
 
-        for key, value in schema["schema"]["properties"].items():
-            try:
-                m.merge(
-                    schema["schema"]["properties"][key], schema_settings[key]["schema"]
-                )
-            except:
-                pass
-            try:
-                m.merge(
-                    schema["options"]["fields"][key], schema_settings[key]["options"]
-                )
-            except:
-                pass
-            try:
-                schema["view"]["wizard"]["bindings"][key] = schema_settings[key][
-                    "form_step"
-                ]
-            except:
-                pass
+        # self._log.debug(schema)
+        for key in schema_settings:
+
+            if key not in schema["schema"]["properties"]:
+                schema["schema"]["properties"][key] = {}
+            m.merge(schema["schema"]["properties"][key], schema_settings[key]["schema"])
+
+            if key not in schema["options"]["fields"]:
+                schema["options"]["fields"][key] = {}
+            m.merge(
+                schema["options"]["fields"][key],
+                schema_settings[key].get("options", {}),
+            )
+
+            schema["view"]["wizard"]["bindings"][key] = schema_settings[key].get(
+                "form_step", 1
+            )
+
+            if "pass" in key:
+                schema["schema"]["properties"][key]["format"] = "password"
+
             try:
                 schema["data"][key] = schema_settings[key]["data"]
-            except:
+            except KeyError:
                 pass
+
             try:
                 schema["schema"]["dependencies"][key] = schema_settings[key][
                     "dependencies"
                 ]
-            except:
+            except KeyError:
                 pass
         # self._log.debug(pformat(schema))
         return schema
