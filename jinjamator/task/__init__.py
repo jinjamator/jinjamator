@@ -588,9 +588,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
             [(list, ["override"]), (dict, ["merge"])], ["override"], ["override"]
         )
 
-        # self._log.debug(schema)
         for key in schema_settings:
-
+            if key in ["post_render"]:
+                continue
             if key not in schema["schema"]["properties"]:
                 schema["schema"]["properties"][key] = {}
             m.merge(schema["schema"]["properties"][key], schema_settings[key]["schema"])
