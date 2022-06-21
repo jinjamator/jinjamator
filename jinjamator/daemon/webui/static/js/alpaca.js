@@ -23594,6 +23594,8 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                             {
                                 self.addItem(i, itemSchema, itemOptions, data[i], function() {
                                     _done();
+                                    var childField = self.children[i]
+                                    childField.setValue(data[i]);
                                 });
                             };
                         })(i, data);
@@ -23734,7 +23736,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             if (self._validateEqualMaxItems())
             {
                 var formEl = $("<div></div>");
-                formEl.alpaca({
+                formEl.alpaca(Alpaca.cloneObject({
                     "data" : itemData,
                     "options": itemOptions,
                     "schema" : itemSchema,
@@ -23814,7 +23816,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                             postRenderCallback(control);
                         }
                     }
-                });
+                }));
             }
         },
 
@@ -27842,10 +27844,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 {
                     for (var j = 0; j < self.data.length; j++)
                     {
-                        if (self.data[j].value === self.selectOptions[i].value)
-                        {
-                            self.selectOptions[i].selected = true;
-                        }
+                        self.selectOptions[i].selected = (self.data[j].value === self.selectOptions[i].value);   
                     }
                 }
 
