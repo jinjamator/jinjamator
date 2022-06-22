@@ -858,7 +858,7 @@ function create_job(job_path, pre_defined_vars) {
 
 
             if ('post_render' in data){
-                console.log(data['post_render'])
+                // console.log(data['post_render'])
                 window[data['post_render']](control)
             }
             };
