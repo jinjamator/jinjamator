@@ -96,7 +96,7 @@ def credentials_set():
         and "apic_password" in _jinjamator.configuration.keys()
     ):
         return True
-    _jinjamator._log.info(_jinjamator.configuration.keys())
+    # _jinjamator._log.info(_jinjamator.configuration.keys())
     return False
 
 
