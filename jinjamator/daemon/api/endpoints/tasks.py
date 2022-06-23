@@ -337,8 +337,12 @@ def discover_tasks(app):
                                             "SCHEDULED",
                                             "PROGRESS",
                                         ]:
+                                            log.debug(db_job[0].to_dict())
                                             resp = Response(
-                                                db_job[0].to_dict()["result"]["stdout"]
+                                                db_job[0]
+                                                .to_dict()
+                                                .get("result")
+                                                .get("stdout")
                                             )
                                             resp.headers[
                                                 "Content-Type"
