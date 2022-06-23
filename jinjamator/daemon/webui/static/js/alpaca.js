@@ -28972,6 +28972,10 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             {
                 self.options.multiselect.disableIfEmpty = true;
             }
+            
+            if (self.options.multiselect.onChange && self.options.multiselect.onChange in window){
+                self.options.multiselect.onChange=window[self.options.multiselect.onChange]
+            }
 
             // if we're in a display only mode, turn off multiselect
             if (self.isDisplayOnly())
@@ -29045,7 +29049,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 {
                     var settings = null;
                     if (self.options.multiselect) {
-                        settings = self.options.multiselect;
+                        settings = self.options.multiselect;                        
                     }
                     else
                     {
@@ -34804,8 +34808,8 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
 
             // data tables columns
             this.options.datatables.columns = [];
-            console.log(" $.fn.DataTable.ext.type.search[alpaca]")
-            console.dir( $.fn.DataTable.ext.type.search["alpaca"])
+            // console.log(" $.fn.DataTable.ext.type.search[alpaca]")
+            // console.dir( $.fn.DataTable.ext.type.search["alpaca"])
             // initialize data tables to detect alpaca field types and perform alpaca field sorting and filtering
             if ($.fn.dataTableExt && !$.fn.DataTable.ext.type.search["alpaca"])
             {
@@ -35289,7 +35293,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             // TODO: change dragRows to use our own drag/drop tooling and get rid of DataTables Row Reorder Plugin
             // we also have do this if we've added the first row to get DataTables to redraw
             var usingDataTables = self.options.datatables && $.fn.DataTable;
-            if (self.options.dragRows || (usingDataTables && self.data.length === 0))
+            if (self.options.dragRows )
             {
                 // refresh
                 self.refresh(function() {
@@ -35323,7 +35327,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             // TODO: see above
 
             var usingDataTables = self.options.datatables && $.fn.DataTable;
-            if (self.options.dragRows || (usingDataTables && self.data.length === 0))
+            if (self.options.dragRows )
             {
                 // refresh
                 self.refresh(function () {
