@@ -36622,6 +36622,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 }
                 else
                 {
+                    self.plugin().options.headers['Authorization']="Bearer " + sessionStorage.getItem('access_token');
                     data.submit();
                 }
             };
@@ -36631,6 +36632,8 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
 
             // instantiate the control
             var fileUpload = self.fileUpload = $(el).find('.alpaca-fileupload-input').fileupload(fileUploadConfig);
+            
+            self.plugin().options.headers={'Authorization':"Bearer " + sessionStorage.getItem('access_token')};
 
             // When file upload of a file completes, we offer the chance to adjust the data ahead of FileUpload
             // getting it.  This is useful for cases where you can't change the server side JSON but could do
