@@ -50,9 +50,14 @@ class FileUpload(Resource):
         args = upload_parser.parse_args(request)
         files = request.files.getlist("files")
         base_dir = os.path.join(app.config["UPLOAD_FOLDER"], "uploads")
+        os.makedirs(base_dir, exist_ok=True)
         for uploaded_file in files:
-            file_path = os.path.join(base_dir, secure_filename(uploaded_file.filename))
-            uploaded_file.save(file_path)
+            data = uploaded_file.read()
+            digest = xxhash.xxh128(data).hexdigest()
+            file_path = os.path.join(base_dir, secure_filename(digest))
+            with open(file_path, "wb") as fh:
+                fh.write(data)
+
             mime_type = magic.from_file(file_path, mime=True)
             retval.append(
                 {
@@ -62,14 +67,14 @@ class FileUpload(Resource):
                     "size": os.path.getsize(file_path),
                 }
             )
-        return retval
+        return {"files": retval}
 
 
 @ns.route("/download/<job_id>/<file_name>")
 @api.doc(
     params={"Authorization": {"in": "header", "description": "A valid access token"}}
 )
-class FileUpload(Resource):
+class FileDownload(Resource):
     @api.doc("Download a file from job")
     @require_role(role=None)
     def get(self, job_id, file_name):
