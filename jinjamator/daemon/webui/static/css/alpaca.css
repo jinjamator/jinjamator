@@ -814,9 +814,9 @@ legend.alpaca-container-label
 }
 
 
-.dataTables_wrapper div.row .alpaca-field-select .btn-group button.multiselect {
+/* .dataTables_wrapper div.row .alpaca-field-select .btn-group button.multiselect {
     min-width: 100%;
-} 
+}  */
 /*
 .bootstrap-timepicker-widget table td input
 {
@@ -832,8 +832,21 @@ div.jinjamator-task-wizard {
     min-height: 80vh;
 }
 
-.table.dataTable  > tbody > tr.alpaca-field-tablerow > td.alpaca-container-item > div.form-group > div.col-sm-9 {
-    min-width: 95%
+.table  > tbody > tr.alpaca-field-tablerow > td.alpaca-container-item > div.form-group {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.table  > tbody > tr.alpaca-field-tablerow > td.alpaca-container-item > div.form-group > div.col-sm-9 {
+    min-width: 100%;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-left: 0px;
+}
+
+.table  > tbody > tr.alpaca-field-tablerow > td.alpaca-container-item > div.form-group > div.col-sm-9 > span >div.btn-group > button {
+    width: -webkit-fill-available;
+
 }
 
 
