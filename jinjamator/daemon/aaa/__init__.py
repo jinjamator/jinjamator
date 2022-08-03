@@ -253,9 +253,9 @@ class AuthLibAuthProvider(AuthProviderBase):
     def authorize(self, request):
         if self._provider:
             self._access_token = self._provider.authorize_access_token()
-            self._id_token = self._access_token["userinfo"]
-            # self._provider.parse_id_token(self._access_token)
-            self._log.debug(self._id_token)
+            self._id_token = deepcopy(self._access_token["userinfo"])
+            del self._access_token["userinfo"]
+
             self._username = self._id_token.get(
                 "preferred_username", self._id_token.get("name")
             )
