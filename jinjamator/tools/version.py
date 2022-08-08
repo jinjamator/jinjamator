@@ -1,2 +1,2 @@
-version = "0.9.50"
-updated = "03.08.2022"
+version = "0.9.51"
+updated = "08.08.2022"
