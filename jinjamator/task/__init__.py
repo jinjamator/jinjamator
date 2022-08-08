@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from distutils.command.upload import upload
 import logging
 from .configuration import TaskConfiguration
 from jinjamator.plugin_loader.content import (
@@ -50,6 +51,7 @@ from jinjamator.plugin_loader.output import load_output_plugin
 from pprint import pformat
 import types
 from jinja2 import nodes
+import tempfile
 
 
 class CustomUndefinedName(pyflakes.messages.Message):
@@ -623,6 +625,47 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
         # self._log.debug(pformat(schema))
         return schema
 
+    def handle_uploaded_files(self, file_upload_var_name):
+        if self._configuration["task_run_mode"] != "background":
+            return None
+
+        target_dir = os.path.join(
+            self._configuration.get("jinjamator_user_directory", tempfile.gettempdir()),
+            "logs",
+            self._configuration.get("jinjamator_job_id"),
+            "files",
+        )
+        os.makedirs(target_dir, exist_ok=True)
+        upload_result = self.configuration[file_upload_var_name]
+        filelist = []
+        for cfg in upload_result:
+            filename = cfg["name"]
+            if os.path.isfile(cfg["filesystem_path"]):
+                dirname = os.path.dirname(cfg["filesystem_path"])
+                if dirname != self._configuration["uploads_folder"]:
+                    self._log.error(
+                        f"{dirname} is not equal uploads_folder {self._configuration['uploads_folder']} -> skipping"
+                    )
+                    continue
+                dst_filename = f"{target_dir}/{filename}"
+                self._log.debug(
+                    f"Moving file {cfg['filesystem_path']} to {dst_filename}"
+                )
+                src_fh = open(cfg["filesystem_path"], "rb")
+                dst_fh = open(dst_filename, "wb")
+                while True:
+                    buffer = src_fh.read(1000000)
+                    if not buffer:
+                        break
+                    dst_fh.write(buffer)
+                src_fh.close()
+                dst_fh.close()
+                os.unlink(cfg["filesystem_path"])
+                filelist.append(dst_filename)
+            else:
+                self._log.error(f"cannot find uploded file {filename} -> skipping")
+        self.configuration[file_upload_var_name] = filelist
+
     def run(self):
         if len(self._undefined_vars) > 0:
             if self._configuration["task_run_mode"] == "background":
@@ -634,8 +677,13 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
             else:
                 for var in self._undefined_vars:
                     self.handle_undefined_var(var)
+        tmp = self.get_jsonform_schema()
 
-        schema = self.get_jsonform_schema()["schema"]
+        schema = tmp["schema"]
+        options = tmp.get("options", {})
+        for var_name in options.get("fields", {}):
+            if options["fields"][var_name].get("type") == "upload":
+                self.handle_uploaded_files(var_name)
         # del schema["properties"]["custom_parameters"]
         # del schema["properties"]["output_plugin"]
         # del schema["properties"]["task"]
