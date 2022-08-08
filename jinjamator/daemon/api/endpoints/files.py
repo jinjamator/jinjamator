@@ -49,7 +49,7 @@ class FileUpload(Resource):
         retval = []
         args = upload_parser.parse_args(request)
         files = request.files.getlist("files")
-        base_dir = os.path.join(app.config["UPLOAD_FOLDER"], "uploads")
+        base_dir = os.path.join(app.config["UPLOADS_FOLDER"])
         os.makedirs(base_dir, exist_ok=True)
         for uploaded_file in files:
             data = uploaded_file.read()

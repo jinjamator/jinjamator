@@ -309,6 +309,13 @@ class Program(object):
             help="classpath to web UI [default: %(default)s]",
             env_var="JINJAMATOR_WEB_UI_CLASS",
         )
+        self._parser.add_argument(
+            "--uploads-folder",
+            dest="_uploads_folder",
+            default="/tmp/uploads",
+            help="Target Folder for via api uploaded files [default: %(default)s]",
+            env_var="JINJAMATOR_UPLOADS_FOLDER",
+        )
 
     def setupLogging(self):
         global logging
