@@ -119,7 +119,7 @@ def configure(flask_app, _configuration):
     flask_app.config["JINJAMATOR_BASE_DIRECTORY"] = _configuration.get(
         "jinjamator_base_directory"
     )
-    flask_app.config["UPLOAD_FOLDER"] = "/tmp"
+    flask_app.config["UPLOADS_FOLDER"] = _configuration.get("uploads_folder")
     flask_app.config["JINJAMATOR_GLOBAL_DEFAULTS"] = _configuration.get(
         "global_defaults"
     )
