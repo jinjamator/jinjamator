@@ -1,7 +1,7 @@
 Werkzeug<2.1.0
 Jinja2
 ipcalc
-netmiko
+netmiko>=4.1.2
 textfsm
 natsort
 xxhash
