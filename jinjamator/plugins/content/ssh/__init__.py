@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from netmiko import ConnectHandler, ssh_exception
+from netmiko import ConnectHandler
+from netmiko.exceptions import NetmikoAuthenticationException
+
 import textfsm
 import os
 from jinjamator.plugins.content.fsm import process
@@ -131,7 +133,7 @@ def connect(**kwargs):
 
         connection = ConnectHandler(**cfg)
         return connection
-    except ssh_exception.NetMikoAuthenticationException as e:
+    except NetmikoAuthenticationException as e:
 
         if _jinjamator.configuration["best_effort"]:
             _jinjamator._log.error(
