@@ -20,6 +20,15 @@ try:
 except ImportError:
     import clitable
 
+try:
+    import ntc_templates
+
+    ntc_templates_path = os.path.sep.join(
+        [os.path.dirname(os.path.abspath(ntc_templates.__file__)), "templates"]
+    )
+except ImportError:
+    ntc_templates_path = None
+
 
 def _clitable_to_dict(cli_table):
     """Convert TextFSM cli_table object to list of dictionaries.
@@ -80,11 +89,18 @@ def process(device_type, command, data):
     
     """
 
+    # internal templates
     cli_table = clitable.CliTable(
         "index", "{0}/fsmtemplates".format(os.path.dirname(os.path.abspath(__file__)))
     )
-
     attrs = dict(Command=command, Platform=device_type)
-    cli_table.ParseCmd(data, attrs)
+
+    try:
+        cli_table.ParseCmd(data, attrs)
+    except textfsm.clitable.CliTableError:
+        if ntc_templates_path:
+            cli_table = clitable.CliTable("index", ntc_templates_path)
+            cli_table.ParseCmd(data, attrs)
+
     structured_data = _clitable_to_dict(cli_table)
     return structured_data
