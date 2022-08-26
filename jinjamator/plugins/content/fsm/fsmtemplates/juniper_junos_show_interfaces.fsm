@@ -1,14 +1,65 @@
-Value Required INTERFACE (\S+)
+Value INTERFACE (\S+)
 Value LINK_STATUS (\w+)
 Value ADMIN_STATE (\S+)
 Value HARDWARE_TYPE (\S+)
-Value MTU (\d+|Unlimited)
+Value Filldown DESCRIPTION (\w+.*)
+Value DESTINATION (\S+)
+Value LOCAL (\S+)
+Value Filldown MTU (\d+|Unlimited)
+Value Filldown SPEED (\S+)
+Value SECURITY_ZONE (\S+)
+Value List IP (\d+\.\d+.\d+.\d+/\d+)
+Value List IP6 (((([0-9a-fA-F]){0,4}:?){6})/\d+)
 
 Start
-  ^\s+Logical\s+interface\s+${INTERFACE}
   ^Physical\s+interface:\s+${INTERFACE},\s+${ADMIN_STATE},\s+Physical\s+link\s+is\s+${LINK_STATUS}
-  ^.*ype:\s+${HARDWARE_TYPE},.*MTU:\s+${MTU}.* -> Record
-  ^.*MTU:\s+${MTU}.* -> Record
-  ^.*[fF]lags -> Record
+  ^.*ype:\s+${HARDWARE_TYPE},.*MTU:\s+${MTU}, Speed: ${SPEED}\.*
+  ^\s+Logical\s+interface\s+${INTERFACE}
+  ^$$ -> Continue.Record
+  ^\s+Security: Zone: ${SECURITY_ZONE}
+  ^\s+inet\s+${IP} -> IPV4
+  ^\s+inet6\s+${IP6} -> IPV6
+  ^\s+multiservice
+  ^\s+Allowed host-inbound traffic : .*
+  ^\s+Device flags .+
+  ^\s+Interface flags .+
+  ^\s+Flags: ${LINK_STATUS}.+
+ 
+IPV4
+  ^\s+${IP}
+  ^\s+inet6\s+${IP6} -> IPV6
+  ^\s+multiservice -> Start
 
-EOF
+IPV6
+  ^\s+${IP6}
+  ^\s+multiservice -> Start
+
+
+# Physical interface: reth1, Enabled, Physical link is Up
+#   Link-level type: Ethernet, MTU: 9192, Speed: 20Gbps, Loopback: Disabled, Source filtering: Disabled, Flow control: Disabled
+#   Device flags   : Present Running
+#   Interface flags: SNMP-Traps Internal: 0x4000
+
+#   Logical interface reth1.2706 
+#     Flags: Up SNMP-Traps 0x4000 VLAN-Tag [ 0x8100.2706 ]  Encapsulation: ENET2
+#     Security: Zone: OAM-Core
+#     Allowed host-inbound traffic : ping
+#     inet  10.59.10.30/28  
+#     inet6 2001:4bc8:c400:200::1/64
+#           fe80::210:db0a:92ff:1001/64
+#     multiservice
+
+# Value Required INTERFACE (\S+)
+# Value LINK_STATUS (\w+)
+# Value ADMIN_STATE (\S+)
+# Value HARDWARE_TYPE (\S+)
+# Value MTU (\d+|Unlimited)
+
+# Start
+#   ^\s+Logical\s+interface\s+${INTERFACE}
+#   ^Physical\s+interface:\s+${INTERFACE},\s+${ADMIN_STATE},\s+Physical\s+link\s+is\s+${LINK_STATUS}
+#   ^.*ype:\s+${HARDWARE_TYPE},.*MTU:\s+${MTU}.* -> Record
+#   ^.*MTU:\s+${MTU}.* -> Record
+#   ^.*[fF]lags -> Record
+
+# EOF
