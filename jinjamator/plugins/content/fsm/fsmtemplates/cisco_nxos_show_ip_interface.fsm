@@ -1,0 +1,101 @@
+Value Filldown VRF (\S+)
+Value INTERFACE (\S+)
+Value PROTOCOL_STATUS (\S+)
+Value LINK_STATUS (\S+)
+Value ADMIN_STATUS (\S+)
+Value IOD (\d+)
+Value List IP (\S+)
+Value List IP_SUBNET (\S+)
+Value List JOINED_MULTICAST_GROUPS (\d+\.\d+.\d+.\d+)
+Value MTU (\d+)
+Value PROXY_ARP (\S+)
+Value LOCAL_PROXY_ARP (\S+)
+Value MULTICAST_ROUTING (\S+)
+Value ICMP_REDIRECTS (\S+)
+Value DIRECTED_BROADCAST (\S+)
+Value IP_FORWARDING (\S+)
+Value ICMP_UNREACHABLES (\S+)
+Value ICMP_PORT_UNREACHABLE (\S+)
+Value LAST_STATISTICS_RESET (\S+)
+Value TX_UNICAST_PACKETS (\d+)
+Value RX_UNICAST_PACKETS (\d+)
+Value FORWARDED_UNICAST_PACKETS (\d+)
+Value ORIGINATED_UNICAST_PACKETS (\d+)
+Value CONSUMED_UNICAST_PACKETS (\d+)
+Value TX_UNICAST_BYTES (\d+)
+Value RX_UNICAST_BYTES (\d+)
+Value FORWARDED_UNICAST_BYTES (\d+)
+Value ORIGINATED_UNICAST_BYTES (\d+)
+Value CONSUMED_UNICAST_BYTES (\d+)
+Value TX_MULTICAST_PACKETS (\d+)
+Value RX_MULTICAST_PACKETS (\d+)
+Value FORWARDED_MULTICAST_PACKETS (\d+)
+Value ORIGINATED_MULTICAST_PACKETS (\d+)
+Value CONSUMED_MULTICAST_PACKETS (\d+)
+Value TX_MULTICAST_BYTES (\d+)
+Value RX_MULTICAST_BYTES (\d+)
+Value FORWARDED_MULTICAST_BYTES (\d+)
+Value ORIGINATED_MULTICAST_BYTES (\d+)
+Value CONSUMED_MULTICAST_BYTES (\d+)
+Value TX_LABELED_PACKETS (\d+)
+Value RX_LABELED_PACKETS (\d+)
+Value FORWARDED_LABELED_PACKETS (\d+)
+Value ORIGINATED_LABELED_PACKETS (\d+)
+Value CONSUMED_LABELED_PACKETS (\d+)
+Value TX_LABELED_BYTES (\d+)
+Value RX_LABELED_BYTES (\d+)
+Value FORWARDED_LABELED_BYTES (\d+)
+Value ORIGINATED_LABELED_BYTES (\d+)
+Value CONSUMED_LABELED_BYTES (\d+)
+Value TX_BROADCAST_PACKETS (\d+)
+Value RX_BROADCAST_PACKETS (\d+)
+Value FORWARDED_BROADCAST_PACKETS (\d+)
+Value ORIGINATED_BROADCAST_PACKETS (\d+)
+Value CONSUMED_BROADCAST_PACKETS (\d+)
+Value TX_BROADCAST_BYTES (\d+)
+Value RX_BROADCAST_BYTES (\d+)
+Value FORWARDED_BROADCAST_BYTES (\d+)
+Value ORIGINATED_BROADCAST_BYTES (\d+)
+Value CONSUMED_BROADCAST_BYTES (\d+)
+Value WCCP_OUTBOUND (\S+)
+Value WCCP_INBOUND (\S+)
+Value WCCP_EXCLUDED (\S+)
+
+Start
+  ^IP Interface Status for VRF "${VRF}"
+  ^${INTERFACE}, Interface status: protocol-${PROTOCOL_STATUS}/link-${LINK_STATUS}/admin-${ADMIN_STATUS}, iod: ${IOD},
+  ^\s+IP address: ${IP}, IP subnet: ${IP_SUBNET} (secondary)? route-preference: \d+, tag: \d+
+  ^\s+IP multicast groups locally joined: none
+  ^\s+IP multicast groups locally joined:\s+ -> MULTICAST_LIST
+  ^\s+IP MTU: ${MTU} bytes
+  ^\s+IP primary address route-preference: 0, tag: 0
+  ^\s+IP proxy ARP : ${PROXY_ARP}
+  ^\s+IP Local Proxy ARP : ${LOCAL_PROXY_ARP}
+  ^\s+IP multicast routing: ${MULTICAST_ROUTING}
+  ^\s+IP icmp redirects: ${ICMP_REDIRECTS}
+  ^\s+IP directed-broadcast: ${DIRECTED_BROADCAST} 
+  ^\s+IP Forwarding: ${IP_FORWARDING} 
+  ^\s+IP icmp unreachables (except port): ${ICMP_UNREACHABLES}
+  ^\s+IP icmp port-unreachable: ${ICMP_PORT_UNREACHABLE}
+  ^\s+IP unicast reverse path forwarding: none
+  ^\s+IP load sharing: none 
+  ^\s+IP interface statistics last reset: ${LAST_STATISTICS_RESET}
+  ^\s+IP interface software stats: (sent/received/forwarded/originated/consumed)
+  ^\s+Unicast packets\s+:\s+${TX_UNICAST_PACKETS}/${RX_UNICAST_PACKETS}/${FORWARDED_UNICAST_PACKETS}/${ORIGINATED_UNICAST_PACKETS}/${CONSUMED_UNICAST_PACKETS}
+  ^\s+Unicast bytes\s+:\s+${TX_UNICAST_BYTES}/${RX_UNICAST_BYTES}/${FORWARDED_UNICAST_BYTES}/${ORIGINATED_UNICAST_BYTES}/${CONSUMED_UNICAST_BYTES}
+  ^\s+Multicast packets\s+:\s+${TX_MULTICAST_PACKETS}/${RX_MULTICAST_PACKETS}/${FORWARDED_MULTICAST_PACKETS}/${ORIGINATED_MULTICAST_PACKETS}/${CONSUMED_MULTICAST_PACKETS}
+  ^\s+Multicast bytes\s+:\s+${TX_MULTICAST_BYTES}/${RX_MULTICAST_BYTES}/${FORWARDED_MULTICAST_BYTES}/${ORIGINATED_MULTICAST_BYTES}/${CONSUMED_MULTICAST_BYTES}
+  ^\s+Broadcast packets\s+:\s+${TX_BROADCAST_PACKETS}/${RX_BROADCAST_PACKETS}/${FORWARDED_BROADCAST_PACKETS}/${ORIGINATED_BROADCAST_PACKETS}/${CONSUMED_BROADCAST_PACKETS}
+  ^\s+Broadcast bytes\s+:\s+${TX_BROADCAST_BYTES}/${RX_BROADCAST_BYTES}/${FORWARDED_BROADCAST_BYTES}/${ORIGINATED_BROADCAST_BYTES}/${CONSUMED_BROADCAST_BYTES}
+  ^\s+Labeled packets\s+:\s+${TX_LABELED_PACKETS}/${RX_LABELED_PACKETS}/${FORWARDED_LABELED_PACKETS}/${ORIGINATED_LABELED_PACKETS}/${CONSUMED_LABELED_PACKETS}
+  ^\s+Labeled bytes\s+:\s+${TX_LABELED_BYTES}/${RX_LABELED_BYTES}/${FORWARDED_LABELED_BYTES}/${ORIGINATED_LABELED_BYTES}/${CONSUMED_LABELED_BYTES}
+  ^\s+WCCP Redirect outbound: ${WCCP_OUTBOUND}
+  ^\s+WCCP Redirect inbound: ${WCCP_INBOUND}
+  ^\s+WCCP Redirect exclude: ${WCCP_EXCLUDED} -> Continue.Record
+
+
+MULTICAST_LIST
+  ^\s+${JOINED_MULTICAST_GROUPS}
+  ^\s+IP MTU: ${MTU} bytes -> Start
+
+

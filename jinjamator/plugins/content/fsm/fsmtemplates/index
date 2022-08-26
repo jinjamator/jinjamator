@@ -232,6 +232,9 @@ cisco_nxos_show_hsrp_all.fsm, .*, cisco_nxos, sh[[ow]] hsrp all
 cisco_nxos_show_glbp.fsm, .*, cisco_nxos, sh[[ow]] glbp
 cisco_nxos_show_ip_mroute_vrf.fsm, .*, cisco_nxos, sh[[ow]] ip mroute vrf (\S+)
 cisco_nxos_show_license_usage.fsm, .*, cisco_nxos, show lic[[ense]] u[[sage]]
+cisco_nxos_show_license_usage.fsm, .*, cisco_nxos, show lic[[ense]] u[[sage]]
+cisco_nxos_show_ip_interface.fsm, .*, cisco_nxos, sh[[ow]] ip int[[erface]] (vrf)? (\S+) 
+cisco_nxos_show_ipv6_interface.fsm, .*, cisco_nxos, sh[[ow]] ipv[[6]] int[[erface]] (vrf)? (\S+) 
 
 cisco_wlc_ssh_show_cdp_neighbors_detail.fsm, .*, cisco_wlc_ssh, sh[[ow]] c[[dp]] neig[[hbors]] det[[ail]]
 cisco_wlc_ssh_show_ap_config_general.fsm, .*, cisco_wlc_ssh, sh[[ow]] ap con[[fig]] ge[[neral]]
