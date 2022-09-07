@@ -22,6 +22,7 @@ class BaseResource:
         append_slash=False,
         json_encode_body=False,
         ssl_verify=None,
+        ep_suffix="",
     ):
         self.api_root_url = api_root_url
         self.resource_name = resource_name
@@ -32,6 +33,7 @@ class BaseResource:
         self.json_encode_body = json_encode_body
         self.actions = self.actions or self.default_actions
         self.ssl_verify = True if ssl_verify is None else ssl_verify
+        self._ep_suffix = ep_suffix
 
         if self.json_encode_body:
             self.headers["Content-Type"] = "application/json"
@@ -62,6 +64,7 @@ class BaseResource:
             append_slash=self.append_slash,
             json_encode_body=self.json_encode_body,
             ssl_verify=self.ssl_verify,
+            ep_suffix=self._ep_suffix,
         )
         self.__setattr__(instance, tmp)
         return getattr(self, instance)
@@ -85,6 +88,9 @@ class BaseResource:
             self.api_root_url += "/"
         if url.startswith("/"):
             url = url.replace("/", "", 1)
+        if self._ep_suffix:
+            url += self._ep_suffix
+
         return self.api_root_url + url
 
     def get_action_method(self, action_name):

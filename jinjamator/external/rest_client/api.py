@@ -13,6 +13,7 @@ class API:
         json_encode_body=False,
         ssl_verify=None,
         resource_class=None,
+        ep_suffix="",
     ):
         self.api_root_url = api_root_url
         self.params = params or {}
@@ -24,6 +25,7 @@ class API:
         self._resources = {}
         self._resource_class = resource_class or Resource
         self._log = logging.getLogger(__file__)
+        self._ep_suffix = ep_suffix
 
         if self.json_encode_body:
             self.headers["Content-Type"] = "application/json"
@@ -78,6 +80,7 @@ class API:
             append_slash=self.append_slash,
             json_encode_body=self.json_encode_body,
             ssl_verify=self.ssl_verify,
+            ep_suffix=self._ep_suffix,
         )
         setattr(self, instance, self._resources[instance])
 
