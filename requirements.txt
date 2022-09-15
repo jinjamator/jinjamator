@@ -2,7 +2,7 @@ Werkzeug<2.1.0
 Jinja2
 ipcalc
 netmiko>=4.1.2
-textfsm
+textfsmplus
 natsort
 xxhash
 xml2dict

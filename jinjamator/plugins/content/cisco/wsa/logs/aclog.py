@@ -1,4 +1,4 @@
-from textfsm import TextFSM
+from textfsmplus import TextFSM
 import os
 from jinjamator.plugins.content import file
 from jinjamator import plugin_loader
