@@ -15,7 +15,7 @@
 from netmiko import ConnectHandler
 from netmiko.exceptions import NetmikoAuthenticationException
 
-import textfsm
+import textfsmplus
 import os
 from jinjamator.plugins.content.fsm import process
 from jinjamator.plugins.content.file import is_file
@@ -26,7 +26,7 @@ log = logging.getLogger()
 from netmiko import log as netmiko_log
 
 try:
-    from textfsm import clitable
+    from textfsmplus import clitable
 except ImportError:
     import clitable
 

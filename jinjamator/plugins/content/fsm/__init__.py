@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import textfsm
+import textfsmplus
 import os
 
 try:
-    from textfsm import clitable
+    from textfsmplus import clitable
 except ImportError:
     import clitable
 
@@ -34,8 +34,8 @@ def _clitable_to_dict(cli_table):
     """Convert TextFSM cli_table object to list of dictionaries.
 
     :param cli_table: 
-    :type cli_table: textfsm CliTable object
-    :return: a list of dict containing the data of the textfsm CliTable object.
+    :type cli_table: textfsmplus CliTable object
+    :return: a list of dict containing the data of the textfsmplus CliTable object.
     :rtype: list of dict
     """
     objs = []
@@ -97,7 +97,7 @@ def process(device_type, command, data):
 
     try:
         cli_table.ParseCmd(data, attrs)
-    except textfsm.clitable.CliTableError:
+    except textfsmplus.clitable.CliTableError:
         if ntc_templates_path:
             cli_table = clitable.CliTable("index", ntc_templates_path)
             cli_table.ParseCmd(data, attrs)
