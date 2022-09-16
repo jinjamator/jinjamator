@@ -1,0 +1,52 @@
+Value INSTANCE (\d+)
+Value PROTOCOL (\S+)
+Value ROOT_PRIORITY (\S+)
+Value ROOT_ADDRESS (\S+)
+Value ROOT_SELF (\S+)
+Value ROOT_COST (\S+)
+Value ROOT_PORT_ID (\S+)
+Value ROOT_PORT (\S+)
+Value ROOT_HELLO (\S+)
+Value ROOT_MAX_AGE (\S+)
+Value ROOT_FORWARD_DELAY (\S+)
+Value BRIDGE_PRIORITY (\S+)
+Value BRIDGE_PRIORITY_BASE (\S+)
+Value BRIDGE_PRIORITY_EXT (\S+)
+Value BRIDGE_ADDRESS (\S+)
+Value BRIDGE_HELLO (\S+)
+Value BRIDGE_MAX_AGE (\S+)
+Value BRIDGE_FORWARD_DELAY (\S+)
+Value List INTERFACES ((?P<interface>\S+)\s+(?P<role>\S+)\s+(?P<status>\S+)\s+(?P<cost>\d+)\s+(?P<priority>\S+)\s+(?P<type>.*$$))
+
+
+
+Start
+  ^MST${INSTANCE}
+  ^VLAN${INSTANCE}
+  ^\s+Spanning tree enabled protocol ${PROTOCOL}
+  ^\s+Root ID\s+Priority\s+${ROOT_PRIORITY} -> ROOT_BRIDGE  
+  ^\s+Bridge ID  Priority\s+${BRIDGE_PRIORITY}\s+\(priority ${BRIDGE_PRIORITY_BASE} sys-id-ext ${BRIDGE_PRIORITY_EXT}\) -> LOCAL_BRIDGE
+  #Process Interfaces
+  ^\s*Interface\s+Role\s+Sts\s+Cost\s+Prio.Nbr\s+Type.*$$ -> INTERFACE_LIST
+  #^\s*$$
+  ^. -> Error
+
+
+ROOT_BRIDGE
+  ^\s+Address\s+${ROOT_ADDRESS}
+  ^\s+This bridge is the ${ROOT_SELF}
+  ^\s+Cost\s+${ROOT_COST}
+  ^\s+Port\s+${ROOT_PORT_ID}\s+\(${ROOT_PORT}\)
+  ^\s+Hello Time\s+${ROOT_HELLO}\s+sec\s+Max Age\s+${ROOT_MAX_AGE}\s+sec\s+Forward Delay\s+${ROOT_FORWARD_DELAY}\s+sec
+  ^\s*$$ -> Start
+
+LOCAL_BRIDGE
+  ^\s+Address\s+${BRIDGE_ADDRESS}
+  ^\s+Hello Time\s+${BRIDGE_HELLO}\s+sec\s+Max Age\s+${BRIDGE_MAX_AGE}\s+sec\s+Forward Delay\s+${BRIDGE_FORWARD_DELAY}\s+sec
+  ^\s*$$ -> Start
+
+
+INTERFACE_LIST
+  ^${INTERFACES}
+  ^----------.*$$
+  ^\s*$$ -> Record Start
