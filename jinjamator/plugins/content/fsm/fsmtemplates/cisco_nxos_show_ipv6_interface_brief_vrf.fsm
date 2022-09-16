@@ -1,0 +1,20 @@
+Value Required INTERFACE (\S+)
+Value Required IP_ADDRESS ([a-zA-Z0-9:/]+)
+Value IP_ADDRESS_LINK ([a-zA-Z0-9:/]+)
+Value STATUS_PROTO (\S+)
+Value STATUS_LINK (\S+)
+Value STATUS_ADMIN (\S+)
+Value Filldown VRF (\S+)
+
+Start
+  ^IPv6 Interface Status for VRF "${VRF}".*$$
+  ^${INTERFACE}\s+${IP_ADDRESS}\s+${STATUS_PROTO}/${STATUS_LINK}/${STATUS_ADMIN}
+  ^\s+${IP_ADDRESS_LINK} -> Record
+  #Catch header
+  ^Interface\s+IPv6 Address/Link-local Address\s+Interface Status\s*
+  #Catch status header
+  ^\s+prot/link/admin
+  #Catch empty lines
+  ^\s*$$
+  #Error on uncatched match
+  ^. -> Error
