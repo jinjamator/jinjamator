@@ -1,0 +1,76 @@
+Value Filldown VRF (\S+)
+Value Required INTERFACE (\S+)
+Value PROTOCOL_STATUS (\S+)
+Value LINK_STATUS (\S+)
+Value ADMIN_STATUS (\S+)
+Value IOD (\d+)
+Value IP_ADDRESS (\S+)
+Value IP_PREFIX (\d+)
+Value IP_SUBNET (\S+)
+Value IP_LINK_LOCAL (\S+)
+Value Repeated IP_VIRTUAL (\S+:\S*:\S+)
+Value IPV6_MULTICAST_ROUTING (\S+)
+Value IPV6_REPORT_LINK_LOCAL (\S+)
+Value IPV6_FORWARDING (\S+)
+Value Repeated JOINED_MULTICAST_GROUPS (\S+:\S*:\S+)
+Value Repeated JOINED_MULTICAST_GROUPS_SG ((\S+:\S*:\S+)|none)
+Value MTU (\d+)
+Value RPF (\S+)
+Value LOAD_SHARING (\S+)
+Value LAST_STATISTICS_RESET (\S+)
+Value FORWARDED_UNICAST_PACKETS (\d+)
+Value ORIGINATED_UNICAST_PACKETS (\d+)
+Value CONSUMED_UNICAST_PACKETS (\d+)
+Value FORWARDED_UNICAST_BYTES (\d+)
+Value ORIGINATED_UNICAST_BYTES (\d+)
+Value CONSUMED_UNICAST_BYTES (\d+)
+Value FORWARDED_MULTICAST_PACKETS (\d+)
+Value ORIGINATED_MULTICAST_PACKETS (\d+)
+Value CONSUMED_MULTICAST_PACKETS (\d+)
+Value FORWARDED_MULTICAST_BYTES (\d+)
+Value ORIGINATED_MULTICAST_BYTES (\d+)
+Value CONSUMED_MULTICAST_BYTES (\d+)
+
+
+Start
+  ^IPv6 Interface Status for VRF "${VRF}"
+  ^${INTERFACE}, Interface status: protocol-${PROTOCOL_STATUS}/link-${LINK_STATUS}/admin-${ADMIN_STATUS}, iod: ${IOD}
+  ^\s+IPv6 address: 
+  ^\s+${IP_ADDRESS}/${IP_PREFIX}.*$$
+  ^\s+IPv6 subnet:\s+${IP_SUBNET}
+  ^\s+IPv6 link-local address: ${IP_LINK_LOCAL}.*$$
+  ^\s+IPv6 virtual addresses configured:.*$$ -> VIRTUAL_IP
+  ^\s+IPv6 multicast routing: ${IPV6_MULTICAST_ROUTING}
+  ^\s+IPv6 report link local: ${IPV6_REPORT_LINK_LOCAL}
+  ^\s+IPv6 Forwarding feature: ${IPV6_FORWARDING}
+  ^\s+IPv6 multicast groups locally joined: none.*$$
+  ^\s+IPv6 multicast groups locally joined:.*$$ -> MULTICAST_LIST_LOCAL
+  ^\s+IPv6 multicast \(S,G\) entries joined: none.*$$
+  ^\s+IPv6 multicast \(S,G\) entries joined:.*$$ -> MULTICAST_LIST_SG
+  ^\s+IPv6 MTU: ${MTU}.*$$
+  ^\s+IPv6 unicast reverse path forwarding: ${RPF}
+  ^\s+IPv6 load sharing: ${LOAD_SHARING} 
+  ^\s+IPv6 interface statistics last reset: ${LAST_STATISTICS_RESET}
+  ^\s+IPv6 interface RP-traffic statistics: \(forwarded/originated/consumed\)
+  ^\s+Unicast packets:\s+${FORWARDED_UNICAST_PACKETS}\/${ORIGINATED_UNICAST_PACKETS}\/${CONSUMED_UNICAST_PACKETS}.*$$
+  ^\s+Unicast bytes:\s+${FORWARDED_UNICAST_BYTES}\/${ORIGINATED_UNICAST_BYTES}\/${CONSUMED_UNICAST_BYTES}.*$$
+  ^\s+Multicast packets:\s+${FORWARDED_MULTICAST_PACKETS}\/${ORIGINATED_MULTICAST_PACKETS}\/${CONSUMED_MULTICAST_PACKETS}.*$$
+  ^\s+Multicast bytes:\s+${FORWARDED_MULTICAST_BYTES}\/${ORIGINATED_MULTICAST_BYTES}\/${CONSUMED_MULTICAST_BYTES}.*$$ -> Record
+  ^\s*$$
+  ^. -> Error
+
+
+VIRTUAL_IP
+  #^(\s+(${IP_VIRTUAL})){1,}.*$$
+  ^(\s+${IP_VIRTUAL})+.*$$
+  ^\s+IPv6 multicast routing: ${IPV6_MULTICAST_ROUTING} -> Start
+
+MULTICAST_LIST_LOCAL
+  ^(\s+${JOINED_MULTICAST_GROUPS})+.*$$
+  ^\s+IPv6 multicast \(S,G\) entries joined: none.*$$ -> Start
+  ^\s+IPv6 multicast \(S,G\) entries joined:.*$$ -> MULTICAST_LIST_SG
+
+MULTICAST_LIST_SG
+  ^(\s+${JOINED_MULTICAST_GROUPS_SG})+.*$$
+  ^\s+IPv6 MTU: ${MTU}.*$$ -> Start
+
