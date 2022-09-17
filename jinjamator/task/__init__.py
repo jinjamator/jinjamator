@@ -663,7 +663,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 os.unlink(cfg["filesystem_path"])
                 filelist.append(dst_filename)
             else:
-                self._log.error(f"cannot find uploded file {filename} -> skipping")
+                self._log.error(f"cannot find uploaded file {filename} -> skipping")
         self.configuration[file_upload_var_name] = filelist
 
     def run(self):
