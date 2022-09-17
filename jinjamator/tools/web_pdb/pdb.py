@@ -21,12 +21,10 @@ def updatecache(filename, module_globals=None):
     """Update a cache entry and return its list of lines.
     If something's wrong, print a message, discard the cache entry,
     and return an empty list."""
-    # print(f"patched update cache {filename}")
     if module_globals:
         if "jinjaTask" in module_globals:
             filename = module_globals["__file__"]
             lines = module_globals["__code__"].split("\n")
-            pprint.pprint(lines)
             if lines and not lines[-1].endswith("\n"):
                 lines[-1] += "\n"
             stat = os.stat(filename)
@@ -100,8 +98,6 @@ def getlines(filename, module_globals=None):
     """Get the lines for a Python source file from the cache.
     Update the cache if it doesn't contain an entry for this file already."""
 
-    # print (f'getlines {filename}')
-    # pprint.pprint(cache.keys())
     if filename in cache:
         entry = cache[filename]
         if len(entry) != 1:
@@ -121,7 +117,7 @@ linecache.getlines = getlines
 
 
 def getsourcelines(obj):
-    # pprint.pprint(obj)
+
     if inspect.isframe(obj) and obj.f_globals.get("jinjaTask"):
         return obj.f_globals["__code__"].split("\n"), 1
     else:
@@ -159,7 +155,7 @@ class JinjamatorTaskPdb(Pdb):
         exception was originally raised or propagated is indicated by
         ">>", if it differs from the current line.
         """
-        print("patched list")
+
         self.lastcmd = "list"
         last = None
         if arg and arg != ".":
@@ -208,7 +204,6 @@ class JinjamatorTaskPdb(Pdb):
         """longlist | ll
         List the whole source code for the current function or frame.
         """
-        print("patched longlist")
         if self.curframe.f_globals.get("jinjaTask"):
             filename = self.curframe.f_globals["__file__"]
         else:
@@ -238,8 +233,6 @@ class JinjamatorTaskPdb(Pdb):
         hasn't been loaded yet).  The file is searched for on
         sys.path; the .py suffix may be omitted.
         """
-
-        print("derived do_break")
 
         if not arg:
             if self.breaks:  # There's at least one
@@ -304,10 +297,9 @@ class JinjamatorTaskPdb(Pdb):
                         return
                     funcname = ok  # ok contains a function name
                     lineno = int(ln)
-        print(f"asdfasdfasdf: {filename}")
         if not filename:
             filename = self.defaultFile()
-        print(f"asdfasdfasdf: {filename}")
+
         # Check for reasonable breakpoint
         line = self.checkline(filename, lineno)
         if line:
@@ -335,7 +327,6 @@ class JinjamatorTaskPdb(Pdb):
         """source expression
         Try to get source code for the given object and display it.
         """
-        print(f"do_source: {arg}")
 
         try:
             obj = self._getval(arg)
@@ -356,7 +347,7 @@ class JinjamatorTaskPdb(Pdb):
         """
         # this method should be callable before starting debugging, so default
         # to "no globals" if there is no current frame
-        print("patched checkline")
+
         globs = self.curframe.f_globals if hasattr(self, "curframe") else None
         line = linecache.getline(filename, lineno, globs)
         if not line:
@@ -380,7 +371,6 @@ class JinjamatorTaskPdb(Pdb):
         if self.curframe.f_globals.get("jinjaTask"):
             filename = self.curframe.f_globals["__file__"]
 
-        print(f"here is patched canonic {filename}")
         if filename == "<" + filename[1:-1] + ">":
             return filename
         canonic = self.fncache.get(filename)
@@ -392,7 +382,7 @@ class JinjamatorTaskPdb(Pdb):
 
 
 def set_trace(*, header=None):
-    print("HERE IS JINJAMATOR PDB")
+
     pdb = JinjamatorTaskPdb()
     if header is not None:
         pdb.message(header)
