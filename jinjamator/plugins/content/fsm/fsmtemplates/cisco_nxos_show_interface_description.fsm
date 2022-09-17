@@ -1,0 +1,27 @@
+Value PORT (\S+)
+Value TYPE (\S+)
+Value SPEED (\S+)
+Value DESCRIPTION (\S+.*)
+
+
+Start
+  ^--------*.$$ -> ParseHeaders
+  ^\s*$$
+  ^. -> Error
+
+
+ParseHeaders
+  ^Port\s+Type\s+Speed\s+Description.*$$ -> ParsePhysical
+  ^Interface\s+Description.*$$ -> ParseLogical
+
+ParsePhysical
+  ^--------*.$$ -> NoRecord
+  ^${PORT}\s+${TYPE}\s+${SPEED}\s+${DESCRIPTION}$$ -> Record
+  ^\s*$$ -> Start
+  ^. -> Error
+
+ParseLogical
+  ^--------*.$$ -> NoRecord
+  ^${PORT}\s+${DESCRIPTION} -> Record
+  ^\s*$$ -> Start
+  ^. -> Error
