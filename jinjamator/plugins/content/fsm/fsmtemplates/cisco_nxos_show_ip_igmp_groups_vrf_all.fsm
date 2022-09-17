@@ -1,0 +1,11 @@
+Value Filldown VRF (\S+)
+Value Required GROUP_ADDRESS (\d+\.\d+\.\d+\.\d+)
+Value TYPE (\S+)
+Value INTERFACE (\S+)
+Value UPTIME (\S+)
+Value EXPIRES (\S+)
+Value LAST_REPORTER (\S+)
+
+Start
+  ^IGMP\s+Connected\s+Group\s+Membership\s+for\s+VRF\s+"${VRF}".*$$
+  ^${GROUP_ADDRESS}\s+${TYPE}\s+${INTERFACE}\s+${UPTIME}\s+${EXPIRES}\s+${LAST_REPORTER}.*$$ -> Record

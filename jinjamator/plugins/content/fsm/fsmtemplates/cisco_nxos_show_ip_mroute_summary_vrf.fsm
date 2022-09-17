@@ -1,0 +1,21 @@
+Value Filldown VRF (\S+)
+Value Required ROUTES_TOTAL (\d+)
+Value ROUTES_STAR_G (\d+)
+Value ROUTES_S_G (\d+)
+Value ROUTES_STAR_G_PREFIX (\d+)
+Value GROUP_COUNT (\d+)
+Value AVG_SOURCES_PER_GROUP (\S+)
+
+
+Start
+  ^IP Multicast Routing Table for VRF "${VRF}"
+  ^Route Statistics unavailable - only liveness detected
+  ^Total number of routes: ${ROUTES_TOTAL}
+  ^Total number of \(\*,G\) routes: ${ROUTES_STAR_G}
+  ^Total number of \(S,G\) routes: ${ROUTES_S_G}
+  ^Total number of \(\*,G-prefix\) routes: ${ROUTES_STAR_G_PREFIX}
+  ^Group count: ${GROUP_COUNT}, rough average sources per group: ${AVG_SOURCES_PER_GROUP} -> Record
+  
+  #Use detailed view for group specific things
+  #Won't parse here
+
