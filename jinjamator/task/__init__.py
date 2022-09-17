@@ -753,6 +753,8 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 setattr(module.jinjaTask, "parent", self)
                 setattr(module.jinjaTask, "configuration", self.configuration._data)
                 setattr(module.jinjaTask, "_configuration", self._configuration._data)
+                setattr(module, "__code__", task_code)
+
                 module._log = self._log
                 try:
                     retval = module.jinjaTask().__run__()
