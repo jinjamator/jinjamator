@@ -368,8 +368,9 @@ class JinjamatorTaskPdb(Pdb):
         angle brackets, such as "<stdin>", generated in interactive
         mode, are returned unchanged.
         """
-        if self.curframe.f_globals.get("jinjaTask"):
-            filename = self.curframe.f_globals["__file__"]
+        if self.curframe:
+            if self.curframe.f_globals.get("jinjaTask"):
+                filename = self.curframe.f_globals["__file__"]
 
         if filename == "<" + filename[1:-1] + ">":
             return filename
