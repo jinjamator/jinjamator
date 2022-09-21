@@ -296,10 +296,12 @@ juniper_junos_show_chassis_cluster_interfaces.fsm, .*, juniper_junos, sh[[ow]] c
 juniper_junos_show_chassis_cluster_status.fsm, .*, juniper_junos, sh[[ow]] ch[[assis]] c[[luster]] s[[tatus]]
 juniper_junos_show_chassis_firmware.fsm, .*, juniper_junos, sh[[ow]] ch[[assis]] fi[[rmware]]
 juniper_junos_show_arp_no-resolve.fsm, .*, juniper_junos, sh[[ow]] a[[rp]] n[[o-resolve]]
+juniper_junos_show_arp.fsm, .*, juniper_junos, sh[[ow]] a[[rp]]
 juniper_junos_show_isis_adjacency.fsm, .*, juniper_junos, sh[[ow]] is[[is]] ad[[jacency]]
 juniper_junos_show_ospf_neighbor.fsm, .*, juniper_junos, sh[[ow]] ospf n[[eighbor]]
 juniper_junos_show_interfaces.fsm, .*, juniper_junos, sh[[ow]] inte[[rfaces]]
 juniper_junos_show_version.fsm, .*, juniper_junos, sh[[ow]] ver[[sion]]
+juniper_junos_show_ipv6_neighbors.fsm, .*, juniper_junos, sh[[ow]] ipv[[6]] nei[[ghbors]]
 
 juniper_screenos_get_route.fsm, .*, juniper_screenos, get route
 
