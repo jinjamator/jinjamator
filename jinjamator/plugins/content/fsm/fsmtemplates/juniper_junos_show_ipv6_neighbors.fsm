@@ -1,12 +1,14 @@
-Value Required MAC ([A-Fa-f0-9\:]{17})
-Value Required IP_ADDRESS ([A-Fa-f0-9:\.]+)
-Value NAME (\S+)
-Value Required INTERFACE (\S+)
-Value FLAGS (\S+)
+Value IP_ADDRESS (\S+)
+Value LINK_LAYER_ADDRESS (\S+)
+Value STATE (\S+)
+Value EXPIRES (\S+)
+Value RTR (\S+)
+Value SECURE (\S+)
+Value INTERFACE (\S+)
 
 Start
-  ^MAC\s+Address\s+Address\s+Name\s+Interface\s+Flags\s*$$
-  ^${MAC}\s+${IP_ADDRESS}\s+${NAME}\s+${INTERFACE}\s+${FLAGS} -> Record
-  ^Total.*
+  ^IPv6 Address\s+Linklayer Address\s+State\s+Exp\s+Rtr\s+Secure\s+Interface              
+  ^${IP_ADDRESS}\s+${LINK_LAYER_ADDRESS}\s+${STATE}\s+${EXPIRES}\s+${RTR}\s+${SECURE}\s+${INTERFACE} -> Record            
+  ^Total entries:.*$$
   ^\s*$$
   ^. -> Error
