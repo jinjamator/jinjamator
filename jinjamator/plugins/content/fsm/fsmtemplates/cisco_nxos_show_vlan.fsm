@@ -11,6 +11,6 @@ Start
   ^Primary\s+Secondary\s+Type\s+Ports.*$$
   ^----.*$$
   ^${VLAN_ID}\s+${NAME}\s+${STATUS}\s+(${PORTS}(?:,\s+)?)*.*$$
-  ^\s+${PORTS}.*$$
+  ^\s+(${PORTS}(?:,\s+)?)+.*$$
   ^\s*$$
   ^. -> Error

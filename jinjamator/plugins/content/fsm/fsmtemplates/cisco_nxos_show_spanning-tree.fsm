@@ -28,7 +28,7 @@ Start
   ^\s+Bridge ID  Priority\s+${BRIDGE_PRIORITY}\s+\(priority ${BRIDGE_PRIORITY_BASE} sys-id-ext ${BRIDGE_PRIORITY_EXT}\) -> LOCAL_BRIDGE
   #Process Interfaces
   ^\s*Interface\s+Role\s+Sts\s+Cost\s+Prio.Nbr\s+Type.*$$ -> INTERFACE_LIST
-  #^\s*$$
+  ^\s*$$
   ^. -> Error
 
 
@@ -49,4 +49,10 @@ LOCAL_BRIDGE
 INTERFACE_LIST
   ^${INTERFACES}
   ^----------.*$$
-  ^\s*$$ -> Record Start
+  #^\s*$$ -> Record Start
+  ^\s*$$
+  #There might me an empty line in between, so we need to break our fingers to jump back correctly
+  ^MST\d+ -> Continue.Record
+  ^VLAN\d+ -> Continue.Record
+  ^MST${INSTANCE} -> Start
+  ^VLAN${INSTANCE} -> Start
