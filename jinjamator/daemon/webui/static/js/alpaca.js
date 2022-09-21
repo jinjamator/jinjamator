@@ -27844,7 +27844,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 {
                     for (var j = 0; j < self.data.length; j++)
                     {
-                        self.selectOptions[i].selected = (self.data[j].value === self.selectOptions[i].value);   
+                        self.selectOptions[i].selected = (self.data[j].value === self.selectOptions[i].value);
                     }
                 }
 
@@ -28972,7 +28972,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             {
                 self.options.multiselect.disableIfEmpty = true;
             }
-            
+
             if (self.options.multiselect.onChange && self.options.multiselect.onChange in window){
                 self.options.multiselect.onChange=window[self.options.multiselect.onChange]
             }
@@ -29044,12 +29044,12 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
 
             this.base(model, function() {
 
-                // if we are in multiple mode and the bootstrap multiselect plugin is available, bind it in
+                // if multiselect plugin is available, bind it in
                 if ($.fn.multiselect && !self.isDisplayOnly())
                 {
                     var settings = null;
                     if (self.options.multiselect) {
-                        settings = self.options.multiselect;                        
+                        settings = self.options.multiselect;
                     }
                     else
                     {
@@ -34808,8 +34808,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
 
             // data tables columns
             this.options.datatables.columns = [];
-            // console.log(" $.fn.DataTable.ext.type.search[alpaca]")
-            // console.dir( $.fn.DataTable.ext.type.search["alpaca"])
+
             // initialize data tables to detect alpaca field types and perform alpaca field sorting and filtering
             if ($.fn.dataTableExt && !$.fn.DataTable.ext.type.search["alpaca"])
             {
@@ -34853,8 +34852,6 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 // logic in data tables to really take control of this and do it right
                 // this "sort of" works for now
                 //
-                // console.log(" $.fn.dataTableExt.afnFiltering")
-                // console.dir( $.fn.dataTableExt.afnFiltering)
                 var alpaca_filterfn = function(settings, fields, fieldIndex, data, dataIndex) {
 
                     // TODO
@@ -35293,9 +35290,9 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             // TODO: change dragRows to use our own drag/drop tooling and get rid of DataTables Row Reorder Plugin
             // we also have do this if we've added the first row to get DataTables to redraw
             var usingDataTables = self.options.datatables && $.fn.DataTable;
-            if (self.options.dragRows )
+            if (self.options.dragRows)
             {
-                // refresh
+                // refresh 
                 self.refresh(function() {
                     callback();
                 });
@@ -35327,7 +35324,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
             // TODO: see above
 
             var usingDataTables = self.options.datatables && $.fn.DataTable;
-            if (self.options.dragRows )
+            if (self.options.dragRows)
             {
                 // refresh
                 self.refresh(function () {
@@ -36632,7 +36629,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
 
             // instantiate the control
             var fileUpload = self.fileUpload = $(el).find('.alpaca-fileupload-input').fileupload(fileUploadConfig);
-            
+
             self.plugin().options.headers={'Authorization':"Bearer " + sessionStorage.getItem('access_token')};
 
             // When file upload of a file completes, we offer the chance to adjust the data ahead of FileUpload
