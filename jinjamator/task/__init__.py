@@ -131,6 +131,7 @@ class JinjamatorTask(object):
 
         self._results = tree()
         self._schema_extensions = []
+        self._celery=None
 
     def load(self, path):
         self.task_base_dir = path
@@ -666,13 +667,12 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 self._log.error(f"cannot find uploaded file {filename} -> skipping")
         self.configuration[file_upload_var_name] = filelist
 
-    def run(self):
+    def run(self):  
         if len(self._undefined_vars) > 0:
             if self._configuration["task_run_mode"] == "background":
+                self._log.error(f"cannot run task because of undefined variables: {self._undefined_vars}")
                 raise JinjamatorTaskRunException(
-                    "cannot run task because of undefined variables: {0}".format(
-                        self._undefined_vars
-                    )
+                    f"cannot run task because of undefined variables: {self._undefined_vars}"
                 )
             else:
                 for var in self._undefined_vars:

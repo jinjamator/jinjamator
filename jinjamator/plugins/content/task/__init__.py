@@ -15,7 +15,7 @@
 import copy
 import os
 from jinjamator.task import JinjamatorTask
-
+import logging
 
 def run(path, task_data=False, **kwargs):
     """calls another jinjamator task"""
@@ -58,12 +58,20 @@ def run(path, task_data=False, **kwargs):
     task.configuration["output_plugin"] = output_plugin
     task._configuration["global_tasks_base_dirs"].insert(0, _jinjamator.task_base_dir)
 
-    task.load(path)
+    try:
+        task.load(path)
+    except Exception as e:
+        logging.error(e.message)
 
     task.load_output_plugin(
         output_plugin, task._configuration.get("global_output_plugins_base_dirs")
     )
-    retval = task.run()
+    try:
+        retval = task.run()
+    except Exception as e:
+        logging.error(e.message)
+
+
     if parent_private_data.get("task_run_mode") == "background":
         task._log.handlers[1].formatter._task = backup
         task._parent_tasklet = backup._parent_tasklet
