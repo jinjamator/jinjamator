@@ -26,12 +26,22 @@ from jinjamator.daemon import celery
 from jinjamator.task.celery.loghandler import CeleryLogHandler, CeleryLogFormatter
 from jinjamator.task import TaskletFailed
 from copy import deepcopy
+import hashlib
+import math
+import random
 
 from jinjamator.task import JinjamatorTaskRunException
 
+def generate_debugger_pw(pw_len) :
+    string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_!'
+    OTP = ""
+    length = len(string)
+    for i in range(pw_len) :
+        OTP += string[math.floor(random.random() * length)]
+    return OTP
 
 @celery.task(bind=True)
-def run_jinjamator_task(self, path, data, output_plugin, user_id):
+def run_jinjamator_task(self, path, data, output_plugin, user_id, debugger_cfg={}):
     """
     Jinjamator Celery Task runner.
     """
@@ -95,6 +105,11 @@ def run_jinjamator_task(self, path, data, output_plugin, user_id):
 
     task = JinjamatorTask()
     task._configuration._data["jinjamator_job_id"] = self.request.id
+    task._configuration._data["root_task_path"]=path
+    task._configuration._data["created_by_user_id"]=user_id
+    
+    
+
     task._scheduler = self
     log_handler.formatter.set_jinjamator_task(task)
     task._log.setLevel(logging.DEBUG)
@@ -110,8 +125,23 @@ def run_jinjamator_task(self, path, data, output_plugin, user_id):
     task._configuration.merge_dict(celery.conf["jinjamator_private_configuration"])
 
     task.configuration.merge_dict(data)
+    
+    if debugger_cfg.get('enabled'):
+        debugger_pw=generate_debugger_pw(64)
+        task._configuration._data["debugger_hash"]=hashlib.sha512(debugger_pw.encode('utf-8')).hexdigest()
+        task._celery=self
+        self.update_state(
+            state="SETUP_DEBUGGER",
+            meta={
+                "status": "setting up debugger",
+                "configuration": {"root_task_path": path, "created_by_user_id": user_id, "debugger_password": debugger_pw},
+            },
+        )
 
     task.load(path)
+    
+
+    
     try:
         task.run()
     except TaskletFailed:

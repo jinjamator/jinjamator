@@ -32,6 +32,8 @@ import traceback
 from contextlib import contextmanager
 from jinjamator.tools.web_pdb.pdb import JinjamatorTaskPdb
 from pprint import pformat
+import logging
+
 
 from .web_console import WebConsole
 
@@ -65,8 +67,10 @@ class WebPdb(JinjamatorTaskPdb):
         if port == -1:
             random.seed()
             port = random.randint(32768, 65536)
+        self._port=port
         self.console = WebConsole(host, port, self)
         super().__init__(stdin=self.console, stdout=self.console)
+        
         # Borrowed from here: https://github.com/ionelmc/python-remote-pdb
         self._backup = []
         if patch_stdstreams:
@@ -80,7 +84,9 @@ class WebPdb(JinjamatorTaskPdb):
             ):
                 self._backup.append((name, getattr(sys, name)))
                 setattr(sys, name, self.console)
+
         WebPdb.active_instance = self
+        
 
     def do_quit(self, arg):
         """
@@ -167,6 +173,7 @@ class WebPdb(JinjamatorTaskPdb):
         """
 
         if self.curframe.f_globals.get("jinjaTask"):
+
             filename = self.curframe.f_globals.get("__file__")
             lines = self.curframe.f_globals.get("__code__")
         else:

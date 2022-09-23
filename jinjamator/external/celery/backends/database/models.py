@@ -39,6 +39,7 @@ class Task(ResultModelBase):
     traceback = sa.Column(sa.Text, nullable=True)
     jinjamator_task = sa.Column(sa.String(1024), nullable=False, default="")
     created_by_user_id = sa.Column(sa.Integer, nullable=False)
+    debugger_password = sa.Column(sa.Text, nullable=True)
 
     def __init__(self, task_id):
         self.task_id = task_id
@@ -54,6 +55,7 @@ class Task(ResultModelBase):
             "date_scheduled": self.date_scheduled,
             "jinjamator_task": self.jinjamator_task,
             "created_by_user_id": self.created_by_user_id,
+            "debugger_password": self.debugger_password,
         }
 
     def __repr__(self):
