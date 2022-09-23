@@ -15,6 +15,7 @@ import inspect
 import tokenize
 import traceback
 from linecache import cache, clearcache, lazycache
+import logging
 
 
 def updatecache(filename, module_globals=None):
@@ -25,11 +26,22 @@ def updatecache(filename, module_globals=None):
         if "jinjaTask" in module_globals:
             filename = module_globals["__file__"]
             lines = module_globals["__code__"].split("\n")
+            task= module_globals["jinjaTask"]
+            logging.critical(pprint.pformat(task._configuration))
+            task.parent._celery.update_state(
+                state="DEBUGGING",
+                meta={
+                    "status": f"debugging tasklet {filename}",
+                    "configuration": {"root_task_path": "", "created_by_user_id": ""},
+                    },
+                )
+            
             if lines and not lines[-1].endswith("\n"):
                 lines[-1] += "\n"
             stat = os.stat(filename)
             size, mtime = stat.st_size, stat.st_mtime
             cache[filename] = size, mtime, lines, filename
+
             return lines
 
     if filename in cache:
@@ -183,6 +195,7 @@ class JinjamatorTaskPdb(Pdb):
         is_tasklet = False
 
         if self.curframe.f_globals.get("jinjaTask"):
+            
             filename = self.curframe.f_globals["__file__"]
             is_tasklet = True
         else:
@@ -233,7 +246,7 @@ class JinjamatorTaskPdb(Pdb):
         hasn't been loaded yet).  The file is searched for on
         sys.path; the .py suffix may be omitted.
         """
-
+        
         if not arg:
             if self.breaks:  # There's at least one
                 self.message("Num Type         Disp Enb   Where")

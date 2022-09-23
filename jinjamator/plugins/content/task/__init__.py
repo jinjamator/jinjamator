@@ -17,6 +17,7 @@ import os
 from jinjamator.task import JinjamatorTask
 import logging
 
+
 def run(path, task_data=False, **kwargs):
     """calls another jinjamator task"""
 
@@ -70,7 +71,6 @@ def run(path, task_data=False, **kwargs):
         retval = task.run()
     except Exception as e:
         logging.error(e.message)
-
 
     if parent_private_data.get("task_run_mode") == "background":
         task._log.handlers[1].formatter._task = backup
