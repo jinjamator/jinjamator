@@ -292,6 +292,9 @@ def discover_tasks(app):
                                 data = request.get_json()
                                 job_id = str(uuid.uuid4())
                                 user_id = g._user["id"]
+                                allow_debugger = User.roles.any(JinjamatorRole.name == "debugger")
+                                logging.critical(f"USER ROLE DEBUGGER: {allow_debugger}")
+                                
 
                                 job = run_jinjamator_task.apply_async(
                                     [
@@ -299,6 +302,8 @@ def discover_tasks(app):
                                         data,
                                         data.get("output_plugin", "console"),
                                         user_id,
+                                        {'enabled':True}
+                                        
                                     ],
                                     task_id=job_id,
                                     created_by_user_id=user_id,
@@ -336,6 +341,8 @@ def discover_tasks(app):
                                         if db_job[0].status not in [
                                             "SCHEDULED",
                                             "PROGRESS",
+                                            "DEBUGGING",
+                                            "SETUP_DEBUGGER"
                                         ]:
                                             log.debug(db_job[0].to_dict())
                                             resp = Response(
@@ -351,8 +358,8 @@ def discover_tasks(app):
 
                                         sleep(0.2)
                                         timeout = timeout - 200
-                                else:
-                                    log.error("Sync Task run failed -> Timeout")
+                                    else:
+                                        log.error("Sync Task run failed -> Timeout")
                                 return jsonify({"job_id": job.id})
 
                             if task_info["description"]:
