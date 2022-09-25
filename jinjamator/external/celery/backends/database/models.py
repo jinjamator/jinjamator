@@ -8,14 +8,15 @@ import sqlalchemy as sa
 from sqlalchemy.types import PickleType
 
 from celery import states
-from celery.five import python_2_unicode_compatible
+
+# from celery.five import python_2_unicode_compatible
 
 from .session import ResultModelBase
 
 __all__ = ("Task", "TaskSet", "JobLog")
 
 
-@python_2_unicode_compatible
+# @python_2_unicode_compatible
 class Task(ResultModelBase):
     """Task result/status."""
 
@@ -64,7 +65,7 @@ class Task(ResultModelBase):
         )
 
 
-@python_2_unicode_compatible
+# @python_2_unicode_compatible
 class TaskSet(ResultModelBase):
     """TaskSet result."""
 
@@ -97,7 +98,7 @@ class TaskSet(ResultModelBase):
         return "<TaskSet: {0.taskset_id}>".format(self)
 
 
-@python_2_unicode_compatible
+# @python_2_unicode_compatible
 class JobLog(ResultModelBase):
     """JobLog result."""
 

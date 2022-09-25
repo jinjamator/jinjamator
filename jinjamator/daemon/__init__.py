@@ -36,7 +36,11 @@ import os, sys
 
 import logging
 import importlib
+import celery
 
+celery.app.backends.BACKEND_ALIASES[
+    "jm"
+] = "jinjamator.external.celery.backends.database:DatabaseBackend"
 from celery import Celery
 from jinjamator.external.celery.backends.database import DatabaseBackend
 from jinjamator.daemon.aaa.models import (
@@ -85,11 +89,14 @@ def init_celery(_configuration):
             "data_folder_out": data_folder,
             "data_folder_processed": "/app/broker/processed",
         }
-    celery.conf.result_backend = _configuration.get("celery_result_backend")
+
+    celery.conf.result_backend = "jm+" + _configuration.get("celery_result_backend")
     celery.conf.update({"jinjamator_private_configuration": _configuration})
     backend = DatabaseBackend(app=celery, url=app.config["CELERY_RESULT_BACKEND"])
-
-    celery.backend = backend
+    # from pprint import pprint
+    # pprint(dir(celery.backend))
+    celery._backend = backend
+    celery._local.backend = backend
     return celery
 
 
@@ -214,16 +221,15 @@ def run(cfg):
 
                 queue.start(
                     argv=[
-                        "celery",
-                        "worker",
                         "-A",
                         "jinjamator.task.celery",
+                        "-b",
+                        cfg["celery_broker"],
+                        "worker",
                         "-c",
                         cfg.get("max_celery_worker", "2"),
                         "--max-tasks-per-child",
                         "1",
-                        "-b",
-                        cfg["celery_broker"],
                         "-B",
                         "-s",
                         cfg["celery_beat_database"],
