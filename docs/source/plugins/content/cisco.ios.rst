@@ -6,7 +6,7 @@ cisco.ios
 
 
 
-.. py:function:: cisco.ios.query(command, **kwargs):
+.. py:function:: cisco.ios.query(command, connection=None, **kwargs):
 
     not documented yet
 

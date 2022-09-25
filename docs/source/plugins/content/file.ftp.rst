@@ -1,17 +1,16 @@
-os
+file.ftp
 ===============================================
 
 .. toctree::
     :maxdepth: 1
 
-    os.environment.rst
 
 
-.. py:function:: os.mkdir(path):
+.. py:function:: file.ftp.login(url):
 
     not documented yet
 
-.. py:function:: os.path():
+.. py:function:: file.ftp.open(url, flags='rp'):
 
     not documented yet
 

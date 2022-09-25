@@ -8,5 +8,6 @@ cisco
     cisco.ios.rst
     cisco.migration.rst
     cisco.nxos.rst
+    cisco.wsa.rst
 
 

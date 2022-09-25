@@ -6,6 +6,17 @@ file.csv
 
 
 
+.. py:function:: file.csv.load(source_path, **kwargs):
+
+    Load data from a CSV file
+
+    :param source_path: URL or local path
+    :type source_path: ``str``
+
+    :Keyword Arguments:
+        Currently None
+    
+
 .. py:function:: file.csv.save(data, destination_path, **kwargs):
 
     Generate a csv file from a datastructure.

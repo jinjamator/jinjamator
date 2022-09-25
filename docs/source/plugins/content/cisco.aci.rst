@@ -8,7 +8,7 @@ cisco.aci
     cisco.aci.test.rst
 
 
-.. py:function:: cisco.aci.connect_apic(subscription_enabled=False):
+.. py:function:: cisco.aci.connect_apic(subscription_enabled=False, *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
@@ -20,7 +20,7 @@ cisco.aci
     :rtype: boolean
     
 
-.. py:function:: cisco.aci.dn_exists(dn):
+.. py:function:: cisco.aci.dn_exists(dn, *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     Checks if the dn exists. Logs API Error to error log. 
 
@@ -30,15 +30,15 @@ cisco.aci
     :rtype: ``bool``
     
 
-.. py:function:: cisco.aci.dn_has_attribute(dn, key, value):
+.. py:function:: cisco.aci.dn_has_attribute(dn, key, value, *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_access_aep_name_by_vlan_id(vlan_id, dn_filter='Access'):
+.. py:function:: cisco.aci.get_access_aep_name_by_vlan_id(vlan_id, dn_filter='Access', *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_configured_spine_uplinks():
+.. py:function:: cisco.aci.get_all_configured_spine_uplinks(*, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
@@ -52,15 +52,15 @@ cisco.aci
     :rtype: list
     
 
-.. py:function:: cisco.aci.get_all_fabric_ports():
+.. py:function:: cisco.aci.get_all_fabric_ports(*, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_lldp_neighbours():
+.. py:function:: cisco.aci.get_all_lldp_neighbours(*, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_nodes(index_by='id'):
+.. py:function:: cisco.aci.get_all_nodes(index_by='id', *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
@@ -68,7 +68,7 @@ cisco.aci
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_vlans_from_pool(pool_name):
+.. py:function:: cisco.aci.get_all_vlans_from_pool(pool_name, *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
@@ -92,7 +92,7 @@ cisco.aci
 
     not documented yet
 
-.. py:function:: cisco.aci.get_endpoint_table():
+.. py:function:: cisco.aci.get_endpoint_table(*, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
@@ -104,7 +104,7 @@ cisco.aci
 
     not documented yet
 
-.. py:function:: cisco.aci.get_next_free_vpc_domain_id():
+.. py:function:: cisco.aci.get_next_free_vpc_domain_id(*, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
@@ -112,7 +112,7 @@ cisco.aci
 
     not documented yet
 
-.. py:function:: cisco.aci.get_podid_by_switch_id(switch_id):
+.. py:function:: cisco.aci.get_podid_by_switch_id(switch_id, *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     Retrive the pod_id for a switch_id from APIC, if not possible ask user to enter pod_id
 
@@ -141,7 +141,7 @@ cisco.aci
     :rtype: ``bool``
     
 
-.. py:function:: cisco.aci.is_dn_in_use(dn, ignore_children=False):
+.. py:function:: cisco.aci.is_dn_in_use(dn, ignore_children=False, *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     not documented yet
 
@@ -201,7 +201,7 @@ cisco.aci
     :rtype: ``str``
     
 
-.. py:function:: cisco.aci.query(query_url, timeout=60):
+.. py:function:: cisco.aci.query(query_url, timeout=60, *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     [summary]
 
@@ -213,7 +213,7 @@ cisco.aci
     :rtype: ``dict``
     
 
-.. py:function:: cisco.aci.version(apic_node_id=1):
+.. py:function:: cisco.aci.version(apic_node_id=1, *, _requires=<function _get_missing_apic_connection_vars at 0x7fa5a72f90d0>):
 
     Returns the firmware version of an APIC
 
