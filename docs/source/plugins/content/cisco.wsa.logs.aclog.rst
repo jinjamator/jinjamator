@@ -1,4 +1,4 @@
-cisco.nxos
+cisco.wsa.logs.aclog
 ===============================================
 
 .. toctree::
@@ -6,7 +6,7 @@ cisco.nxos
 
 
 
-.. py:function:: cisco.nxos.query(command, connection=None, **kwargs):
+.. py:function:: cisco.wsa.logs.aclog.parse(path):
 
     not documented yet
 

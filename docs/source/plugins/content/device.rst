@@ -1,15 +1,14 @@
-file
+device
 ===============================================
 
 .. toctree::
     :maxdepth: 1
 
-    file.csv.rst
-    file.excel.rst
-    file.ftp.rst
+    device.cisco.rst
+    device.switch.rst
 
 
-.. py:function:: file.change_suffix(filename, suffix=False):
+.. py:function:: device.change_suffix(filename, suffix=False):
 
     Change the suffix of the file
     /some/path/my.file --> /some/path/my.othersuffix
@@ -22,15 +21,11 @@ file
     :rtype: ``str``
     
 
-.. py:function:: file.copy(src, dst, force_overwrite=False, **kwargs):
+.. py:function:: device.compile_instructions(dev_dict, key):
 
     not documented yet
 
-.. py:function:: file.delete(path, recursive=False):
-
-    not documented yet
-
-.. py:function:: file.exists(filename):
+.. py:function:: device.exists(filename):
 
     Check if filename exists
 
@@ -40,7 +35,7 @@ file
     :rtype: ``bool``
     
 
-.. py:function:: file.get_filename(filename):
+.. py:function:: device.get_filename(filename):
 
     Get only the filename
     /some/path/my.file --> my.file
@@ -51,7 +46,7 @@ file
     :rtype: ``str``
     
 
-.. py:function:: file.get_suffix(filename):
+.. py:function:: device.get_suffix(filename):
 
     Get the suffix from the filename
     /some/path/my.file --> file
@@ -62,7 +57,7 @@ file
     :rtype: ``str``
     
 
-.. py:function:: file.is_dir(filename):
+.. py:function:: device.is_dir(filename):
 
     Check if filename is a directory
 
@@ -72,7 +67,7 @@ file
     :rtype: ``bool``
     
 
-.. py:function:: file.is_file(filename):
+.. py:function:: device.is_file(filename):
 
     Check if filename is a file
 
@@ -82,7 +77,7 @@ file
     :rtype: ``bool``
     
 
-.. py:function:: file.load(path, **kwargs):
+.. py:function:: device.load(path, **kwargs):
 
     Load data from a textfile. This function works for local paths an http/https hosted files.
 
@@ -95,11 +90,11 @@ file
         None at the moment.
     
 
-.. py:function:: file.move(src, dst, force_overwrite=False, **kwargs):
+.. py:function:: device.new():
 
     not documented yet
 
-.. py:function:: file.open(url, flags='r'):
+.. py:function:: device.open(url, flags='r'):
 
     Opens files from local filesystem or http/https/ftp and returns a corresponding descriptor
 
@@ -111,17 +106,7 @@ file
     :rtype: ``file``
     
 
-.. py:function:: file.resolve(fn=':inmemory:'):
-
-    Return the absolute path of the parent directory of the file
-
-    :param fn: The filename. Defaults to __file__
-    :type fn: ``str``
-    :return: Absolute path of the files directory
-    :rtype: ``str``
-    
-
-.. py:function:: file.save(data, target_path, **kwargs):
+.. py:function:: device.save(data, target_path, **kwargs):
 
     save text data to a local file
 
@@ -137,7 +122,7 @@ file
           Should a existing file be overwritten?, defaults to True
     
 
-.. py:function:: file.strip_suffix(filename):
+.. py:function:: device.strip_suffix(filename):
 
     Strip the suffix from the filename
     /some/path/my.file --> /some/path/my

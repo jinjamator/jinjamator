@@ -1,17 +1,16 @@
-os
+mac
 ===============================================
 
 .. toctree::
     :maxdepth: 1
 
-    os.environment.rst
 
 
-.. py:function:: os.mkdir(path):
+.. py:function:: mac.to_aci(mac_address):
 
     not documented yet
 
-.. py:function:: os.path():
+.. py:function:: mac.to_unix(mac_address):
 
     not documented yet
 

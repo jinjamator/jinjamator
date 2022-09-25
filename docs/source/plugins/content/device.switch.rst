@@ -1,4 +1,4 @@
-cisco.nxos
+device.switch
 ===============================================
 
 .. toctree::
@@ -6,7 +6,7 @@ cisco.nxos
 
 
 
-.. py:function:: cisco.nxos.query(command, connection=None, **kwargs):
+.. py:function:: device.switch.new(vendor, model):
 
     not documented yet
 

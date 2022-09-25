@@ -6,11 +6,11 @@ ssh
 
 
 
-.. py:function:: ssh.query(command, **kwargs):
+.. py:function:: ssh.configure(commands_or_path, connection=None, **kwargs):
 
     not documented yet
 
-.. py:function:: ssh.run(command, **kwargs):
+.. py:function:: ssh.connect(**kwargs):
 
     Run a command via SSH and return the text output.
 
@@ -65,15 +65,27 @@ ssh
         
             .. code-block:: jinja
                 
-                {{ssh.run('show inventory',ssh_username=admin,ssh_hostname='1.2.3.4')}} 
+                {{ssh.run('show inventory',ssh_username=admin,ssh_host='1.2.3.4')}} 
 
         python tasklet:
 
             .. code-block:: python
 
-                return ssh.run('show inventory',ssh_username='admin','ssh_hostname'='1.2.3.4')
+                return ssh.run('show inventory',ssh_username='admin','ssh_host'='1.2.3.4')
 
 
     
+
+.. py:function:: ssh.disconnect(connection):
+
+    not documented yet
+
+.. py:function:: ssh.query(command, connection=None, **kwargs):
+
+    not documented yet
+
+.. py:function:: ssh.run(command, connection=None, **kwargs):
+
+    not documented yet
 
 

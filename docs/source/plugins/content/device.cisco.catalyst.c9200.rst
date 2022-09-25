@@ -1,4 +1,4 @@
-cisco.nxos
+device.cisco.catalyst.c9200
 ===============================================
 
 .. toctree::
@@ -6,7 +6,7 @@ cisco.nxos
 
 
 
-.. py:function:: cisco.nxos.query(command, connection=None, **kwargs):
+.. py:function:: device.cisco.catalyst.c9200.new():
 
     not documented yet
 

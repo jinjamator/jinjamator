@@ -6,6 +6,10 @@ jm.environment
 
 
 
+.. py:function:: jm.environment.current_task_basedir():
+
+    not documented yet
+
 .. py:function:: jm.environment.jinjamator_base_directory():
 
     not documented yet
