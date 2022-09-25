@@ -745,7 +745,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                 pass
             elif tasklet.endswith("py"):
                 task_code = self.get_py_tasklet_code(tasklet)
-                # self._log.debug(task_code)
+
                 module = import_code(task_code, tasklet[:-3].replace("/", "."))
                 for k, v in iteritems(self.configuration._data):
                     setattr(module, k, v)
