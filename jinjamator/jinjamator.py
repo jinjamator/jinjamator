@@ -316,6 +316,21 @@ class Program(object):
             help="Target Folder for via api uploaded files [default: %(default)s]",
             env_var="JINJAMATOR_UPLOADS_FOLDER",
         )
+        self._parser.add_argument(
+            "--enable-task-debugger",
+            dest="_enable_task_debugger",
+            default=False,
+            action="store_true",
+            help="Enables webpdb for tasks. CLI Tasks will break on __run__. Daemon tasks can be run with the debug flag",
+            env_var="JINJAMATOR_ENABLE_DEBUGGER",
+        )
+        self._parser.add_argument(
+            "--debugger-port-range",
+            dest="_debugger_port_range",
+            default="1024:65535",
+            help="If the task debugger is enabled the a port within this port range will be used",
+            env_var="JINJAMATOR_DEBUGGER_PORTS",
+        )
 
     def setupLogging(self):
         global logging
@@ -438,7 +453,6 @@ USAGE
             raise (e)
 
     def run(self):
-        self._log.debug("called run")
         try:
             self.main()
         except KeyboardInterrupt:
