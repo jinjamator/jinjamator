@@ -16,7 +16,7 @@ openpyxl>=3
 ciscoconfparse
 xmltodict
 pyopenssl
-celery==4.4.7
+celery==5.2.7
 dictdiffer
 json_log_formatter
 pyyaml
