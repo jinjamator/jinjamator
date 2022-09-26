@@ -1,0 +1,38 @@
+Value SHFNAME (\S+)
+Value SHFELABEL (.*)
+Value ARCHIVESINFOVERSION ([0-9\.]+)
+Value BOARDTYPE (\S+)
+Value BARCODE (\S+)
+Value ITEM (\S+)
+Value DESCRIPTION (.*)
+Value MANUFACTURED (\S+)
+Value VENDORNAME (\S+)
+Value ISSUENUMBER (\S+)
+Value CLEICODE (\S+)
+Value BOM (\S+)
+Value SHFVER (.*)
+Value SHFVERVAL (.*)
+Value SHFLOC (\S+)
+
+
+Start
+  ^ShfName=<${SHFNAME}>
+  ^ShfeLabel=<${SHFELABEL}$$
+  ^.+ArchivesInfoVersion=${ARCHIVESINFOVERSION}
+  ^\[Board Properties\]
+  ^BoardType=${BOARDTYPE}
+  ^BarCode=${BARCODE}
+  ^Item=${ITEM}
+  ^Description=${DESCRIPTION}$$
+  ^Manufactured=${MANUFACTURED}
+  ^VendorName=${VENDORNAME}
+  ^IssueNumber=${ISSUENUMBER}
+  ^CLEICode=(${CLEICODE})?
+  ^BOM=(${BOM})?
+  ^>.*$$
+  ^ShfVer=<${SHFVER}>
+  ^ShfVerVal=<${SHFVERVAL}>
+  ^ShfLoc=<${SHFLOC}> -> Record
+  ^. -> Error
+
+
