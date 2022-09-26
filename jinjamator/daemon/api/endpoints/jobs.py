@@ -14,7 +14,7 @@
 
 import logging
 
-from flask import request, jsonify
+from flask import request, jsonify, g
 from flask_restx import Resource, abort
 from jinjamator.daemon.api.serializers import job_brief
 from jinjamator.daemon.api.restx import api
@@ -22,7 +22,7 @@ from jinjamator.external.celery.backends.database.models import Task as DB_Job, 
 from jinjamator.daemon.database import db
 from jinjamator.daemon.api.parsers import job_arguments
 from jinjamator.daemon.aaa import require_role
-from jinjamator.daemon.aaa.models import User
+from jinjamator.daemon.aaa.models import User, JinjamatorRole
 from flask import current_app as app
 
 from sqlalchemy import select, and_, or_, exc
@@ -135,6 +135,11 @@ class Job(Resource):
                 "created_by_user_id": int(job.created_by_user_id),
                 "created_by_user_name": str(user.username),
             }
+            user_roles = [role["name"] for role in g._user["roles"]]
+
+            if "debugger" in user_roles:
+                response["debugger_password"] = str(job.debugger_password)
+
         except exc.SQLAlchemyError as e:
             log.error(e)
             abort(404, f"Job ID {job_id} not found")

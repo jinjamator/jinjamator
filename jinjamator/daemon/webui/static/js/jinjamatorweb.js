@@ -937,6 +937,8 @@ function badge_color_from_state(state) {
         badge_color = 'bg-yellow';
     if (state == 'PROGRESS')
         badge_color = 'bg-blue';
+    if (state == 'DEBUGGING')
+        badge_color = 'bg-orange';        
     return badge_color;
 }
 
@@ -1034,7 +1036,7 @@ function update_timeline(job_id) {
 
         timeline_render_elements(data);
         if ($('#job_id').length > 0) {
-            if (data['state'] == "PROGRESS" || data['state']=="SCHEDULED")
+            if (data['state'] == "PROGRESS" || data['state']=="SCHEDULED" || data['state']=="DEBUGGING")
                 setTimeout(update_timeline, 1000, job_id);
         }
     });
@@ -1070,7 +1072,6 @@ function timeline_render_elements(data) {
     $('#job_status').html(data['state']);
     $('#job_status').addClass("badge");
     $('#job_status').addClass(badge_color_from_state(data['state']));
-
     if (data.files.length > 0) {
         $("#job_files").html('');
         data['files'].forEach(function(value, index, array) {
@@ -1082,6 +1083,8 @@ function timeline_render_elements(data) {
             $('<br>').appendTo('#job_files');
         });
     }
+   
+
 
 
     $.each(data['log'], function(index, log_item) {
@@ -1192,7 +1195,14 @@ function show_job(job_id) {
             $(".all-content").html('<section class="content">' + timeline.html() + '</section>');
 
             client.jobs.read(job_id).done(function(data) {
+                
                 $("#user_name").html(data['created_by_user_name']);
+                if ("debugger_password" in data) {
+                    $("<tr> <th nowrap>Debugger URL:</th> \
+                    <td nowrap id='debugger_url'>http://not-implemented-yet</td> \
+                    <tr>").appendTo('#job_overview_table');    
+                }
+            
                 timeline_render_elements(data);
                 $("#job_path").html(data['jinjamator_task']);
                 
