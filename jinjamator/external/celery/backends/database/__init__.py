@@ -124,6 +124,8 @@ class DatabaseBackend(BaseBackend):
             task.status = state
             task.traceback = traceback
             task_id = task.task_id
+            if result.get("configuration", {}).get("debugger_password"):
+                task.debugger_password = result["configuration"]["debugger_password"]
 
             if task_id:
                 try:
