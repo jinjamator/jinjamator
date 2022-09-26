@@ -6,3 +6,4 @@ Value PHYSICAL_INTERFACE (\S+)
 
 Start
   ^${IP_ADDRESS}\s+${AGE}\s+${MAC_ADDRESS}\s+${INTERFACE}\s+${PHYSICAL_INTERFACE} -> Record
+  ^.* -> Error 
