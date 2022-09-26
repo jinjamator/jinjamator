@@ -346,7 +346,7 @@ def discover_tasks(app):
                                             "DEBUGGING",
                                             "SETUP_DEBUGGER",
                                         ]:
-                                            log.debug(db_job[0].to_dict())
+                                            # log.debug(db_job[0].to_dict())
                                             resp = Response(
                                                 db_job[0]
                                                 .to_dict()
@@ -361,7 +361,10 @@ def discover_tasks(app):
                                         sleep(0.2)
                                         timeout = timeout - 200
                                     else:
+                                        db.session.rollback()
                                         log.error("Sync Task run failed -> Timeout")
+                                db.session.rollback()
+                                db.session.close()
                                 return jsonify({"job_id": job.id})
 
                             if task_info["description"]:
