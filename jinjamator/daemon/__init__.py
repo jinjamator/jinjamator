@@ -30,6 +30,7 @@ from jinjamator.daemon.api.endpoints.files import ns as files_namespace
 from jinjamator.daemon.database import db
 from jinjamator.daemon.aaa import aaa_providers, initialize as init_aaa
 
+
 from pprint import pformat
 import os, sys
 
@@ -65,6 +66,7 @@ def init_database(_configuration):
 
     from sqlalchemy import create_engine
 
+    # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
     engine = create_engine(_configuration.get("celery_result_backend"), echo=True)
     ResultModelBase.metadata.create_all(engine, checkfirst=True)
 
@@ -92,11 +94,7 @@ def init_celery(_configuration):
 
     celery.conf.result_backend = "jm+" + _configuration.get("celery_result_backend")
     celery.conf.update({"jinjamator_private_configuration": _configuration})
-    backend = DatabaseBackend(app=celery, url=app.config["CELERY_RESULT_BACKEND"])
-    # from pprint import pprint
-    # pprint(dir(celery.backend))
-    celery._backend = backend
-    celery._local.backend = backend
+
     return celery
 
 
