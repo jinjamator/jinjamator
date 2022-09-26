@@ -1,0 +1,20 @@
+Value INTERFACE (\S+)
+Value IPV6_ADDRESS (\S+)
+Value STATUS_PHYSICAL (\S+)
+Value STATUS_PROTOCOL (\S+)
+Value TENTATIVE (\S+)
+
+
+
+Start
+  ^\*down: administratively down
+  ^\!down: FIB overload down
+  ^\(l\): loopback
+  ^\(s\): spoofing
+  ^Interface\s+Physical\s+Protocol
+  ^\[IPv6 Address\] ${IPV6_ADDRESS}(\s+\[${TENTATIVE}\])? -> Record
+  ^${INTERFACE}\s+${STATUS_PHYSICAL}\s+${STATUS_PROTOCOL}\s*$$       
+  ^\s*$$
+  ^. -> Error
+
+

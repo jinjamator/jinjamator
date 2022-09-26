@@ -184,6 +184,38 @@ def resolve(fn=__file__):
     return source_dir
 
 
+def mkdir(filename,mode=0o777, parents=False, exist_ok=False):
+    """
+    Create directory
+
+    :param filename: The path of the directory
+    :type filename: ``str``
+    :param mode: The mode that should be set for the directory
+    :type mode: ``int``
+    :param parents: If parents is true, any missing parents of this path are created as needed; they are created with the default permissions without taking mode into account (mimicking the POSIX mkdir -p command).
+                    If parents is false (the default), a missing parent raises FileNotFoundError.
+    :type parents: ``bool``
+    :param exist_ok: If exist_ok is true, FileExistsError exceptions will be ignored (same behavior as the POSIX mkdir -p command), but only if the last path component is not an existing non-directory file.
+                     If exist_ok is false (the default), FileExistsError is raised if the target directory already exists.
+    :type exist_ok: ``bool``
+    :return: True if creation was successful
+    :rtype: ``bool``
+    """
+    return pathlib.Path(filename).mkdir(mode,parents,exist_ok)
+
+def mkdir_p (filename):
+    """
+    Create directory and all parents if the do not exist.
+    Will basically do what "mkdir -p" does and uses the mkdir-function in this lib - lazy function for lazy ppl
+
+    :param filename: The path of the directory
+    :type filename: ``str``
+    :return: True if creation was successful
+    :rtype: ``bool``
+    """
+    return file.mkdir(filename,parents=True,exist_ok=True)
+
+
 def copy(src, dst, force_overwrite=False, **kwargs):
     if not src.startswith("/"):
         src = f"{_jinjamator.task_base_dir}{os.path.sep}{src}"
