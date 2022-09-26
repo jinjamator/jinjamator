@@ -292,6 +292,12 @@ hp_procurve_show_system.fsm, .*, hp_procurve, sh[[ow]] syst[[em]]
 hp_procurve_show_vlans.fsm, .*, hp_procurve, sh[[ow]] vl[[ans]]
 hp_procurve_show_arp.fsm, .*, hp_procurve, sh[[ow]] ar[[p]]
 
+huawei_netengine_display_arp_all.fsm, .*, huawei_netengine, dis[[play]] ar[[p]] all
+huawei_netengine_display_inventory_chassis.fsm, .*, huawei_netengine, dis[[play]] inv[[entory]] cha[[ssis]]
+huawei_netengine_display_ip_interface_brief.fsm, .*, huawei_netengine, dis[[play]] ip int[[erface]] br[[ief]]
+huawei_netengine_display_ipv6_interface_brief.fsm, .*, huawei_netengine, dis[[play]] ipv6 int[[erface]] br[[ief]]
+huawei_netengine_display_ipv6_neighbors.fsm, .*, huawei_netengine, dis[[play]] ipv6 nei[[ghbors]]
+
 juniper_junos_show_chassis_cluster_interfaces.fsm, .*, juniper_junos, sh[[ow]] ch[[assis]] c[[luster]] i[[nterface]]
 juniper_junos_show_chassis_cluster_status.fsm, .*, juniper_junos, sh[[ow]] ch[[assis]] c[[luster]] s[[tatus]]
 juniper_junos_show_chassis_firmware.fsm, .*, juniper_junos, sh[[ow]] ch[[assis]] fi[[rmware]]

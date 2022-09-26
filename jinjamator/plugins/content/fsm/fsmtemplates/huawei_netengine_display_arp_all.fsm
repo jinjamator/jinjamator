@@ -1,0 +1,27 @@
+Value Required IP_ADDRESS (\S+)
+Value MAC_ADDRESS (\S+)
+Value EXPIRE (\d+)
+Value TYPE ((I - )|\S+)
+Value INTERFACE (\S+)
+Value VPN_INSTANCE (\S+)
+Value VLAN (\S+)
+Value CEVLAN (\S+)
+Value PVC (\S+)
+
+Start
+  ^IP ADDRESS\s+MAC ADDRESS\s+EXPIRE\(M\)\s+TYPE\s+INTERFACE\s+VPN-INSTANCE
+  ^\s+VLAN/CEVLAN PVC
+  ^-------------
+  ^Total
+  #Parse the VLAN-Line, make Record if present
+  ^\s+${VLAN}/${CEVLAN}(\s+${PVC})? -> Record
+  #IF line starts with IP-Address, make a record without filling vars but continue parsing
+  ^\d+\.\d+\.\d+\.\d+ -> Continue.Record
+  #Entry with expire present and VPN_INSTANCE
+  ^${IP_ADDRESS}\s+${MAC_ADDRESS}\s+${EXPIRE}\s{2,}${TYPE}\s{2,}${INTERFACE}(\s+${VPN_INSTANCE})?\s*$$
+  #Entry without expire but VPN_INSTANCE
+  ^${IP_ADDRESS}\s+${MAC_ADDRESS}\s{2,}${TYPE}\s{2,}${INTERFACE}(\s+${VPN_INSTANCE})?\s*$$
+  ^\s*$$
+  ^. -> Error
+
+

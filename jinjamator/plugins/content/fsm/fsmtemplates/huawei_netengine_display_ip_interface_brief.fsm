@@ -1,0 +1,22 @@
+Value INTERFACE (\S+)
+Value IP_ADDRESS (\S+)
+Value MASK (\d+)
+Value STATUS_PHYSICAL (\S+)
+Value STATUS_PROTOCOL (\S+)
+
+
+Start
+  ^\*down: administratively down
+  ^\!down: FIB overload down
+  ^\^down: standby
+  ^\(l\): loopback
+  ^\(s\): spoofing
+  ^\(d\): Dampening Suppressed
+  ^\(E\): E-Trunk down
+  ^The number of interface .*$$
+  ^Interface\s+IP Address/Mask\s+Physical\s+Protocol
+  ^${INTERFACE}\s+((${IP_ADDRESS}/${MASK})|${IP_ADDRESS})\s+${STATUS_PHYSICAL}\s+${STATUS_PROTOCOL}\s*$$ -> Record
+  ^\s*$$
+  ^. -> Error
+
+
