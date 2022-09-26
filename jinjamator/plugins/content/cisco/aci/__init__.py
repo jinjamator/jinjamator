@@ -167,6 +167,7 @@ If the URL contains "subscription=yes as parameter", a websocket session will be
         log.error(e)
         session.close()
         return {"imdata": [], "totalCount": "0"}
+    session.close()
     return json.loads(data.text)
 
 
@@ -304,7 +305,7 @@ def is_dn_in_use(
 
 def dn_exists(dn, *, _requires=_get_missing_apic_connection_vars):
     """
-    Checks if the dn exists. Logs API Error to error log. 
+    Checks if the dn exists. Logs API Error to error log.
 
     :param dn: APIC dn-string
     :type dn: ``str``
@@ -427,13 +428,13 @@ def is_min_version(major, minor, patch_level=None, node_id=1):
     :Examples:
 
         jinja2 tasklet:
-        
+
             .. code-block:: jinja
 
                 {% if aci_is_min_version(4, 2, None) %} {#check if APIC runs at least 4.2 version of code#}
                 bla bla
                 {% endif %}
-        
+
         python tasklet:
 
             .. code-block:: python
@@ -442,8 +443,8 @@ def is_min_version(major, minor, patch_level=None, node_id=1):
                     do_something_fancy()
                 else:
                     do_other_things()
-    
-    
+
+
     """
 
     #
