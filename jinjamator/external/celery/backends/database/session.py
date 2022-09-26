@@ -45,9 +45,11 @@ class SessionManager(object):
         engine = self.get_engine(dburi, **kwargs)
         if self.forked:
             if short_lived_sessions or dburi not in self._sessions:
-                self._sessions[dburi] = sessionmaker(bind=engine)
+                self._sessions[dburi] = sessionmaker(
+                    bind=engine, autoflush=False, autocommit=False
+                )
             return engine, self._sessions[dburi]
-        return engine, sessionmaker(bind=engine)
+        return engine, sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
     def prepare_models(self, engine):
         if not self.prepared:
