@@ -45,3 +45,4 @@ py-zabbix
 pyjq
 netaddr
 pyvmomi
+coloredlogs

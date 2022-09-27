@@ -23,7 +23,7 @@ from glob import glob
 import tempfile
 import random
 import string
-
+from coloredlogs import ColoredFormatter
 
 from configargparse import ArgumentParser
 from configargparse import RawDescriptionHelpFormatter
@@ -344,7 +344,7 @@ class Program(object):
 
         msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(funcName)s - %(levelname)s - %(message)s"
         stdout = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(msg_format)
+        formatter = ColoredFormatter(msg_format)
         stdout.setFormatter(formatter)
         self._log = logging.getLogger()
         self._log.addHandler(stdout)
