@@ -20,8 +20,7 @@ import os
 import inspect
 from types import ModuleType
 import types
-
-global_ldr = None
+from copy import deepcopy
 
 
 def import_code(code, name, add_to_sys_modules=False):
@@ -75,13 +74,18 @@ class ContentPluginLoader(object):
                 if not hasattr(cur, item):
                     setattr(cur, item, contentPlugin(key))
                 cur = getattr(cur, item)
-            code = """
-from jinjamator.plugin_loader.content import py_load_plugins
-py_load_plugins(globals())
-"""
+            code = ""
+            #              """
+            # from jinjamator.plugin_loader.content import task_init_pluginloader
+            # task_init_pluginloader(globals())
+            # """
             with open(file, "r") as fh:
                 code += fh.read()
-            module = import_code(code, "jinjamator.plugins.content" + class_path)
+            try:
+                module = import_code(code, "jinjamator.plugins.content" + class_path)
+            except ImportError as e:
+                self._log.error(f"cannot load content plugin {file}. {e}")
+                continue
 
             for func_name in dir(module):
                 func = getattr(module, func_name)
@@ -94,9 +98,11 @@ py_load_plugins(globals())
                     # self._log.debug(f"registering {class_path}.{func_name}")
 
                     setattr(cur, func_name, func)
-
                     argspec = inspect.getfullargspec(func)
-                    setattr(module, "_jinjamator", self._parent)
+                    if hasattr(self._parent, "parent"):
+                        setattr(module, "_jinjamator", self._parent.parent)
+                    else:
+                        setattr(module, "_jinjamator", self._parent)
                     setattr(module, "__file__", file)
                     # if len(argspec.args) == 1:
                     self._filters[f"{class_path}.{func_name}"] = func
@@ -107,30 +113,33 @@ py_load_plugins(globals())
     def get_filters(self):
         return self._filters
 
+    def j2_load_plugins(self, env, path="plugins/content/*.py"):
+        for filter_name, filter in self.get_filters().items():
+            if filter_name not in env.filters:
+                env.filters[filter_name] = filter
+        for function_name, function in self.get_functions().items():
+            if function_name not in env.globals:
+                env.globals[function_name] = function
+        return env
 
-def j2_load_plugins(env, path="plugins/content/*.py"):
-    global global_ldr
-    if not global_ldr:
-        raise Exception("global plugin loader not initialized")
-    for filter_name, filter in global_ldr.get_filters().items():
-        # global_ldr._log.debug('registred {0}'.format(filter_name))
-        env.filters[filter_name] = filter
-    for function_name, function in global_ldr.get_functions().items():
-        # global_ldr._log.debug('registred {0}'.format(function_name))
-        env.globals[function_name] = function
-    return env
-
-
-def py_load_plugins(env, path="plugins/content/*.py"):
-    global global_ldr
-    if not global_ldr:
-        raise Exception("global plugin loader not initialized")
-    for function_name, function in global_ldr.get_functions().items():
-        # global_ldr._log.debug('registred {0}'.format(function_name))
-        env[function_name] = function
+    def py_load_plugins(self, env, path="plugins/content/*.py"):
+        for function_name, function in self.get_functions().items():
+            # global_ldr._log.debug('registred {0}'.format(function_name))
+            env[function_name] = function
 
 
-def init_loader(parent):
-    global global_ldr
-    global_ldr = ContentPluginLoader(parent)
-    return global_ldr
+def task_init_pluginloader(parent, scope):
+    ldr = ContentPluginLoader(parent)
+    for content_plugin_dir in parent._configuration.get(
+        "global_content_plugins_base_dirs", []
+    ):
+        ldr.load(f"{content_plugin_dir}")
+    if os.path.isdir(parent._configuration["taskdir"] + "/plugins/content"):
+        ldr._log.debug(
+            "found task plugins directory "
+            + parent._configuration["taskdir"]
+            + "/plugins/content"
+        )
+        ldr._plugin_ldr.load(parent._configuration["taskdir"] + "/plugins/content")
+
+    ldr.py_load_plugins(scope)
