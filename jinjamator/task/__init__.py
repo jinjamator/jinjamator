@@ -16,9 +16,6 @@ from distutils.command.upload import upload
 import logging
 from .configuration import TaskConfiguration
 from jinjamator.plugin_loader.content import (
-    j2_load_plugins,
-    py_load_plugins,
-    init_loader,
     ContentPluginLoader,
 )
 from natsort import natsorted
@@ -105,7 +102,7 @@ class TaskletFailed(ValueError):
 
 class JinjamatorTask(object):
     def __init__(self, run_mode="background"):
-        self._global_ldr = None
+        self._plugin_ldr = None
         self._current_tasklet = "jinamator-core"
         self._parent_tasklet = "jinamator-core"
         self._parent_task_id = None
@@ -167,20 +164,22 @@ class JinjamatorTask(object):
         else:
             raise ValueError(f"cannot load path {path}")
 
-        self._global_ldr = init_loader(self)
+        self._plugin_ldr = ContentPluginLoader(self)
         if os.path.isdir(self._configuration["taskdir"] + "/plugins/content"):
             self._log.debug(
                 "found task plugins directory "
                 + self._configuration["taskdir"]
                 + "/plugins/content"
             )
-            self._global_ldr.load(self._configuration["taskdir"] + "/plugins/content")
+            self._plugin_ldr.load(self._configuration["taskdir"] + "/plugins/content")
 
         for content_plugin_dir in self._configuration.get(
             "global_content_plugins_base_dirs", []
         ):
-            self._global_ldr.load(f"{content_plugin_dir}")
+            self._plugin_ldr.load(f"{content_plugin_dir}")
 
+        self.configuration._plugin_loader = self._plugin_ldr
+        self._configuration._plugin_loader = self._plugin_ldr
         self.setup_jinja2()
 
         self._tasklets = natsorted(self._tasklets)
@@ -223,7 +222,7 @@ class JinjamatorTask(object):
         self.j2_environment.trim_blocks = True
         self.j2_environment.lstrip_blocks = True
 
-        self.j2_environment = j2_load_plugins(self.j2_environment)
+        self.j2_environment = self._plugin_ldr.j2_load_plugins(self.j2_environment)
 
     def find_calls(self, ast):
         """Find all the nodes of a given type.  If the type is a tuple,
@@ -283,9 +282,8 @@ class JinjamatorTask(object):
             task_code = "{0}\n{1}".format(
                 "from jinjamator.task.python import PythonTask\n\
 import sys,os\n\
-from jinjamator.plugin_loader.content import py_load_plugins\n\
-py_load_plugins(globals())\n\
-class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
+from jinjamator.plugin_loader.content import task_init_pluginloader\n\
+class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(self,globals())\n".format(
                     self.task_base_dir
                 ),
                 "\n".join(["    " + s for s in user_code]),
@@ -294,7 +292,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
 
     def inject_dependency(self, cmd):
         try:
-            var_dependencies = self._global_ldr._filters.get(
+            var_dependencies = self._plugin_ldr._filters.get(
                 cmd, print
             ).__kwdefaults__.get("_requires", [])
             if isinstance(var_dependencies, types.FunctionType):
@@ -446,7 +444,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                     raw_data = stream.read()
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
-                    environment = j2_load_plugins(environment)
+                    environment = self._plugin_ldr.j2_load_plugins(environment)
                     parsed_data = environment.from_string(raw_data).render(
                         self.configuration._data
                     )
@@ -694,20 +692,20 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
         results = []
         to_process = copy.copy(self._tasklets)
         for tasklet in self._tasklets:
-            self._global_ldr = init_loader(self)
-            for content_plugin_dir in self._configuration.get(
-                "global_content_plugins_base_dirs", []
-            ):
-                self._global_ldr.load(f"{content_plugin_dir}")
-            if os.path.isdir(self._configuration["taskdir"] + "/plugins/content"):
-                self._log.debug(
-                    "found task plugins directory "
-                    + self._configuration["taskdir"]
-                    + "/plugins/content"
-                )
-                self._global_ldr.load(
-                    self._configuration["taskdir"] + "/plugins/content"
-                )
+            # self._plugin_ldr = ContentPluginLoader(self)
+            # for content_plugin_dir in self._configuration.get(
+            #     "global_content_plugins_base_dirs", []
+            # ):
+            #     self._plugin_ldr.load(f"{content_plugin_dir}")
+            # if os.path.isdir(self._configuration["taskdir"] + "/plugins/content"):
+            #     self._log.debug(
+            #         "found task plugins directory "
+            #         + self._configuration["taskdir"]
+            #         + "/plugins/content"
+            #     )
+            #     self._plugin_ldr.load(
+            #         self._configuration["taskdir"] + "/plugins/content"
+            #     )
 
             self._current_tasklet = tasklet
             retval = ""

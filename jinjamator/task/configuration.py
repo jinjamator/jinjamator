@@ -17,7 +17,7 @@ from deepmerge.merger import Merger
 from deepmerge.strategy.core import STRATEGY_END
 import yaml
 import jinja2
-from jinjamator.plugin_loader.content import j2_load_plugins
+from jinjamator.plugin_loader.content import ContentPluginLoader
 import distutils.util
 import json
 from jinja2 import Undefined
@@ -88,6 +88,7 @@ class TaskConfiguration(object):
     def __init__(self):
         self._log = logging.getLogger()
         self._data = {}
+        self._plugin_loader = None
 
     def __getitem__(self, item):
         try:
@@ -119,7 +120,7 @@ class TaskConfiguration(object):
         return self._data.keys()
 
     def exclusive_merge_list(self, config, path, base, nxt):
-        """ a list strategy to append elements if not already in list. """
+        """a list strategy to append elements if not already in list."""
         return base + [i for i in nxt if i not in base]
 
     def merge_dict(
@@ -154,7 +155,7 @@ class TaskConfiguration(object):
             )
         else:
             environment = jinja2.Environment(extensions=["jinja2.ext.do"])
-            environment = j2_load_plugins(environment)
+            environment = self._plugin_loader.j2_load_plugins(environment)
         return environment.from_string(template).render(self._data)
 
     def merge_yaml(
@@ -173,10 +174,10 @@ class TaskConfiguration(object):
                     tmp = []
                     for l in raw_data.split("\n"):
                         if (
-                            u"{{" not in l
-                            and u"}}" not in l
-                            and u"{%" not in l
-                            and u"%}" not in l
+                            "{{" not in l
+                            and "}}" not in l
+                            and "{%" not in l
+                            and "%}" not in l
                         ):
                             tmp.append(l)
                     parsed_raw_data = yaml.safe_load("\n".join(tmp))
@@ -188,15 +189,29 @@ class TaskConfiguration(object):
                             parsed_raw_data[k] = v
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
-                    environment = j2_load_plugins(environment)
+                    environment = self._plugin_loader.j2_load_plugins(environment)
 
                     parsed_raw_data["configuration"] = self._data
                     if private_data:
                         parsed_raw_data["_configuration"] = deepcopy(private_data)
-                    parsed_data = environment.from_string(raw_data).render(
-                        parsed_raw_data
-                    )
+                    try:
+                        parsed_data = environment.from_string(raw_data).render(
+                            parsed_raw_data
+                        )
+                    except jinja2.exceptions.UndefinedError as e:
 
+                        self._log.error(e)
+                        self._log.error(raw_data)
+                        self._log.error(parsed_raw_data)
+                        self._log.error(environment.globals)
+                        self._log.error(environment.filters)
+                        self._log.error("retry 1")
+                        breakpoint()
+
+                        environment = self._plugin_loader.j2_load_plugins(environment)
+                        parsed_data = environment.from_string(raw_data).render(
+                            parsed_raw_data
+                        )
                     final_data = yaml.safe_load(parsed_data)
                     if not final_data:
                         final_data = {}

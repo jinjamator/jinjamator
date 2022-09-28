@@ -18,7 +18,7 @@ from authlib.integrations.sqla_oauth2 import create_save_token_func
 
 
 from jinjamator.task.configuration import TaskConfiguration
-from jinjamator.plugin_loader.content import init_loader
+from jinjamator.plugin_loader.content import ContentPluginLoader
 from jinjamator.daemon.app import app
 from jinjamator.daemon.aaa.models import (
     User,
@@ -45,7 +45,7 @@ import string
 
 log = logging.getLogger()
 aaa_providers = {}
-_global_ldr = init_loader(None)
+
 from sqlalchemy import or_, and_
 
 
@@ -322,15 +322,16 @@ class AuthLibAuthProvider(AuthProviderBase):
 
 
 def initialize(aaa_providers, _configuration):
-
+    plugin_loader = ContentPluginLoader(None)
     for content_plugin_dir in _configuration.get(
         "global_content_plugins_base_dirs", []
     ):
-        _global_ldr.load(f"{content_plugin_dir}")
+        plugin_loader.load(f"{content_plugin_dir}")
 
     for aaa_config_directory in _configuration.get("aaa_configuration_base_dirs", []):
         for config_file in glob(os.path.join(aaa_config_directory, "*.yaml")):
             cur_cfg = TaskConfiguration()
+            cur_cfg._plugin_loader = plugin_loader
             cur_cfg.merge_yaml(config_file)
             prov_name = cur_cfg.get("authlib_configuration", {}).get("name")
 
