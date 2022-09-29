@@ -49,6 +49,8 @@ from pprint import pformat
 import types
 from jinja2 import nodes
 import tempfile
+from jinjamator.tools.password import redact
+from copy import deepcopy
 
 
 class CustomUndefinedName(pyflakes.messages.Message):
@@ -593,7 +595,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                 continue
             if key not in schema["schema"]["properties"]:
                 schema["schema"]["properties"][key] = {}
-            m.merge(schema["schema"]["properties"][key], schema_settings[key]["schema"])
+            m.merge(
+                schema["schema"]["properties"][key],
+                schema_settings[key].get("schema", {}),
+            )
 
             if key not in schema["options"]["fields"]:
                 schema["options"]["fields"][key] = {}
@@ -709,9 +714,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
             self._current_tasklet = tasklet
             retval = ""
+
             self._log.debug(
                 "running with dataset: \n{0}".format(
-                    json.dumps(self.configuration._data, indent=2)
+                    json.dumps(redact(deepcopy(self.configuration._data)), indent=2)
                 )
             )
             if tasklet.endswith("j2"):
