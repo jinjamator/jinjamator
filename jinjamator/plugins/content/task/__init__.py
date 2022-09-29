@@ -62,7 +62,8 @@ def run(path, task_data=False, **kwargs):
     try:
         task.load(path)
     except Exception as e:
-        logging.error(e.message)
+        logging.error(e)
+        raise e
 
     task.load_output_plugin(
         output_plugin, task._configuration.get("global_output_plugins_base_dirs")
@@ -70,7 +71,8 @@ def run(path, task_data=False, **kwargs):
     try:
         retval = task.run()
     except Exception as e:
-        logging.error(e.message)
+        logging.error(e)
+        raise e
 
     if parent_private_data.get("task_run_mode") == "background":
         task._log.handlers[1].formatter._task = backup
