@@ -53,6 +53,23 @@ class ContentPluginLoader(object):
         self._filters = {}
         self._functions = {}
         self._parent = parent
+        self._base_plugin_imports = []
+        if parent:
+            self._prepare_import_list()
+
+    def _prepare_import_list(self):
+        for content_plugin_dir in self._parent._configuration.get(
+            "global_content_plugins_base_dirs", []
+        ):
+            for tmp in glob.glob(content_plugin_dir + "/*"):
+                if tmp.endswith("__init__.py") or tmp.endswith("__pycache__"):
+                    continue
+                if tmp.endswith(".py"):
+                    tmp = tmp[:-3]
+                tmp = os.path.basename(tmp)
+                self._base_plugin_imports.append(
+                    f"import jinjamator.plugins.content.{tmp} as {tmp}"
+                )
 
     def load(self, base_dir):
         files = glob.glob(
@@ -74,11 +91,7 @@ class ContentPluginLoader(object):
                 if not hasattr(cur, item):
                     setattr(cur, item, contentPlugin(key))
                 cur = getattr(cur, item)
-            code = ""
-            #              """
-            # from jinjamator.plugin_loader.content import task_init_pluginloader
-            # task_init_pluginloader(globals())
-            # """
+            code = "\n".join(self._base_plugin_imports) + "\n"
             with open(file, "r") as fh:
                 code += fh.read()
             try:
@@ -113,7 +126,7 @@ class ContentPluginLoader(object):
     def get_filters(self):
         return self._filters
 
-    def j2_load_plugins(self, env, path="plugins/content/*.py"):
+    def j2_load_plugins(self, env):
         for filter_name, filter in self.get_filters().items():
             if filter_name not in env.filters:
                 env.filters[filter_name] = filter
@@ -122,7 +135,7 @@ class ContentPluginLoader(object):
                 env.globals[function_name] = function
         return env
 
-    def py_load_plugins(self, env, path="plugins/content/*.py"):
+    def py_load_plugins(self, env):
         for function_name, function in self.get_functions().items():
             # global_ldr._log.debug('registred {0}'.format(function_name))
             env[function_name] = function
