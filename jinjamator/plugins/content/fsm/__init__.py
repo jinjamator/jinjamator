@@ -33,7 +33,7 @@ except ImportError:
 def _clitable_to_dict(cli_table):
     """Convert TextFSM cli_table object to list of dictionaries.
 
-    :param cli_table: 
+    :param cli_table:
     :type cli_table: textfsmplus CliTable object
     :return: a list of dict containing the data of the textfsmplus CliTable object.
     :rtype: list of dict
@@ -86,7 +86,7 @@ def process(device_type, command, data):
     :type data: str
     :return: A datastructure which contains the parsed data
     :rtype: list of dict
-    
+
     """
 
     # internal templates
