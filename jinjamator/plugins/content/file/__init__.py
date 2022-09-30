@@ -41,7 +41,7 @@ def load(path, **kwargs):
 
     :param path: Can be a local path or a http/https URL. For relative paths the current task base directory is set as basepath so test.txt will become /path/to/task/test.txt
     :type path: ``str``
-    :return: On error opening the File `False` is returned. On success the content of the textfile is returned. 
+    :return: On error opening the File `False` is returned. On success the content of the textfile is returned.
     :rtype: ``bool`` or  ``str``
 
     :Keyword Arguments:
@@ -184,7 +184,7 @@ def resolve(fn=__file__):
     return source_dir
 
 
-def mkdir(filename,mode=0o777, parents=False, exist_ok=False):
+def mkdir(filename, mode=0o777, parents=False, exist_ok=False):
     """
     Create directory
 
@@ -201,9 +201,10 @@ def mkdir(filename,mode=0o777, parents=False, exist_ok=False):
     :return: True if creation was successful
     :rtype: ``bool``
     """
-    return pathlib.Path(filename).mkdir(mode,parents,exist_ok)
+    return pathlib.Path(filename).mkdir(mode, parents, exist_ok)
 
-def mkdir_p (filename):
+
+def mkdir_p(filename):
     """
     Create directory and all parents if the do not exist.
     Will basically do what "mkdir -p" does and uses the mkdir-function in this lib - lazy function for lazy ppl
@@ -213,7 +214,7 @@ def mkdir_p (filename):
     :return: True if creation was successful
     :rtype: ``bool``
     """
-    return file.mkdir(filename,parents=True,exist_ok=True)
+    return mkdir(filename, parents=True, exist_ok=True)
 
 
 def copy(src, dst, force_overwrite=False, **kwargs):
