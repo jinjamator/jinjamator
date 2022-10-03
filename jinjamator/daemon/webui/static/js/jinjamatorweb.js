@@ -760,7 +760,8 @@ function create_job(job_path, pre_defined_vars) {
 
                             delete data['output_plugin_parameters'];
 
-                            if ('wizard_ask_before_submit' in data){
+                            if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true){
+                                
                                 $('#modal-submit').modal('show') 
                                 $('#modal-submit ').find('.btn-ok').on('click',function(){
                                     client.tasks.create(job_path, data).done(function(data) {
