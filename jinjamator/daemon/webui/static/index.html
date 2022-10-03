@@ -9,17 +9,17 @@
 
     <script>
         let b64DecodeUnicode = str =>
-  decodeURIComponent(
-    Array.prototype.map.call(atob(str), c =>
-      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''))
+            decodeURIComponent(
+                Array.prototype.map.call(atob(str), c =>
+                    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                ).join(''))
 
-let parseJwt = token =>
-  JSON.parse(
-    b64DecodeUnicode(
-      token.split('.')[1].replace('-', '+').replace('_', '/')
-    )
-  )
+        let parseJwt = token =>
+            JSON.parse(
+                b64DecodeUnicode(
+                    token.split('.')[1].replace('-', '+').replace('_', '/')
+                )
+            )
         var params = new URLSearchParams(window.location.search);
         var access_token = params.get("access_token");
         if (access_token === null) {
@@ -32,30 +32,30 @@ let parseJwt = token =>
                 type: "GET",
                 url: "/api/aaa/token",
                 contentType: "application/json; charset=utf-8",
-                beforeSend: function(xhr) {
+                beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
                 },
                 dataType: "json",
-                success: function(data) {
+                success: function (data) {
                     sessionStorage.setItem('access_token', access_token);
-                    token_data=parseJwt(access_token)
-                    
+                    token_data = parseJwt(access_token)
+
                     $.ajax({
                         type: "GET",
-                        url: "/api/aaa/users/"+token_data.id,
+                        url: "/api/aaa/users/" + token_data.id,
                         contentType: "application/json; charset=utf-8",
-                        beforeSend: function(xhr) {
+                        beforeSend: function (xhr) {
                             xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
                         },
                         dataType: "json",
-                        success: function(data) {
+                        success: function (data) {
                             sessionStorage.setItem('logged_in_username', data.username);
-                            
+
                         },
                     });
 
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
+                error: function (jqXHR, textStatus, errorThrown) {
                     window.location.pathname = '/login.html';
                 },
             });
@@ -91,7 +91,7 @@ let parseJwt = token =>
     <link rel="stylesheet" href="static/css/skins/_all-skins.min.css">
 
     <link rel="stylesheet" href="static/css/dataTables.bootstrap.min.css">
-    
+
     <link rel="stylesheet" href="static/css/buttons.dataTables.min.css">
 
     <link type="text/css" href="static/css/alpaca.css" rel="stylesheet" />
@@ -102,7 +102,7 @@ let parseJwt = token =>
 
     <link rel="stylesheet" type="text/css" href="static/css/spinner.css" />
 
-    
+
 
 
 
@@ -136,30 +136,30 @@ let parseJwt = token =>
                     <ul class="nav navbar-nav">
                         <li style="color:#fff;padding-top:15px; padding-bottom: 15px;padding-right: 10px;">
                             Active Site Configuration
-                            <li>
-                                <form class="form-inline" style="padding-top:8px;padding-bottom:5px;">
-                                    <select id="jinjamator_environment" class="form-control">
-                <option value=''>None</option>
-              </select>
-                                </form>
-                            </li>
-                            <!-- Messages: style can be found in dropdown.less-->
-                            <!-- Notifications: style can be found in dropdown.less -->
+                        <li>
+                            <form class="form-inline" style="padding-top:8px;padding-bottom:5px;">
+                                <select id="jinjamator_environment" class="form-control">
+                                    <option value=''>None</option>
+                                </select>
+                            </form>
+                        </li>
+                        <!-- Messages: style can be found in dropdown.less-->
+                        <!-- Notifications: style can be found in dropdown.less -->
 
-                            <li class="dropdown notifications-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fa fa-bell-o"></i>
-                                    <!-- {% if warning_job_count | default(0)> 0 %} -->
-                                    <!-- <span class="label label-danger">{{warning_job_count}}</span> {% elif error_job_count | default(0)> 0 %} -->
-                                    <!-- <span class="label label-success">4</span> -->
-                                    <!-- <span class="label label-warning">{{error_job_count}}</span> {% endif %} -->
+                        <li class="dropdown notifications-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-bell-o"></i>
+                                <!-- {% if warning_job_count | default(0)> 0 %} -->
+                                <!-- <span class="label label-danger">{{warning_job_count}}</span> {% elif error_job_count | default(0)> 0 %} -->
+                                <!-- <span class="label label-success">4</span> -->
+                                <!-- <span class="label label-warning">{{error_job_count}}</span> {% endif %} -->
 
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li class="header">You have no notifications</li>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="header">You have no notifications</li>
 
-                                    <ul class="menu">
-                                        <!--
+                                <ul class="menu">
+                                    <!--
                                         <li>
                                             <a href="#">
                                                 <i class="fa fa-warning text-yellow"></i> Job <strong>asdf</strong> had warnings
@@ -171,39 +171,39 @@ let parseJwt = token =>
                                     <i class="fa fa-warning text-red"></i> Job <strong>asdf</strong> errored out
                                 </a>
                             </li> -->
-                                    </ul>
+                                </ul>
+                        </li>
+                        <li class="footer"><a href="#">View all</a></li>
+                    </ul>
+                    </li>
+                    <!-- User Account: style can be found in dropdown.less -->
+                    <li class="dropdown user user-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <img src="static/img/user-160x160.png" class="user-image" alt="User Image">
+                            <span class="hidden-xs render_username"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <!-- User image -->
+                            <li class="user-header">
+                                <img src="static/img/user-160x160.png" class="img-circle" alt="User Image">
+
+                                <p class="render_username">
+
+
+                                </p>
                             </li>
-                            <li class="footer"><a href="#">View all</a></li>
-                            </ul>
-                        </li>
-                        <!-- User Account: style can be found in dropdown.less -->
-                        <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <img src="static/img/user-160x160.png" class="user-image" alt="User Image">
-                                <span class="hidden-xs render_username"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <!-- User image -->
-                                <li class="user-header">
-                                    <img src="static/img/user-160x160.png" class="img-circle" alt="User Image">
-
-                                    <p class="render_username">
-                                        
-
-                                    </p>
-                                </li>
-                                <!-- Menu Body -->
-                                <!-- Menu Footer-->
-                                <li class="user-footer">
-                                    <div class="pull-left">
-                                        <a href="#" class="btn btn-default btn-flat">Profile</a>
-                                    </div>
-                                    <div class="pull-right">
-                                        <a href="#" class="btn btn-default btn-flat" onclick="logout();">Sign out</a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
+                            <!-- Menu Body -->
+                            <!-- Menu Footer-->
+                            <li class="user-footer">
+                                <div class="pull-left">
+                                    <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                </div>
+                                <div class="pull-right">
+                                    <a href="#" class="btn btn-default btn-flat" onclick="logout();">Sign out</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
                     </ul>
                 </div>
             </nav>
@@ -234,8 +234,10 @@ let parseJwt = token =>
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li class="treeview-item"><a href="#" onclick="create_job()"><i class="fa fa-circle-o"></i>Create</a></li>
-                            <li class="treeview-item"><a href="#" onclick="list_jobs()"><i class="fa fa-circle-o"></i>History</a></li>
+                            <li class="treeview-item"><a href="#" onclick="create_job()"><i
+                                        class="fa fa-circle-o"></i>Create</a></li>
+                            <li class="treeview-item"><a href="#" onclick="list_jobs()"><i
+                                        class="fa fa-circle-o"></i>History</a></li>
                         </ul>
                     </li>
                     <li class="treeview">
@@ -246,14 +248,16 @@ let parseJwt = token =>
                             </span>
                         </a>
                         <ul class="treeview-menu">
-                            <li class="treeview-item"><a href="#" onclick="list_users()"><i class="fa fa-circle-o"></i>Users</a></li>
-                            <li class="treeview-item"><a href="#" onclick="list_roles()"><i class="fa fa-circle-o"></i>Roles</a></li>
+                            <li class="treeview-item"><a href="#" onclick="list_users()"><i
+                                        class="fa fa-circle-o"></i>Users</a></li>
+                            <li class="treeview-item"><a href="#" onclick="list_roles()"><i
+                                        class="fa fa-circle-o"></i>Roles</a></li>
                         </ul>
-                    </li>                    
+                    </li>
 
 
-        
-                 </ul>
+
+                </ul>
             </section>
             <!-- /.sidebar -->
         </aside>
@@ -271,6 +275,87 @@ let parseJwt = token =>
                     <li class="active">Dashboard</li>
                 </ol>
             </section>
+            <section class='modals'>
+                <div class="modal modal-warning fade" id="modal-warning">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Warning Modal</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>One fine body&hellip;</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline close">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal modal-danger fade" id="modal-danger">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Danger Modal</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>One fine body&hellip;</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline pull-left"
+                                    data-dismiss="modal">Abort</button>
+                                <button type="button" class="btn btn-outline">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal modal-danger fade" id="modal-error">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Error</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>One fine error body&hellip;</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline" data-dismiss="modal">Abort</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal modal-warning fade" id="modal-submit">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">Warning: Configuration Change</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to continue?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline pull-left"
+                                    data-dismiss="modal">Abort</button>
+                                <button type="button" class="btn btn-outline btn-ok">Create Task</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
             <section class='all-content'></section>
         </div>
         <!-- /.content-wrapper -->
@@ -308,7 +393,7 @@ let parseJwt = token =>
     <script src="static/js/jquery.dataTables.min.js"></script>
     <script src="static/js/dataTables.bootstrap.min.js"></script>
     <script src="static/js/dataTables.buttons.min.js"></script>
-    
+
     <!-- typeahead.js -->
     <script src="static/js/bloodhound.min.js" type="text/javascript"></script>
     <script src="static/js/typeahead.bundle.min.js" type="text/javascript"></script>
@@ -335,14 +420,14 @@ let parseJwt = token =>
 
     <script type="text/javascript">
         // autoconvert valdiator strings to functions
-        Alpaca.Field.prototype._validateCustomValidator = function(callback) {
+        Alpaca.Field.prototype._validateCustomValidator = function (callback) {
             var _this = this;
 
             if (this.options.validator) {
                 if (Alpaca.isString(this.options.validator)) {
                     this.options.validator = new Function("return " + this.options.validator.replace(/(\r\n|\n|\r)/gm, ""))();
                 }
-                this.options.validator.call(this, function(valInfo) {
+                this.options.validator.call(this, function (valInfo) {
 
                     // always store in "custom"
                     _this.validation["custom"] = valInfo;
@@ -357,11 +442,11 @@ let parseJwt = token =>
         }
 
         // force external representation of dropdowns to values only
-        Alpaca.Fields.ListField.prototype.convertDataInternalToExternal = function(internal) {
+        Alpaca.Fields.ListField.prototype.convertDataInternalToExternal = function (internal) {
             return internal.value
         }
 
-        Alpaca.Fields.UploadField.prototype.convertFileToDescriptor = function(file, callback) {
+        Alpaca.Fields.UploadField.prototype.convertFileToDescriptor = function (file, callback) {
             var descriptor = {};
             for (let [key, value] of Object.entries(file)) {
                 descriptor[key] = value;
@@ -369,7 +454,7 @@ let parseJwt = token =>
             callback(null, descriptor);
         }
 
-        Alpaca.Fields.UploadField.prototype.handleBeforeFileUploadSubmit = function(data) {
+        Alpaca.Fields.UploadField.prototype.handleBeforeFileUploadSubmit = function (data) {
             var control = $("#form").alpaca("get");
             if (data.formData == undefined) {
                 data.formData = {};
@@ -383,7 +468,7 @@ let parseJwt = token =>
         }
 
         // "Bug/Feature"-fix: allow null values
-        Alpaca.Fields.ObjectField.prototype.getContainerValue = function() {
+        Alpaca.Fields.ObjectField.prototype.getContainerValue = function () {
             // if we don't have any children and we're not required, hand back empty object
             if (this.children.length === 0 && !this.isRequired()) {
                 return {};
@@ -408,11 +493,11 @@ let parseJwt = token =>
                     fieldValue = undefined;
                 }
 
-                if (typeof(fieldValue) !== "undefined") {
+                if (typeof (fieldValue) !== "undefined") {
                     if (this.determineAllDependenciesValid(propertyId)) {
                         var assignedValue = null;
 
-                        if (typeof(fieldValue) === "boolean") {
+                        if (typeof (fieldValue) === "boolean") {
                             assignedValue = (fieldValue ? true : false);
                         } else if (Alpaca.isArray(fieldValue) || Alpaca.isObject(fieldValue) || Alpaca.isNumber(fieldValue)) {
                             assignedValue = fieldValue;
