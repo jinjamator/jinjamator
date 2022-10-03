@@ -30,7 +30,7 @@ SQLAlchemy-serializer==1.4.1
 python-magic
 dotty_dict
 docutils
-flask-restx
+flask-restx -f git+https://github.com/python-restx/flask-restx.git
 argon2_cffi
 authlib
 configargparse
