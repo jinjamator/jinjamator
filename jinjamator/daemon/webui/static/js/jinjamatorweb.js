@@ -1,7 +1,7 @@
 var update_output_plugin = true;
-$(function() {
-    'use strict'
 
+$(function () {
+    'use strict'
     /**
      * Get access to plugins
      */
@@ -11,7 +11,7 @@ $(function() {
     var $pushMenu = $('[data-toggle="push-menu"]').data('lte.pushmenu')
     var $controlSidebar = $('[data-toggle="control-sidebar"]').data('lte.controlsidebar')
     var $layout = $('body').data('lte.layout')
-    $(window).on('load', function() {
+    $(window).on('load', function () {
         // Reinitialize variables on load
         $pushMenu = $('[data-toggle="push-menu"]').data('lte.pushmenu')
         $controlSidebar = $('[data-toggle="control-sidebar"]').data('lte.controlsidebar')
@@ -45,7 +45,7 @@ $(function() {
      * @returns String The value of the setting | null
      */
     function get(name) {
-        if (typeof(Storage) !== 'undefined') {
+        if (typeof (Storage) !== 'undefined') {
             return localStorage.getItem(name)
         } else {
             window.alert('Please use a modern browser to properly view this template!')
@@ -60,7 +60,7 @@ $(function() {
      * @returns void
      */
     function store(name, val) {
-        if (typeof(Storage) !== 'undefined') {
+        if (typeof (Storage) !== 'undefined') {
             localStorage.setItem(name, val)
         } else {
             window.alert('Please use a modern browser to properly view this template!')
@@ -89,7 +89,7 @@ $(function() {
      * @returns Boolean false to prevent link's default action
      */
     function changeSkin(cls) {
-        $.each(mySkins, function(i) {
+        $.each(mySkins, function (i) {
             $('body').removeClass(mySkins[i])
         })
 
@@ -112,7 +112,7 @@ $(function() {
 
 
         // Add the change skin listener
-        $('[data-skin]').on('click', function(e) {
+        $('[data-skin]').on('click', function (e) {
             if ($(this).hasClass('knob'))
                 return
             e.preventDefault()
@@ -120,11 +120,11 @@ $(function() {
         })
 
         // Add the layout manager
-        $('[data-layout]').on('click', function() {
+        $('[data-layout]').on('click', function () {
             changeLayout($(this).data('layout'))
         })
 
-        $('[data-controlsidebar]').on('click', function() {
+        $('[data-controlsidebar]').on('click', function () {
             changeLayout($(this).data('controlsidebar'))
             var slide = !$controlSidebar.options.slide
 
@@ -133,7 +133,7 @@ $(function() {
                 $('.control-sidebar').removeClass('control-sidebar-open')
         })
 
-        $('[data-sidebarskin="toggle"]').on('click', function() {
+        $('[data-sidebarskin="toggle"]').on('click', function () {
             var $sidebar = $('.control-sidebar')
             if ($sidebar.hasClass('control-sidebar-dark')) {
                 $sidebar.removeClass('control-sidebar-dark')
@@ -144,7 +144,7 @@ $(function() {
             }
         })
 
-        $('[data-enable="expandOnHover"]').on('click', function() {
+        $('[data-enable="expandOnHover"]').on('click', function () {
             $(this).attr('disabled', true)
             $pushMenu.expandOnHover()
             if (!$('body').hasClass('sidebar-collapse'))
@@ -152,8 +152,8 @@ $(function() {
         })
 
 
-        $('#jinjamator_environment').on('change', function() {
-            store('jinjamator_environment',this.value)
+        $('#jinjamator_environment').on('change', function () {
+            store('jinjamator_environment', this.value)
         })
 
         //  Reset options
@@ -187,25 +187,76 @@ $(function() {
 
     $('[data-toggle="tooltip"]').tooltip()
 
-    $('.render_username').each(function(){ this.innerHTML=sessionStorage.getItem('logged_in_username'); })
+    $('.render_username').each(function () { this.innerHTML = sessionStorage.getItem('logged_in_username'); })
     var client = new $.RestClient('/api/');
     client.add('environments');
-    let cur_env= get('jinjamator_environment');
-    client.environments.read().done(function(data) {
-        $.each(data.environments, function(key, environment) {
-            $.each(environment.sites, function(key, site) {
-                let env_name=environment.name + '/' + site.name;
-                let select=false;
+    let cur_env = get('jinjamator_environment');
+    client.environments.read().done(function (data) {
+        $.each(data.environments, function (key, environment) {
+            $.each(environment.sites, function (key, site) {
+                let env_name = environment.name + '/' + site.name;
+                let select = false;
                 if (cur_env == env_name) {
-                    select=true;
+                    select = true;
                 }
-                $('#jinjamator_environment').append(new Option(env_name,env_name,select,select))
+                $('#jinjamator_environment').append(new Option(env_name, env_name, select, select))
             });
         });
     });
 })
 
-var client = new $.RestClient('/api/',{stringifyData: true});
+
+
+class logging{
+    static CRITICAL=50
+    static ERROR=40
+    static WARNING=30
+    static INFO=20
+    static DEBUG=10
+    static FE_DEBUG=9
+    static NOTSET=0
+
+    constructor(level=0){
+        this.level=level;
+        this._log=console
+        
+    }
+
+    setLevel(level){
+        this.level=level;
+    }
+
+    debug(...args) {
+        if (this.level <= logging.DEBUG) {
+            this._log.log(...args)
+        }
+    }
+    
+    
+    error(...args) {
+        if (this.level <= logging.ERROR) {
+            this._log.error(...args)
+        }
+    }
+
+    info(...args) {
+        if (this.level <= logging.INFO) {
+            this._log.info(...args)
+        }
+    }    
+    
+    dir(...args) {
+        if (this.level <= logging.DEBUG) {
+            this._log.dir(...args)
+        }
+    }
+
+}
+
+const log= new logging(logging.ERROR)
+const client = new $.RestClient('/api/', { stringifyData: true });
+
+
 client.add('tasks');
 client.add('jobs');
 client.add('plugins', { isSingle: true });
@@ -214,7 +265,6 @@ client.aaa.add('providers', { isSingle: true });
 client.aaa.add('users');
 client.aaa.add('roles');
 client.aaa.users.add('roles', { isSingle: true });
-
 client.plugins.add('output');
 
 
@@ -228,7 +278,7 @@ function update_breadcrumb(level1, level2) {
     $('.breadcrumb').html('<li><a href="#"><i class="fa fa-dashboard"></i>Home</a></li><li><a href="#">' + level1 + '</a></li><li class="active">' + level2 + '</li>')
 }
 
-function logout(){
+function logout() {
     sessionStorage.removeItem('access_token');
     sessionStorage.removeItem('logged_in_username');
     location.href = '/login.html';
@@ -240,19 +290,19 @@ function list_roles() {
     // parent.parents('li').addClass('active');
     update_breadcrumb('AAA', 'Roles');
 
-    $.get("static/templates/main_content_section.html", function(data) {
+    $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
     });
 
-    client.aaa.roles.read().done(function(data) {
+    client.aaa.roles.read().done(function (data) {
         table_data = '<div class="box-body"><table id="roles_list" class="table table-bordered table-hover">\
          <thead><tr><th>ID</th><th width="99%">Role Name</th><th width="1%">Actions</th></tr></thead>'
-        
-        data.forEach(function(value, index, array) {
+
+        data.forEach(function (value, index, array) {
             table_data += '<tr><td>' + value.id + '</td><td width="99%">' + value.name + '</td>\
             <td align="center" width="1%" style="white-space:nowrap;">\
             <div class="icon">\
-            <a href="#" class="fa fa-remove delete-role-href" onclick="delete_role(\'' +value.id + '\')">\
+            <a href="#" class="fa fa-remove delete-role-href" onclick="delete_role(\'' + value.id + '\')">\
             <!-- <a href="#" class="fa fa-delete">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
             <a href="#" class="fa fa-info-circle"></a>-->\
             </a></div> \
@@ -269,22 +319,22 @@ function list_roles() {
         }
 
         table = $('#roles_list').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    {
-                        text: 'Create Role',
-                        action: function ( e, dt, node, config ) {
-                            create_role();
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    text: 'Create Role',
+                    action: function (e, dt, node, config) {
+                        create_role();
                     }
-                    }
-                ],
-                "lengthMenu": [
-                    [15, 30, 100, -1],
-                    [15, 30, 100, "All"]
-                ]
+                }
+            ],
+            "lengthMenu": [
+                [15, 30, 100, -1],
+                [15, 30, 100, "All"]
+            ]
 
-            })
-            //table.on( 'dblclick', function () {
+        })
+        //table.on( 'dblclick', function () {
         // table.on('dblclick', 'tbody tr', function() {
         //     edit_user(table.row(this).data()[0]);
         // });
@@ -295,9 +345,9 @@ function list_roles() {
 }
 
 
-function create_role(){
+function create_role() {
     update_breadcrumb('AAA', 'Roles');
-            
+
     $(".all-content").html(`
     <section class="content">
     <div class="row">
@@ -329,41 +379,41 @@ function create_role(){
 
 
 
-    $("#create_role_form").submit(function(e){
+    $("#create_role_form").submit(function (e) {
         e.preventDefault();
         var form = this;
-        role_data={
-            name:this.role_name.value
+        role_data = {
+            name: this.role_name.value
         }
-        
+
         client.aaa.roles.create(role_data);
         list_roles();
-    
+
     });
 }
 
 
-function delete_role(id){
-    client.aaa.roles.destroy(id).done(function(user_data) {
+function delete_role(id) {
+    client.aaa.roles.destroy(id).done(function (user_data) {
         list_roles();
-    });  
+    });
 }
 
-function delete_user(id){
-    client.aaa.users.destroy(id).done(function(user_data) {
+function delete_user(id) {
+    client.aaa.users.destroy(id).done(function (user_data) {
         list_users();
     });
 }
 
-function edit_user(username){
-    
+function edit_user(username) {
+
     update_breadcrumb('AAA', 'Users');
-    client.aaa.users.read(username).done(function(user_data) {
-        client.aaa.roles.read().done(function(roledata) {
+    client.aaa.users.read(username).done(function (user_data) {
+        client.aaa.roles.read().done(function (roledata) {
             var select_data = [];
-            
+
             $(".all-content").html(
-            `<section class="content">
+                `<section class="content">
             <div class="row">
             <!-- left column -->
             <div class="col-md-6">
@@ -404,34 +454,36 @@ function edit_user(username){
             </section>`
             );
             var selected = [];
-            user_data.roles.forEach(function(value, index, array) {
+            user_data.roles.forEach(function (value, index, array) {
                 selected.push(value.id);
             });
 
-            roledata.forEach(function(value, index, array) {
-                is_selected=false;
-                if (selected.includes(value.id)){
-                    is_selected=true;
+            roledata.forEach(function (value, index, array) {
+                is_selected = false;
+                if (selected.includes(value.id)) {
+                    is_selected = true;
                 }
-                
-                $('#roles').append($('<option>', {value:value.name, text:value.name, selected:is_selected}));
+
+                $('#roles').append($('<option>', { value: value.name, text: value.name, selected: is_selected }));
             });
-            $('#roles').multiselect({enableFiltering: true,
-                filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
-            $("#edit_user_form").submit(function(e){
+            $('#roles').multiselect({
+                enableFiltering: true,
+                filterBehavior: 'value', maxHeight: 400, includeSelectAllOption: true
+            });
+            $("#edit_user_form").submit(function (e) {
                 e.preventDefault();
                 var form = this;
-                if (this.password.value != null){
-                    user_data.password=this.password.value;
+                if (this.password.value != null) {
+                    user_data.password = this.password.value;
                 }
-                user_data.name=this.full_name.value;
-                new_role_data=[];
-                for (let item of this.roles.selectedOptions){
+                user_data.name = this.full_name.value;
+                new_role_data = [];
+                for (let item of this.roles.selectedOptions) {
                     new_role_data.push(item.value);
                 }
-                user_data.roles=new_role_data;
+                user_data.roles = new_role_data;
                 console.dir(user_data)
-                client.aaa.users.update(username,user_data);
+                client.aaa.users.update(username, user_data);
                 list_users();
             });
         });
@@ -439,15 +491,15 @@ function edit_user(username){
 
 }
 
-function create_user(){
-    
+function create_user() {
+
     update_breadcrumb('AAA', 'Users');
-    
-        client.aaa.roles.read().done(function(roledata) {
-            user_data = {}
-            var select_data = [];
-            
-            $(".all-content").html(
+
+    client.aaa.roles.read().done(function (roledata) {
+        user_data = {}
+        var select_data = [];
+
+        $(".all-content").html(
             `<section class="content">
             <div class="row">
             <!-- left column -->
@@ -492,43 +544,47 @@ function create_user(){
             </div>
             </div>
             </section>`
-            );
+        );
 
 
-            roledata.forEach(function(value, index, array) {
-                $('#roles').append($('<option>', {value:value.name, text:value.name}));
-            });
-            
-            client.aaa.providers.read().done(function(providers) {
-                providers.forEach(function(value, index, array) {
-                    $('#aaa_provider').append($('<option>', {value:value.name, text:value.display_name}));
-                });
-                $('#aaa_provider').multiselect({enableFiltering: true,
-                    filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
-    
-            });
-            
-            $('#roles').multiselect({enableFiltering: true,
-                filterBehavior: 'value', maxHeight:400, includeSelectAllOption:true});
-    
-            $("#create_user_form").submit(function(e){
-                e.preventDefault();
-                var form = this;
-                if (this.password.value != null){
-                    user_data.password=this.password.value;
-                }
-                user_data.name=this.full_name.value;
-                user_data.username=this.username.value;
-                new_role_data=[];
-                for (let item of this.roles.selectedOptions){
-                    new_role_data.push(item.value);
-                }
-                user_data.roles=new_role_data;
-                
-                client.aaa.users.create(user_data);
-                list_users();
-            });
+        roledata.forEach(function (value, index, array) {
+            $('#roles').append($('<option>', { value: value.name, text: value.name }));
         });
+
+        client.aaa.providers.read().done(function (providers) {
+            providers.forEach(function (value, index, array) {
+                $('#aaa_provider').append($('<option>', { value: value.name, text: value.display_name }));
+            });
+            $('#aaa_provider').multiselect({
+                enableFiltering: true,
+                filterBehavior: 'value', maxHeight: 400, includeSelectAllOption: true
+            });
+
+        });
+
+        $('#roles').multiselect({
+            enableFiltering: true,
+            filterBehavior: 'value', maxHeight: 400, includeSelectAllOption: true
+        });
+
+        $("#create_user_form").submit(function (e) {
+            e.preventDefault();
+            var form = this;
+            if (this.password.value != null) {
+                user_data.password = this.password.value;
+            }
+            user_data.name = this.full_name.value;
+            user_data.username = this.username.value;
+            new_role_data = [];
+            for (let item of this.roles.selectedOptions) {
+                new_role_data.push(item.value);
+            }
+            user_data.roles = new_role_data;
+
+            client.aaa.users.create(user_data);
+            list_users();
+        });
+    });
 
 
 }
@@ -540,20 +596,20 @@ function list_users() {
     // parent.parents('li').addClass('active');
     update_breadcrumb('AAA', 'Users');
 
-    $.get("static/templates/main_content_section.html", function(data) {
+    $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
     });
 
-    client.aaa.users.read().done(function(data) {
+    client.aaa.users.read().done(function (data) {
         table_data = '<div class="box-body"><table id="users_list" class="table table-bordered table-hover">\
          <thead><tr><th>ID</th><th>Username</th><th width="60%">Full Name</th><th>AAA Provider</th><th width="1%">Actions</th></tr></thead>'
-        
-        data.forEach(function(value, index, array) {
+
+        data.forEach(function (value, index, array) {
             table_data += '<tr><td>' + value.id + '</td><td>' + value.username + '</td><td width="60%">' + value.name + '</td> <td> ' + value.aaa_provider + ' </td>\
             <td align="center" width="1%" style="white-space:nowrap;">\
             <div class="icon">\
-            <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' +value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
-            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' +value.id + '\')">\
+            <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' + value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' + value.id + '\')">\
             </a></div> \
             </td></tr > '
         });
@@ -572,19 +628,19 @@ function list_users() {
             buttons: [
                 {
                     text: 'Create User',
-                    action: function ( e, dt, node, config ) {
+                    action: function (e, dt, node, config) {
                         create_user();
-                }
+                    }
                 }
             ],
             "lengthMenu": [
-                    [15, 30, 100, -1],
-                    [15, 30, 100, "All"]
+                [15, 30, 100, -1],
+                [15, 30, 100, "All"]
             ]
 
         })
-            //table.on( 'dblclick', function () {
-        table.on('dblclick', 'tbody tr', function() {
+        //table.on( 'dblclick', function () {
+        table.on('dblclick', 'tbody tr', function () {
             edit_user(table.row(this).data()[1]);
         });
 
@@ -600,15 +656,15 @@ function list_tasks() {
     // parent.parents('li').addClass('active');
     update_breadcrumb('Tasks', 'List');
 
-    $.get("static/templates/main_content_section.html", function(data) {
+    $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
     });
 
-    client.tasks.read().done(function(data) {
+    client.tasks.read().done(function (data) {
         table_data = '<div class="box-body"><table id="task_list" class="table table-bordered table-hover">\
          <thead><tr><th>Task</th><th width="60%">Description</th><th width="1%">Actions</th></tr></thead>'
-        data.tasks.forEach(function(value, index, array) {
-            if (value.gui){
+        data.tasks.forEach(function (value, index, array) {
+            if (value.gui) {
                 table_data += '<tr><td>' + value.path + '</td><td width="60%">' + value.description + '</td>\
                 <td align="center" width="1%" style="white-space:nowrap;">\
                 <div class="icon">\
@@ -628,24 +684,24 @@ function list_tasks() {
         if ($.fn.dataTable.isDataTable('#task_list')) {
             $('#task_list').DataTable().destroy();
         }
-        
+
         $.fn.dataTable.ext.search.pop() // dirty but is the only thing that works at the moment
         delete $.fn.DataTable.ext.order["alpaca"]
         table = $('#task_list').DataTable({
-                "lengthMenu": [
-                    [15, 30, 100, -1],
-                    [15, 30, 100, "All"]
-                ]
+            "lengthMenu": [
+                [15, 30, 100, -1],
+                [15, 30, 100, "All"]
+            ]
 
-            })
-            //table.on( 'dblclick', function () {
-        
-        
-        
-        table.on('dblclick', 'tbody tr', function() {
+        })
+        //table.on( 'dblclick', function () {
+
+
+
+        table.on('dblclick', 'tbody tr', function () {
             create_job(table.row(this).data()[0]);
             table.destroy();
-            
+
         });
 
         $('.main-section').removeClass('hidden');
@@ -663,8 +719,8 @@ function create_job(job_path, pre_defined_vars) {
     }
     update_breadcrumb('Jobs', 'Create');
 
-    
-    $.get("static/templates/main_content_section.html", function(data) {
+
+    $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
         $(".main-content-box").replaceWith(`
         <div id="overlay">
@@ -690,36 +746,36 @@ function create_job(job_path, pre_defined_vars) {
         $.ajax({
             url: "/api/tasks/" + job_path + "/resources/js/form.js",
             dataType: "script",
-            error: function () {}
+            error: function () { }
         });
 
 
-        client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(pre_defined_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function(data) {
+        client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(pre_defined_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function (data) {
 
             $.extend(data['view']['wizard'], {
                 "buttons": {
                     "next": {
-                        "click": function(e) {
+                        "click": function (e) {
                             control = $('#form').alpaca('get');
 
                             if ($('li.active[data-alpaca-wizard-step-index]')[0].getAttribute('data-alpaca-wizard-step-index') == 0) {
                                 defaults_step = $('[data-alpaca-wizard-role="step"]')[1];
 
                                 required_vars = {}
-                                $.each(data['view']['wizard']['bindings'], function(key, value) {
+                                $.each(data['view']['wizard']['bindings'], function (key, value) {
                                     if (value == 1) {
                                         required_vars[key] = $('[name="' + key + '"]').val();
                                     }
                                 });
-                                client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(required_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }, ).done(function(data) {
+                                client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(required_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() },).done(function (data) {
 
 
-                                    $.each(data['view']['wizard']['bindings'], function(key, value) {
+                                    $.each(data['view']['wizard']['bindings'], function (key, value) {
                                         if (value == 2) {
                                             form_item = control.getControlByPath("/" + key);
                                             if (form_item === undefined) {
 
-                                                control.createItem(key, data['schema']['properties'][key], data['options']['fields'][key], data['data'][key], 0, function(item) {
+                                                control.createItem(key, data['schema']['properties'][key], data['options']['fields'][key], data['data'][key], 0, function (item) {
                                                     control.registerChild(item, 1);
                                                     defaults_step.append(item.containerItemEl[0]);
 
@@ -738,7 +794,7 @@ function create_job(job_path, pre_defined_vars) {
                         }
                     },
                     "submit": {
-                        "click": function() {
+                        "click": function () {
 
                             client.opts['stringifyData'] = true;
                             var data = this.getValue();
@@ -760,30 +816,30 @@ function create_job(job_path, pre_defined_vars) {
 
                             delete data['output_plugin_parameters'];
 
-                            if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true){
-                                
-                                $('#modal-submit').modal('show') 
-                                $('#modal-submit ').find('.btn-ok').on('click',function(){
-                                    client.tasks.create(job_path, data).done(function(data) {
-                                        $('#modal-submit').modal('hide') 
-                                        setTimeout(function() { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
+                            if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true) {
+
+                                $('#modal-submit').modal('show')
+                                $('#modal-submit ').find('.btn-ok').on('click', function () {
+                                    client.tasks.create(job_path, data).done(function (data) {
+                                        $('#modal-submit').modal('hide')
+                                        setTimeout(function () { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
                                     });
                                 })
                             }
-                            else{
-                                client.tasks.create(job_path, data).done(function(data) {
-                                    setTimeout(function() { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
+                            else {
+                                client.tasks.create(job_path, data).done(function (data) {
+                                    setTimeout(function () { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
                                 });
-    
+
                             }
-                            
+
 
 
                         }
                     }
                 }
             });
-            data['options']['fields']['output_plugin']['onFieldChange'] = function(e) {
+            data['options']['fields']['output_plugin']['onFieldChange'] = function (e) {
 
 
 
@@ -793,27 +849,27 @@ function create_job(job_path, pre_defined_vars) {
                 output_plugin_parameters = control.getControlByPath("/output_plugin_parameters");
                 // console.log(output_plugin_parameters)
                 console.log(output_plugin_parameters)
-                $.each(output_plugin_parameters.children, function(key, value) {
+                $.each(output_plugin_parameters.children, function (key, value) {
                     // console.log(0)
                     // console.log(output_plugin_parameters.children[key].propertyId)
-                    if (typeof(output_plugin_parameters.children[0].propertyId) !== 'undefined') {
-                        output_plugin_parameters.removeItem(output_plugin_parameters.children[0].propertyId, function() {});
+                    if (typeof (output_plugin_parameters.children[0].propertyId) !== 'undefined') {
+                        output_plugin_parameters.removeItem(output_plugin_parameters.children[0].propertyId, function () { });
                     }
                 });
 
 
 
-                client.plugins.output.read(this.getValue(e), {}, form_data).done(function(data) {
+                client.plugins.output.read(this.getValue(e), {}, form_data).done(function (data) {
                     options = data['schema']['options'];
                     schema = data['schema']['schema'];
 
 
                     order = {}
-                    $.each(options.fields, function(key, value) {
+                    $.each(options.fields, function (key, value) {
                         order[value.order] = key;
                     });
 
-                    $.each(order, function(index, var_name) {
+                    $.each(order, function (index, var_name) {
 
 
                         // data.properties[var_name] = data['schema']['properties'][var_name];
@@ -826,7 +882,7 @@ function create_job(job_path, pre_defined_vars) {
                         // };
 
 
-                        output_plugin_parameters.addItem(var_name, schema.properties[var_name], options.fields[var_name], '', function(item) {});
+                        output_plugin_parameters.addItem(var_name, schema.properties[var_name], options.fields[var_name], '', function (item) { });
                     });
                     console.log(output_plugin_parameters)
                 });
@@ -838,8 +894,8 @@ function create_job(job_path, pre_defined_vars) {
             }
             data.options['allowNull'] = true;
 
-            
-            data['postRender'] = function(control) {
+
+            data['postRender'] = function (control) {
                 form_data = control.getValue();
 
 
@@ -852,7 +908,7 @@ function create_job(job_path, pre_defined_vars) {
                 }
 
 
-                client.plugins.output.read(output_plugin_name, {}, form_data).done(function(data) {
+                client.plugins.output.read(output_plugin_name, {}, form_data).done(function (data) {
                     var itemId = "output_plugin_parameters";
                     var itemSchema = data['schema']['schema']
                     var itemOptions = data['schema']['options']
@@ -861,7 +917,7 @@ function create_job(job_path, pre_defined_vars) {
                     output_plugin = $('[data-alpaca-field-name="output_plugin"]')[0];
                     // console.dir(output_plugin)
 
-                    control.createItem(itemId, itemSchema, itemOptions, {}, '', function(item) {
+                    control.createItem(itemId, itemSchema, itemOptions, {}, '', function (item) {
                         control.registerChild(item, 3);
                         output_plugin.parentNode.append(item.containerItemEl[0]);
 
@@ -870,16 +926,16 @@ function create_job(job_path, pre_defined_vars) {
                 });
 
 
-            if ('post_render' in data){
-                // console.log(data['post_render'])
-                window[data['post_render']](control)
-            }
+                if ('post_render' in data) {
+                    // console.log(data['post_render'])
+                    window[data['post_render']](control)
+                }
             };
             var step_counter = [0, 0, 0]
-            $.each(data['view']['wizard']['bindings'], function(key, value) {
+            $.each(data['view']['wizard']['bindings'], function (key, value) {
                 step_counter[value - 1]++;
             });
-            step_counter.forEach(function(value, index, array) {
+            step_counter.forEach(function (value, index, array) {
                 if (value == 0) {
                     var step = index + 1;
                     data['schema']['properties']['__no_vars_' + step] = {
@@ -914,7 +970,7 @@ function create_job(job_path, pre_defined_vars) {
 }
 
 function clone_job(job_id) {
-    client.jobs.read(job_id).done(function(data) {
+    client.jobs.read(job_id).done(function (data) {
         var timestamp = Object.keys(data['log'][0])[0];
         var configuration = data['log'][0][timestamp]['configuration'];
         if (configuration.jinjamator_job_id !== undefined) {
@@ -928,7 +984,7 @@ function clone_job(job_id) {
 }
 
 function undo_job(job_id) {
-    client.jobs.read(job_id).done(function(data) {
+    client.jobs.read(job_id).done(function (data) {
         var timestamp = Object.keys(data['log'][0])[0];
         var configuration = data['log'][0][timestamp]['configuration'];
         configuration['undo'] = true;
@@ -951,19 +1007,19 @@ function badge_color_from_state(state) {
     if (state == 'PROGRESS')
         badge_color = 'bg-blue';
     if (state == 'DEBUGGING')
-        badge_color = 'bg-orange';        
+        badge_color = 'bg-orange';
     return badge_color;
 }
 
 function list_jobs() {
     update_breadcrumb('Jobs', 'History');
     $(".treeview-item").removeClass("active")
-        // parent.parents('li').addClass('active');
-    $.get("static/templates/main_content_section.html", function(data) {
+    // parent.parents('li').addClass('active');
+    $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
     });
 
-    client.jobs.read().done(function(data) {
+    client.jobs.read().done(function (data) {
         table_data = '<div class="box-body">\
             <table id="list_jobs" class="table table-bordered table-hover">\
                 <thead>\
@@ -978,8 +1034,8 @@ function list_jobs() {
                     <th width="1%">Status</th>\
                 </tr>\
                 </thead>'
-        $.each(data, function(i, item) {
-            $.each(data[i], function(j, obj) {
+        $.each(data, function (i, item) {
+            $.each(data[i], function (j, obj) {
 
                 badge_color = badge_color_from_state(obj.state);
                 table_data += '<tr><td width="1%">' + obj.number + '</td>\
@@ -1011,7 +1067,7 @@ function list_jobs() {
             ]
         })
 
-        table.on('dblclick', 'tbody tr', function() {
+        table.on('dblclick', 'tbody tr', function () {
             show_job(table.row(this).data()[5]);
         });
 
@@ -1030,14 +1086,14 @@ function set_timeline_loglevel(level) {
         'TASKLET_RESULT': 0
     }
 
-    $(".timeline-item-list-item").each(function() {
-            cur_level = $(this).find('#log_level').html()
-            if (levels[cur_level] > levels[level]) {
-                $(this).addClass('hidden');
-            } else {
-                $(this).removeClass('hidden');
-            }
+    $(".timeline-item-list-item").each(function () {
+        cur_level = $(this).find('#log_level').html()
+        if (levels[cur_level] > levels[level]) {
+            $(this).addClass('hidden');
+        } else {
+            $(this).removeClass('hidden');
         }
+    }
 
     );
 
@@ -1045,11 +1101,11 @@ function set_timeline_loglevel(level) {
 
 
 function update_timeline(job_id) {
-    client.jobs.read(job_id).done(function(data) {
+    client.jobs.read(job_id).done(function (data) {
 
         timeline_render_elements(data);
         if ($('#job_id').length > 0) {
-            if (data['state'] == "PROGRESS" || data['state']=="SCHEDULED" || data['state']=="DEBUGGING")
+            if (data['state'] == "PROGRESS" || data['state'] == "SCHEDULED" || data['state'] == "DEBUGGING")
                 setTimeout(update_timeline, 1000, job_id);
         }
     });
@@ -1057,19 +1113,19 @@ function update_timeline(job_id) {
 }
 
 
-function download_file(url,filename){
+function download_file(url, filename) {
     access_token = sessionStorage.getItem('access_token');
     var req = new XMLHttpRequest();
     req.open("GET", url, true);
-    req.setRequestHeader('Authorization', 'Bearer ' + access_token); 
+    req.setRequestHeader('Authorization', 'Bearer ' + access_token);
     req.responseType = "blob";
     req.onload = function (event) {
         event.preventDefault();
         var blob = req.response;
-        
-        var link=document.createElement('a');
-        link.href=window.URL.createObjectURL(blob);
-        link.download=filename;
+
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
         link.click();
     };
     req.send();
@@ -1079,7 +1135,7 @@ function download_file(url,filename){
 function timeline_render_elements(data) {
     var last_task = '';
     var timeline = $('.timeline');
-    var rendered_timestamps = $.makeArray($('.time').map(function() {
+    var rendered_timestamps = $.makeArray($('.time').map(function () {
         return this.innerHTML;
     }));
     $('#job_status').html(data['state']);
@@ -1087,20 +1143,20 @@ function timeline_render_elements(data) {
     $('#job_status').addClass(badge_color_from_state(data['state']));
     if (data.files.length > 0) {
         $("#job_files").html('');
-        data['files'].forEach(function(value, index, array) {
+        data['files'].forEach(function (value, index, array) {
             $('<a>', {
                 text: value,
                 title: value,
                 href: '#',
-            }).on('click', function () {download_file('/api/files/download/' + data.id + '/' + value, value)}).appendTo('#job_files');
+            }).on('click', function () { download_file('/api/files/download/' + data.id + '/' + value, value) }).appendTo('#job_files');
             $('<br>').appendTo('#job_files');
         });
     }
-   
 
 
 
-    $.each(data['log'], function(index, log_item) {
+
+    $.each(data['log'], function (index, log_item) {
         var timestamp = Object.keys(log_item)[0];
 
         if (!rendered_timestamps.includes(timestamp)) {
@@ -1194,37 +1250,37 @@ function timeline_render_elements(data) {
 
 function show_job(job_id) {
     update_breadcrumb('Jobs', 'Detail');
-    $.get("static/templates/main_content_section.html", function(data) {
+    $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
 
-        $.get("static/templates/timeline.html", function(data) {
+        $.get("static/templates/timeline.html", function (data) {
             timeline_templates = $(data);
             var timeline = timeline_templates.filter('#timeline-template');
             var timeline_overview_box = timeline_templates.filter('#timeline-overview-box-template');
             timeline_overview_box.find('#job_id').html(job_id);
-            
+
 
             timeline.find('.timeline').append(timeline_overview_box.html());
             $(".all-content").html('<section class="content">' + timeline.html() + '</section>');
 
-            client.jobs.read(job_id).done(function(data) {
-                
+            client.jobs.read(job_id).done(function (data) {
+
                 $("#user_name").html(data['created_by_user_name']);
                 if ("debugger_password" in data) {
                     $("<tr> <th nowrap>Debugger URL:</th> \
                     <td nowrap id='debugger_url'>http://not-implemented-yet</td> \
-                    <tr>").appendTo('#job_overview_table');    
+                    <tr>").appendTo('#job_overview_table');
                 }
-            
+
                 timeline_render_elements(data);
                 $("#job_path").html(data['jinjamator_task']);
-                
+
 
             });
 
 
             $('.main-section').removeClass('hidden');
-            
+
             setTimeout(update_timeline, 1000, job_id);
 
 
