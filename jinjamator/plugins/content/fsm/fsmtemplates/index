@@ -243,6 +243,8 @@ cisco_nxos_show_ip_interface.fsm, .*, cisco_nxos, sh[[ow]] ip int[[erface]] (vrf
 cisco_nxos_show_ipv6_interface.fsm, .*, cisco_nxos, sh[[ow]] ipv[[6]] int[[erface]] (vrf)? (\S+) 
 cisco_nxos_show_ip_igmp_groups_vrf_all.fsm, .*, cisco_nxos, sh[[ow]] i[[p]] igmp gr[[oups]] vrf all
 cisco_nxos_show_spanning-tree.fsm, .*, cisco_nxos, sh[[ow]] sp[[anning-tree]]
+cisco_nxos_show_run_interface.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] int[[erface]]
+cisco_nxos_show_run_port-profile.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] port-pr[[ofile]]
 
 cisco_wlc_ssh_show_cdp_neighbors_detail.fsm, .*, cisco_wlc_ssh, sh[[ow]] c[[dp]] neig[[hbors]] det[[ail]]
 cisco_wlc_ssh_show_ap_config_general.fsm, .*, cisco_wlc_ssh, sh[[ow]] ap con[[fig]] ge[[neral]]
@@ -297,6 +299,9 @@ huawei_netengine_display_inventory_chassis.fsm, .*, huawei_netengine, dis[[play]
 huawei_netengine_display_ip_interface_brief.fsm, .*, huawei_netengine, dis[[play]] ip int[[erface]] br[[ief]]
 huawei_netengine_display_ipv6_interface_brief.fsm, .*, huawei_netengine, dis[[play]] ipv6 int[[erface]] br[[ief]]
 huawei_netengine_display_ipv6_neighbors.fsm, .*, huawei_netengine, dis[[play]] ipv6 nei[[ghbors]]
+huawei_netengine_display_ip_vpn-instance_interface.fsm, .*, huawei_netengine, dis[[play]] ip vpn[[-instance]] int[[erface]]
+huawei_netengine_display_ip_interface.fsm, .*, huawei_netengine, dis[[play]] ip int[[erface]]
+huawei_netengine_display_ipv6_interface.fsm, .*, huawei_netengine, dis[[play]] ipv6 int[[erface]]
 
 juniper_junos_show_chassis_cluster_interfaces.fsm, .*, juniper_junos, sh[[ow]] ch[[assis]] c[[luster]] i[[nterface]]
 juniper_junos_show_chassis_cluster_status.fsm, .*, juniper_junos, sh[[ow]] ch[[assis]] c[[luster]] s[[tatus]]

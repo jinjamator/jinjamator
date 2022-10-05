@@ -1,4 +1,4 @@
-Value Required IPV6_ADDRESS (\S+)
+Value Required IP_ADDRESS (\S+)
 Value LINK_LAYER_ADDRESS (\S+)
 Value STATE (\S+)
 Value INTERFACE (\S+)
@@ -13,7 +13,7 @@ Value SECURE_FLAG (\S+)
 Start
   ^---------
   ^Total
-  ^IPv6 Address\s+: ${IPV6_ADDRESS}\s*$$
+  ^IPv6 Address\s+: ${IP_ADDRESS}\s*$$
   ^Link-layer\s+: ${LINK_LAYER_ADDRESS}\s+State\s+: ${STATE}\s*$$
   ^Interface\s+: ${INTERFACE}\s+Age\s+: ${AGE}\s*$$
   ^VLAN\s+: ${VLAN}\s+CEVLAN\s*: ${CEVLAN}\s*$$

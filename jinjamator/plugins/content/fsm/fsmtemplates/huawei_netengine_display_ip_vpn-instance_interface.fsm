@@ -1,0 +1,17 @@
+Value Required VPN_INSTANCE (\S+)
+Value VPN_INSTANCE_ID (\S+)
+Value INTERFACE_NUMBER (\S+)
+Value List INTERFACES (\S+)
+
+Start
+  ^Total VPN-Instances configured
+  ^VPN-Instance Name and ID : ${VPN_INSTANCE}, ${VPN_INSTANCE_ID}
+  ^\s+Interface Number : ${INTERFACE_NUMBER}\s*$$
+  ^\s+Interface list : ${INTERFACES},\s*$$ -> Interface_list
+  ^\s+Interface list : ${INTERFACES}\s*$$
+  ^\s*$$ -> Record
+  ^. -> Error
+
+Interface_list
+  ^\s{4,}${INTERFACES},
+  ^\s{4,}${INTERFACES}\s*$$ -> Start
