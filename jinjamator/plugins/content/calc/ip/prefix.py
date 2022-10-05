@@ -24,3 +24,7 @@ def ip(prefix):
 def gateway(prefix):
 
     return ipcalc.Network(prefix).host_first()
+
+def network (prefix):
+    sn = ipcalc.Network(prefix)
+    return sn.network()
