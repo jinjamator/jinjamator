@@ -1,0 +1,35 @@
+Value INTERFACE (\S+)
+Value STATUS_PHYSICAL (\S+)
+Value STATUS_PROTOCOL (\S+)
+Value List IP_ADDRESS (\S+)
+Value List IP_PREFIX (\d+)
+Value List IP_SUBNET (\S+)
+Value IP_LINK_LOCAL (\S+)
+Value Repeated,List JOINED_MULTICAST_GROUPS (\S+:\S*:\S+)
+Value MTU (\S+)
+Value DAD_ENABLED (\S+)
+Value DAD_ATTEMPTS (\S+)
+Value ND_REACHABLE (\S+)
+Value ND_RETRANSMIT (\S+)
+
+
+Start
+  ^${INTERFACE} current state : ${STATUS_PHYSICAL}
+  ^IPv6 protocol current state : ${STATUS_PROTOCOL}
+  ^Line protocol current state : ${STATUS_PROTOCOL}( \(spoofing\))?
+  ^IPv6 is enabled, link-local address is ${IP_LINK_LOCAL}
+  ^\s+Global unicast address\(es\):
+  ^\s+${IP_ADDRESS}, subnet is \S+/${IP_PREFIX} -> Continue
+  ^\s+\S+, subnet is ${IP_SUBNET}
+  ^\s+Joined group address\(es\):.*$$ -> MULTICAST_LIST_LOCAL
+  ^\s+MTU is ${MTU} bytes
+  ^\s+ND DAD is ${DAD_ENABLED}, number of DAD attempts: ${DAD_ATTEMPTS}
+  ^\s+ND reachable time is ${ND_REACHABLE} milliseconds
+  ^\s+ND retransmit interval is ${ND_RETRANSMIT} milliseconds
+  ^\s*$$ -> Record
+  ^. -> Error
+
+
+MULTICAST_LIST_LOCAL
+  ^\s+${JOINED_MULTICAST_GROUPS}.*$$
+  ^\s+MTU is ${MTU} bytes.*$$ -> Start

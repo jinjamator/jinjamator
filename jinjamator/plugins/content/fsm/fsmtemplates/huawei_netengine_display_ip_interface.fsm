@@ -1,0 +1,82 @@
+Value INTERFACE (\S+)
+Value STATUS_PHYSICAL (\S+)
+Value STATUS_PROTOCOL (\S+)
+Value MTU (\S+)
+Value INPUT_PACKETS (\S+)
+Value INPUT_BYTES (\S+)
+Value INPUT_MCAST (\S+)
+Value OUTPUT_PACKETS (\S+)
+Value OUTPUT_BYTES (\S+)
+Value OUTPUT_MCAST (\S+)
+Value DIRECTED_BCAST_RECEIVED (\S+)
+Value DIRECTED_BCAST_SENT (\S+)
+Value DIRECTED_BCAST_FORWARD (\S+)
+Value DIRECTED_BCAST_DROPPED (\S+)
+Value ARP_NUMBER (\S+)
+Value ARP_REQUEST (\S+)
+Value ARP_REPLY (\S+)
+Value ARP_UNKNOWN (\S+)
+Value List IP_ADDRESS (\S+)
+Value BROADCAST_ADDRESS (\S+)
+Value PACKETS_TTL_1 (\S+)
+Value PACKETS_TTL_INVALID (\S+)
+Value ICMP_PACKET_NUMBER (\S+)
+Value ICMP_ECHO_REPLY (\S+)
+Value ICMP_UNREACHABLE (\S+)
+Value ICMP_SOURCE_QUENCH (\S+)
+Value ICMP_ROUTING_REDIRECT (\S+)
+Value ICMP_ECHO_REQUEST (\S+)
+Value ICMP_ROUTER_ADVERT (\S+)
+Value ICMP_ROUTER_SOLICIT (\S+)
+Value ICMP_TIME_EXCEED (\S+)
+Value ICMP_IP_HEADER_BAD (\S+)
+Value ICMP_TIMESTAMP_REQUEST (\S+)
+Value ICMP_TIMESTAMP_REPLY (\S+)
+Value ICMP_INFORMATION_REQUEST (\S+)
+Value ICMP_INFORMATION_REPLY (\S+)
+Value ICMP_NETMASK_REQUEST (\S+)
+Value ICMP_NETMASK_REPLY (\S+)
+Value ICMP_UNKNOWN_TYPE (\S+)
+Value DHCP_PACKET_DEAL_MODE (\S+)
+Value List DHCP_RELAY_ADDRESS (\S+)
+
+
+Start
+  ^${INTERFACE} current state : ${STATUS_PHYSICAL}
+  ^Line protocol current state : ${STATUS_PROTOCOL}
+  ^The Maximum Transmit Unit : ${MTU} bytes
+  ^input packets : ${INPUT_PACKETS}, bytes : ${INPUT_BYTES}, multicasts : ${INPUT_MCAST}
+  ^output packets : ${OUTPUT_PACKETS}, bytes : ${OUTPUT_BYTES}, multicasts : ${OUTPUT_MCAST}
+  ^Directed-broadcast packets:
+  ^\s+received packets:\s*${DIRECTED_BCAST_RECEIVED}, sent packets:\s*${DIRECTED_BCAST_SENT}
+  ^\s+forwarded packets:\s*${DIRECTED_BCAST_FORWARD}, dropped packets:\s*${DIRECTED_BCAST_DROPPED}
+  ^ARP packet input number:\s*${ARP_NUMBER}
+  ^\s+Request packet:\s*${ARP_REQUEST}
+  ^\s+Reply packet:\s*${ARP_REPLY}
+  ^\s+Unknown packet:\s*${ARP_UNKNOWN}
+  ^Internet Address is ${IP_ADDRESS}
+  ^Internet protocol processing : ${IP_ADDRESS}
+  ^Broadcast address : ${BROADCAST_ADDRESS}
+  ^TTL being 1 packet number:\s*${PACKETS_TTL_1}
+  ^TTL invalid packet number:\s*${PACKETS_TTL_INVALID}
+  ^ICMP packet input number:\s*${ICMP_PACKET_NUMBER}
+  ^\s+Echo reply:\s*${ICMP_ECHO_REPLY}
+  ^\s+Unreachable:\s*${ICMP_UNREACHABLE}
+  ^\s+Source quench:\s*${ICMP_SOURCE_QUENCH}
+  ^\s+Routing redirect:\s*${ICMP_ROUTING_REDIRECT}
+  ^\s+Echo request:\s*${ICMP_ECHO_REQUEST}
+  ^\s+Router advert:\s*${ICMP_ROUTER_ADVERT}
+  ^\s+Router solicit:\s*${ICMP_ROUTER_SOLICIT}
+  ^\s+Time exceed:\s*${ICMP_TIME_EXCEED}
+  ^\s+IP header bad:\s*${ICMP_IP_HEADER_BAD}
+  ^\s+Timestamp request:\s*${ICMP_TIMESTAMP_REQUEST}
+  ^\s+Timestamp reply:\s*${ICMP_TIMESTAMP_REPLY}
+  ^\s+Information request:\s*${ICMP_INFORMATION_REQUEST}
+  ^\s+Information reply:\s*${ICMP_INFORMATION_REPLY}
+  ^\s+Netmask request:\s*${ICMP_NETMASK_REQUEST}
+  ^\s+Netmask reply:\s*${ICMP_NETMASK_REPLY}
+  ^\s+Unknown type:\s*${ICMP_UNKNOWN_TYPE}
+  ^DHCP packet deal mode:\s+${DHCP_PACKET_DEAL_MODE}
+  ^Relay Address\[[0-9]+\]:\s+${DHCP_RELAY_ADDRESS}
+  ^\s*$$ -> Record
+  ^. -> Error

@@ -1,5 +1,5 @@
 Value INTERFACE (\S+)
-Value IPV6_ADDRESS (\S+)
+Value IP_ADDRESS (\S+)
 Value STATUS_PHYSICAL (\S+)
 Value STATUS_PROTOCOL (\S+)
 Value TENTATIVE (\S+)
@@ -12,7 +12,7 @@ Start
   ^\(l\): loopback
   ^\(s\): spoofing
   ^Interface\s+Physical\s+Protocol
-  ^\[IPv6 Address\] ${IPV6_ADDRESS}(\s+\[${TENTATIVE}\])? -> Record
+  ^\[IPv6 Address\] ${IP_ADDRESS}(\s+\[${TENTATIVE}\])? -> Record
   ^${INTERFACE}\s+${STATUS_PHYSICAL}\s+${STATUS_PROTOCOL}\s*$$       
   ^\s*$$
   ^. -> Error
