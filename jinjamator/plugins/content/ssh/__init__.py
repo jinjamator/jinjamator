@@ -131,7 +131,7 @@ def connect(**kwargs):
         else:
             netmiko_log.setLevel(logging.ERROR)
 
-        connection = ConnectHandler(**cfg)
+        connection = ConnectHandler(**cfg,**opts)
         return connection
     except NetmikoAuthenticationException as e:
 
