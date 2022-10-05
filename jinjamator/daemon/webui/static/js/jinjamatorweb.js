@@ -207,53 +207,84 @@ $(function () {
 
 
 
-class logging{
-    static CRITICAL=50
-    static ERROR=40
-    static WARNING=30
-    static INFO=20
-    static DEBUG=10
-    static FE_DEBUG=9
-    static NOTSET=0
+class logging {
+    static CRITICAL = 50
+    static ERROR = 40
+    static WARNING = 30
+    static INFO = 20
+    static DEBUG = 10
+    static FE_DEBUG = 9
+    static NOTSET = 0
 
-    constructor(level=0){
-        this.level=level;
-        this._log=console
+    constructor(level = logging.INFO) {
+        this.level = level;
+        this._init()
+    }
+
+    _init() {
         
-    }
+        if (console.log.bind === "undefined") {
+            // IE < 10
 
-    setLevel(level){
-        this.level=level;
-    }
+            this.error = Function.prototype.bind.call(console.error, console, `[E] [${this.prefix}]:`);
+            this.warning = Function.prototype.bind.call(console.warn, console, `[W] [${this.prefix}]:`);
+            this.warn = Function.prototype.bind.call(console.warn, console, `[W] [${this.prefix}]:`);
+            this.info = Function.prototype.bind.call(console.info, console, `[I] [${this.prefix}]:`);
+            this.debug = Function.prototype.bind.call(console.debug, console, `[D] [${this.prefix}]:`);
+            this.fe_debug = Function.prototype.bind.call(console.debug, console, `[D] [${this.prefix}]:`);
+            this.dir = Function.prototype.bind.call(console.dir, console, `[D] [${this.prefix}]:`);
+            this.table = Function.prototype.bind.call(console.table, console, `[D] [${this.prefix}]:`);
 
-    debug(...args) {
-        if (this.level <= logging.DEBUG) {
-            this._log.log(...args)
+        } else {
+            this.error = console.error.bind(console, `[E] [${this.prefix}]:`);
+            this.warning = console.warn.bind(console, `[W] [${this.prefix}]:`);
+            this.warn = console.warn.bind(console, `[W] [${this.prefix}]:`);
+            this.info = console.info.bind(console, `[I] [${this.prefix}]:`);
+            this.debug = console.debug.bind(console, `[D] [${this.prefix}]:`);
+            this.fe_debug = console.debug.bind(console, `[D] [${this.prefix}]:`);
+            this.dir = console.dir.bind(console, `[D] [${this.prefix}]:`);
+            this.table = console.table.bind(console, `[D] [${this.prefix}]:`);
         }
-    }
-    
-    
-    error(...args) {
+        if (this.level > logging.ERROR) {
+            this.error = function () { return };
+        }
+        if (this.level > logging.WARNING) {
+            this.warn = function () { return };
+            this.warning = function () { return };
+        }
+        if (this.level > logging.INFO) {
+            this.info = function () { return };
+        }
+        if (this.level > logging.DEBUG) {
+            this.debug = function () { return };
+            this.dir = function () { return };
+            this.table = function () { return };
+        }
+        if (this.level > logging.FE_DEBUG) {
+            this.fe_debug = function () { return };
+        }
         if (this.level <= logging.ERROR) {
-            this._log.error(...args)
+            this.error = function () { return };
         }
+
     }
 
-    info(...args) {
-        if (this.level <= logging.INFO) {
-            this._log.info(...args)
-        }
-    }    
+    setLevel(level) {
+        this.level = level;
+        this._init();
+    }
+
+    setPrefix(prefix){
+        this.prefix= prefix
+        this._init();
+    }
     
-    dir(...args) {
-        if (this.level <= logging.DEBUG) {
-            this._log.dir(...args)
-        }
-    }
-
 }
 
-const log= new logging(logging.ERROR)
+
+
+
+const log = new logging(logging.ERROR)
 const client = new $.RestClient('/api/', { stringifyData: true });
 
 
@@ -639,7 +670,7 @@ function list_users() {
             ]
 
         })
-        //table.on( 'dblclick', function () {
+
         table.on('dblclick', 'tbody tr', function () {
             edit_user(table.row(this).data()[1]);
         });
