@@ -28974,6 +28974,16 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 self.options.multiselect.disableIfEmpty = true;
             }
 
+            if (self.options.multiselect.onChange && self.options.multiselect.onChange in window){
+                self.options.multiselect.onChange=window[self.options.multiselect.onChange]
+            }
+
+            if (self.options.multiselect.onInitialized && self.options.multiselect.onInitialized in window){
+                self.options.multiselect.onInitialized=window[self.options.multiselect.onInitialized]
+            }
+
+
+
             // if we're in a display only mode, turn off multiselect
             if (self.isDisplayOnly())
             {
