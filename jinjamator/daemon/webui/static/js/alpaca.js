@@ -35306,7 +35306,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                     // TODO
                     var tr = self.field.find("[data-alpaca-field-path='" + item.path + "']");
                     self._dt.row.add(tr);
-                    self._dt.search("").draw('page');
+                    //self._dt.search("").draw('page');
                 }
 
                 callback();
@@ -35337,7 +35337,7 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 if (self._dt)
                 {
                     self._dt.rows(childIndex).remove();//.draw(false);
-                    self._dt.search("").draw('page');
+                    //self._dt.search("").draw('page');
                 }
 
                 callback();
