@@ -22,3 +22,9 @@ def dumps(data):
 
 def loads(data):
     return json_loads(data)
+
+def load (filepath):
+    if file.exists(filepath):
+        return json.loads(file.load(filepath))
+    else:
+        return False

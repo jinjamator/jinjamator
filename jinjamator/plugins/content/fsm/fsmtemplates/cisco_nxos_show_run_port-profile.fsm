@@ -1,0 +1,48 @@
+Value Required PORT_PROFILE (\S+)
+Value TYPE (\S+)
+Value DESCRIPTION (\S+.*)
+Value MTU (\S+)
+Value ENCAPSULATION (\S+)
+Value ENCAPSULATION_ID (\S+)
+Value VRF (\S+)
+Value SHUTDOWN (shutdown)
+Value SPEED (\S+)
+Value CHANNEL_GROUP (\S+)
+Value CHANNEL_MODE (\S+)
+Value SWITCHPORT_MODE (\S+)
+Value FEX_ASSOC_ID (\d+)
+Value Repeated,List TRUNK_ALLOWED_VLAN (\S+)
+Value ACCESS_VLAN (\S+)
+Value SPANNING_TREE_PORT_TYPE (\S+.*)
+Value List ADDITIONAL_CONFIG ((.*)+)
+
+
+
+Start
+  ^port-profile type ${TYPE} ${PORT_PROFILE} -> Profile_parse
+
+Profile_parse
+  ^\s+description ${DESCRIPTION}
+  ^\s+mtu ${MTU}
+  ^\s+encapsulation ${ENCAPSULATION} ${ENCAPSULATION_ID}
+  ^\s+vrf member ${VRF}
+  ^\s+speed ${SPEED}
+  ^\s+channel-group ${CHANNEL_GROUP}( mode ${CHANNEL_MODE})?
+  ^\s+switchport mode ${SWITCHPORT_MODE}
+  ^\s+fex associate ${FEX_ASSOC_ID}
+  ^\s+switchport trunk allowed vlan (${TRUNK_ALLOWED_VLAN}(?:,\s+)?)*\s*$$
+  ^\s+switchport access vlan ${ACCESS_VLAN}
+  ^\s+spanning-tree port type ${SPANNING_TREE_PORT_TYPE}
+  ^\s+${SHUTDOWN}
+  #Try to match additional lines preserving indentation
+  ^\s\s${ADDITIONAL_CONFIG}$$
+  ^\s+${ADDITIONAL_CONFIG}$$
+  ^\s+$$
+  #End of port-profile is the beginning of a new one, now empty lines
+  ^port-profile type .*$$ -> Continue.Record
+  ^port-profile type ${TYPE} ${PORT_PROFILE}
+  ^$$ -> Record Start
+  #There may be no empty line after the interface-section and the next part (which could be the interface section)
+  #Record it and jump back to start
+  ^\S+.*$$ -> Record Start
+  ^.* -> Error
