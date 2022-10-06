@@ -315,7 +315,7 @@ class XLSXWriter(object):
             ws.append(values)
 
         tab = Table(
-            displayName=self._table_name,
+            displayName=sheet_name[:30],
             ref=f"A1:{get_column_letter(ws.max_column)}{ws.max_row}",
         )
 
