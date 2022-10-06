@@ -219,6 +219,7 @@ class logging {
     constructor(level = logging.INFO) {
         this.level = level;
         this._init()
+        this.prefix=""
     }
 
     _init() {
@@ -226,24 +227,24 @@ class logging {
         if (console.log.bind === "undefined") {
             // IE < 10
 
-            this.error = Function.prototype.bind.call(console.error, console, `[E] [${this.prefix}]:`);
-            this.warning = Function.prototype.bind.call(console.warn, console, `[W] [${this.prefix}]:`);
-            this.warn = Function.prototype.bind.call(console.warn, console, `[W] [${this.prefix}]:`);
-            this.info = Function.prototype.bind.call(console.info, console, `[I] [${this.prefix}]:`);
-            this.debug = Function.prototype.bind.call(console.debug, console, `[D] [${this.prefix}]:`);
-            this.fe_debug = Function.prototype.bind.call(console.debug, console, `[D] [${this.prefix}]:`);
-            this.dir = Function.prototype.bind.call(console.dir, console, `[D] [${this.prefix}]:`);
-            this.table = Function.prototype.bind.call(console.table, console, `[D] [${this.prefix}]:`);
+            this.error = Function.prototype.bind.call(console.error, console, `[E] ${this.prefix}:`);
+            this.warning = Function.prototype.bind.call(console.warn, console, `[W] ${this.prefix}:`);
+            this.warn = Function.prototype.bind.call(console.warn, console, `[W] ${this.prefix}:`);
+            this.info = Function.prototype.bind.call(console.info, console, `[I] ${this.prefix}:`);
+            this.debug = Function.prototype.bind.call(console.debug, console, `[D] ${this.prefix}:`);
+            this.fe_debug = Function.prototype.bind.call(console.debug, console, `[D] ${this.prefix}:`);
+            this.dir = Function.prototype.bind.call(console.dir, console, `[D] ${this.prefix}:`);
+            this.table = Function.prototype.bind.call(console.table, console, `[D] ${this.prefix}:`);
 
         } else {
-            this.error = console.error.bind(console, `[E] [${this.prefix}]:`);
-            this.warning = console.warn.bind(console, `[W] [${this.prefix}]:`);
-            this.warn = console.warn.bind(console, `[W] [${this.prefix}]:`);
-            this.info = console.info.bind(console, `[I] [${this.prefix}]:`);
-            this.debug = console.debug.bind(console, `[D] [${this.prefix}]:`);
-            this.fe_debug = console.debug.bind(console, `[D] [${this.prefix}]:`);
-            this.dir = console.dir.bind(console, `[D] [${this.prefix}]:`);
-            this.table = console.table.bind(console, `[D] [${this.prefix}]:`);
+            this.error = console.error.bind(console, `[E] ${this.prefix}:`);
+            this.warning = console.warn.bind(console, `[W] ${this.prefix}:`);
+            this.warn = console.warn.bind(console, `[W] ${this.prefix}:`);
+            this.info = console.info.bind(console, `[I] ${this.prefix}:`);
+            this.debug = console.debug.bind(console, `[D] ${this.prefix}:`);
+            this.fe_debug = console.debug.bind(console, `[D] ${this.prefix}:`);
+            this.dir = console.dir.bind(console, `[D] ${this.prefix}:`);
+            this.table = console.table.bind(console, `[D] ${this.prefix}:`);
         }
         if (this.level > logging.ERROR) {
             this.error = function () { return };
@@ -263,7 +264,14 @@ class logging {
         if (this.level > logging.FE_DEBUG) {
             this.fe_debug = function () { return };
         }
-        if (this.level <= logging.ERROR) {
+        if (this.level <= logging.NOTSET) {
+            this.fe_debug = function () { return };
+            this.debug = function () { return };
+            this.dir = function () { return };
+            this.table = function () { return };
+            this.info = function () { return };
+            this.warn = function () { return };
+            this.warning = function () { return };
             this.error = function () { return };
         }
 
@@ -275,7 +283,7 @@ class logging {
     }
 
     setPrefix(prefix){
-        this.prefix= prefix
+        this.prefix= `[${prefix}]`
         this._init();
     }
     
