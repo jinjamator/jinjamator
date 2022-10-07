@@ -28978,6 +28978,18 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 self.options.multiselect.onChange=window[self.options.multiselect.onChange]
             }
 
+            if (self.options.multiselect.onSelectAll && self.options.multiselect.onSelectAll in window){
+                self.options.multiselect.onSelectAll=window[self.options.multiselect.onChange]
+                
+            } else {
+                if(self.options.multiselect.onChange){
+                    self.options.multiselect.onSelectAll= function(){
+                        console.error('auto select all is not yet implemented. implement the onSelectAll callback.')
+                    }
+                }
+            }
+
+
             if (self.options.multiselect.onInitialized && self.options.multiselect.onInitialized in window){
                 self.options.multiselect.onInitialized=window[self.options.multiselect.onInitialized]
             }
