@@ -34968,8 +34968,11 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                                 header.hidden = true;
                             }
                         }
-
-                        model.headers.push(header);
+                        if (header.hidden != true){
+                            model.headers.push(header);
+                        }
+                        
+                        
                     }
                 }
 
@@ -35035,10 +35038,10 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                                     "orderable": true,
                                     "orderDataType": "alpaca"
                                 };
-
+                                                                
                                 self.options.datatables.columns.push(colConfig);
                             }
-
+                            
                             // if we have an actions column enabled, then turn off sorting for the actions column (assumed to be last)
                             if (self.options.showActionsColumn)
                             {
