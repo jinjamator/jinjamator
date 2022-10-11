@@ -295,9 +295,7 @@ def discover_tasks(app):
                                 allow_debugger = User.roles.any(
                                     JinjamatorRole.name == "debugger"
                                 )
-                                logging.critical(
-                                    f"USER ROLE DEBUGGER: {allow_debugger}"
-                                )
+                                logging.info(f"USER ROLE DEBUGGER: {allow_debugger}")
 
                                 job = run_jinjamator_task.apply_async(
                                     [
@@ -340,22 +338,31 @@ def discover_tasks(app):
                                         db.session.flush()
                                         db.session.commit()
 
-                                        if db_job[0].status not in [
-                                            "SCHEDULED",
-                                            "PROGRESS",
-                                            "DEBUGGING",
-                                            "SETUP_DEBUGGER",
+                                        if db_job[0].status in [
+                                            "SUCCESS",
+                                            "ERROR",
                                         ]:
                                             # log.debug(db_job[0].to_dict())
                                             resp = Response(
                                                 db_job[0]
                                                 .to_dict()
-                                                .get("result")
-                                                .get("stdout")
+                                                .get(
+                                                    "result",
+                                                    {
+                                                        "error": f"no result in jobdata {db_job[0].to_dict()}"
+                                                    },
+                                                )
+                                                .get(
+                                                    "stdout",
+                                                    {
+                                                        "error": f"no stdout in jobdata result {db_job[0].to_dict()}"
+                                                    },
+                                                )
                                             )
                                             resp.headers[
                                                 "Content-Type"
                                             ] = "application/json"
+
                                             return resp
 
                                         sleep(0.2)
