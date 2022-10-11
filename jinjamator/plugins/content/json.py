@@ -16,14 +16,49 @@ from json import dumps as json_dumps, loads as json_loads
 
 
 def dumps(data):
-    """helper for jinja2"""
+    """
+    Convert structured json_dump-able data into a json-string
+
+    :param data: json_dumps()-able data
+    :type data: list,dict
+    :returns: json-string
+    :rtype: string
+    """
     return json_dumps(data, sort_keys=True, indent=2)
 
+def dump(data,filepath):
+    """
+    Write structured json_dump-able data directly to a file
+
+    :param data: structured json_dumps()-able data
+    :type data: list,dict
+    :param filepath: path to target-file
+    :type filpath: string
+    :returns: Returns True on success, False on Failure
+    :rtype: bool
+    """
+    return file.save(dumps(data),filepath)
 
 def loads(data):
+    """
+    Load json-data directly from given string
+
+    :param data: json-string
+    :type data: string
+    :returns: structured data
+    :rtype: list,dict
+    """
     return json_loads(data)
 
 def load (filepath):
+    """
+    Load json-data directly from a file
+
+    :param filepath: path to source-file
+    :type filpath: string
+    :returns: structured data
+    :rtype: list,dict
+    """
     if file.exists(filepath):
         return json.loads(file.load(filepath))
     else:
