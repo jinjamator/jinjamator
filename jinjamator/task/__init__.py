@@ -717,7 +717,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
             self._log.debug(
                 "running with dataset: \n{0}".format(
-                    json.dumps(redact(deepcopy(self.configuration._data)), indent=2)
+                    json.dumps(redact(deepcopy(self.configuration._data))[1], indent=2)
                 )
             )
             if tasklet.endswith("j2"):
