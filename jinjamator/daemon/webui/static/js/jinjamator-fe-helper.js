@@ -163,7 +163,10 @@ function dropdown_fill_table(element, checked) {
 
 function dropdown_fill_callback(element, checked, options, callback) {
     // helper function to update a target alpaca item based on the results of a backend jinjamator task
-    $(document).click(); // collapse dropdown
+    if (options.collapse_on_select){
+        $(document).click(); // collapse dropdown
+    }
+    
 
     let element_index = element[0].index
     let dropdown_id = element[0].parentNode.id
