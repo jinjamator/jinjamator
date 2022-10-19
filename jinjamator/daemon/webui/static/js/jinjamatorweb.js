@@ -861,13 +861,13 @@ function create_job(job_path, pre_defined_vars) {
                                 $('#modal-submit ').find('.btn-ok').on('click', function () {
                                     client.tasks.create(job_path, data).done(function (data) {
                                         $('#modal-submit').modal('hide')
-                                        setTimeout(function () { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
+                                        setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
                                     });
                                 })
                             }
                             else {
                                 client.tasks.create(job_path, data).done(function (data) {
-                                    setTimeout(function () { show_job(data['job_id']); }, 500); //this is ugly replace by subsequent api calls to check if job is queued
+                                    setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
                                 });
 
                             }
