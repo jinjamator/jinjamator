@@ -511,6 +511,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
         if "post_render" in schema_settings:
             schema["post_render"] = schema_settings["post_render"]
+        if "view" in schema_settings:
+            schema["view"] = schema_settings["view"]
+            if not "wizard" in schema["view"]:
+                schema["view"]["wizard"] = tree()
 
         tmp = copy.deepcopy(self.configuration._data)
 
@@ -591,7 +595,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         )
 
         for key in schema_settings:
-            if key in ["post_render"]:
+            if key in ["post_render", "view"]:
                 continue
             if key not in schema["schema"]["properties"]:
                 schema["schema"]["properties"][key] = {}
