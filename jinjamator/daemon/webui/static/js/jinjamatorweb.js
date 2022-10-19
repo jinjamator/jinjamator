@@ -206,6 +206,29 @@ $(function () {
 })
 
 
+class SmoothOverlay{
+    constructor(overlay_selector="#overlay"){
+        this.overlay_selector=overlay_selector
+        this.overlay=$(this.overlay_selector)
+        this.usage_count=0
+    }
+
+    fadeIn(msec){
+        // log.debug("SmoothOverlay","fadeIn",msec)
+        if (this.usage_count <= 0){
+            this.usage_count=0
+            $(this.overlay_selector).fadeIn(msec)
+        }
+        this.usage_count++
+    }
+    fadeOut(msec,ignore=false){
+        // log.debug("SmoothOverlay","fadeOut",msec)
+        this.usage_count--
+        if ((this.usage_count == 0) && (ignore == false)){
+            $(this.overlay_selector).fadeOut(msec)   
+        }
+    }
+}
 
 class logging {
     static CRITICAL = 50
@@ -293,6 +316,7 @@ class logging {
 
 
 const log = new logging(logging.ERROR)
+const wizard_overlay = new SmoothOverlay()
 const client = new $.RestClient('/api/', { stringifyData: true });
 
 

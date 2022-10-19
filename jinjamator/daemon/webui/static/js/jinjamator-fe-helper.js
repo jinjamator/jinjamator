@@ -77,13 +77,13 @@ function table_dropdown_set_value(select, container, options) {
 
                     }).fail(function (e) {
                         log.error(select[0].id, "failed to create task", "url:", url, "task_configuration", task_configuration, 'site', site)
-                        $("#overlay").fadeOut(1);
+                        wizard_overlay.fadeOut(1);
                         throw (e)
                     })
 
                 }).fail(function (e) {
                     log.error(select[0].id, "cannot preload task data ", "url:", url, "task_configuration", task_configuration, 'site', site)
-                    $("#overlay").fadeOut(1);
+                    wizard_overlay.fadeOut(1);
                     throw (e)
                 })
 
@@ -147,11 +147,11 @@ function dropdown_fill_table(element, checked, options) {
 
         let row_data = {}
         if (options.mappings !== undefined) {
-            $("#overlay").fadeIn(100); // this is needed because emscripten jq is noticeably slow
+            wizard_overlay.fadeIn(100); // this is needed because emscripten jq is noticeably slow
             task_result[element_value] = process_mappings(options.mappings, task_result[element_value]);
             log.debug("dropdown_fill_table/dropdown_fill_callback/callback",dropdown.path,"->",target.path, "task_result[element_value]",task_result[element_value])
             window.setTimeout(
-                function () { $("#overlay").fadeOut(1); }
+                function () { wizard_overlay.fadeOut(1); }
                 , 150)
 
         }
@@ -208,6 +208,12 @@ function dropdown_fill_callback(element, checked, options, callback) {
         is_multiple=Alpaca.fieldInstances[dropdown_id].options.multiple
     }
 
+    let keep_overlay = false
+
+    if (options && options.keep_overlay){
+        keep_overlay=options.keep_overlay
+    }
+        
 
     try {
         var target_name = options.target
@@ -263,7 +269,7 @@ function dropdown_fill_callback(element, checked, options, callback) {
 
     if (checked == true) {
 
-        $("#overlay").fadeIn(100);
+        wizard_overlay.fadeIn(100);
         client.tasks.read(url,
             {
                 'preload-data': JSON.stringify(task_configuration),
@@ -280,24 +286,24 @@ function dropdown_fill_callback(element, checked, options, callback) {
                     }
                     callback(url, target, task_result);
                     target.refresh(function () {
-                        $("#overlay").fadeOut(1);
+                        wizard_overlay.fadeOut(1,keep_overlay);
                     });
 
                 }).fail(function (e) {
                     log.error(dropdown.path,"failed to create task", "url:", url, "task_configuration", task_configuration, 'site', site)
-                    $("#overlay").fadeOut(1);
+                    wizard_overlay.fadeOut(1);
                     throw (e)
                 })
 
             }).fail(function (e) {
                 log.error(dropdown.path,"cannot preload task data ", "url:", url, "task_configuration", task_configuration, 'site', site)
-                $("#overlay").fadeOut(1);
+                wizard_overlay.fadeOut(1);
                 throw (e)
             })
 
     } else {
         log.debug(dropdown.path,"deselecting values", result_cache[url]['byElement'][element])
-        // $("#overlay").fadeIn(100);
+        // wizard_overlay.fadeIn(100);
         for (const [key, value] of Object.entries(result_cache[url]['byElement'][element])) {
             const index = target.schema.enum.indexOf(key);
 
@@ -337,7 +343,6 @@ function dropdown_set_value(element, checked, options, callback) {
     try {
         var target_name = options.target
     } catch (e) {
-        log.debug(options)
         log.error(dropdown.path,"mandatory config.", dropdown.name, ".options.jinjamator.target is missing")
         throw (e)
     }
@@ -356,6 +361,8 @@ function dropdown_set_value(element, checked, options, callback) {
         throw (e)
     }
     
+    
+
     // log.debug(dropdown.path, " index: ", element_index, " ", element, " is checked", checked, " value is: ", value)
 
     // convert get parameter to post
