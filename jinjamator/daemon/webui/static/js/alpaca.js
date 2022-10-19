@@ -28974,8 +28974,31 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 self.options.multiselect.disableIfEmpty = true;
             }
 
-            if (self.options.multiselect.onChange && self.options.multiselect.onChange in window){
-                self.options.multiselect.onChange=window[self.options.multiselect.onChange]
+            if (self.options.multiselect.onChange){
+                if (Array.isArray(self.options.multiselect.onChange)){
+                    let fn_list=self.options.multiselect.onChange
+                    self.options.multiselect.onChange=function(a,b){
+                        for (const fn of fn_list) {
+                            let fn_name=Object.keys(fn)[0]
+                            var fn_config=fn[fn_name]
+                            if (fn_name in window){
+                                window.setTimeout(window[fn_name](a,b,fn_config),1)
+                            }
+                            else {
+                                console.warn("onChange callback function", fn , "not found -> ommiting call" )
+                            }
+                        }
+                    }
+
+
+                } else {
+                    if (self.options.multiselect.onChange in window){
+                        self.options.multiselect.onChange=window[self.options.multiselect.onChange]
+                    }
+                        
+                }
+
+                
             }
 
             if (self.options.multiselect.onSelectAll && self.options.multiselect.onSelectAll in window){
@@ -28989,11 +29012,33 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                 }
             }
 
+            if (self.options.multiselect.onInitialized){
+                if (Array.isArray(self.options.multiselect.onInitialized)){
+                    let fn_list=self.options.multiselect.onInitialized
+                    self.options.multiselect.onInitialized=function(a,b){
+                        for (const fn of fn_list) {
+                            let fn_name=Object.keys(fn)[0]
+                            var fn_config=fn[fn_name]
+                            
+                            if (fn_name in window){
+                                window.setTimeout(window[fn_name](a,b,fn_config),1)
+                            }
+                            else {
+                                console.warn("onInitialized callback function", fn , "not found -> ommiting call" )
+                            }
+                        }
+                    }
 
-            if (self.options.multiselect.onInitialized && self.options.multiselect.onInitialized in window){
-                self.options.multiselect.onInitialized=window[self.options.multiselect.onInitialized]
+
+                } else {
+                    if (self.options.multiselect.onInitialized in window){
+                        self.options.multiselect.onInitialized=window[self.options.multiselect.onInitialized]
+                    }
+                        
+                }
+
+                
             }
-
 
 
             // if we're in a display only mode, turn off multiselect
