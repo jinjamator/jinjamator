@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-
+from pprint import pformat
 from flask import request, g, Response
 from flask_restx import Resource, abort
 from jinjamator.daemon.api.serializers import tasks
@@ -199,6 +199,8 @@ def discover_tasks(app):
                                 except TypeError:
                                     preload_data = {}
                                 preload_data = remove_redacted(preload_data)[1]
+                                if not preload_data:
+                                    preload_data = {}
                                 environment_site = args.get(
                                     "preload-defaults-from-site"
                                 )
@@ -210,6 +212,7 @@ def discover_tasks(app):
                                 inner_task._configuration.merge_dict(
                                     app.config["JINJAMATOR_FULL_CONFIGURATION"]
                                 )
+
                                 inner_task.configuration.merge_dict(preload_data)
 
                                 inner_task.load(relative_task_path)
