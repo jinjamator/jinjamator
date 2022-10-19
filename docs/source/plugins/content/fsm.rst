@@ -45,7 +45,7 @@ fsm
     :type data: str
     :return: A datastructure which contains the parsed data
     :rtype: list of dict
-    
+
     
 
 

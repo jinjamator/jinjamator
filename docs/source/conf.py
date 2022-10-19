@@ -20,16 +20,16 @@ import sphinx_rtd_theme
 def setup(app):
     from jinjamator.plugin_loader.content import (
         ContentPluginLoader,
-        global_ldr,
-        init_loader,
+        #        global_ldr,
+        #        init_loader,
         contentPlugin,
     )
     from pprint import pprint
 
-    globals()["global_ldr"] = init_loader(app)
-    globals()["global_ldr"].load(
-        "/home/putzw/git/jinjamator/jinjamator/plugins/content"
-    )
+    # globals()["global_ldr"] = init_loader(app)
+    # globals()["global_ldr"].load(
+    #    "/home/putzw/git/jinjamator/jinjamator/plugins/content"
+    # )
     import importlib
     import traceback
     import warnings
@@ -60,7 +60,7 @@ def setup(app):
         )
         # print(f'modname: {modname} objpath: {objpath}')
         # module = imp.new_module(modname)
-        global_ldr = globals()["global_ldr"]
+        #        global_ldr = globals()["global_ldr"]
 
         class_path = modname.split(".")
         base_obj_name = class_path.pop(0)
