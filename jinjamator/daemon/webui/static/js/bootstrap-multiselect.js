@@ -209,6 +209,7 @@
         this.query = '';
         this.searchTimeout = null;
         this.lastToggledInput = null;
+        this.prevToggledInput = null;
 
         this.options.multiple = this.$select.attr('multiple') === "multiple";
         this.options.onChange = $.proxy(this.options.onChange, this);
@@ -632,6 +633,7 @@
                             if (this.options.selectedClass) {
                                 $($checkboxesNotThis).closest('li').removeClass(this.options.selectedClass);
                             }
+                            
 
                             $($checkboxesNotThis).prop('checked', false);
                             $optionsNotThis.prop('selected', false);
@@ -642,6 +644,12 @@
 
                         if (this.options.selectedClass === "active") {
                             $optionsNotThis.closest("a").css("outline", "");
+                        }
+                        
+                        // give us a deselect event
+                        if (this.prevToggledInput){
+                            var $prev_option=this.getOptionByValue(this.prevToggledInput.val())
+                            this.options.onChange($prev_option, false);    
                         }
                     }
                     else {
@@ -726,6 +734,7 @@
 
                 // Remembers last clicked option
                 if($target.is("input") && !$target.closest("li").is(".multiselect-item")){
+                    this.prevToggledInput=this.lastToggledInput
                     this.lastToggledInput = $target;
                 }
 
