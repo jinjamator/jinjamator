@@ -647,7 +647,7 @@
                         }
                         
                         // give us a deselect event
-                        if (this.prevToggledInput){
+                        if (this.prevToggledInput && !this.options.multiple){
                             var $prev_option=this.getOptionByValue(this.prevToggledInput.val())
                             this.options.onChange($prev_option, false);    
                         }
