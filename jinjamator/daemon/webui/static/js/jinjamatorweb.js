@@ -882,6 +882,7 @@ function create_job(job_path, pre_defined_vars) {
                             if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true) {
 
                                 $('#modal-submit').modal('show')
+                                $('#modal-submit ').find('.btn-ok').unbind('click')
                                 $('#modal-submit ').find('.btn-ok').on('click', function () {
                                     client.tasks.create(job_path, data).done(function (data) {
                                         $('#modal-submit').modal('hide')
