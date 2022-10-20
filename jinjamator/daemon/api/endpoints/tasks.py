@@ -345,28 +345,24 @@ def discover_tasks(app):
                                             "SUCCESS",
                                             "ERROR",
                                         ]:
-                                            # log.debug(db_job[0].to_dict())
-                                            resp = Response(
-                                                db_job[0]
-                                                .to_dict()
-                                                .get(
-                                                    "result",
-                                                    {
-                                                        "error": f"no result in jobdata {db_job[0].to_dict()}"
-                                                    },
-                                                )
-                                                .get(
-                                                    "stdout",
-                                                    {
-                                                        "error": f"no stdout in jobdata result {db_job[0].to_dict()}"
-                                                    },
+                                            return jsonify(
+                                                json.loads(
+                                                    db_job[0]
+                                                    .to_dict()
+                                                    .get(
+                                                        "result",
+                                                        {
+                                                            "error": f"no result in jobdata {db_job[0].to_dict()}"
+                                                        },
+                                                    )
+                                                    .get(
+                                                        "stdout",
+                                                        {
+                                                            "error": f"no stdout in jobdata result {db_job[0].to_dict()}"
+                                                        },
+                                                    )
                                                 )
                                             )
-                                            resp.headers[
-                                                "Content-Type"
-                                            ] = "application/json"
-
-                                            return resp
 
                                         sleep(0.2)
                                         timeout = timeout - 200
