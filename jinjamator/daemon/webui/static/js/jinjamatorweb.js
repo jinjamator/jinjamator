@@ -228,6 +228,9 @@ class SmoothOverlay{
             $(this.overlay_selector).fadeOut(msec)   
         }
     }
+    reset(){
+        this.usage_count=0
+    }
 }
 
 class logging {
@@ -777,6 +780,7 @@ function create_job(job_path, pre_defined_vars) {
         list_tasks();
         return true;
     }
+    wizard_overlay.reset();
     if (!pre_defined_vars) {
         pre_defined_vars = {}
     }
