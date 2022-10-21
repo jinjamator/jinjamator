@@ -10,6 +10,18 @@ function user_error(message,button_on_click_callback,button_text="Abort"){
     $('#modal-error').modal('show')
 }
 
+function cleanup_url(url){
+    // log.debug("cleanup_url","got value",url)
+    url = url.replace('//','/').replace('/?','?').replace('cache:/','cache:')
+    if (url.endsWith('/')){
+        url=url.slice(0, -1);
+    }
+    if (url.startsWith('/')){
+        url=url.slice(1);
+    }
+    // log.debug("cleanup_url","cleaned value",url)
+    return url
+}
 
 function table_dropdown_set_value(select, container, options) {
     let local_options= options
@@ -30,7 +42,7 @@ function table_dropdown_set_value(select, container, options) {
             var site = $('#jinjamator_environment option:selected').val()
             // log.debug("table_dropdown_set_value","options",options)
             if (options.url ){
-                var url = options.url
+                var url = cleanup_url(options.url)
             }
             else{
                 log.error("table_dropdown_set_value",dropdown.path,"url not set in options",options)
@@ -223,7 +235,7 @@ function dropdown_fill_callback(element, checked, options, callback) {
         throw (e)
     }
     try {
-        var url = options.url
+        var url = cleanup_url(options.url)
     } catch (e) {
         log.error(dropdown.path, dropdown.name, ".options.jinjamator.url undefined")
         throw (e)
@@ -347,7 +359,7 @@ function dropdown_set_value(element, checked, options, callback) {
         throw (e)
     }
     try {
-        var url = options.url
+        var url = cleanup_url(options.url)
     } catch (e) {
         log.error(dropdown.path, dropdown.name, ".options.jinjamator.url undefined")
         throw (e)
