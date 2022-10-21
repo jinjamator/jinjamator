@@ -345,24 +345,21 @@ def discover_tasks(app):
                                             "SUCCESS",
                                             "ERROR",
                                         ]:
-                                            return jsonify(
-                                                json.loads(
-                                                    db_job[0]
-                                                    .to_dict()
-                                                    .get(
-                                                        "result",
-                                                        {
-                                                            "error": f"no result in jobdata {db_job[0].to_dict()}"
-                                                        },
+                                            db_result = db_job[0].to_dict()
+                                            if "result" in db_result:
+                                                result = db_result["result"]
+                                                if "stdout" in result:
+                                                    return jsonify(
+                                                        json.loads(result["stdout"])
                                                     )
-                                                    .get(
-                                                        "stdout",
-                                                        {
-                                                            "error": f"no stdout in jobdata result {db_job[0].to_dict()}"
-                                                        },
+                                                else:
+                                                    logging.error(
+                                                        f"found no result in jobdata {db_result}"
                                                     )
+                                            else:
+                                                logging.error(
+                                                    f"found no result in jobdata {db_result}"
                                                 )
-                                            )
 
                                         sleep(0.2)
                                         timeout = timeout - 200
