@@ -442,22 +442,29 @@ function dropdown_set_value(element, checked, options, callback) {
             })
 
     } else {
-        log.debug(dropdown.path,"deselecting values", result_cache[url]['byElement'][element])
-        // for (const [key, value] of Object.entries(result_cache[url]['byElement'][element])) {
-        //     const index = target.schema.enum.indexOf(key);
+        log.debug("dropdown_set_value",dropdown.path,"->",target.path, "deselecting values" ,"element_value",value)    
+        var current_value = target.getValue()
 
-        //     if (index > -1) {
-        //         target.schema.enum.splice(index, 1);
-        //         target.options.optionLabels.splice(index, 1);
-        //         for (const [d_i, d_v] of Object.entries(target.data)) {
-        //             if (key == d_v.text) {
-        //                 target.data.splice(d_i, 1);
-        //             }
-        //         }
-
-        //     }
-
-        // };
+        
+        if (Array.isArray(value)){
+            log.debug("dropdown_set_value",dropdown.path,"->",target.path,"target is array")
+            const index = value.indexOf(value)
+            if (index > -1) {
+                current_value.splice(index,1)
+                target.setValue(current_value)
+                if (target.options.multiselect){
+                    $('#' + target.id).multiselect('deselect', value,true);
+                }
+            }else{
+                log.error("dropdown_set_value",dropdown.path,"->",target.path,"target is an array and i cannot find the value. This should never happen!")
+            }
+        } else{
+            log.debug("dropdown_set_value",dropdown.path,"->",target.path,"target is not an array")
+            target.setValue(null)
+            if (target.options.multiselect){
+                $('#' + target.id).multiselect('deselect', value,true);
+            }
+        }
  
     }
 }
