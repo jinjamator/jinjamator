@@ -158,7 +158,10 @@ def configure(flask_app, _configuration):
     flask_app.config["JINJAMATOR_FULL_CONFIGURATION"] = _configuration
     # Max time (ms) to wait for json output plugin used for ajax calls
     flask_app.config["JINJAMATOR_JSON_OUTPUT_PLUGIN_TIMEOUT"] = 300000
-    flask_app.json.sort_keys = False
+    if hasattr(flask_app, "json"):
+        flask_app.json.sort_keys = False
+    else:
+        flask_app.config["JSON_SORT_KEYS"] = False
 
 
 def initialize(flask_app, cfg):
