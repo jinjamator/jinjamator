@@ -39,10 +39,45 @@ class NexusDashboardNIRResource(NexusDashboardResource):
         try:
             self.params["endTs"] = kwargs["end"]
         except KeyError:
-            now = datetime.now()
+            now = datetime.utcnow()
             iso = now.isoformat(timespec="seconds")
             logging.debug(f"neither endTs nor end is set using now {iso} for endTs")
-            self.params["endTs"] = iso
+            self.params["endTs"] = iso + "+00:00"
+        setattr(self, "list_no_page", self.list)
+        if kwargs.get("autopage", True):
+            setattr(self, "list", self.list_all)
+
+    def list_all(self, **kwargs):
+        orig_count = self.params.get("count")
+        orig_offset = self.params.get("offset")
+        self.params["count"] = 100
+        self.params["offset"] = 0
+        finished = False
+        entries = []
+        while not finished:
+            result = self.list_no_page(**kwargs)
+            results = len(result.body.get("entries"))
+            total = result.body["totalResultsCount"]
+            offset = self.params["offset"]
+            if (int(total) - int(offset)) <= 0:
+                finished = True
+
+            self.params["offset"] += results
+            logging.debug(f"paging got {self.params['offset']} results of {total}")
+
+            entries += result.body["entries"]
+        result.body["entries"] = entries
+        if orig_count:
+            self.params["count"] = orig_count
+        else:
+            del self.params["count"]
+
+        if orig_offset:
+            self.params["offset"] = orig_offset
+        else:
+            del self.params["offset"]
+
+        return result
 
 
 class NexusDashboardClient(object):
@@ -105,7 +140,7 @@ class NexusDashboardClient(object):
 # nd=NexusDashboardClient("https://100.76.246.11", ssl_verify=False)
 
 # nd.login("admin","asdf")
-# nd.nir.params["insightsGroupName"]="noone"
+# nd.nir.params["insightsGroupName"]="none"
 # for item in nd.nir.telemetry.nodes.list().body.get("entries",[]):
 #     print(item["nodeName"])
 # # return nd.nir.telemetry.advisories.details.list().body
