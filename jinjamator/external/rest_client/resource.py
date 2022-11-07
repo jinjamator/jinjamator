@@ -23,6 +23,7 @@ class BaseResource:
         json_encode_body=False,
         ssl_verify=None,
         ep_suffix="",
+        **kwargs,
     ):
         self.api_root_url = api_root_url
         self.resource_name = resource_name
@@ -34,6 +35,7 @@ class BaseResource:
         self.actions = self.actions or self.default_actions
         self.ssl_verify = True if ssl_verify is None else ssl_verify
         self._ep_suffix = ep_suffix
+        self._kwargs = kwargs
 
         if self.json_encode_body:
             self.headers["Content-Type"] = "application/json"
@@ -65,6 +67,7 @@ class BaseResource:
             json_encode_body=self.json_encode_body,
             ssl_verify=self.ssl_verify,
             ep_suffix=self._ep_suffix,
+            **self._kwargs,
         )
         self.__setattr__(instance, tmp)
         return getattr(self, instance)
