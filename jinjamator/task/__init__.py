@@ -396,6 +396,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
     def enhance_schema(self, obj, name="root"):
         title = ""
+        name = str(name)
         for word in name.split("_"):
             title = title + word.capitalize() + " "
         title = title.strip()
