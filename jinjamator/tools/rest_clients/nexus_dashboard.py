@@ -45,7 +45,10 @@ class NexusDashboardNIRResource(NexusDashboardResource):
             self.params["endTs"] = iso + "+00:00"
         setattr(self, "list_no_page", self.list)
         if kwargs.get("autopage", True):
+            logging.debug("autopage enabled")
             setattr(self, "list", self.list_all)
+        else:
+            logging.debug("autopage disabled")
 
     def list_all(self, **kwargs):
         orig_count = self.params.get("count")
@@ -106,6 +109,7 @@ class NexusDashboardClient(object):
             ssl_verify=kwargs.get("ssl_verify", None),
             resource_class=NexusDashboardNIRResource,
             ep_suffix=".json",
+            autopage=kwargs.get("autopage", True),
         )
 
         self._apis = {"dashboard": self.dashboard, "nir": self.nir}
