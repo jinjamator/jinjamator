@@ -18,6 +18,9 @@ from copy import deepcopy
 from json_log_formatter import JSONFormatter
 from datetime import datetime
 from jinjamator.tools.password import redact
+import multiprocessing
+
+lock = multiprocessing.Lock()
 
 
 class NullCelery(object):
@@ -54,7 +57,8 @@ class CeleryLogHandler(logging.Handler):
         meta["created_by_user_id"] = self.created_by_user_id
         if record.levelno == logging.ERROR:
             self._celery_state = "ERROR"
-        self._celery_task.update_state(state=self._celery_state, meta=meta)
+        with lock:
+            self._celery_task.update_state(state=self._celery_state, meta=meta)
         self._q = []
 
 
