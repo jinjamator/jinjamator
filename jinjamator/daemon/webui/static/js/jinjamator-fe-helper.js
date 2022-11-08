@@ -158,6 +158,7 @@ function dropdown_fill_table(element, checked, options) {
         log.debug("dropdown_fill_table/dropdown_fill_callback/callback", dropdown.path, "->", target.path, "element_value", element_value)
 
         let row_data = {}
+
         if (options.mappings !== undefined) {
             wizard_overlay.fadeIn(100); // this is needed because emscripten jq is noticeably slow
             task_result[element_value] = process_mappings(options.mappings, task_result[element_value]);
@@ -257,20 +258,20 @@ function dropdown_fill_callback(element, checked, options, callback) {
         for (const param of new URLSearchParams("?" + params).entries()) {
             task_configuration[param[0]] = param[1]
         }
-        log.debug("URL", url)
+        log.debug("dropdown_fill_callback",dropdown.path,"URL", url)
     }
 
     if (url.startsWith("cache:")) {
         cache_key = url.substring(6)
-        log.debug(dropdown.path, "cache URL", cache_key)
+        log.debug("dropdown_fill_callback",dropdown.path, "cache URL", cache_key)
         task_result = result_cache[cache_key]
         if (task_result) {
-            log.debug(dropdown.path, "cache hit for key", cache_key, result_cache[cache_key])
+            log.debug("dropdown_fill_callback",dropdown.path, "cache hit for key", cache_key, result_cache[cache_key])
             callback(url, target, task_result);
             return 0
         }
         else {
-            log.debug(dropdown.path, "cache miss for key", cache_key, "doing lookup")
+            log.debug("dropdown_fill_callback",dropdown.path, "cache miss for key", cache_key, "doing lookup")
         }
     }
 
@@ -302,19 +303,19 @@ function dropdown_fill_callback(element, checked, options, callback) {
                     });
 
                 }).fail(function (e) {
-                    log.error(dropdown.path, "failed to create task", "url:", url, "task_configuration", task_configuration, 'site', site)
+                    log.error("dropdown_fill_callback",dropdown.path, "failed to create task", "url:", url, "task_configuration", task_configuration, 'site', site)
                     wizard_overlay.fadeOut(1);
                     throw (e)
                 })
 
             }).fail(function (e) {
-                log.error(dropdown.path, "cannot preload task data ", "url:", url, "task_configuration", task_configuration, 'site', site)
+                log.error("dropdown_fill_callback",dropdown.path, "cannot preload task data ", "url:", url, "task_configuration", task_configuration, 'site', site)
                 wizard_overlay.fadeOut(1);
                 throw (e)
             })
 
     } else {
-        log.debug(dropdown.path, "deselecting values", result_cache[url]['byElement'][element])
+        log.debug("dropdown_fill_callback",dropdown.path, "deselecting values", result_cache[url]['byElement'][element])
         // wizard_overlay.fadeIn(100);
         for (const [key, value] of Object.entries(result_cache[url]['byElement'][element])) {
             const index = target.schema.enum.indexOf(key);
