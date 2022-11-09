@@ -499,6 +499,15 @@ def get_access_aep_name_by_vlan_id(
 #     thread.start()
 #     return thread
 
+def get_vlan_pools (*, _requires=_get_missing_apic_connection_vars):
+    pools = []
+    q = query("/api/node/mo/uni/infra.json?query-target=subtree&target-subtree-class=fvnsVlanInstP")
+    for pool in q['imdata']:
+        pools.append(pool['fvnsVlanInstP']['attributes'])
+    
+    return pools
+
+
 
 def get_all_vlans_from_pool(pool_name, *, _requires=_get_missing_apic_connection_vars):
     data = query(
@@ -724,3 +733,11 @@ def get_dict_from_node_dn(dn):
         return {"pod_id": result.group(1), "node_id": result.group(2)}
     else:
         return None
+
+
+def get_tenants():
+    ret = []
+    for ten in query("/api/node/class/fvTenant.json")['imdata']:
+        ret.append(ten['fvTenant']['attributes']['name'])
+    
+    return ret
