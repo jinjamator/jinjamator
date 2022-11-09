@@ -335,3 +335,8 @@ vyatta_vyos_show_interfaces.fsm, .*, .*vyos.*, sh[[ow]] int[[erfaces]]
 vyatta_vyos_show_arp.fsm, .*, .*vyos.*, sh[[ow]] a[[rp]]
 
 barracuda_fwng_arp_-a.fsm, .*, barracuda_fwng, arp -a
+
+
+linux_dmesg_disks.fsm, .*, linux, dmesg_disks
+linux_geom_disk_list.fsm, .*, linux, geom_disk_list
+linux_sas2ircu_display.fsm, .*, linux, sas2ircu_display

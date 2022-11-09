@@ -1,0 +1,19 @@
+Value Required NAME (\S+)
+Value ADAPTER (\S+)
+Value BUS (\S+)
+Value SCBUS (\S+)
+Value TARGET (\S+)
+Value LUN (\S+)
+Value MODEL (\S+.*)
+Value SERIAL (\S+)
+Value CONNECTION_SPEED (\S+)
+Value SIZE (\S+)
+Value SECTORS (\S+)
+Value SECTORSIZE (\S+)
+
+Start
+  ^${NAME} at ${ADAPTER} bus ${BUS} scbus${SCBUS} target ${TARGET} lun ${LUN}
+  ^\S+: <${MODEL}> Fixed Direct Access SPC-3 SCSI device
+  ^\S+: Serial Number ${SERIAL}
+  ^\S+: ${CONNECTION_SPEED}MB/s transfers
+  ^\S+: ${SIZE}MB \(${SECTORS} ${SECTORSIZE} byte sectors\) -> Record
