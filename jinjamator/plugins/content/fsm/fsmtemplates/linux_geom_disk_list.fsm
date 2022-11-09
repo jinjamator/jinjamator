@@ -1,0 +1,27 @@
+Value Required GEOM_NAME (\S+)
+Value NAME (\S+)
+Value MEDIASIZE (\S+)
+Value SECTORSIZE (\S+)
+Value MODE (\S+)
+Value DESCRIPTION (\S+.*)
+Value LUNID (\S+)
+Value IDENT (\S+)
+Value ROTATIONRATE (\S+)
+Value FWSECTORS (\S+)
+Value FWHEADS (\S+)
+
+
+Start
+  ^Geom name: ${GEOM_NAME}
+  ^Providers:
+  ^\d+. Name: ${NAME}
+  ^\s+Mediasize: ${MEDIASIZE}
+  ^\s+Sectorsize: ${SECTORSIZE}
+  ^\s+Mode: ${MODE}
+  ^\s+descr: ${DESCRIPTION}
+  ^\s+lunid: ${LUNID}
+  ^\s+ident: ${IDENT}
+  ^\s+rotationrate: ${ROTATIONRATE}
+  ^\s+fwsectors: ${FWSECTORS}
+  ^\s+fwheads: ${FWHEADS}
+  ^\s*$$ -> Record

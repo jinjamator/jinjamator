@@ -1,0 +1,36 @@
+Value ENCLOSURE (\S+)
+Value SLOT (\S+)
+Value SAS_ADDRESS (\S+)
+Value STATE (\S+)
+Value SIZE_MB (\S+)
+Value SIZE_SECTORS (\S+)
+Value MANUFACTURER (\S+)
+Value MODEL_NUMBER (\S+)
+Value FIRMWARE_REVISION (\S+)
+Value SERIAL_NUMBER (\S+)
+Value GUID (\S+)
+Value PROTOCOL (\S+)
+Value DRIVE_TYPE (\S+)
+
+
+Start
+  ^Physical device information -> Physical
+
+Physical
+  ^Device is a Hard disk -> HardDisk
+
+HardDisk
+  ^\s+Enclosure #\s+: ${ENCLOSURE}
+  ^\s+Slot #\s+: ${SLOT}
+  ^\s+SAS Address\s+: ${SAS_ADDRESS}
+  ^\s+State\s+: ${STATE}
+  ^\s+Size \(in MB\)/\(in sectors\)\s+: ${SIZE_MB}/${SIZE_SECTORS}
+  ^\s+Manufacturer \s+: ${MANUFACTURER}
+  ^\s+Model Number\s+: ${MODEL_NUMBER}
+  ^\s+Firmware Revision\s+: ${FIRMWARE_REVISION}
+  ^\s+Serial No\s+: ${SERIAL_NUMBER}
+  ^\s+GUID\s+: ${GUID}
+  ^\s+Protocol\s+: ${PROTOCOL}
+  ^\s+Drive Type\s+: ${DRIVE_TYPE}
+  ^\s*$$ -> Continue.Record
+  ^\s*$$ -> Physical
