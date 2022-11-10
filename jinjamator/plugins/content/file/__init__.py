@@ -2,6 +2,7 @@ import os
 import logging
 import requests
 import pathlib
+import shutil
 from jinjamator.plugins.content.file import ftp
 
 log = logging.getLogger(__name__)
@@ -216,6 +217,36 @@ def mkdir_p(filename):
     """
     return mkdir(filename, parents=True, exist_ok=True)
 
+def rmdir(path,recursive=False):
+    """
+    Remove a directory. Can be recursive if ``recursive`` parameter is set to True
+
+    :param path: The path of the directory
+    :type path: ``str``
+    :param recursive: Remove recursive
+    :type recursive: ``boolean``
+    :return: True if removal was successful
+    :rtype: ``bool``
+    """
+    if recursive:
+        return rmdir_r(path)
+    else:
+        return pathlib.Path(path).rmdir()
+
+def rmdir_r(path):
+    """
+    Remove a directory recursively. 
+
+    :param path: The path of the directory
+    :type path: ``str``
+    :return: True if removal was successful
+    :rtype: ``bool``
+    """
+    if not path == "/":
+        return shutil.rmtree(path,ignore_errors=True)
+    else:
+        log.error("Removing the root path is not supported.")
+        return False
 
 def copy(src, dst, force_overwrite=False, **kwargs):
     if not src.startswith("/"):
