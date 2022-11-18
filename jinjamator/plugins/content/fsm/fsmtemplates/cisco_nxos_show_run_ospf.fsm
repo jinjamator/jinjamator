@@ -1,0 +1,20 @@
+Value Filldown PROCESS_ID (\S+)
+Value Filldown VRF (\S+)
+Value ROUTER_ID (\S+)
+Value Required,List OSPF_CONFIG (\S+)
+
+
+Start
+  ^router ospf ${PROCESS_ID} -> Process_parse
+
+Process_parse
+  ^\s+vrf ${VRF} -> VRF_parse
+
+VRF_parse
+  ^\s+vrf -> Continue.Record
+  ^\s+vrf ${VRF}
+  ^router ospf -> Continue.Record
+  ^router ospf ${PROCESS_ID} -> Process_parse
+  ^\s+router-id ${ROUTER_ID}
+  ^\s+${OSPF_CONFIG}
+  ^\s*$$ -> Record

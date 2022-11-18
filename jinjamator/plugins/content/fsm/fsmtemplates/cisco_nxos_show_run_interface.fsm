@@ -1,4 +1,5 @@
 Value Required INTERFACE (\S+)
+Value PARENT_INTERFACE (\S+)
 Value DESCRIPTION (\S+.*)
 Value MTU (\S+)
 Value ENCAPSULATION (\S+)
@@ -21,6 +22,7 @@ Value List ADDITIONAL_CONFIG (.*)
 
 
 Start
+  ^interface ${PARENT_INTERFACE}\.\S+ -> Continue
   ^interface ${INTERFACE} -> Interface_parse
 
 

@@ -1,0 +1,22 @@
+Value Required NAME (\S+)
+Value DESCRIPTION (\S+.*)
+Value TYPE (\S+)
+Value MATCH_MODE (\S+)
+Value List MATCHES (\S+.*)
+
+
+Start
+  ^class-map type ${TYPE} match-${MATCH_MODE} ${NAME} -> CM_parse
+
+CM_parse
+  ^\s+match ${MATCHES}
+  ^\s+description ${DESCRIPTION}
+  #When the next class-map starts, Record and continue
+  ^class-map type -> Continue.Record
+  #Start a rexing again
+  ^class-map type ${TYPE} match-${MATCH_MODE} ${NAME}
+  #There is no empty line after this config-section and the next part
+  #Record it and jump back to start
+  ^\S+.*$$ -> Record Start
+  
+

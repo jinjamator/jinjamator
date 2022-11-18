@@ -1,0 +1,20 @@
+Value OUR_ADDRESS (\S+)
+Value NEIGH_ADDRESS (\S+)
+Value LD (\S+)
+Value RD (\S+)
+Value RH_RS (\S+)
+Value HOLDOWN (\S+)
+Value MULTIPLICATOR (\S+)
+Value STATE (\S+)
+Value INTERFACE (\S+)
+Value VRF (\S+)
+Value TYPE (\S+)
+
+
+Start
+  ^OurAddr\s+
+  ^${OUR_ADDRESS}\s+${NEIGH_ADDRESS}\s+${LD}/${RD}\s+${RH_RS}\s+${HOLDOWN}\(${MULTIPLICATOR}\)\s+${STATE}\s+${INTERFACE}\s+${VRF}\s+${TYPE} -> Record
+  #Catch empty lines
+  ^\s*$$
+  #Error on uncatched match
+  ^. -> Error
