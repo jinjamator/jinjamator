@@ -1,0 +1,16 @@
+Value Required NAME (\S+)
+Value TYPE (\S+)
+Value DIRECTION (\S+)
+
+
+Start
+  ^system qos -> QOS_parse
+
+QOS_parse
+  ^\s+service-policy type ${TYPE} ${DIRECTION} ${NAME} -> Record
+  ^\s+service-policy type ${TYPE} ${NAME} -> Record
+  #There is no empty line after this config-section and the next part
+  #Jump back to start
+  ^\S+.*$$ -> Start
+  
+

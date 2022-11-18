@@ -1,0 +1,21 @@
+Value Required INTERFACE (\S+)
+Value Required PROCESS_ID (\S+)
+Value AREA (\S+)
+Value List OSPF_CONFIG (\S+)
+Value List NO_OSPF_CONFIG (\S+)
+Value NETWORK (\S+)
+
+
+Start
+  ^interface ${INTERFACE} -> Interface_parse
+
+Interface_parse
+  ^\s+ip router ospf ${PROCESS_ID} area ${AREA}
+  ^\s+ip ospf network ${NETWORK}
+  ^\s+ip ospf ${OSPF_CONFIG}
+  ^\s+no ip ospf ${NO_OSPF_CONFIG}
+  ^\s+$$
+  #Empty line marks the end of an interface
+  ^$$ -> Continue.Record
+  ^$$ -> Start
+

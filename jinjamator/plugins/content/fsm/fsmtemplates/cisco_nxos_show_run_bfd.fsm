@@ -1,0 +1,6 @@
+Value INTERVAL (\d+)
+Value MIN_RX (\d+)
+Value MULTIPLIER (\d+)
+
+Start
+  ^bfd ipv4 interval ${INTERVAL} min_rx ${MIN_RX} multiplier ${MULTIPLIER} -> Record

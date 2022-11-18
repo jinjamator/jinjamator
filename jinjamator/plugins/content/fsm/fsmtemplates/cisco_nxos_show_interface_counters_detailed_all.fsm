@@ -1,0 +1,222 @@
+Value Required INTERFACE (\S+)
+Value RXHCTOTALPKTS_64B (\d+)
+Value TXHCTOTALPKS_64B (\d+)
+Value RXHCUNICASTPKTS_64B (\d+)
+Value RXHCMULTICASTPKTS_64B (\d+)
+Value RXHCBROADCASTPKTS_64B (\d+)
+Value RXHCOCTETS_64B (\d+)
+Value TXHCUNICASTPKTS_64B (\d+)
+Value TXHCMULTICASTPKTS_64B (\d+)
+Value TXHCBROADCASTPKTS_64B (\d+)
+Value TXHCOCTETS_64B (\d+)
+Value RXTXHCPKTS64OCTETS_64B (\d+)
+Value RXTXHCPKTS65TO127OCTETS_64B (\d+)
+Value RXTXHCPKTS128TO255OCTETS_64B (\d+)
+Value RXTXHCPKTS256TO511OCTETS_64B (\d+)
+Value RXTXHCPKTS512TO1023OCTETS_64B (\d+)
+Value RXTXHCPKTS1024TO1518OCTETS_64B (\d+)
+Value RXTXHCPKTS1519TO1548OCTETS_64B (\d+)
+Value RXHCTRUNKFRAMES_64B (\d+)
+Value TXHCTRUNKFRAMES_64B (\d+)
+Value RXHCDROPEVENTS_64B (\d+)
+Value INLAYER3UNICAST_64B (\d+)
+Value INLAYER3UNICASTOCTETS_64B (\d+)
+Value INLAYER3MULTICAST_64B (\d+)
+Value INLAYER3MULTICASTOCTETS_64B (\d+)
+Value OUTLAYER3UNICAST_64B (\d+)
+Value OUTLAYER3UNICASTOCTETS_64B (\d+)
+Value OUTLAYER3MULTICAST_64B (\d+)
+Value OUTLAYER3MULTICASTOCTETS_64B (\d+)
+Value INLAYER3ROUTED_64B (\d+)
+Value INLAYER3ROUTEDOCTETS_64B (\d+)
+Value OUTLAYER3ROUTED_64B (\d+)
+Value OUTLAYER3ROUTEDOCTETS_64B (\d+)
+Value INLAYER3AVERAGEOCTETS_64B (\d+)
+Value INLAYER3AVERAGEPACKETS_64B (\d+)
+Value OUTLAYER3AVERAGEOCTETS_64B (\d+)
+Value OUTLAYER3AVERAGEPACKETS_64B (\d+)
+Value RX_PACKETS (\d+)
+Value RX_BYTES (\d+)
+Value NO_BUFFER_ERRORS (\d+)
+Value RX_BROADCAST_PACKETS (\d+)
+Value RX_MULTICAST_PACKETS (\d+)
+Value RX_UNICAST_PACKETS (\d+)
+Value RX_JUMBO_PACKETS (\d+)
+Value RUNT_ERRORS (\d+)
+Value RX_STORM_SUPPRESSION (\d+)
+Value INPUT_ERRORS (\d+)
+Value INPUT_CRC_ERRORS (\d+)
+Value ECC_ERRORS (\d+)
+Value OVERRUN_ERRORS (\d+)
+Value IGNORED_ERRORS (\d+)
+Value WATCHDOG_ERRORS (\d+)
+Value TX_BROADCAST_PACKETS (\d+)
+Value TX_MULTICAST_PACKETS (\d+)
+Value TX_UNICAST_PACKETS (\d+)
+Value TX_JUMBO_PACKETS (\d+)
+Value RX_PAUSE (\d+)
+Value DRIBBLE_ERRORS (\d+)
+Value IF_DOWN_DROP_ERRORS (\d+)
+Value BAD_ETYPE_DROP_ERRORS (\d+)
+Value BAD_PROTO_DROP_ERRORS (\d+)
+Value TX_PACKETS (\d+)
+Value TX_BYTES (\d+)
+Value UNDERRUN_ERRORS (\d+)
+Value OUTPUT_ERRORS (\d+)
+Value COLLISION_ERRORS (\d+)
+Value RESETS (\d+)
+Value BABBLE_ERRORS (\d+)
+Value LATE_COLLISION_ERRORS (\d+)
+Value DEFERRED_ERRORS (\d+)
+Value LOST_CARRIER_ERRORS (\d+)
+Value NO_CARRIER_ERRORS (\d+)
+Value TX_PAUSE (\d+)
+Value SINGLE_COLLISION_ERRORS (\d+)
+Value MULTI_COLLISION_ERRORS (\d+)
+Value EXCESS_COLLISION_ERRORS (\d+)
+Value JABBER_ERRORS (\d+)
+Value SHORT_FRAME_ERRORS (\d+)
+Value INPUT_DISCARD_ERRORS (\d+)
+Value BAD_ENCAPSULATION_ERRORS (\d+)
+Value OUTPUT_CRC_ERRORS (\d+)
+Value SYMBOL_ERRORS (\d+)
+Value OUTPUT_DROPPED_ERRORS (\d+)
+Value SQETEST (\d+)
+Value RX_PACKETS_FROM_0_TO_64_BYTES (\d+)
+Value RX_PACKETS_FROM_65_TO_127_BYTES (\d+)
+Value RX_PACKETS_FROM_128_TO_255_BYTES (\d+)
+Value RX_PACKETS_FROM_256_TO_511_BYTES (\d+)
+Value RX_PACKETS_FROM_512_TO_1023_BYTES (\d+)
+Value RX_PACKETS_FROM_1024_TO_1518_BYTES (\d+)
+Value RX_PACKETS_FROM_1519_TO_1548_BYTES (\d+)
+Value RX_TRUNK_PACKETS (\d+)
+Value TX_PACKETS_FROM_0_TO_64_BYTES (\d+)
+Value TX_PACKETS_FROM_65_TO_127_BYTES (\d+)
+Value TX_PACKETS_FROM_128_TO_255_BYTES (\d+)
+Value TX_PACKETS_FROM_256_TO_511_BYTES (\d+)
+Value TX_PACKETS_FROM_512_TO_1023_BYTES (\d+)
+Value TX_PACKETS_FROM_1024_TO_1518_BYTES (\d+)
+Value TX_PACKETS_FROM_1519_TO_1548_BYTES (\d+)
+Value TX_TRUNK_PACKETS (\d+)
+Value OUTPUT_BPDU_LOST (\d+)
+Value OUTPUT_COS0_LOST (\d+)
+Value OUTPUT_COS1_LOST (\d+)
+Value OUTPUT_COS2_LOST (\d+)
+Value OUTPUT_COS3_LOST (\d+)
+Value OUTPUT_COS4_LOST (\d+)
+Value OUTPUT_COS5_LOST (\d+)
+Value OUTPUT_COS6_LOST (\d+)
+Value OUTPUT_COS7_LOST (\d+)
+
+
+Start
+  ^\S+ -> Continue.Record
+  ^${INTERFACE}
+  ^\s+\d+\.\s+rxHCTotalPkts = ${RXHCTOTALPKTS_64B}
+  ^\s+\d+\.\s+txHCTotalPks = ${TXHCTOTALPKS_64B}
+  ^\s+\d+\.\s+rxHCUnicastPkts = ${RXHCUNICASTPKTS_64B}
+  ^\s+\d+\.\s+rxHCMulticastPkts = ${RXHCMULTICASTPKTS_64B}
+  ^\s+\d+\.\s+rxHCBroadcastPkts = ${RXHCBROADCASTPKTS_64B}
+  ^\s+\d+\.\s+rxHCOctets = ${RXHCOCTETS_64B}
+  ^\s+\d+\.\s+txHCUnicastPkts = ${TXHCUNICASTPKTS_64B}
+  ^\s+\d+\.\s+txHCMulticastPkts = ${TXHCMULTICASTPKTS_64B}
+  ^\s+\d+\.\s+txHCBroadcastPkts = ${TXHCBROADCASTPKTS_64B}
+  ^\s+\d+\.\s+txHCOctets = ${TXHCOCTETS_64B}
+  ^\s+\d+\.\s+rxTxHCPkts64Octets = ${RXTXHCPKTS64OCTETS_64B}
+  ^\s+\d+\.\s+rxTxHCpkts65to127Octets = ${RXTXHCPKTS65TO127OCTETS_64B}
+  ^\s+\d+\.\s+rxTxHCpkts128to255Octets = ${RXTXHCPKTS128TO255OCTETS_64B}
+  ^\s+\d+\.\s+rxTxHCpkts256to511Octets = ${RXTXHCPKTS256TO511OCTETS_64B}
+  ^\s+\d+\.\s+rxTxHCpkts512to1023Octets = ${RXTXHCPKTS512TO1023OCTETS_64B}
+  ^\s+\d+\.\s+rxTxHCpkts1024to1518Octets = ${RXTXHCPKTS1024TO1518OCTETS_64B}
+  ^\s+\d+\.\s+rxTxHCpkts1519to1548Octets = ${RXTXHCPKTS1519TO1548OCTETS_64B}
+  ^\s+\d+\.\s+rxHCTrunkFrames = ${RXHCTRUNKFRAMES_64B}
+  ^\s+\d+\.\s+txHCTrunkFrames = ${TXHCTRUNKFRAMES_64B}
+  ^\s+\d+\.\s+rxHCDropEvents = ${RXHCDROPEVENTS_64B}
+  ^\s+\d+\.\s+InLayer3Unicast = ${INLAYER3UNICAST_64B}
+  ^\s+\d+\.\s+InLayer3UnicastOctets = ${INLAYER3UNICASTOCTETS_64B}
+  ^\s+\d+\.\s+InLayer3Multicast = ${INLAYER3MULTICAST_64B}
+  ^\s+\d+\.\s+InLayer3MulticastOctets = ${INLAYER3MULTICASTOCTETS_64B}
+  ^\s+\d+\.\s+OutLayer3Unicast = ${OUTLAYER3UNICAST_64B}
+  ^\s+\d+\.\s+OutLayer3UnicastOctets = ${OUTLAYER3UNICASTOCTETS_64B}
+  ^\s+\d+\.\s+OutLayer3Multicast = ${OUTLAYER3MULTICAST_64B}
+  ^\s+\d+\.\s+OutLayer3MulticastOctets = ${OUTLAYER3MULTICASTOCTETS_64B}
+  ^\s+\d+\.\s+InLayer3Routed = ${INLAYER3ROUTED_64B}
+  ^\s+\d+\.\s+InLayer3RoutedOctets = ${INLAYER3ROUTEDOCTETS_64B}
+  ^\s+\d+\.\s+OutLayer3Routed = ${OUTLAYER3ROUTED_64B}
+  ^\s+\d+\.\s+OutLayer3RoutedOctets = ${OUTLAYER3ROUTEDOCTETS_64B}
+  ^\s+\d+\.\s+InLayer3AverageOctets = ${INLAYER3AVERAGEOCTETS_64B}
+  ^\s+\d+\.\s+InLayer3AveragePackets = ${INLAYER3AVERAGEPACKETS_64B}
+  ^\s+\d+\.\s+OutLayer3AverageOctets = ${OUTLAYER3AVERAGEOCTETS_64B}
+  ^\s+\d+\.\s+OutLayer3AveragePackets = ${OUTLAYER3AVERAGEPACKETS_64B}
+  ^\s+\d+\.\s+Rx Packets: = ${RX_PACKETS}
+  ^\s+\d+\.\s+Rx Bytes: = ${RX_BYTES}
+  ^\s+\d+\.\s+No Buffer Errors: = ${NO_BUFFER_ERRORS}
+  ^\s+\d+\.\s+Rx Broadcast Packets: = ${RX_BROADCAST_PACKETS}
+  ^\s+\d+\.\s+Rx Multicast Packets: = ${RX_MULTICAST_PACKETS}
+  ^\s+\d+\.\s+Rx Unicast Packets: = ${RX_UNICAST_PACKETS}
+  ^\s+\d+\.\s+Rx Jumbo Packets: = ${RX_JUMBO_PACKETS}
+  ^\s+\d+\.\s+Runt Errors: = ${RUNT_ERRORS}
+  ^\s+\d+\.\s+Rx Storm Suppression: = ${RX_STORM_SUPPRESSION}
+  ^\s+\d+\.\s+Input Errors: = ${INPUT_ERRORS}
+  ^\s+\d+\.\s+Input CRC Errors: = ${INPUT_CRC_ERRORS}
+  ^\s+\d+\.\s+ECC Errors: = ${ECC_ERRORS}
+  ^\s+\d+\.\s+Overrun Errors: = ${OVERRUN_ERRORS}
+  ^\s+\d+\.\s+Ignored Errors: = ${IGNORED_ERRORS}
+  ^\s+\d+\.\s+Watchdog Errors: = ${WATCHDOG_ERRORS}
+  ^\s+\d+\.\s+tx broadcast packets: = ${TX_BROADCAST_PACKETS}
+  ^\s+\d+\.\s+tx multicast packets: = ${TX_MULTICAST_PACKETS}
+  ^\s+\d+\.\s+tx unicast packets: = ${TX_UNICAST_PACKETS}
+  ^\s+\d+\.\s+tx jumbo packets: = ${TX_JUMBO_PACKETS}
+  ^\s+\d+\.\s+Rx Pause: = ${RX_PAUSE}
+  ^\s+\d+\.\s+Dribble Errors: = ${DRIBBLE_ERRORS}
+  ^\s+\d+\.\s+If Down Drop Errors: = ${IF_DOWN_DROP_ERRORS}
+  ^\s+\d+\.\s+Bad Etype Drop Errors: = ${BAD_ETYPE_DROP_ERRORS}
+  ^\s+\d+\.\s+Bad Proto Drop Errors: = ${BAD_PROTO_DROP_ERRORS}
+  ^\s+\d+\.\s+tx packets: = ${TX_PACKETS}
+  ^\s+\d+\.\s+tx bytes: = ${TX_BYTES}
+  ^\s+\d+\.\s+Underrun Errors: = ${UNDERRUN_ERRORS}
+  ^\s+\d+\.\s+Output Errors: = ${OUTPUT_ERRORS}
+  ^\s+\d+\.\s+Collision Errors: = ${COLLISION_ERRORS}
+  ^\s+\d+\.\s+Resets: = ${RESETS}
+  ^\s+\d+\.\s+Babble Errors: = ${BABBLE_ERRORS}
+  ^\s+\d+\.\s+Late Collision Errors: = ${LATE_COLLISION_ERRORS}
+  ^\s+\d+\.\s+Deferred Errors: = ${DEFERRED_ERRORS}
+  ^\s+\d+\.\s+Lost Carrier Errors: = ${LOST_CARRIER_ERRORS}
+  ^\s+\d+\.\s+No Carrier Errors: = ${NO_CARRIER_ERRORS}
+  ^\s+\d+\.\s+Tx Pause: = ${TX_PAUSE}
+  ^\s+\d+\.\s+Single Collision Errors: = ${SINGLE_COLLISION_ERRORS}
+  ^\s+\d+\.\s+Multi-Collision Errors: = ${MULTI_COLLISION_ERRORS}
+  ^\s+\d+\.\s+Excess Collision Errors: = ${EXCESS_COLLISION_ERRORS}
+  ^\s+\d+\.\s+Jabber Errors: = ${JABBER_ERRORS}
+  ^\s+\d+\.\s+Short Frame Errors: = ${SHORT_FRAME_ERRORS}
+  ^\s+\d+\.\s+Input Discard Errors: = ${INPUT_DISCARD_ERRORS}
+  ^\s+\d+\.\s+Bad Encapsulation Errors: = ${BAD_ENCAPSULATION_ERRORS}
+  ^\s+\d+\.\s+Output CRC Errors: = ${OUTPUT_CRC_ERRORS}
+  ^\s+\d+\.\s+Symbol Errors: = ${SYMBOL_ERRORS}
+  ^\s+\d+\.\s+Output Dropped Errors: = ${OUTPUT_DROPPED_ERRORS}
+  ^\s+\d+\.\s+SQETest = ${SQETEST}
+  ^\s+\d+\.\s+Rx Packets from 0 to 64 bytes: = ${RX_PACKETS_FROM_0_TO_64_BYTES}
+  ^\s+\d+\.\s+Rx Packets from 65 to 127 bytes: = ${RX_PACKETS_FROM_65_TO_127_BYTES}
+  ^\s+\d+\.\s+Rx Packets from 128 to 255 bytes: = ${RX_PACKETS_FROM_128_TO_255_BYTES}
+  ^\s+\d+\.\s+Rx Packets from 256 to 511 bytes: = ${RX_PACKETS_FROM_256_TO_511_BYTES}
+  ^\s+\d+\.\s+Rx Packets from 512 to 1023 bytes: = ${RX_PACKETS_FROM_512_TO_1023_BYTES}
+  ^\s+\d+\.\s+Rx Packets from 1024 to 1518 bytes: = ${RX_PACKETS_FROM_1024_TO_1518_BYTES}
+  ^\s+\d+\.\s+Rx Packets from 1519 to 1548 bytes: = ${RX_PACKETS_FROM_1519_TO_1548_BYTES}
+  ^\s+\d+\.\s+Rx Trunk Packets: = ${RX_TRUNK_PACKETS}
+  ^\s+\d+\.\s+Tx Packets from 0 to 64 bytes: = ${TX_PACKETS_FROM_0_TO_64_BYTES}
+  ^\s+\d+\.\s+Tx Packets from 65 to 127 bytes: = ${TX_PACKETS_FROM_65_TO_127_BYTES}
+  ^\s+\d+\.\s+Tx Packets from 128 to 255 bytes: = ${TX_PACKETS_FROM_128_TO_255_BYTES}
+  ^\s+\d+\.\s+Tx Packets from 256 to 511 bytes: = ${TX_PACKETS_FROM_256_TO_511_BYTES}
+  ^\s+\d+\.\s+Tx Packets from 512 to 1023 bytes: = ${TX_PACKETS_FROM_512_TO_1023_BYTES}
+  ^\s+\d+\.\s+Tx Packets from 1024 to 1518 bytes: = ${TX_PACKETS_FROM_1024_TO_1518_BYTES}
+  ^\s+\d+\.\s+Tx Packets from 1519 to 1548 bytes: = ${TX_PACKETS_FROM_1519_TO_1548_BYTES}
+  ^\s+\d+\.\s+Tx Trunk Packets: = ${TX_TRUNK_PACKETS}
+  ^\s+\d+\.\s+Output BPDU Lost: = ${OUTPUT_BPDU_LOST}
+  ^\s+\d+\.\s+Output COS0 Lost: = ${OUTPUT_COS0_LOST}
+  ^\s+\d+\.\s+Output COS1 Lost: = ${OUTPUT_COS1_LOST}
+  ^\s+\d+\.\s+Output COS2 Lost: = ${OUTPUT_COS2_LOST}
+  ^\s+\d+\.\s+Output COS3 Lost: = ${OUTPUT_COS3_LOST}
+  ^\s+\d+\.\s+Output COS4 Lost: = ${OUTPUT_COS4_LOST}
+  ^\s+\d+\.\s+Output COS5 Lost: = ${OUTPUT_COS5_LOST}
+  ^\s+\d+\.\s+Output COS6 Lost: = ${OUTPUT_COS6_LOST}
+  ^\s+\d+\.\s+Output COS7 Lost: = ${OUTPUT_COS7_LOST}

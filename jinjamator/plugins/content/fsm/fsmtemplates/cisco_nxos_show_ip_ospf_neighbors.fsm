@@ -1,0 +1,19 @@
+Value Filldown PROCESS_ID (\S+)
+Value Filldown VRF (\S+)
+Value ROUTER_ID (\S+)
+Value PRIORITY (\S+)
+Value STATE (\S+)
+Value STATE2 (\S+)
+Value UPTIME (\S+)
+Value IP_ADDRESS (\S+)
+Value Required INTERFACE (\S+)
+
+Start
+  ^\s*OSPF Process ID ${PROCESS_ID} VRF ${VRF}
+  ^\s*Total number of neighbors:
+  ^\s*Neighbor ID\s+
+  ^\s*${ROUTER_ID}\s+${PRIORITY}\s+${STATE}/(\s)?${STATE2}\s+${UPTIME}\s+${IP_ADDRESS}\s+${INTERFACE} -> Record
+  #Catch empty lines
+  ^\s*$$
+  #Error on uncatched match
+  ^. -> Error

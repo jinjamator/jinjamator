@@ -204,6 +204,8 @@ cisco_nxos_show_interface_status.fsm, .*, cisco_nxos, sh[[ow]] int[[erface]] st[
 cisco_nxos_show_interface_description.fsm, .*, cisco_nxos, sh[[ow]] int[[erface]] desc[[ription]]
 cisco_nxos_show_ip_bgp_neighbors.fsm, .*, cisco_nxos, sh[[ow]] ip bgp nei[[ghbors]]
 cisco_nxos_show_ip_ospf_database.fsm, .*, cisco_nxos, sh[[ow]] ip o[[spf]] d[[atabase]] (vrf)? (\S+)
+cisco_nxos_show_ip_ospf_neighbors.fsm, .*, cisco_nxos, sh[[ow]] i[[p]] o[[spf]] nei[[ghbors]]( vrf)?( \S+)?
+cisco_nxos_show_ip_pim_neighbor.fsm, .*, cisco_nxos, sh[[ow]] i[[p]] p[[im]] nei[[ghbors]]( vrf)?( \S+)?
 cisco_nxos_show_interface_brief.fsm, .*, cisco_nxos, sh[[ow]] int[[erface]] br[[ief]]
 cisco_nxos_show_flogi_database.fsm, .*, cisco_nxos, sh[[ow]] fl[[ogi]] d[[atabase]]
 cisco_nxos_show_ip_bgp_summary.fsm, .*, cisco_nxos, sh[[ow]] ip b[[gp]] s[[ummary]]
@@ -214,6 +216,7 @@ cisco_nxos_show_ip_arp_detail.fsm, .*, cisco_nxos, sh[[ow]] i[[p]] a[[rp]] det[[
 cisco_nxos_show_processes_cpu.fsm, .*, cisco_nxos, sh[[ow]] proc[[esses]] c[[pu]]
 cisco_nxos_show_access-lists.fsm, .*, cisco_nxos, sh[[ow]] acc[[ess-lists]]
 cisco_nxos_show_environments.fsm, .*, cisco_nxos, sh[[ow]] envi[[ronments]]
+cisco_nxos_show_interface_counters_detailed_all.fsm, .*, cisco_nxos, sh[[ow]] int[[erface]] cou[[nters]] det[[ailed]] (all)?
 cisco_nxos_show_interface.fsm, .*, cisco_nxos, sh[[ow]] int[[erface]]
 cisco_nxos_show_inventory.fsm, .*, cisco_nxos, sh[[ow]] inv[[entory]]
 cisco_nxos_show_hostname.fsm, .*, cisco_nxos, sh[[ow]] hostn[[ame]]
@@ -243,8 +246,17 @@ cisco_nxos_show_ip_interface.fsm, .*, cisco_nxos, sh[[ow]] ip int[[erface]] (vrf
 cisco_nxos_show_ipv6_interface.fsm, .*, cisco_nxos, sh[[ow]] ipv[[6]] int[[erface]] (vrf)? (\S+) 
 cisco_nxos_show_ip_igmp_groups_vrf_all.fsm, .*, cisco_nxos, sh[[ow]] i[[p]] igmp gr[[oups]] vrf all
 cisco_nxos_show_spanning-tree.fsm, .*, cisco_nxos, sh[[ow]] sp[[anning-tree]]
+cisco_nxos_show_bfd_neighbors.fsm, .*, cisco_nxos, sh[[ow]] bfd nei[[ghbors]]( vrf)?( \S+)?
+
 cisco_nxos_show_run_interface.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] int[[erface]]
 cisco_nxos_show_run_port-profile.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] port-pr[[ofile]]
+cisco_nxos_show_run_class-map.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] class-m[[ap]]
+cisco_nxos_show_run_policy-map.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] policy-m[[ap]]
+cisco_nxos_show_run_system_qos.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] sys[[tem]] qos
+cisco_nxos_show_run_ospf_interface.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] ospf int[[erface]]
+cisco_nxos_show_run_ospf.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] ospf
+cisco_nxos_show_run_bfd.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] bfd
+cisco_nxos_show_run_ip_pim_rp.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] ip pim rp
 
 cisco_wlc_ssh_show_cdp_neighbors_detail.fsm, .*, cisco_wlc_ssh, sh[[ow]] c[[dp]] neig[[hbors]] det[[ail]]
 cisco_wlc_ssh_show_ap_config_general.fsm, .*, cisco_wlc_ssh, sh[[ow]] ap con[[fig]] ge[[neral]]

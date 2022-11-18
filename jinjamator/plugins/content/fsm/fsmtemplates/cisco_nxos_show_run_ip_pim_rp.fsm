@@ -1,0 +1,15 @@
+Value Filldown VRF (\S+)
+Value Required RP_ADDRESS (\S+)
+Value GROUP_LIST (\S+)
+Value BIDIR (bidir)
+
+
+Start
+  ^vrf context ${VRF} -> VRF_parse
+
+
+VRF_parse
+  ^vrf context -> Continue.Record
+  ^vrf context ${VRF}
+  ^\s+ip pim rp-address ${RP_ADDRESS} group-list ${GROUP_LIST}( ${BIDIR})? -> Record
+  ^\S+ -> Start

@@ -1,0 +1,32 @@
+Value Filldown PM_NAME (\S+)
+Value Filldown PM_DESCRIPTION (\S+.*)
+Value Filldown PM_TYPE (\S+)
+Value C_TYPE (\S+)
+Value Required C_NAME (\S+)
+Value List STATEMENTS (\S+.*)
+
+
+
+Start
+  ^policy-map type ${PM_TYPE} ${PM_NAME} -> PM_parse
+
+PM_parse
+  ^\s+description ${PM_DESCRIPTION}
+  ^\s+class type ${C_TYPE} ${C_NAME} -> Statements
+  #There may not be a type
+  ^\s+class ${C_NAME} -> Statements
+    
+Statements
+  #When the next class starts, Record and continue
+  ^\s+class -> Continue.Record
+  ^policy-map -> Continue.Record
+  #Jump to PM_parse if another policy-map comes along
+  ^policy-map type ${PM_TYPE} ${PM_NAME} -> PM_parse
+  #Start a rexing again
+  ^\s+class type ${C_TYPE} ${C_NAME}
+  ^\s+class ${C_NAME}
+  #Add statements in the class to the list
+  ^\s+${STATEMENTS}
+  #There is no empty line after this config-section and the next part
+  #Record it and jump back to start
+  ^\S+.*$$ -> Record Start
