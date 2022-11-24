@@ -191,6 +191,7 @@ class XLSXWriter(object):
         self._rename_columns = kwargs.get("rename_columns") or []
         self._table_style_name = "TableStyleMedium15"
         self._table_name = "Table1"
+        self._text_wrap = kwargs.get("text_wrap") or True
 
         if os.path.isfile(self._destintaion_path) and self._append_sheet:
             self._log.info(f"appending to {self._destintaion_path}")
@@ -279,10 +280,27 @@ class XLSXWriter(object):
 
     def optimize_column_widths(self, ws):
         column_widths = []
+
         for row in ws.iter_rows():
             for i, cell in enumerate(row):
+                if self._text_wrap:
+                    cell.alignment = Alignment(
+                        horizontal="left", vertical="top", wrapText=True
+                    )
                 try:
-                    length = len(cell.value)
+                    if (
+                        self._text_wrap
+                        and isinstance(cell.value, str)
+                        and "\n" in cell.value
+                    ):
+                        length = 0
+                        tmp = cell.value.split("\n")
+                        for j in tmp:
+                            l = len(j)
+                            if l > length:
+                                length = l
+                    else:
+                        length = len(cell.value)
                 except TypeError:
                     length = 0
                 if len(column_widths) > i:
@@ -292,7 +310,7 @@ class XLSXWriter(object):
                     column_widths += [length]
 
         for i, column_width in enumerate(column_widths):
-            ws.column_dimensions[get_column_letter(i + 1)].width = column_width + 2
+            ws.column_dimensions[get_column_letter(i + 1)].width = column_width + 4
 
     def save(self):
         self._wb.save(self._destintaion_path)
@@ -304,6 +322,7 @@ class XLSXWriter(object):
         if self._append_sheet:
             try:
                 ws = self._wb[sheet_name[:30]]
+
             except BaseException:
                 ws = self._wb.create_sheet(title=sheet_name[:30], index=0)
                 ws.append(self._header)
