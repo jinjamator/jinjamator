@@ -352,3 +352,4 @@ barracuda_fwng_arp_-a.fsm, .*, barracuda_fwng, arp -a
 linux_dmesg_disks.fsm, .*, linux, dmesg_disks
 linux_geom_disk_list.fsm, .*, linux, geom_disk_list
 linux_sas2ircu_display.fsm, .*, linux, sas2ircu_display
+linux_traceroute.fsm, .*, linux, traceroute

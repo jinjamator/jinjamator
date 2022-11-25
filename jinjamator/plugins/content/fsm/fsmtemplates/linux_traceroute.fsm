@@ -1,0 +1,14 @@
+Value Required HOP_NUMBER (\d+)
+Value Filldown MAXHOPS (\d+)
+Value Filldown TARGET_IP (\d+\.\d+\.\d+\.\d+)
+Value Filldown TARGET (\S+)
+Value Filldown PACKET_SIZE (\d+)
+Value Repeated,List HOP_IP (\S+)
+Value Repeated,List HOP (\S+)
+Value Repeated,List LATENCY (\S+)
+
+Start
+  ^traceroute to ${TARGET} \(${TARGET_IP}\), ${MAXHOPS} hops max, ${PACKET_SIZE} byte packets
+  ^\s*${HOP_NUMBER}\s+(${HOP} \(${HOP_IP}\)\s+(${LATENCY} ms\s*)+)+ -> Record
+  ^\s*${HOP_NUMBER}\s+${HOP} \(${HOP_IP}\)(\s+${LATENCY} ms|\*)+ -> Record
+  ^\s*${HOP_NUMBER}\s+\* \* \* -> Record
