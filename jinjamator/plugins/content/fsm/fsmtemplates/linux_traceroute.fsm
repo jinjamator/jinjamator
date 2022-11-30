@@ -9,6 +9,6 @@ Value Repeated,List LATENCY (\S+)
 
 Start
   ^traceroute to ${TARGET} \(${TARGET_IP}\), ${MAXHOPS} hops max, ${PACKET_SIZE} byte packets
-  ^\s*${HOP_NUMBER}\s+(${HOP} \(${HOP_IP}\)\s+(${LATENCY} ms\s*)+)+ -> Record
-  ^\s*${HOP_NUMBER}\s+${HOP} \(${HOP_IP}\)(\s+${LATENCY} ms|\*)+ -> Record
+  ^\s*${HOP_NUMBER}\s+(?:\*\s+)*(${HOP} \(${HOP_IP}\)\s+(${LATENCY} ms\s*)+)+ -> Record
+  ^\s*${HOP_NUMBER}\s+(?:\*\s+)*${HOP} \(${HOP_IP}\)(\s+${LATENCY} ms|\*)+ -> Record
   ^\s*${HOP_NUMBER}\s+\* \* \* -> Record
