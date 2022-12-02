@@ -248,7 +248,7 @@ class XLSXWriter(object):
                     self._data[index] = flatten(line)
                 else:
                     raise ValueError(
-                        f"Line {index} is neither, list nor dict. I don't know how to proceed further"
+                        f"Line {index} is neither, list nor dict. I don't know how to proceed further {line}"
                     )
             if data_type == "list_of_dict":
                 self._header = list(self._data[0].keys())
@@ -330,7 +330,7 @@ class XLSXWriter(object):
             ws = self._wb.create_sheet(title=sheet_name[:30], index=0)
             ws.append(self._header)
         for row in data:
-            values = (row[k] for k in self._header)
+            values = (row.get(k, "") for k in self._header)
             ws.append(values)
 
         tab = Table(
