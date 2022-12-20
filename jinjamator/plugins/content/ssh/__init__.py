@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from netmiko import ConnectHandler
+from netmiko import ConnectHandler, SCPConn
 from netmiko.exceptions import NetmikoAuthenticationException
 
 import textfsmplus
@@ -177,12 +177,31 @@ def run(command, connection=None, **kwargs):
             pass
     for var_name in kwargs:
         opts[var_name] = kwargs[var_name]
-    retval = connection.send_command_expect(command, max_loops=10000, **opts)
+    retval = connection.send_command_expect(command, read_timeout=300, **opts)
     if auto_disconnect:
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
 
+def run_mlt(commands,connection=None,**kwargs):
+    auto_disconnect = False
+    if not connection:
+        connection = connect(**kwargs)
+        auto_disconnect = True
+
+    opts = {}
+    for var_name in ["host", "username", "password", "port", "device_type"]:
+        try:
+            del kwargs[var_name]
+        except KeyError:
+            pass
+    for var_name in kwargs:
+        opts[var_name] = kwargs[var_name]
+    retval = connection.send_multiline_timing(commands, **opts)
+    if auto_disconnect:
+        disconnect(connection)
+    # netmiko_log.setLevel(backup_log_level)
+    return retval
 
 def configure(commands_or_path, connection=None, **kwargs):
     auto_disconnect = False
@@ -215,3 +234,45 @@ def configure(commands_or_path, connection=None, **kwargs):
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
+
+
+def get_file (src,dst,connection=None,**kwargs):
+    auto_disconnect = False
+    if not connection:
+        connection = connect(**kwargs)
+        auto_disconnect = True
+
+    opts = {}
+    for var_name in ["host", "username", "password", "port", "device_type"]:
+        try:
+            del kwargs[var_name]
+        except KeyError:
+            pass
+    for var_name in kwargs:
+        opts[var_name] = kwargs[var_name]
+    
+    scp = SCPConn(connection)
+    scp.scp_get_file(src,dst)
+    #Needed
+    scp.close()
+
+
+def put_file (src,dst,connection=None,**kwargs):
+    auto_disconnect = False
+    if not connection:
+        connection = connect(**kwargs)
+        auto_disconnect = True
+
+    opts = {}
+    for var_name in ["host", "username", "password", "port", "device_type"]:
+        try:
+            del kwargs[var_name]
+        except KeyError:
+            pass
+    for var_name in kwargs:
+        opts[var_name] = kwargs[var_name]
+    
+    scp = SCPConn(connection)
+    scp.scp_put_file(src,dst)
+    #Needed
+    scp.close()

@@ -1,0 +1,30 @@
+Value SERVICE_NAME (\S+)
+Value SERVICE_DESCRIPTION (.*)
+Value LOADED (\S+)
+Value UNIT_FILE (\S+)
+Value ENABLED (\S+)
+Value VENDOR_PRESET (\S+)
+Value ACTIVE (\S+)
+Value STATUS (\S+)
+Value PROCESS (\S+)
+Value COMMAND (.*)
+Value MAIN_PID (\S+)
+Value BIN_NAME (\S+)
+Value TASKS (\S+)
+Value MEMORY (\S+)
+Value CPU (\S+)
+
+
+
+Start
+  ^.* ${SERVICE_NAME}.service - ${SERVICE_DESCRIPTION}
+  ^\s+Loaded: ${LOADED} \(${UNIT_FILE}; ${ENABLED}; vendor preset: ${VENDOR_PRESET}\)
+  ^\s+Active: .*;32m${ACTIVE} \(${STATUS}\)
+  ^\s+Active: ${ACTIVE} \(${STATUS}\)
+  ^\s+Docs:
+  ^\s+Process: ${PROCESS} ${COMMAND} \(code=.*$$
+  ^\s+Main PID: ${MAIN_PID} \(${BIN_NAME}\)
+  ^\s+Tasks: ${TASKS} \(.*$$
+  ^\s+Memory: ${MEMORY}
+  ^\s+CPU: ${CPU}
+  ^\s+CGroup: -> Record

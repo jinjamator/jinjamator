@@ -353,3 +353,6 @@ linux_dmesg_disks.fsm, .*, linux, dmesg_disks
 linux_geom_disk_list.fsm, .*, linux, geom_disk_list
 linux_sas2ircu_display.fsm, .*, linux, sas2ircu_display
 linux_traceroute.fsm, .*, linux, traceroute
+linux_gluster_peer_status.fsm, .*, linux, gluster peer status
+linux_gluster_pool_list.fsm, .*, linux, gluster pool list
+linux_systemctl_status.fsm, .*, linux, systemctl status (\S+)
