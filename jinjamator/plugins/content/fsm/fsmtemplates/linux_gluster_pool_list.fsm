@@ -1,0 +1,9 @@
+Value UUID (\S+)
+Value Required HOSTNAME (\S+)
+Value STATE (.*)
+
+
+Start
+  ^UUID\s+Hostname\s+State
+  ^${UUID}\s+${HOSTNAME}\s+${STATE}\s*$$ -> Record
+  ^. -> Error

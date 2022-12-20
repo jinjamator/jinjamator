@@ -1,0 +1,19 @@
+Value Required HOSTNAME (\S+)
+Value UUID (\S+)
+Value STATE (.*)
+Value CONNECTED (\S+)
+Value List OTHER_NAMES (\S+)
+
+
+Start
+  ^Number of Peers:
+  ^Hostname: ${HOSTNAME}
+  ^Uuid: ${UUID}
+  ^State: ${STATE} \(${CONNECTED}\)
+  ^Other names: -> Other_names
+  ^\s*$$ -> Record
+  ^. -> Error
+
+Other_names
+  ^${OTHER_NAMES}\s*$$
+  ^\s*$$ -> Record Start
