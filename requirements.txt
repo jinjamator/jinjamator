@@ -46,3 +46,4 @@ pyjq
 netaddr
 pyvmomi
 coloredlogs
+openai
