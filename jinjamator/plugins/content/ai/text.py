@@ -49,17 +49,17 @@ def generate(
     disable_cache=False,
     model="text-davinci-003",
     temperature=0,
-    max_tokens=7,
+    max_tokens=3000,
+    index=0,
     _requires=_get_missing_openai_connection_vars,
 ):
-    print(_jinjamator.configuration["openai_access_token"])
-    openai.api_key = _jinjamator.configuration["openai_access_token"] or input(
-        "openai_access_token:"
-    )
+    if not _jinjamator.configuration["openai_access_token"]:
+        _jinjamator.handle_undefined_var("openai_access_token")
+    openai.api_key = _jinjamator.configuration["openai_access_token"]
     cache_filepath, cache_data = get_cached_value(prompt)
     if cache_data and not disable_cache:
         log.debug(f"using cache data from {cache_filepath}")
-        return cache_data
+        return cache_data["choices"][index]
     else:
         log.debug(f"cache entry not found {cache_filepath}")
         response = str(
@@ -73,4 +73,4 @@ def generate(
         d = json.loads(response)
         d["prompt"] = prompt
         cache_value(prompt, json.dumps(d))
-        return d
+        return d["choices"][index]
