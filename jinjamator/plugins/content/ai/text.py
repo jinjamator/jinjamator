@@ -59,7 +59,7 @@ def generate(
     cache_filepath, cache_data = get_cached_value(prompt)
     if cache_data and not disable_cache:
         log.debug(f"using cache data from {cache_filepath}")
-        return cache_data["choices"][index]
+        return cache_data["choices"][index]["text"]
     else:
         log.debug(f"cache entry not found {cache_filepath}")
         response = str(
@@ -73,4 +73,4 @@ def generate(
         d = json.loads(response)
         d["prompt"] = prompt
         cache_value(prompt, json.dumps(d))
-        return d["choices"][index]
+        return d["choices"][index]["text"]
