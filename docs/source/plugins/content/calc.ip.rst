@@ -7,9 +7,35 @@ calc.ip
     calc.ip.prefix.rst
 
 
+.. py:function:: calc.ip.host_first(subnet):
+
+    Returns the first host of a network given in CIDR-notation
+
+    >>> print(host_first("192.168.0.0/24"))
+    192.168.0.1
+
+    :param subnet: network in CIDR-notation
+    :type subnet: string
+    :returns: first host in network
+    :rtype: string
+    
+
+.. py:function:: calc.ip.host_last(subnet):
+
+    Returns the last host of a network given in CIDR-notation
+
+    >>> print(host_last("192.168.0.0/24"))
+    192.168.0.254
+
+    :param subnet: network in CIDR-notation
+    :type subnet: string
+    :returns: last host in network
+    :rtype: string
+    
+
 .. py:function:: calc.ip.ip(ip):
 
-    Returns the IP-address/network part of a network given in CIDR-notation
+    Returns the IP-address part of a network given in CIDR-notation
 
     >>> print(ip("192.168.0.5/24"))
     192.168.0.5

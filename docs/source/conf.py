@@ -35,7 +35,7 @@ def setup(app):
     import warnings
     from typing import Any, Callable, Dict, List, Mapping, NamedTuple, Optional, Tuple
 
-    from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
+    # from sphinx.deprecation import RemovedInSphinx40Warning, deprecated_alias
     from sphinx.pycode import ModuleAnalyzer
     from sphinx.util import logging
     from sphinx.util.inspect import isclass, isenumclass, safe_getattr
