@@ -80,11 +80,23 @@ ssh
 
     not documented yet
 
+.. py:function:: ssh.get_file(src, dst, connection=None, **kwargs):
+
+    not documented yet
+
+.. py:function:: ssh.put_file(src, dst, connection=None, **kwargs):
+
+    not documented yet
+
 .. py:function:: ssh.query(command, connection=None, **kwargs):
 
     not documented yet
 
 .. py:function:: ssh.run(command, connection=None, **kwargs):
+
+    not documented yet
+
+.. py:function:: ssh.run_mlt(commands, connection=None, **kwargs):
 
     not documented yet
 

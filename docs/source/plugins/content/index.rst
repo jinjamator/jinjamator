@@ -4,6 +4,7 @@ Jinjamator Content Plugins
 .. toctree::
     :maxdepth: 1
 
+    ai.rst
     base64.rst
     calc.rst
     cisco.rst

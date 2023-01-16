@@ -30,6 +30,10 @@ file
 
     not documented yet
 
+.. py:function:: file.dir(path, pattern='', **kwargs):
+
+    not documented yet
+
 .. py:function:: file.exists(filename):
 
     Check if filename exists
@@ -148,6 +152,28 @@ file
     :type fn: ``str``
     :return: Absolute path of the files directory
     :rtype: ``str``
+    
+
+.. py:function:: file.rmdir(path, recursive=False):
+
+    Remove a directory. Can be recursive if ``recursive`` parameter is set to True
+
+    :param path: The path of the directory
+    :type path: ``str``
+    :param recursive: Remove recursive
+    :type recursive: ``boolean``
+    :return: True if removal was successful
+    :rtype: ``bool``
+    
+
+.. py:function:: file.rmdir_r(path):
+
+    Remove a directory recursively. 
+
+    :param path: The path of the directory
+    :type path: ``str``
+    :return: True if removal was successful
+    :rtype: ``bool``
     
 
 .. py:function:: file.save(data, target_path, **kwargs):
