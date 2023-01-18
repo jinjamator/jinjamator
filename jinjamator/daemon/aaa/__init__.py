@@ -417,6 +417,27 @@ class LDAPAuthProvider(AuthProviderBase):
                             for _ in range(128)
                         )
                     )  # generate max len random secure password on each login
+
+                    # check_group_mapping
+                    if self._configuration.get("map_groups"):
+                        user.roles = []
+                    for ad_group, mappings in self._configuration.get(
+                        "map_groups", []
+                    ).items():
+
+                        for jm_group in mappings:
+                            if ad_group in result[0]["memberOf"]:
+
+                                role = (
+                                    db.session.query(JinjamatorRole)
+                                    .filter_by(name=jm_group)
+                                    .first()
+                                )
+                                if role:
+                                    user.roles.append(role)
+                                else:
+                                    log.error(f"role {jm_group} not found")
+
                     db.session.add(user)
                     db.session.commit()
                     user = User.query.filter_by(username=username).first()

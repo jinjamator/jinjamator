@@ -7,6 +7,10 @@ environ = os.environ
 server_id_rgx = re.compile(
     f"JINJAMATOR_AAA_{provider_name.upper()}_SERVER" + r"(\d+)_(.*)"
 )
+allowed_group_id_rgx = re.compile(
+    f"JINJAMATOR_AAA_{provider_name.upper()}_ALLOWED_GROUP" + r"(\d+)"
+)
+
 
 cfg = {
     "type": "ldap",
@@ -60,14 +64,32 @@ for env_var in sorted(
                 environ.get(env_var)
             )
 
-for env_var in sorted(
-    [
-        e
-        for e in environ
-        if e.startswith(f"JINJAMATOR_AAA_{provider_name.upper()}_ALLOWED_GROUP")
-    ]
-):
-    cfg["ldap_configuration"]["allowed_groups"].append(environ.get(env_var))
 
+for env_var in environ:
+    res = allowed_group_id_rgx.match(env_var)
+    ad_group = environ.get(env_var)
+    if res:
+        cfg["ldap_configuration"]["allowed_groups"].append(ad_group)
+        try:
+            for group in environ.get(f"{env_var}_MAP").split(","):
+                if "map_groups" not in cfg["ldap_configuration"]:
+                    cfg["ldap_configuration"]["map_groups"] = {}
+                if ad_group not in cfg["ldap_configuration"]["map_groups"]:
+                    cfg["ldap_configuration"]["map_groups"][ad_group] = []
+                cfg["ldap_configuration"]["map_groups"][ad_group].append(group)
+        except AttributeError:
+            pass
+
+
+# export JINJAMATOR_AAA_POC3076LDAP_ALLOWED_GROUP1=CN=JINJAMATOR_Users,OU=Groups,OU=POC3076,DC=poc3076,DC=local
+# export JINJAMATOR_AAA_POC3076LDAP_ALLOWED_GROUP1_MAP=Operator,task_maga
+# export JINJAMATOR_AAA_POC3076LDAP_ALLOWED_GROUP1_MAP=Administrator
+
+#   map_groups:
+#     CN=JINJAMATOR_Users,OU=Groups,OU=POC3076,DC=poc3076,DC=local:
+#       - operator
+#       - task_maga
+#     CN=BEATE_Users,OU=Groups,OU=POC3076,DC=poc3076,DC=local:
+#       - administrator
 
 return yaml.dump(cfg)
