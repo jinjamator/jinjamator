@@ -25,3 +25,16 @@ for k, v in os.environ.items():
                         f"~/.jinjamator/aaa/{provider_priority}_{provider_name.lower()}.yaml"
                     ),
                 )
+        if v.lower() == "ldap":
+            for res in task.run(
+                "create_ldap_provider", self.configuration, output_plugin="null"
+            ):
+                provider_priority = os.environ.get(
+                    f"JINJAMATOR_AAA_{provider_name.upper()}_PRIORITY", "01"
+                )
+                file.save(
+                    res["result"],
+                    os.path.expanduser(
+                        f"~/.jinjamator/aaa/{provider_priority}_{provider_name.lower()}.yaml"
+                    ),
+                )
