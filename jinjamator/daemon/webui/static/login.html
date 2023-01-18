@@ -42,13 +42,16 @@
                     <input name='password' type="password" class="form-control" placeholder="Password">
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
+                <div class="form-group">
+                    <label>Select Login Domain</label>
+                    <select class="form-control" id="login_domains">
+                    
+
+                    </select>
+                    </div>
+
                 <div class="row">
                     <div class="col-xs-8">
-                        <div class="checkbox icheck">
-                            <label>
-              <!-- <input type="checkbox"> Remember Me -->
-            </label>
-                        </div>
                     </div>
                     <!-- /.col -->
                     <div class="col-xs-4">
@@ -56,9 +59,12 @@
                     </div>
                     <!-- /.col -->
                 </div>
-            </form>
+            
 
-            <div class="social-auth-links text-center" id='oidc_providers'>
+            </form>
+ 
+
+            <div class="social-auth-links text-center hidden" id='oidc_providers'>
                 <p>- OR -</p>
             </div>
             <!-- /.social-auth-links -->
@@ -88,9 +94,10 @@
         function login(){
                 new FormData(document.querySelector('#login_form'));
                 const json=serialize_form(document.querySelector('#login_form'));
+
                 $.ajax({
                     type: 'POST',
-                    url: '/api/aaa/login/local',
+                    url: '/api/aaa/login/' +  $('#login_domains').val(),
                     dataType: 'json',
                     data: json,
                     contentType: 'application/json',
@@ -102,7 +109,7 @@
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
                         if (xhr.status == 401) {
-                            alert('Login Failed');
+                            alert(xhr.responseJSON.message)
                         }
 
 
@@ -127,7 +134,14 @@
                         response.forEach(function (item, index) {
                             if (item.type == 'authlib'){
                                 $('#oidc_providers').append( '<a href="/api/aaa/login/' + item.name  + '" class="btn btn-block btn-social btn-default btn-flat"> Sign in using ' + item.display_name +'</a>' );
+                                $('#oidc_providers').removeClass('hidden')
                             }
+                            if (item.type == 'ldap' || item.type == 'local'){
+                                console.log(item)
+                                $('#login_domains').append('<option value="' +item.name+ '">' + item.display_name + '</option>')
+                            }
+                            
+                            
                             // console.log(item, index);
                         });
                         

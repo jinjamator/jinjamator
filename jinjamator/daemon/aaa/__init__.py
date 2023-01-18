@@ -16,6 +16,8 @@ from flask import g, url_for, abort
 from authlib.integrations.flask_client import OAuth, OAuthError
 from authlib.integrations.sqla_oauth2 import create_save_token_func
 
+import ldap3
+
 
 from jinjamator.task.configuration import TaskConfiguration
 from jinjamator.plugin_loader.content import ContentPluginLoader
@@ -30,7 +32,7 @@ from jinjamator.daemon.database import db
 from datetime import datetime
 from calendar import timegm
 from flask import request
-
+import json
 
 from jwt import InvalidSignatureError, ExpiredSignatureError
 from functools import wraps
@@ -321,6 +323,114 @@ class AuthLibAuthProvider(AuthProviderBase):
         return self._user.generate_auth_token().access_token
 
 
+class LDAPAuthProvider(AuthProviderBase):
+    def __init__(self, app=None):
+        super(LDAPAuthProvider, self).__init__(app)
+        self._name = "ldap"
+        self._type = "ldap"
+        self._display_name = "LDAP Login"
+        self._server = None
+        self._connection = None
+        self._configuration = {}
+
+    def register(self, **kwargs):
+        """
+        Register extension arguments
+        """
+        self._name = kwargs.get("name")
+        self._configuration = kwargs
+
+    def login(self, request):
+        try:
+            username = request.json.get("username")
+            password = request.json.get("password")
+        except Exception as e:
+            username = request.args.get("username")
+            password = request.args.get("password")
+        if not username or not password:
+            return {"message": "Invalid Request (did you send your data as json?)"}, 400
+
+        for server_obj in self._configuration.get("servers", []):
+            try:
+                self._server = ldap3.Server(
+                    server_obj.get("server_name", "<not configured>"),
+                    get_info=ldap3.ALL,
+                    port=server_obj.get("port", 636),
+                    use_ssl=server_obj.get("ssl", True),
+                )
+                self._connection = ldap3.Connection(
+                    self._server,
+                    user=f"{self._configuration.get('domain','not_configured')}\\{username}",
+                    password=password,
+                    authentication="NTLM",
+                    auto_bind=True,
+                )
+
+            except ldap3.core.exceptions.LDAPSocketOpenError as e:
+                log.error(
+                    f"Connection Error: {server_obj.get('server_name','<not configured>')} not reachable"
+                )
+                continue
+
+            except ldap3.core.exceptions.LDAPBindError as e:
+                log.error(
+                    f"Authentication Error: invalid username and or password for user {username}"
+                )
+                return {"message": "Invalid Credentials"}, 401
+
+            if not self._connection:
+                return {"message": "Authentication Backend not ready"}, 401
+
+            obj_person = ldap3.ObjectDef("person", self._connection)
+            obj_person += self._configuration.get("username_attr", "samAccountName")
+
+            result = ldap3.Reader(
+                self._connection,
+                obj_person,
+                self._configuration.get("user_base_dn"),
+                f"samAccountName:={username}",
+            ).search()
+
+            if len(result) != 1:
+                return {"message": "Ambiguous result from authentication backend"}, 401
+
+            # log.debug('got result from LDAP: ', str(result))
+            for allowed_group in self._configuration.get("allowed_groups"):
+                if allowed_group in result[0]["memberOf"]:
+                    # user is authenticated and allowed to login
+                    user = User.query.filter_by(username=username).first()
+                    if user is None:
+                        self._log.info(
+                            f"username {username} not found in local database -> creating"
+                        )
+                        user = User(username=username)
+                        user.name = username
+
+                    else:
+                        self._log.info(f"username {username} found in local database")
+                    user.aaa_provider = self._name
+                    user.password_hash = user.hash_password(
+                        "".join(
+                            random.SystemRandom().choice(
+                                string.ascii_letters + string.digits
+                            )
+                            for _ in range(128)
+                        )
+                    )  # generate max len random secure password on each login
+                    db.session.add(user)
+                    db.session.commit()
+                    user = User.query.filter_by(username=username).first()
+                    log.info(user.generate_auth_token().access_token)
+                    token = {}
+                    token["access_token"] = (
+                        "Bearer " + user.generate_auth_token().access_token
+                    )
+                    return token
+                else:
+                    log.debug(f"User {username} not in group {allowed_group}")
+        return {"message": "Invalid Credentials"}, 401
+
+
 def initialize(aaa_providers, _configuration):
     plugin_loader = ContentPluginLoader(None)
     for content_plugin_dir in _configuration.get(
@@ -329,7 +439,8 @@ def initialize(aaa_providers, _configuration):
         plugin_loader.load(f"{content_plugin_dir}")
 
     for aaa_config_directory in _configuration.get("aaa_configuration_base_dirs", []):
-        for config_file in glob(os.path.join(aaa_config_directory, "*.yaml")):
+        for config_file in sorted(glob(os.path.join(aaa_config_directory, "*.yaml"))):
+            log.info(f"found aaa configuration {config_file}")
             cur_cfg = TaskConfiguration()
             cur_cfg._plugin_loader = plugin_loader
             cur_cfg.merge_yaml(config_file)
@@ -366,8 +477,18 @@ def initialize(aaa_providers, _configuration):
                 if cur_cfg.get("static_users"):
                     aaa_providers[prov_name].static_users = cur_cfg.get("static_users")
                     aaa_providers[prov_name].create_static_users()
+
+            elif cur_cfg.get("type") == "ldap":
+                prov_name = cur_cfg.get("name")
+                aaa_providers[prov_name] = LDAPAuthProvider()
+                aaa_providers[prov_name].register(
+                    **deepcopy(cur_cfg.get("ldap_configuration", {}))
+                )
+
             if cur_cfg.get("display_name"):
                 aaa_providers[prov_name]._display_name = cur_cfg.get("display_name")
+            if cur_cfg.get("name"):
+                aaa_providers[prov_name]._name = cur_cfg.get("name")
 
 
 def require_role(role=None, permit_self=False):
