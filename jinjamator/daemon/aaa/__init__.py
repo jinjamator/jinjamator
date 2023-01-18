@@ -353,7 +353,7 @@ class LDAPAuthProvider(AuthProviderBase):
         for server_obj in self._configuration.get("servers", []):
             try:
                 self._server = ldap3.Server(
-                    server_obj.get("server_name", "<not configured>"),
+                    server_obj.get("name", "<not configured>"),
                     get_info=ldap3.ALL,
                     port=server_obj.get("port", 636),
                     use_ssl=server_obj.get("ssl", True),
@@ -368,7 +368,7 @@ class LDAPAuthProvider(AuthProviderBase):
 
             except ldap3.core.exceptions.LDAPSocketOpenError as e:
                 log.error(
-                    f"Connection Error: {server_obj.get('server_name','<not configured>')} not reachable"
+                    f"Connection Error: {server_obj.get('server ','<not configured>')} not reachable"
                 )
                 continue
 
