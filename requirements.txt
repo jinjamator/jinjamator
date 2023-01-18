@@ -47,3 +47,4 @@ netaddr
 pyvmomi
 coloredlogs
 openai
+ldap3
