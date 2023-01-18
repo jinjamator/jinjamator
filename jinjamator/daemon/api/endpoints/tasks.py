@@ -177,14 +177,23 @@ def discover_tasks(app):
                                     }
                                 }
                             )
-                            @require_role(
-                                role=or_(
+                            def calc_role():
+                                recursive_roles = []
+                                tmp = ""
+                                for tok in dynamic_role_name.split("/"):
+                                    tmp += f"/{tok}"
+                                    recursive_roles.append(
+                                        User.roles.any(JinjamatorRole.name == tmp[1:])
+                                    )
+                                return or_(
                                     User.roles.any(
                                         JinjamatorRole.name == dynamic_role_name
                                     ),
                                     User.roles.any(JinjamatorRole.name == "tasks_all"),
+                                    *recursive_roles,
                                 )
-                            )
+
+                            @require_role(role=calc_role())
                             def get(self):
                                 """
                                 Returns the json-schema or the whole alpacajs configuration data for the task
@@ -273,14 +282,7 @@ def discover_tasks(app):
                                     }
                                 }
                             )
-                            @require_role(
-                                role=or_(
-                                    User.roles.any(
-                                        JinjamatorRole.name == dynamic_role_name
-                                    ),
-                                    User.roles.any(JinjamatorRole.name == "tasks_all"),
-                                )
-                            )
+                            @require_role(role=calc_role())
                             def post(self):
                                 """
                                 Creates an instance of the task and returns the job_id
@@ -402,8 +404,9 @@ class TaskList(Resource):
                 response["tasks"].append(v)
         else:
             for k, v in available_tasks_by_path.items():
-                if f"task_{k}" in user_roles:
-                    response["tasks"].append(v)
+                for role in user_roles:
+                    if f"task_{k}".startswith(role):
+                        response["tasks"].append(v)
         return response
 
 
