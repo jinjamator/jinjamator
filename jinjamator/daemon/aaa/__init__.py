@@ -340,6 +340,23 @@ class LDAPAuthProvider(AuthProviderBase):
         self._name = kwargs.get("name")
         self._configuration = kwargs
 
+    def _resolve_groups_recursive(self, groups):
+        """
+        Recursively resolve LDAP group membership
+        """
+
+        retval = []
+        for group in groups:
+            log.debug(f"resolve LDAP group: working on group {group}")
+            retval += [group]
+            obj_group = ldap3.ObjectDef("group", self._connection)
+            results = ldap3.Reader(self._connection, obj_group, group).search()
+
+            for result in results:
+                retval += self._resolve_groups_recursive(result["memberOf"])
+
+        return retval
+
     def login(self, request):
         try:
             username = request.json.get("username")
@@ -397,8 +414,20 @@ class LDAPAuthProvider(AuthProviderBase):
                 return {"message": "Ambiguous result from authentication backend"}, 401
 
             # log.debug('got result from LDAP: ', str(result))
+            if self._configuration.get("resolve_groups_recursive"):
+                resolved_user_groups = []
+                resolved_user_groups += self._resolve_groups_recursive(
+                    list(result[0]["memberOf"])
+                )
+
+            else:
+                resolved_user_groups = result[0]["memberOf"]
+            log.info(
+                f"{username} effective group memberships:\n "
+                + "\n  ".join(resolved_user_groups)
+            )
             for allowed_group in self._configuration.get("allowed_groups"):
-                if allowed_group in result[0]["memberOf"]:
+                if allowed_group in resolved_user_groups:
                     # user is authenticated and allowed to login
                     user = User.query.filter_by(username=username).first()
                     if user is None:
@@ -428,7 +457,7 @@ class LDAPAuthProvider(AuthProviderBase):
                     ).items():
 
                         for jm_group in mappings:
-                            if ad_group in result[0]["memberOf"]:
+                            if ad_group in resolved_user_groups:
 
                                 role = (
                                     db.session.query(JinjamatorRole)
@@ -443,7 +472,7 @@ class LDAPAuthProvider(AuthProviderBase):
                     db.session.add(user)
                     db.session.commit()
                     user = User.query.filter_by(username=username).first()
-                    log.info(user.generate_auth_token().access_token)
+
                     token = {}
                     token["access_token"] = (
                         "Bearer " + user.generate_auth_token().access_token
