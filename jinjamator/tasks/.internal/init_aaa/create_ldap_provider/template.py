@@ -24,16 +24,19 @@ cfg["display_name"] = environ.get(
     f"JINJAMATOR_AAA_{provider_name.upper()}_DISPLAY_NAME", provider_name.upper()
 )
 cfg["ldap_configuration"]["group_attr"] = environ.get(
-    f"JINJAMATOR_AAA_{provider_name.upper()}_GROUP_ATTR", provider_name.upper()
+    f"JINJAMATOR_AAA_{provider_name.upper()}_GROUP_ATTR", "<not configured>"
 )
 cfg["ldap_configuration"]["username_attr"] = environ.get(
-    f"JINJAMATOR_AAA_{provider_name.upper()}_USERNAME_ATTR", provider_name.upper()
+    f"JINJAMATOR_AAA_{provider_name.upper()}_USERNAME_ATTR", "<not configured>"
 )
 cfg["ldap_configuration"]["domain"] = environ.get(
-    f"JINJAMATOR_AAA_{provider_name.upper()}_DOMAIN", provider_name.upper()
+    f"JINJAMATOR_AAA_{provider_name.upper()}_DOMAIN", "<not configured>"
 )
 cfg["ldap_configuration"]["user_base_dn"] = environ.get(
-    f"JINJAMATOR_AAA_{provider_name.upper()}_USER_BASE_DN", provider_name.upper()
+    f"JINJAMATOR_AAA_{provider_name.upper()}_USER_BASE_DN", ""
+)
+cfg["ldap_configuration"]["resolve_groups_recursive"] = environ.get(
+    f"JINJAMATOR_AAA_{provider_name.upper()}_RESOLVE_GROUPS_RECURSIVE", True
 )
 
 
