@@ -391,7 +391,9 @@ class LDAPAuthProvider(AuthProviderBase):
                 f"samAccountName:={username}",
             ).search()
 
-            if len(result) != 1:
+            if len(result) == 0:
+                return {"message": "Invalid user_base_dn."}, 401
+            if len(result) > 1:
                 return {"message": "Ambiguous result from authentication backend"}, 401
 
             # log.debug('got result from LDAP: ', str(result))
