@@ -39,7 +39,7 @@ cfg["ldap_configuration"]["resolve_groups_recursive"] = environ.get(
     f"JINJAMATOR_AAA_{provider_name.upper()}_RESOLVE_GROUPS_RECURSIVE", True
 )
 cfg["ldap_configuration"]["maximum_group_recursion"] = environ.get(
-    f"JINJAMATOR_AAA_{provider_name.upper()}_MAXIMUM_GROUP_RECURSION", True
+    f"JINJAMATOR_AAA_{provider_name.upper()}_MAXIMUM_GROUP_RECURSION", 5
 )
 
 
