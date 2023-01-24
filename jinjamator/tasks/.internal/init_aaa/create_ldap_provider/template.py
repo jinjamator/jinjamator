@@ -38,6 +38,9 @@ cfg["ldap_configuration"]["user_base_dn"] = environ.get(
 cfg["ldap_configuration"]["resolve_groups_recursive"] = environ.get(
     f"JINJAMATOR_AAA_{provider_name.upper()}_RESOLVE_GROUPS_RECURSIVE", True
 )
+cfg["ldap_configuration"]["maximum_group_recursion"] = environ.get(
+    f"JINJAMATOR_AAA_{provider_name.upper()}_MAXIMUM_GROUP_RECURSION", True
+)
 
 
 cfg["ldap_configuration"]["servers"] = []
