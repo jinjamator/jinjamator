@@ -332,6 +332,7 @@ class LDAPAuthProvider(AuthProviderBase):
         self._server = None
         self._connection = None
         self._configuration = {}
+        self._maximum_group_recursion = 5
 
     def register(self, **kwargs):
         """
@@ -339,13 +340,22 @@ class LDAPAuthProvider(AuthProviderBase):
         """
         self._name = kwargs.get("name")
         self._configuration = kwargs
+        self._maximum_group_recursion = self._configuration.get(
+            "maximum_group_recursion", 5
+        )
 
-    def _resolve_groups_recursive(self, groups):
+    def _resolve_groups_recursive(self, groups, current_level=0):
         """
         Recursively resolve LDAP group membership
         """
 
         retval = []
+        current_level += 1
+        if current_level >= self._maximum_group_recursion:
+            log.error(
+                f"Maximum recursion for _resolve_groups_recursive {current_level} reached"
+            )
+            return groups
         for group in groups:
             log.debug(f"resolve LDAP group: working on group {group}")
             retval += [group]
@@ -353,7 +363,10 @@ class LDAPAuthProvider(AuthProviderBase):
             results = ldap3.Reader(self._connection, obj_group, group).search()
 
             for result in results:
-                retval += self._resolve_groups_recursive(result["memberOf"])
+
+                retval += self._resolve_groups_recursive(
+                    result["memberOf"], current_level
+                )
 
         return retval
 
@@ -423,7 +436,7 @@ class LDAPAuthProvider(AuthProviderBase):
             else:
                 resolved_user_groups = result[0]["memberOf"]
             log.info(
-                f"{username} effective group memberships:\n "
+                f"{username} effective group memberships:\n  "
                 + "\n  ".join(resolved_user_groups)
             )
             for allowed_group in self._configuration.get("allowed_groups"):
