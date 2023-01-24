@@ -81,15 +81,4 @@ for env_var in environ:
             pass
 
 
-# export JINJAMATOR_AAA_POC3076LDAP_ALLOWED_GROUP1=CN=JINJAMATOR_Users,OU=Groups,OU=POC3076,DC=poc3076,DC=local
-# export JINJAMATOR_AAA_POC3076LDAP_ALLOWED_GROUP1_MAP=Operator,task_maga
-# export JINJAMATOR_AAA_POC3076LDAP_ALLOWED_GROUP1_MAP=Administrator
-
-#   map_groups:
-#     CN=JINJAMATOR_Users,OU=Groups,OU=POC3076,DC=poc3076,DC=local:
-#       - operator
-#       - task_maga
-#     CN=BEATE_Users,OU=Groups,OU=POC3076,DC=poc3076,DC=local:
-#       - administrator
-
 return yaml.dump(cfg)
