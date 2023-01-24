@@ -368,7 +368,7 @@ class LDAPAuthProvider(AuthProviderBase):
 
             except ldap3.core.exceptions.LDAPSocketOpenError as e:
                 log.error(
-                    f"Connection Error: {server_obj.get('server ','<not configured>')} not reachable"
+                    f"Connection Error: {server_obj.get('name ','<not configured>')} not reachable"
                 )
                 continue
 
