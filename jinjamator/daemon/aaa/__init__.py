@@ -340,8 +340,8 @@ class LDAPAuthProvider(AuthProviderBase):
         """
         self._name = kwargs.get("name")
         self._configuration = kwargs
-        self._maximum_group_recursion = self._configuration.get(
-            "maximum_group_recursion", 5
+        self._maximum_group_recursion = int(
+            self._configuration.get("maximum_group_recursion", 5)
         )
 
     def _resolve_groups_recursive(self, groups, current_level=0):
