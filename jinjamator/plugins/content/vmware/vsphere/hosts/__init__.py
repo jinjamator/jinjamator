@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyVim.connect import SmartConnect, SmartConnectNoSSL, Disconnect
+from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
 import re
 

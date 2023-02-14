@@ -1,8 +1,8 @@
-from pyVim.connect import SmartConnect, SmartConnectNoSSL, Disconnect
+from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
 
 
-def container (vc,obj,search_type,**kwargs):
+def container(vc, obj, search_type, **kwargs):
     """
     Create a container-view of the object and get a list of all containing objects that are matching search_type
 
@@ -19,10 +19,13 @@ def container (vc,obj,search_type,**kwargs):
         * *recurse* (``bool``)
           If set to "True" recursion through childs is enabled. Default is False
     """
-    if 'recurse' in kwargs: recurse = kwargs['recurse']
-    else: recurse = False
+    if "recurse" in kwargs:
+        recurse = kwargs["recurse"]
+    else:
+        recurse = False
 
-    if not isinstance(search_type,list): search_type = [search_type]
+    if not isinstance(search_type, list):
+        search_type = [search_type]
     log.debug(f"Creating view for {search_type}")
     view = vc.viewManager.CreateContainerView(obj, search_type, recurse)
     ret = [item for item in view.view]
@@ -30,7 +33,8 @@ def container (vc,obj,search_type,**kwargs):
 
     return ret
 
-#def container_obj (vc,obj,search_type,**kwargs):
+
+# def container_obj (vc,obj,search_type,**kwargs):
 #    if 'recurse' in kwargs: recurse = kwargs['recurse']
 #    else: recurse = False
 #
