@@ -40,6 +40,9 @@ class BaseResource:
         if self.json_encode_body:
             self.headers["Content-Type"] = "application/json"
 
+    def __del__(self):
+        self.client.close()
+
     @property
     def default_actions(self):
         return {
