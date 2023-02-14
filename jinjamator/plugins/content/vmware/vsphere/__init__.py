@@ -15,7 +15,7 @@
 # based on https://github.com/vmware/pyvmomi-community-samples
 #
 
-from pyVim.connect import SmartConnect, SmartConnectNoSSL, Disconnect
+from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim, vmodl
 from collections.abc import Iterable
 from collections import Counter
@@ -108,10 +108,11 @@ def connect(host=None, username=None, password=None, cache=True):
                     _cfg["vsphere_username"]
                 ]["service_instance"]
 
-    service_instance = SmartConnectNoSSL(
+    service_instance = SmartConnect(
         host=_cfg["vsphere_host"],
         user=_cfg["vsphere_username"],
         pwd=_cfg["vsphere_password"],
+        disableSslCertValidation=True,
         port=443,
     )
     if service_instance:
@@ -126,7 +127,7 @@ def connect(host=None, username=None, password=None, cache=True):
     return service_instance
 
 
-def is_obj_type (obj,type_name):
+def is_obj_type(obj, type_name):
     """
     Check if passed object is matching the passed type. This is currently not a strict match as "type_name" is a string and needs only to be a subset of str(type(obj))
 
@@ -134,17 +135,17 @@ def is_obj_type (obj,type_name):
     :type obj: object
     :param type_name: The type
     :type type_name: string
-    :return: True or False 
+    :return: True or False
     :rtype: bool
     """
-    if isinstance(obj,object):
+    if isinstance(obj, object):
         if type_name in str(type(obj)):
             return True
-    
+
     return False
 
 
-def recurse_child_dict (obj,childType,key,**kwargs):
+def recurse_child_dict(obj, childType, key, **kwargs):
     """
     Recurse all child-objects (childEntity) and feed them into a dict. Recurse until no child is left.
     Childs will also be filtered by childType
@@ -162,44 +163,55 @@ def recurse_child_dict (obj,childType,key,**kwargs):
         * *key_prepend* (``string``)
           String which should be prepended to all keys that are built within this function
     """
-    if 'key_prepend' in kwargs and kwargs['key_prepend']: key_prepend = kwargs['key_prepend']
-    else: key_prepend = ""
+    if "key_prepend" in kwargs and kwargs["key_prepend"]:
+        key_prepend = kwargs["key_prepend"]
+    else:
+        key_prepend = ""
 
     ret = dict()
-    if key == 'rel_path':
-        key = 'name'
-        key_true = 'rel_path'
-    else: key_true = key
+    if key == "rel_path":
+        key = "name"
+        key_true = "rel_path"
+    else:
+        key_true = key
 
     log.debug(f"Recursing childs of {obj.name} into a dict using '{key_true}' as key")
-    if hasattr(obj,"childType") and hasattr(obj,"childEntity"):
+    if hasattr(obj, "childType") and hasattr(obj, "childEntity"):
         log.debug(f"- Current object has childs")
-        
+
         for child in obj.childEntity:
             log.debug(f"-- Processing child {child.name} ({type(child)})")
-            
+
             if vmware.vsphere.folder.is_folder(child):
                 log.debug(f"-- Child {child.name} is a folder")
-                childs = recurse_child_dict(child,childType,key_true)
-                for k,o in childs.items():
-                    log.debug(f"--- Adding recursed {k} to returning dict. Prepending {key_prepend}")
-                    if key_true == 'rel_path': ret[f"{key_prepend}{getattr(child,key)}/{k}"] = o
-                    else: ret[f"{key_prepend}{k}"] = o
-            elif is_obj_type(child,childType):
+                childs = recurse_child_dict(child, childType, key_true)
+                for k, o in childs.items():
+                    log.debug(
+                        f"--- Adding recursed {k} to returning dict. Prepending {key_prepend}"
+                    )
+                    if key_true == "rel_path":
+                        ret[f"{key_prepend}{getattr(child,key)}/{k}"] = o
+                    else:
+                        ret[f"{key_prepend}{k}"] = o
+            elif is_obj_type(child, childType):
                 log.debug(f"--- Adding {getattr(child,key)} to returning dict")
-                ret[f'{key_prepend}{getattr(child,key)}'] = child
+                ret[f"{key_prepend}{getattr(child,key)}"] = child
             else:
-                if hasattr(child,"childType") and hasattr(child,key):
-                    log.debug(f"--- Child {getattr(child,key)} does not match the expected childType (is: {child.childType} / expected: {childType})")
-                elif hasattr(child,key):
-                    log.debug(f"--- Child {getattr(child,key)} does not have a childType")
+                if hasattr(child, "childType") and hasattr(child, key):
+                    log.debug(
+                        f"--- Child {getattr(child,key)} does not match the expected childType (is: {child.childType} / expected: {childType})"
+                    )
+                elif hasattr(child, key):
+                    log.debug(
+                        f"--- Child {getattr(child,key)} does not have a childType"
+                    )
                 else:
                     log.debug(f"--- Child is somewhat corrupt: {child}")
-        
+
     return ret
 
 
-def recurse_child_list (obj,childType,**kwargs):
+def recurse_child_list(obj, childType, **kwargs):
     """
     Recurse all child-objects (childEntity) and feed them into a list. Recurse until no child is left.
     Childs will also be filtered by childType
@@ -216,33 +228,35 @@ def recurse_child_list (obj,childType,**kwargs):
     """
     ret = list()
     log.debug(f"Recursing childs of {obj.name} into a list")
-    if hasattr(obj,"childType") and hasattr(obj,"childEntity"):
+    if hasattr(obj, "childType") and hasattr(obj, "childEntity"):
         log.debug(f"- Current object has childs")
-        
+
         for child in obj.childEntity:
             log.debug(f"-- Processing child {child.name} ({type(child)})")
-            
+
             if vmware.vsphere.folder.is_folder(child):
                 log.debug(f"-- Child {child.name} is a folder")
-                childs = recurse_child_list(child,childType)
+                childs = recurse_child_list(child, childType)
                 for o in childs:
                     log.debug(f"--- Adding recursed {o.name} to returning list")
                     ret.append(o)
-            elif is_obj_type(child,childType):
+            elif is_obj_type(child, childType):
                 log.debug(f"--- Adding {child.name} to returning list")
                 ret.append(child)
             else:
-                if hasattr(child,"childType") and hasattr(child,'name'):
-                    log.debug(f"--- Child {child.name} does not match the expected childType (is: {child.childType} / expected: {childType})")
-                elif hasattr(child,'name'):
+                if hasattr(child, "childType") and hasattr(child, "name"):
+                    log.debug(
+                        f"--- Child {child.name} does not match the expected childType (is: {child.childType} / expected: {childType})"
+                    )
+                elif hasattr(child, "name"):
                     log.debug(f"--- Child {child.name} does not have a childType")
                 else:
                     log.debug(f"--- Child is somewhat corrupt: {child}")
-        
+
     return ret
 
 
-def recurse_child (obj,childType,key=False):
+def recurse_child(obj, childType, key=False):
     """
     Recurse all child-objects (childEntity) and feed them into a dict or list. Recurse until no child is left.
     Childs will also be filtered by childType
@@ -258,11 +272,13 @@ def recurse_child (obj,childType,key=False):
     :rtype: dict or list
 
     """
-    if key: return recurse_child_dict(obj,childType,key)
-    else: return recurse_child_list(obj,childType)
+    if key:
+        return recurse_child_dict(obj, childType, key)
+    else:
+        return recurse_child_list(obj, childType)
 
 
-def get_objects_dict (obj,obj_type='*',**kwargs):
+def get_objects_dict(obj, obj_type="*", **kwargs):
     """
     Get all objects within an an object-attribute and return them as dict
     Can filter by object-type if specified
@@ -278,22 +294,26 @@ def get_objects_dict (obj,obj_type='*',**kwargs):
         * *key* (``string``)
           The name of the attribute that should be used as dict-key.
     """
-    if 'key' in kwargs and kwargs['key']: key = kwargs['key']
-    else: key = "name"
-    
+    if "key" in kwargs and kwargs["key"]:
+        key = kwargs["key"]
+    else:
+        key = "name"
+
     ret = dict()
     for o in obj:
-        if is_obj_type(o,obj_type) or obj_type == '*':
+        if is_obj_type(o, obj_type) or obj_type == "*":
             log.debug(f"Getting object {o} using {key} as key")
-            if hasattr(o,key):
-                ret[getattr(o,key)] = o
+            if hasattr(o, key):
+                ret[getattr(o, key)] = o
         else:
-            log.debug(f"Ignoring object {o} because type {type(obj)} does not match expected {obj_type}")
-    
+            log.debug(
+                f"Ignoring object {o} because type {type(obj)} does not match expected {obj_type}"
+            )
+
     return ret
 
 
-def get_objects_list (obj,obj_type='*'):
+def get_objects_list(obj, obj_type="*"):
     """
     Get all objects within an an object-attribute and return them as list
     Can filter by object-type if specified
@@ -307,16 +327,16 @@ def get_objects_list (obj,obj_type='*'):
     """
     ret = list()
     log.debug(f"Getting object_list in {obj}")
-    objects = get_objects_dict(obj,obj_type)
+    objects = get_objects_dict(obj, obj_type)
     log.debug(f"-- Found {len(objects)} objects, starting iter")
-    for k,v in objects.items():
+    for k, v in objects.items():
         ret.append(v)
     log.debug(f"Done getting object_list in {obj}")
 
     return ret
 
 
-def recurse_objects_dict (obj,attr_name,**kwargs):
+def recurse_objects_dict(obj, attr_name, **kwargs):
     """
     Recurse through all objects that are contained in the given attribute (attr_name).
 
@@ -334,46 +354,65 @@ def recurse_objects_dict (obj,attr_name,**kwargs):
           String which should be prepended to all keys that are built within this function
     """
     ret = dict()
-    if 'key' in kwargs and kwargs['key']: key = kwargs['key']
-    else: key = "name"
-    if 'key_prepend' in kwargs and kwargs['key_prepend']: key_prepend = kwargs['key_prepend']
-    else: key_prepend = ""
+    if "key" in kwargs and kwargs["key"]:
+        key = kwargs["key"]
+    else:
+        key = "name"
+    if "key_prepend" in kwargs and kwargs["key_prepend"]:
+        key_prepend = kwargs["key_prepend"]
+    else:
+        key_prepend = ""
 
-    if hasattr(obj,attr_name):
+    if hasattr(obj, attr_name):
         log.debug(f"Recursing object {getattr(obj,attr_name)} (attr {attr_name})")
-        if isinstance(getattr(obj,attr_name),Iterable):
+        if isinstance(getattr(obj, attr_name), Iterable):
             log.debug(f"- Object is iterable")
-            obs = get_objects_list(getattr(obj,attr_name),'*')
+            obs = get_objects_list(getattr(obj, attr_name), "*")
 
             log.debug(f"-- Got {len(obs)} objects in the list")
             if len(obs) > 0:
                 for i in obs:
                     log.debug(f"--- Iterating through {i}")
-                    child_obj = recurse_objects_dict(i,attr_name,key=key)
-                    log.debug(f"--- Got {len(child_obj)} objects we need to process.\n{child_obj}")
-                    for k,o in child_obj.items():
+                    child_obj = recurse_objects_dict(i, attr_name, key=key)
+                    log.debug(
+                        f"--- Got {len(child_obj)} objects we need to process.\n{child_obj}"
+                    )
+                    for k, o in child_obj.items():
                         log.debug(f"---- Preparing {key} for return")
-                        if key == 'rel_path': ret[f"{key_prepend}{getattr(i,'name')}/{k}"] = o
-                        else: ret[f'{k}'] = o
-                            
+                        if key == "rel_path":
+                            ret[f"{key_prepend}{getattr(i,'name')}/{k}"] = o
+                        else:
+                            ret[f"{k}"] = o
+
             else:
                 log.debug(f"--- No items in list, returning myself")
-                if key == 'rel_path': ret[f"{key_prepend}{getattr(obj,'name')}"] = obj
-                else: ret[f'{getattr(obj,"name")}'] = obj
+                if key == "rel_path":
+                    ret[f"{key_prepend}{getattr(obj,'name')}"] = obj
+                else:
+                    ret[f'{getattr(obj,"name")}'] = obj
 
         else:
-            log.debug(f"- Object is not iterable. Going in and prepending its name ({getattr(obj,attr_name).name})")
-            return recurse_objects_dict(getattr(obj,attr_name),attr_name,key_prepend=f"{getattr(obj,attr_name).name}/",key=key)
+            log.debug(
+                f"- Object is not iterable. Going in and prepending its name ({getattr(obj,attr_name).name})"
+            )
+            return recurse_objects_dict(
+                getattr(obj, attr_name),
+                attr_name,
+                key_prepend=f"{getattr(obj,attr_name).name}/",
+                key=key,
+            )
 
     else:
         log.debug(f"Object does not have attribute {attr_name}")
-        if key == 'rel_path': ret[f"{key_prepend}{getattr(obj,'name')}"] = obj
-        else: ret[getattr(obj,key)] = obj
-    
+        if key == "rel_path":
+            ret[f"{key_prepend}{getattr(obj,'name')}"] = obj
+        else:
+            ret[getattr(obj, key)] = obj
+
     return ret
 
 
-def recurse_objects_list (obj,attr_name,**kwargs):
+def recurse_objects_list(obj, attr_name, **kwargs):
     """
     Recurse through all objects that are contained in the given attribute (attr_name).
 
@@ -388,13 +427,13 @@ def recurse_objects_list (obj,attr_name,**kwargs):
         Currently none
     """
     ret = list()
-    for o in recurse_objects_dict(obj,attr_name).values():
+    for o in recurse_objects_dict(obj, attr_name).values():
         ret.append(o)
-    
+
     return ret
 
 
-def get_absolute_path (obj):
+def get_absolute_path(obj):
     """
     Gets the absolute path from the given object as long as there is a parent
 
@@ -404,19 +443,24 @@ def get_absolute_path (obj):
     :rtype: string
     """
     if has_parent(obj):
-        if hasattr(obj,"name"): 
+        if hasattr(obj, "name"):
             ppath = f"{get_absolute_path (obj.parent)}"
-            if len(ppath) > 0: path = f"{ppath}/{obj.name}"
-            else: path = obj.name
-        else: path = f"{get_absolute_path (obj.parent)}"
+            if len(ppath) > 0:
+                path = f"{ppath}/{obj.name}"
+            else:
+                path = obj.name
+        else:
+            path = f"{get_absolute_path (obj.parent)}"
     else:
-        if hasattr(obj,"name"): path = obj.name
-        else: path = ""
-    
+        if hasattr(obj, "name"):
+            path = obj.name
+        else:
+            path = ""
+
     return path
 
 
-def has_parent (obj):
+def has_parent(obj):
     """
     Checks if the object has a parent
 
@@ -425,13 +469,13 @@ def has_parent (obj):
     :return: True or False
     :rtype: bool
     """
-    if hasattr(obj,'parent') and isinstance(obj,object):
+    if hasattr(obj, "parent") and isinstance(obj, object):
         return True
     else:
         return False
 
 
-def parent_is_type (obj,parent_type):
+def parent_is_type(obj, parent_type):
     """
     Checks if the parent matches the given type
 
@@ -443,12 +487,12 @@ def parent_is_type (obj,parent_type):
     :rtype: bool
     """
     if has_parent(obj):
-        if is_obj_type(obj.parent,parent_type):
+        if is_obj_type(obj.parent, parent_type):
             return True
     return False
 
 
-def get_id (obj):
+def get_id(obj):
     """
     Get the ID (_moId) of the object
 
@@ -457,14 +501,14 @@ def get_id (obj):
     :return: The ID-string (_moId). Empty string if there is no ID
     :rtype: string
     """
-    if isinstance(obj,object):
-        if hasattr(obj,'_moId'):
+    if isinstance(obj, object):
+        if hasattr(obj, "_moId"):
             return obj._moId
-    
+
     return ""
 
 
-def get_first_parent_type (attr,parent_type):
+def get_first_parent_type(attr, parent_type):
     """
     Gets the first parent of an attribute that matches the given type
 
@@ -475,10 +519,10 @@ def get_first_parent_type (attr,parent_type):
     :return: First parent-object that matches the type
     :rtype: object
     """
-    return recurse_parent_if_type_not (attr,parent_type)
+    return recurse_parent_if_type_not(attr, parent_type)
 
 
-def recurse_parent_if_type_not (obj,parent_type):
+def recurse_parent_if_type_not(obj, parent_type):
     """
     Recurse through parents of the object until the parent type is the given type or no parent is left
 
@@ -489,43 +533,43 @@ def recurse_parent_if_type_not (obj,parent_type):
     :return: First parent-object that matches the type
     :rtype: object
     """
-    if parent_is_type(obj,parent_type):
-        #return the parent if it matches the type
+    if parent_is_type(obj, parent_type):
+        # return the parent if it matches the type
         return obj.parent
     elif has_parent(obj):
-        #Parent is present but not the correct type
-        #recurse through
-        return recurse_parent_if_type_not(obj.parent,parent_type)
+        # Parent is present but not the correct type
+        # recurse through
+        return recurse_parent_if_type_not(obj.parent, parent_type)
     else:
-        #There is no parent
+        # There is no parent
         return False
 
 
-def is_vc (obj):
+def is_vc(obj):
     """
     Check if passed object is a vCenter
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a vCenter, False if not 
+    :return: True if it is a vCenter, False if not
     :rtype: bool
     """
-    return vmware.vsphere.is_obj_type (obj,'vim.ServiceInstanceContent')
+    return vmware.vsphere.is_obj_type(obj, "vim.ServiceInstanceContent")
 
 
-def is_type (obj):
+def is_type(obj):
     """
     Check if passed object is a vCenter
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a vCenter, False if not 
+    :return: True if it is a vCenter, False if not
     :rtype: bool
     """
-    return vmware.vsphere.is_obj_type (obj,'vim.ServiceInstanceContent')
+    return vmware.vsphere.is_obj_type(obj, "vim.ServiceInstanceContent")
 
 
-def default (obj):
+def default(obj):
     """
     Set the object as default vCenter-object (highly recommended)
 
@@ -534,10 +578,10 @@ def default (obj):
     :return: Returns the object again
     :rtype: object
     """
-    _jinjamator.configuration['default_vc'] = obj
+    _jinjamator.configuration["default_vc"] = obj
 
 
-def get_vc_obj (kwargs):
+def get_vc_obj(kwargs):
     """
     Gets the vc_object from passed kwargs or the default set by vmware.vsphere.default()
 
@@ -546,24 +590,29 @@ def get_vc_obj (kwargs):
     :return: vCenter-object or False
     :rtype: object
     """
-    if 'vc_obj' in kwargs and vmware.vsphere.is_vc(kwargs['vc_obj']): vc = kwargs['vc_obj']
-    elif vmware.vsphere.is_vc(_jinjamator.configuration['default_vc']): vc = _jinjamator.configuration['default_vc']
-    else: vc = False
+    if "vc_obj" in kwargs and vmware.vsphere.is_vc(kwargs["vc_obj"]):
+        vc = kwargs["vc_obj"]
+    elif vmware.vsphere.is_vc(_jinjamator.configuration["default_vc"]):
+        vc = _jinjamator.configuration["default_vc"]
+    else:
+        vc = False
 
     return vc
 
 
-def error_no_vc (**kwargs):
+def error_no_vc(**kwargs):
     """
     Generates an error (function for lazy men)
 
     :return: nothing
     :rtype: none
     """
-    log.warning(f"Cannot complete operation without vcenter-object. Function not available or not implemented")
+    log.warning(
+        f"Cannot complete operation without vcenter-object. Function not available or not implemented"
+    )
 
 
-def list_make_unique (elements):
+def list_make_unique(elements):
     """
     Removes duplicates from a list of elements
 
@@ -576,21 +625,21 @@ def list_make_unique (elements):
 
 
 ########################################
-#Property-Collector Example
-#https://medium.com/@maciej.wawrzynczuk/collecting-data-from-vcenter-with-python-pyvmomi-and-propertycollector-the-fast-way-a915ab4efd32
+# Property-Collector Example
+# https://medium.com/@maciej.wawrzynczuk/collecting-data-from-vcenter-with-python-pyvmomi-and-propertycollector-the-fast-way-a915ab4efd32
 #
-#print("================= Filtered VMs =================")
-#vm_view = vmware.vsphere.view.container_obj(vc,dc_net,vim.VirtualMachine,recurse=True)
-#vms = vmware.vsphere.search(vm_view,vim.VirtualMachine,path_set=None)
+# print("================= Filtered VMs =================")
+# vm_view = vmware.vsphere.view.container_obj(vc,dc_net,vim.VirtualMachine,recurse=True)
+# vms = vmware.vsphere.search(vm_view,vim.VirtualMachine,path_set=None)
 ##vms = vmware.vsphere.search(vm_view,vim.VirtualMachine,path_set=["name"])
 #
-#for vm in vms:
+# for vm in vms:
 #    pprint(vm)
 #    print(type(vm.propSet))
 #    print(f"Name is: {vm.propSet['config'].name}")
 #    break
 #
-#def search (view,obj_type,path_set=None,**kwargs):
+# def search (view,obj_type,path_set=None,**kwargs):
 #    vc = vmware.vsphere.get_vc_obj(kwargs)
 #
 #    log.debug(f"Building TraversalSpec")
@@ -599,12 +648,12 @@ def list_make_unique (elements):
 #    ts.path = 'view'
 #    ts.skip = False
 #    ts.type = view.__class__
-#    
+#
 #    log.debug(f"Building ObjectSpec")
 #    os = vmodl.query.PropertyCollector.ObjectSpec()
 #    os.obj = view
 #    os.skip = True
-#    os.selectSet = [ts]   
+#    os.selectSet = [ts]
 #
 #    log.debug(f"Building PropertySpec")
 #    ps = vmodl.query.PropertyCollector.PropertySpec()
