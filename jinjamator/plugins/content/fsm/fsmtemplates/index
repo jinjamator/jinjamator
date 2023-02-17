@@ -257,6 +257,7 @@ cisco_nxos_show_run_ospf_interface.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-confi
 cisco_nxos_show_run_ospf.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] ospf
 cisco_nxos_show_run_bfd.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] bfd
 cisco_nxos_show_run_ip_pim_rp.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] ip pim rp
+cisco_nxos_show_run_monitor_session.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] mon[[itor]] se[[ssion]]
 
 cisco_wlc_ssh_show_cdp_neighbors_detail.fsm, .*, cisco_wlc_ssh, sh[[ow]] c[[dp]] neig[[hbors]] det[[ail]]
 cisco_wlc_ssh_show_ap_config_general.fsm, .*, cisco_wlc_ssh, sh[[ow]] ap con[[fig]] ge[[neral]]
@@ -356,3 +357,4 @@ linux_traceroute.fsm, .*, linux, traceroute
 linux_gluster_peer_status.fsm, .*, linux, gluster peer status
 linux_gluster_pool_list.fsm, .*, linux, gluster pool list
 linux_systemctl_status.fsm, .*, linux, systemctl status (\S+)
+linux_tcpdump.fsm, .*, linux, tcpdump
