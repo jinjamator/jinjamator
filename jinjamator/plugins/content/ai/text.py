@@ -1,12 +1,12 @@
 import openai
 import xxhash
-
 import os
+from time import sleep
 
 
 def _get_missing_openai_connection_vars():
     inject = []
-    if not _jinjamator.configuration._data["openai_access_token"]:
+    if "openai_access_token" not in _jinjamator.configuration._data:
         inject.append("openai_access_token")
     return inject
 
@@ -59,14 +59,22 @@ def generate(
         return cache_data["choices"][index]["text"]
     else:
         log.debug(f"cache entry not found {cache_filepath}")
-        response = str(
-            openai.Completion.create(
-                model=model,
-                prompt=prompt,
-                temperature=temperature,
-                max_tokens=max_tokens,
+        try:
+            response = str(
+                openai.Completion.create(
+                    model=model,
+                    prompt=prompt,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                )
             )
-        )
+        except openai.error.RateLimitError:
+            w = random.randint(1, 10)
+            log.warning(f"Openai is overloaded -> waiting for " + w)
+            sleep(w)
+            generate(prompt, disable_cache, model, temperature, max_tokens, index)
+        except Exception as e:
+            print(e)
         d = json.loads(response)
         d["prompt"] = prompt
         cache_value(prompt, json.dumps(d))
