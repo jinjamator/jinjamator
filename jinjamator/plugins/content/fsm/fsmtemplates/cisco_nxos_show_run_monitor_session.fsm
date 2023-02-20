@@ -1,0 +1,22 @@
+Value Required SESSION_ID (\S+)
+Value DESCRIPTION (\S+.*)
+Value List SOURCE_INTERFACES_DIR (\S+.*)
+Value List SOURCE_VLANS_DIR (\S+.*)
+Value List SOURCE_VSANS_DIR (\S+.*)
+Value List DESTINATION_INTERFACES (\S+)
+Value NO_SHUTDOWN (no shut)
+
+
+
+Start
+  ^monitor session ${SESSION_ID} -> Session_parse
+
+Session_parse
+  ^monitor session -> Continue.Record
+  ^monitor session ${SESSION_ID}
+  ^\s+description ${DESCRIPTION} 
+  ^\s+source interface ${SOURCE_INTERFACES_DIR}
+  ^\s+source vlan ${SOURCE_VLANS_DIR}
+  ^\s+source vsan ${SOURCE_VSANS_DIR}
+  ^\s+destination interface ${DESTINATION_INTERFACES}
+  ^\s+${NO_SHUTDOWN}
