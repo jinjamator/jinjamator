@@ -1,0 +1,15 @@
+Value TIME_MS (\S+)
+Value TYPE (\S+)
+Value SRC_IP (\d+\.\d+\.\d+\.\d+)
+Value SRC_PORT (\S+)
+Value DST_IP (\d+\.\d+\.\d+\.\d+)
+Value DST_PORT (\S+)
+Value FLAGS (\S+)
+Value META (.*)
+
+
+
+Start
+  ^${TIME_MS} ${TYPE} ${SRC_IP}.${SRC_PORT} > ${DST_IP}.${DST_PORT}: Flags \[${FLAGS}\], ${META} -> Record
+  ^${TIME_MS} ${TYPE} ${DST_IP}.${DST_PORT} < ${SRC_IP}.${SRC_PORT}: Flags \[${FLAGS}\], ${META} -> Record
+  ^.+ -> Error "Line not found"
