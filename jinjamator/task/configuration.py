@@ -153,6 +153,7 @@ class TaskConfiguration(object):
             environment = jinja2.Environment(
                 extensions=["jinja2.ext.do"], undefined=SilentUndefined
             )
+
         else:
             environment = jinja2.Environment(extensions=["jinja2.ext.do"])
             environment = self._plugin_loader.j2_load_plugins(environment)
@@ -170,30 +171,36 @@ class TaskConfiguration(object):
         try:
             with open(path, "r") as stream:
                 try:
+                    if private_data:
+                        self._data["_configuration"] = deepcopy(private_data)
+                    else:
+                        self._data["_configuration"] = {}
                     raw_data = stream.read()
-                    tmp = []
-                    for l in raw_data.split("\n"):
-                        if (
-                            "{{" not in l
-                            and "}}" not in l
-                            and "{%" not in l
-                            and "%}" not in l
-                        ):
-                            tmp.append(l)
-                    parsed_raw_data = yaml.safe_load("\n".join(tmp))
-                    if not parsed_raw_data:
-                        parsed_raw_data = {}
+                    _raw_data = self.run_j2(raw_data, True)
+                    parsed_raw_data = yaml.safe_load(_raw_data)
 
                     for k, v in self._data.items():
                         if k not in list(parsed_raw_data.keys()):
                             parsed_raw_data[k] = v
 
+                    parsed_raw_data["configuration"] = self._data
+
+                    data_backup = self._plugin_loader._parent.configuration._data
+                    _data_backup = self._plugin_loader._parent._configuration._data
+
+                    self._plugin_loader._parent.configuration._data = {
+                        **self._plugin_loader._parent.configuration._data,
+                        **parsed_raw_data,
+                    }
+                    self._plugin_loader._parent._configuration._data = {
+                        **self._plugin_loader._parent.configuration._data,
+                        **parsed_raw_data["_configuration"],
+                    }
+
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
+
                     environment = self._plugin_loader.j2_load_plugins(environment)
 
-                    parsed_raw_data["configuration"] = self._data
-                    if private_data:
-                        parsed_raw_data["_configuration"] = deepcopy(private_data)
                     try:
                         parsed_data = environment.from_string(raw_data).render(
                             parsed_raw_data
@@ -212,6 +219,8 @@ class TaskConfiguration(object):
                         parsed_data = environment.from_string(raw_data).render(
                             parsed_raw_data
                         )
+                    self._plugin_loader._parent.configuration._data = data_backup
+                    self._plugin_loader._parent._configuration._data = _data_backup
                     final_data = yaml.safe_load(parsed_data)
                     if not final_data:
                         final_data = {}
