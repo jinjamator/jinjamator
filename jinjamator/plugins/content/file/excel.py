@@ -14,6 +14,9 @@
 
 from jinjamator.tools.xlsx_tools import XLSXReader, XLSXWriter
 import os
+import logging
+
+log = logging.getLogger()
 
 
 def load(path, **kwargs):
@@ -23,7 +26,7 @@ def load(path, **kwargs):
     :type path: ``str``
     :return: a list of ``dict``
     :rtype: list of dict
-    
+
     :Keyword Arguments:
         * *work_sheet_name* (``str``) --
            Name of the worksheet to return data from, defaults to Sheet1 if neither *work_sheet_name* nor *Sheet1* is found the worksheet on index 0 is used.
@@ -36,6 +39,33 @@ def load(path, **kwargs):
     xlsx.parse_header(kwargs.get("header_lines", 1))
     xlsx.parse_data()
     return xlsx.data
+
+
+def save(data, destination_path, **kwargs):
+    """Generate a xlsx file from a datastructure. Currently just a single sheet is supported
+
+    :param data: Currently data must be a list of dicts.
+    :type data: list of dict
+    :param destination_path: Path of the resulting CSV file.
+    :type destination_path: str
+    :raises ValueError: If the format of data cannot be determined.
+    :return: Returns True on success.
+    :rtype: bool
+
+    :Keyword Arguments:
+        Currently None
+    """
+    if isinstance(data, list):
+        if isinstance(data[0], dict):
+            xlsx = XLSXWriter(destination_path, overwrite=True)
+            xlsx.create_sheet_from_data(data, kwargs.get("sheet_name", "Sheet1"))
+            xlsx.save()
+            log.debug(
+                f"successfully written {len(data)} lines of data to {destination_path}"
+            )
+            return True
+        raise ValueError(f"xlsx save not implemented for list of {type(data[0])}")
+    raise ValueError(f"xlsx save not implemented for {type(data)}")
 
 
 def to_csv(src_path, target_path=None, **kwargs):
@@ -53,21 +83,21 @@ def to_csv(src_path, target_path=None, **kwargs):
     file.csv.save(data, target_path)
     return True
 
-def get_worksheets (path, **kwargs):
+
+def get_worksheets(path, **kwargs):
     """
     Gets all available worksheets within a xlsx-file and returns a list
-    
-    :param path: Path to excel file 
+
+    :param path: Path to excel file
     :type path: str
     :return: Returns a list with all worksheets within the excel-file
     :rtype: list
     """
     if not os.path.isabs(path):
         path = os.path.join(_jinjamator.task_base_dir, path)
-    xlsx = XLSXReader(
-        path, "Sheet1", kwargs.get("cache", True)
-    )
+    xlsx = XLSXReader(path, "Sheet1", kwargs.get("cache", True))
     return xlsx.get_worksheets()
+
 
 def to_csv_ws(src_path, target_path=None, **kwargs):
     """
@@ -91,14 +121,16 @@ def to_csv_ws(src_path, target_path=None, **kwargs):
     all_ws = get_worksheets(src_path)
     if len(ws_list) == 0:
         ws_list = all_ws
-    
+
     for ws in ws_list:
         if ws in all_ws:
-            data = [v for k, v in load(src_path, cache=False, work_sheet_name=ws).items()]
+            data = [
+                v for k, v in load(src_path, cache=False, work_sheet_name=ws).items()
+            ]
             tfn = f"{file.strip_suffix(target_path)}{fn_ws_sep}{ws}{file.get_suffix(target_path)}"
             log.debug(f"Saving csv to {tfn}")
             file.csv.save(data, tfn)
         else:
             log.error(f"Cant save CSV, worksheet {ws} does not exist")
-    
+
     return True
