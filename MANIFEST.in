@@ -1,5 +1,6 @@
 include */README.md
 include */LICENSE
+include jinjamator/task/schema/*.yaml
 recursive-include jinjamator/daemon/ *
 recursive-include jinjamator/plugins *
 prune jinjamator/tasks/vendor/*
