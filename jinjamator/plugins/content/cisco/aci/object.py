@@ -10,6 +10,8 @@ class ACIDiff(object):
         self._log = logging.getLogger("acidiff")
         if kwargs.get("debug", False):
             self._debug = True
+        else:
+            self._debug = False
 
     def debug(self, *args):
         if self._debug:
