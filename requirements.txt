@@ -1,5 +1,5 @@
 Werkzeug==2.2.3
-Jinja2
+Jinja2>=3.0
 ipcalc
 netmiko>=4.1.2
 textfsmplus==0.2
@@ -48,3 +48,5 @@ pyvmomi
 coloredlogs
 openai
 ldap3
+testresources
+ansible-runner
