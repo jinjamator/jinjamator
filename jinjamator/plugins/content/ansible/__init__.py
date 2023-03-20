@@ -16,7 +16,6 @@ def run(playbook, inv, **kwargs):
         if len(playbook) < 512:
             # playbook is shorter than 512 chars (single line playbook somehow)
             if file.exists(playbook):
-                log.console(f"Suffix is: {file.get_suffix(playbook)}")
                 if file.get_suffix(playbook) == "j2":
                     # File is a jinja-file, we are supposed to feed it to the jinja2 engine first
                     if "data" in kwargs.keys():
@@ -63,3 +62,17 @@ def simple_inventory(hosts):
         inv["all"]["hosts"][h] = {}
 
     return inv
+
+def reverse_order (playbook):
+    #Reverse the order of jobs and tasks
+    #used in combination with undo = True
+    #parse the yaml
+    pby = yaml.loads(playbook)
+    #Reverse jobs
+    pby.reverse()
+
+    #Reverse tasks in each job
+    for jobs in pby:
+        jobs['tasks'].reverse()
+    
+    return yaml.dumps(pby)
