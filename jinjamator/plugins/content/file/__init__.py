@@ -250,12 +250,13 @@ def rmdir_r(path):
         log.error("Removing the root path is not supported.")
         return False
 
-def dir(path,pattern='',**kwargs):
+def dir(path,pattern='*',**kwargs):
     content = sorted(pathlib.Path(path).glob(pattern))
     if 'fullpath' in kwargs:
         return [str(d) for d in content]
     else:
-        return [str(d.stem) for d in content]
+        #return [str(d.stem) for d in content]
+        return [str(d.name) for d in content]
 
 def copy(src, dst, force_overwrite=False, **kwargs):
     if not src.startswith("/"):
