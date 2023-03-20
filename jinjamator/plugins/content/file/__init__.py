@@ -116,7 +116,9 @@ def get_suffix(filename):
     :return: The suffix
     :rtype: ``str``
     """
-    return pathlib.Path(filename).suffix
+    suffix = pathlib.Path(filename).suffix
+    if suffix[0] == ".": return suffix[1:]
+    else: return suffix
 
 
 def change_suffix(filename, suffix=False):
