@@ -34,3 +34,72 @@
 #volume sync <HOSTNAME> [all|<VOLNAME>] - sync the volume information from a peer
 #volume top <VOLNAME> {open|read|write|opendir|readdir|clear} [nfs|brick <brick>] [list-cnt <value>] | {read-perf|write-perf} [bs <size> count <count>] [brick <brick>] [list-cnt <value>] - volume top operations
 
+
+def create (volname,bricks,hosts,con=False,**kwargs):
+    #volume create <NEW-VOLNAME> [[replica <COUNT> [arbiter <COUNT>]]|[replica 2 thin-arbiter 1]] 
+    #[disperse [<COUNT>]] [disperse-data <COUNT>] [redundancy <COUNT>] [transport <tcp|rdma|tcp,rdma>] 
+    #<NEW-BRICK> <TA-BRICK>... [force] - create a new volume of specified type with mentioned bricks
+    args = [volname]
+    log.info("Creating volume {volname}")
+       
+    #do set up depending on type
+    #replica volume
+    if 'replica' in kwargs:
+        args.append(f"replica {str(kwargs['replica'])}")
+        
+        #Handle arbiter
+        if 'arbiter' in kwargs: args.append(f"arbiter {str(kwargs['arbiter'])}")
+        #Handle thin-arbiter and ignore the value set there (it's always 1)
+        elif 'thin-arbiter' in kwargs and str(kwargs['replica']) == "2": args.append(f"thin-arbiter 1")
+    #dispersed volume
+    elif 'disperse' in kwargs:
+        args.append(f"disperse {str(kwargs['disperse'])}")
+        if 'redundancy' in kwargs: args.append(f"redundancy {str(kwargs['redundancy'])}")
+
+
+    #set transport
+    if 'transport' in kwargs and kwargs['transport'] in ["tcp","rdma","tcp,rdma"]: args.append(f"transport {kwargs['transport']}")
+        
+    #make a brick-list
+    #if bricks is a string, ignore hosts and take only the brick-string
+    if isinstance(bricks,str): args.append(bricks)
+    else:
+        args.append(host_brick_list(hosts,bricks))
+    
+    if 'force' in kwargs: args.append("force")
+
+    cmdline = " ".join(args)
+    log.debug(f"Compiled args: {cmdline}")
+    out = linux.run(f"gluster volume create {cmdline}",con)
+    
+    return out[0]
+
+
+def start (volname,con=False,**kwargs):
+    if 'force' in kwargs: force = "force"
+    else: force = ""
+
+    out = linux.run(f"gluster volume start {volname} {force}",con)
+    
+    return out[0]
+
+
+def host_brick_list (hosts,bricks):
+    #Compiles a string which lists all given bricks over all hosts
+    if not isinstance(hosts,list): log.error(f"Cannot create host-brick-list. Hosts is not a list ({type(hosts)}): {str(hosts)}")
+    if not isinstance(bricks,list): log.error(f"Cannot create host-brick-list. Bricks is not a list ({type(bricks)}): {str(bricks)}")
+    
+    blist = []
+    for brick in bricks:
+        for host in hosts:
+            blist.append(f"{host}:{brick}")
+    
+    return " ".join(blist)
+
+
+
+
+#fake function
+def status (con=False):
+    out = linux.run("gluster peer status",con)
+    return fsm.process('linux', 'gluster peer status' , data=out[0])
