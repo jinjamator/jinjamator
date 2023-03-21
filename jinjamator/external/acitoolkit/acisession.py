@@ -41,7 +41,6 @@ import base64
 import requests
 import sys
 from collections import namedtuple
-from pprint import pformat
 
 if sys.version_info < (3, 0, 0):
     from urllib import unquote
@@ -75,7 +74,14 @@ else:
         pass
 
 
+log = logging.getLogger(__name__)
+
+
 class CredentialsError(Exception):
+    """
+    Exception class for errors with Credentials class
+    """
+
     def __init___(self, message):
         Exception.__init__(self, "Session Credentials Error:{0}".format(message))
         self.message = message
@@ -106,7 +112,7 @@ class Login(threading.Thread):
         :param resp: Instance of requests.Response
         """
         if self._apic.login_error:
-            logging.debug("Logged back into the APIC")
+            log.info("Logged back into the APIC")
             self._apic.login_error = False
             self._apic.invoke_login_callbacks()
 
@@ -116,11 +122,11 @@ class Login(threading.Thread):
             try:
                 resp = self._apic.refresh_login(timeout=120)
             except ConnectionError:
-                logging.error("Could not refresh APIC login due to ConnectionError")
+                log.error("Could not refresh APIC login due to ConnectionError")
                 self._login_timeout = 30
                 self._apic.login_error = True
             except requests.exceptions.Timeout:
-                logging.error("Could not refresh APIC login due to Timeout")
+                log.error("Could not refresh APIC login due to Timeout")
             else:
                 if resp.ok:
                     self._check_callbacks()
@@ -130,8 +136,11 @@ class Login(threading.Thread):
                 self._apic.resubscribe()
                 if resp.ok:
                     self._check_callbacks()
+                else:
+                    log.error("Could not relogin to APIC.")
+                    self._login_timeout = 30
             except ConnectionError:
-                logging.error("Could not relogin to APIC due to ConnectionError")
+                log.error("Could not relogin to APIC due to ConnectionError")
                 self._apic.login_error = True
 
 
@@ -199,21 +208,21 @@ class Subscriber(threading.Thread):
             resp = self._apic.get(url)
         except ConnectionError:
             self._subscriptions[url] = None
-            logging.error("Could not send subscription to APIC for url %s", url)
+            log.error("Could not send subscription to APIC for url %s", url)
             resp = requests.Response()
             resp.status_code = 404
             resp._content = '{"error": "Could not send subscription to APIC"}'
             return resp
         if not resp.ok:
             self._subscriptions[url] = None
-            logging.error("Could not send subscription to APIC for url %s", url)
+            log.error("Could not send subscription to APIC for url %s", url)
             resp = requests.Response()
             resp.status_code = 404
             resp._content = '{"error": "Could not send subscription to APIC"}'
             return resp
         resp_data = json.loads(resp.text)
         if "subscriptionId" not in resp_data:
-            logging.error(
+            log.error(
                 "Did not receive proper subscription response from APIC for url %s response: %s",
                 url,
                 resp_data,
@@ -246,20 +255,20 @@ class Subscriber(threading.Thread):
             try:
                 current_subscriptions[subscription] = self._subscriptions[subscription]
             except KeyError:
-                logging.warning("Subscription removed while copying")
+                log.warning("Subscription removed while copying")
 
         # Refresh the subscriptions
         for subscription in current_subscriptions:
             if self._ws is not None:
                 if not self._ws.connected:
-                    logging.warning(
+                    log.warning(
                         "Websocket not established on subscription refresh. Re-establishing websocket"
                     )
-                    self._open_web_socket("https://" in subscription)
+                    self._open_web_socket("wss://" in self._ws_url)
             try:
                 subscription_id = self._subscriptions[subscription]
             except KeyError:
-                logging.warning("Subscription has been removed while trying to refresh")
+                log.warning("Subscription has been removed while trying to refresh")
                 continue
             if subscription_id is None:
                 self._send_subscription(subscription)
@@ -267,7 +276,7 @@ class Subscriber(threading.Thread):
             refresh_url = "/api/subscriptionRefresh.json?id=" + str(subscription_id)
             resp = self._apic.get(refresh_url)
             if not resp.ok:
-                logging.warning("Could not refresh subscription: %s", refresh_url)
+                log.warning("Could not refresh subscription: %s", refresh_url)
                 # Try to resubscribe
                 self._resubscribe()
 
@@ -293,16 +302,14 @@ class Subscriber(threading.Thread):
         try:
             self._ws = create_connection(self._ws_url, sslopt=sslopt, **kwargs)
             if not self._ws.connected:
-                logging.error("Unable to open websocket connection")
+                log.error("Unable to open websocket connection")
             self.event_handler_thread = EventHandler(self)
             self.event_handler_thread.daemon = True
             self.event_handler_thread.start()
         except WebSocketException:
-            logging.error(
-                "Unable to open websocket connection due to WebSocketException"
-            )
+            log.error("Unable to open websocket connection due to WebSocketException")
         except socket.error:
-            logging.error("Unable to open websocket connection due to Socket Error")
+            log.error("Unable to open websocket connection due to Socket Error")
 
     def _resubscribe(self):
         """
@@ -333,7 +340,7 @@ class Subscriber(threading.Thread):
             try:
                 event = json.loads(event)
             except ValueError:
-                logging.error("Non-JSON event: %s", orig_event)
+                log.error("Non-JSON event: %s", orig_event)
                 continue
             # Find the URL for this event
             num_subscriptions = len(event["subscriptionId"])
@@ -356,14 +363,14 @@ class Subscriber(threading.Thread):
 
         :param url: URL string to send as a subscription
         """
-        logging.debug("Subscribing to url: %s", url)
+        log.info("Subscribing to url: %s", url)
         # Check if already subscribed.  If so, skip
         if url in self._subscriptions:
             return
 
         if self._ws is not None:
             if not self._ws.connected:
-                self._open_web_socket("https://" in url)
+                self._open_web_socket("wss://" in self._ws_url)
 
         resp = self._send_subscription(url, only_new=only_new)
         return resp
@@ -408,10 +415,11 @@ class Subscriber(threading.Thread):
 
         :param url: URL string to get pending event
         """
+        self._process_event_q()
         if url not in self._events:
             raise ValueError
         event = self._events[url].pop(0)
-        logging.debug("Event received %s", event)
+        log.debug("Event received %s", event)
         return event
 
     def unsubscribe(self, url):
@@ -421,7 +429,7 @@ class Subscriber(threading.Thread):
 
         :param url: URL string to unsubscribe
         """
-        logging.debug("Unsubscribing from url: %s", url)
+        log.info("Unsubscribing from url: %s", url)
         if url not in self._subscriptions:
             return
         if "&subscription=yes" in url:
@@ -432,7 +440,7 @@ class Subscriber(threading.Thread):
             raise ValueError("No subscription string in URL being unsubscribed")
         resp = self._apic.get(unsubscribe_url)
         if not resp.ok:
-            logging.warning("Could not unsubscribe from url: %s", unsubscribe_url)
+            log.warning("Could not unsubscribe from url: %s", unsubscribe_url)
         # Chew up any outstanding events
         while self.has_events(url):
             self.get_event(url)
@@ -447,13 +455,13 @@ class Subscriber(threading.Thread):
             try:
                 self.refresh_subscriptions()
             except ConnectionError:
-                logging.error("Could not refresh subscriptions due to ConnectionError")
+                log.error("Could not refresh subscriptions due to ConnectionError")
 
 
 class Session(object):
     """
-       Session class
-       This class is responsible for all communication with the APIC.
+    Session class
+    This class is responsible for all communication with the APIC.
     """
 
     def __init__(
@@ -467,6 +475,7 @@ class Session(object):
         appcenter_user=False,
         subscription_enabled=True,
         proxies=None,
+        relogin_forever=False,
     ):
         """
         :param url:  String containing the APIC URL such as ``https://1.2.3.4``
@@ -485,7 +494,8 @@ class Session(object):
         the context of an APIC appcenter app
         :param proxies: Optional dictionary containing the proxies passed\
         directly to the Requests library
-
+        :param relogin_forever: Boolean that when set to True will attempt to re-login
+                                forever regardless of the error returned from APIC.
         """
         if not isinstance(url, str):
             url = str(url)
@@ -512,6 +522,8 @@ class Session(object):
             raise CredentialsError(
                 "Both a certificate name and private key must be provided"
             )
+        if not isinstance(relogin_forever, bool):
+            raise CredentialsError("relogin_forever must be a boolean")
 
         if "https://" in url:
             self.ipaddr = url[len("https://") :]
@@ -533,10 +545,10 @@ class Session(object):
             # Cert based auth does not support subscriptions :(
             # there's an exception for appcenter_user relying on the requestAppToken api
             if subscription_enabled and not self.appcenter_user:
-                logging.warning(
+                log.warning(
                     "Disabling subscription support as certificate authentication does not support it."
                 )
-                logging.warning(
+                log.warning(
                     "Consider passing subscription_enabled=False to hide this warning message."
                 )
                 subscription_enabled = False
@@ -567,6 +579,7 @@ class Session(object):
         self._relogin_callbacks = []
         self.login_error = False
         self._logged_in = False
+        self.relogin_forever = relogin_forever
         self._subscription_enabled = subscription_enabled
         self._proxies = proxies
         if subscription_enabled:
@@ -617,31 +630,29 @@ class Session(object):
 
         url = unquote(url)
 
-        # logging.debug(
-        #     (
-        #         "Preparing certificate based authentication with:"
-        #         "\n Cert DN: {}"
-        #         "\n Key file: {} "
-        #         "\n Request: {} {}"
-        #         "\n Data: {}"
-        #     ).format(cert_dn, self.key, method, url, data)
-        # )
+        log.debug(
+            (
+                "Preparing certificate based authentication with:"
+                "\n Cert DN: {}"
+                "\n Key file: {} "
+                "\n Request: {} {}"
+                "\n Data: {}"
+            ).format(cert_dn, self.key, method, url, data)
+        )
 
         payload = "{}{}".format(method, url)
         if data:
             payload += data
 
-        signature = base64.b64encode(
-            sign(self._x509Key, payload.encode("utf-8"), "sha256")
-        ).decode("utf-8")
+        signature = base64.b64encode(sign(self._x509Key, payload, "sha256"))
         cookie = {
-            "APIC-Request-Signature": signature,
+            "APIC-Request-Signature": signature.decode("ascii"),
             "APIC-Certificate-Algorithm": "v1.0",
             "APIC-Certificate-Fingerprint": "fingerprint",
             "APIC-Certificate-DN": cert_dn,
         }
 
-        # logging.debug("Authentication cookie %s" % cookie)
+        log.debug("Authentication cookie %s", cookie)
         return cookie
 
     def _send_login(self, timeout=None):
@@ -661,10 +672,11 @@ class Session(object):
             login_url = "/api/requestAppToken.json"
             data = {"aaaAppToken": {"attributes": {"appName": self.cert_name}}}
         elif self.cert_auth:
-            logging.warning(
-                "Will not explicitly login because certificate based authentication is being used for this session."
+            log.warning(
+                "Will not explicitly login because certificate based authentication"
+                " is being used for this session."
             )
-            logging.warning(
+            log.warning(
                 "If permanently using cert auth, consider removing the call to login()."
             )
             CertAuthResponse = namedtuple("CertAuthResponse", ["ok"])
@@ -674,12 +686,13 @@ class Session(object):
             data = {"aaaUser": {"attributes": {"name": self.uid, "pwd": self.pwd}}}
         ret = self.push_to_apic(login_url, data=data, timeout=timeout)
         if not ret.ok:
-            logging.error("Could not relogin to APIC. Aborting login thread.")
+            if self.relogin_forever:
+                log.error("Could not relogin to APIC. Relogin forever enabled...")
+                self.login_error = True
+                return ret
+            log.error("Could not relogin to APIC. Aborting login thread.")
             self.login_thread.exit()
-            try:
-                self.subscription_thread.exit()
-            except AttributeError:
-                pass
+            self.subscription_thread.exit()
             return ret
         self._logged_in = True
         ret_data = json.loads(ret.text)["imdata"][0]
@@ -699,11 +712,11 @@ class Session(object):
         :returns: Response class instance from the requests library.\
         response.ok is True if login is successful.
         """
-        logging.debug("Initializing connection to the APIC")
+        log.info("Initializing connection to the APIC")
         try:
             resp = self._send_login(timeout)
         except ConnectionError as e:
-            logging.error("Could not relogin to APIC due to ConnectionError: %s", e)
+            log.error("Could not relogin to APIC due to ConnectionError: %s", e)
             resp = requests.Response()
             resp.status_code = 404
             resp._content = (
@@ -731,7 +744,7 @@ class Session(object):
         """
         refresh_url = "/api/aaaRefresh.json"
         resp = self.get(refresh_url, timeout=timeout)
-        if resp.text:
+        if resp.ok:
             ret_data = json.loads(resp.text)["imdata"][0]
             self.token = str(ret_data["aaaLogin"]["attributes"]["token"])
         return resp
@@ -825,9 +838,7 @@ class Session(object):
                   response.ok is True if request is sent successfully.
         """
         post_url = self.api + url
-        logging.debug(
-            "Posting url: %s data: \n%s", post_url, json.dumps(data, indent=2)
-        )
+        log.debug("Posting url: %s data: %s", post_url, data)
 
         if self.cert_auth and not (
             self.appcenter_user and self._subscription_enabled and self._logged_in
@@ -843,7 +854,7 @@ class Session(object):
                 cookies=cookies,
             )
             if resp.status_code == 403:
-                logging.error(
+                log.error(
                     "Certificate authentication failed. Please check all settings are correct."
                 )
                 resp.raise_for_status()
@@ -856,12 +867,12 @@ class Session(object):
                 proxies=self._proxies,
             )
             if resp.status_code == 403:
-                logging.error(resp.text)
-                logging.error("Trying to login again....")
+                log.error(resp.text)
+                log.error("Trying to login again....")
                 resp = self._send_login()
                 self.resubscribe()
-                logging.error("Trying post again...")
-                logging.debug(post_url)
+                log.error("Trying post again...")
+                log.debug(post_url)
                 resp = self.session.post(
                     post_url,
                     data=json.dumps(data, sort_keys=True),
@@ -869,7 +880,7 @@ class Session(object):
                     timeout=timeout,
                     proxies=self._proxies,
                 )
-        logging.debug("Response: %s %s", resp, resp.text)
+        log.debug("Response: %s %s", resp, resp.text)
         return resp
 
     def get(self, url, timeout=None):
@@ -883,37 +894,31 @@ class Session(object):
         response.json() will return the JSON data sent back by the APIC.
         """
         get_url = self.api + url
-        logging.debug(get_url)
+        log.debug(get_url)
 
         cookies = self._prep_x509_header("GET", url)
-
-        try:
-            resp = self.session.get(
-                get_url,
-                timeout=timeout,
-                verify=self.verify_ssl,
-                proxies=self._proxies,
-                cookies=cookies,
-            )
-        except ConnectionError as e:
-            logging.error(e)
-            raise
-
+        resp = self.session.get(
+            get_url,
+            timeout=timeout,
+            verify=self.verify_ssl,
+            proxies=self._proxies,
+            cookies=cookies,
+        )
         if resp.status_code == 403:
             if self.cert_auth and not (
                 self.appcenter_user and self._subscription_enabled
             ):
-                logging.error(
+                log.error(
                     "Certificate authentication failed. Please check all settings are correct."
                 )
                 resp.raise_for_status()
             else:
-                logging.error(resp.text)
-                logging.error("Trying to login again....")
+                log.error(resp.text)
+                log.error("Trying to login again....")
                 resp = self._send_login()
                 self.resubscribe()
-                logging.error("Trying get again...")
-                logging.debug(get_url)
+                log.error("Trying get again...")
+                log.debug(get_url)
                 resp = self.session.get(
                     get_url,
                     timeout=timeout,
@@ -926,11 +931,11 @@ class Session(object):
         ):
             # Response is too big so we will need to get the response in pages
             # Get the first chunk of entries
-            logging.error(
+            log.error(
                 "Response too big. Need to collect it in pages. Starting collection..."
             )
             page_number = 0
-            logging.debug("Getting first page")
+            log.debug("Getting first page")
             cookies = self._prep_x509_header(
                 "GET", url + "&page=%s&page-size=10000" % page_number
             )
@@ -948,7 +953,7 @@ class Session(object):
                 total_count = orig_total_count - 10000
                 while total_count > 0 and resp.ok:
                     page_number += 1
-                    logging.debug("Getting page %s" % page_number)
+                    log.debug("Getting page %s", page_number)
                     # Get the next chunk
                     cookies = self._prep_x509_header(
                         "GET", url + "&page=%s&page-size=10000" % page_number
@@ -964,12 +969,12 @@ class Session(object):
                         entries += resp.json()["imdata"]
                         total_count -= 10000
                 resp_content = {"imdata": entries, "totalCount": orig_total_count}
-                resp._content = json.dumps(resp_content)
+                resp._content = json.dumps(resp_content).encode("ascii")
         elif 400 < resp.status_code < 600:
-            logging.debug("Received error: %s %s" % (str(resp.status_code), resp.text))
+            log.debug("Received error: %s %s", str(resp.status_code), resp.text)
             retries = 3
             while retries > 0:
-                logging.debug("Retrying query")
+                log.debug("Retrying query")
                 cookies = self._prep_x509_header("GET", url)
                 resp = self.session.get(
                     get_url,
@@ -979,16 +984,16 @@ class Session(object):
                     cookies=cookies,
                 )
                 if resp.status_code != 200:
-                    logging.debug("Retry was not successful.")
+                    log.debug("Retry was not successful.")
                     retries -= 1
                 else:
-                    logging.debug("Retry was successful.")
+                    log.debug("Retry was successful.")
                     break
             if retries == 0:
-                logging.error("Raising ConnectionError")
+                log.error("Raising ConnectionError")
                 raise ConnectionError
-        logging.debug(resp)
-        # logging.debug(resp.text)
+        log.debug(resp)
+        log.debug(resp.text)
         return resp
 
     def register_login_callback(self, callback_fn):
@@ -1016,5 +1021,7 @@ class Session(object):
         Invoke registered callback functions when the session performs a
         successful relogin attempt after disconnecting from the APIC.
         """
+        log.info("Invoking login callbacks")
         for callback_fn in self._relogin_callbacks:
+            log.info("Invoking login callback...")
             callback_fn(self)
