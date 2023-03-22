@@ -878,7 +878,7 @@ class Session(object):
         return resp
 
     def post(self, url, data, timeout=None):
-        self.push_to_apic(url, data, timeout)
+        return self.push_to_apic(url, data, timeout)
 
     def push_to_apic(self, url, data, timeout=None):
         """
