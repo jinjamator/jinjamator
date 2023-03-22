@@ -187,6 +187,14 @@ class TaskConfiguration(object):
                     for k, v in self._data.items():
                         if k not in list(parsed_raw_data.keys()):
                             parsed_raw_data[k] = v
+                    if self._plugin_loader._parent:
+                        data_backup = deepcopy(
+                            self._plugin_loader._parent.configuration._data
+                        )
+                        self._plugin_loader._parent.configuration._data = {
+                            **self._plugin_loader._parent.configuration._data,
+                            **parsed_raw_data,
+                        }
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
                     environment = self._plugin_loader.j2_load_plugins(environment)
@@ -212,7 +220,10 @@ class TaskConfiguration(object):
                         parsed_data = environment.from_string(raw_data).render(
                             parsed_raw_data
                         )
+
                     final_data = yaml.safe_load(parsed_data)
+                    if self._plugin_loader._parent:
+                        self._plugin_loader._parent.configuration._data = data_backup
                     if not final_data:
                         final_data = {}
                     self.merge_dict(
@@ -222,6 +233,7 @@ class TaskConfiguration(object):
                         other_types_strategy,
                         type_conflict_strategy,
                     )
+
                     return final_data
                 except yaml.YAMLError as e:
                     self._log.error(e)
