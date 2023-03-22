@@ -826,6 +826,60 @@ class Session(object):
         if self._subscription_enabled:
             self.subscription_thread.unsubscribe(url)
 
+    def delete(self, url, timeout=None):
+        """
+        Send Delete to the APIC
+
+        :param url: String containing the URL that will be used to\
+                    send the object data to the APIC.
+        :returns: Response class instance from the requests library.\
+                  response.ok is True if request is sent successfully.
+        """
+        delete_url = self.api + url
+        log.debug("Sending delete to url: %s", delete_url)
+
+        if self.cert_auth and not (
+            self.appcenter_user and self._subscription_enabled and self._logged_in
+        ):
+            cookies = self._prep_x509_header("DELETE", url)
+            resp = self.session.delete(
+                delete_url,
+                verify=self.verify_ssl,
+                timeout=timeout,
+                proxies=self._proxies,
+                cookies=cookies,
+            )
+            if resp.status_code == 403:
+                log.error(
+                    "Certificate authentication failed. Please check all settings are correct."
+                )
+                resp.raise_for_status()
+        else:
+            resp = self.session.delete(
+                delete_url,
+                verify=self.verify_ssl,
+                timeout=timeout,
+                proxies=self._proxies,
+            )
+            if resp.status_code == 403:
+                log.error(resp.text)
+                log.error("Trying to login again....")
+                resp = self._send_login()
+                self.resubscribe()
+                log.error("Trying post again...")
+                log.debug(delete_url)
+                resp = self.session.delete(
+                    delete_url,
+                    verify=self.verify_ssl,
+                    timeout=timeout,
+                    proxies=self._proxies,
+                )
+        log.debug("Response: %s %s", resp, resp.text)
+        return resp
+
+    def post(self, url, data, timeout=None):
+        self.push_to_apic(url, data, timeout)
+
     def push_to_apic(self, url, data, timeout=None):
         """
         Push the object data to the APIC
@@ -843,7 +897,8 @@ class Session(object):
         if self.cert_auth and not (
             self.appcenter_user and self._subscription_enabled and self._logged_in
         ):
-            data = json.dumps(data, sort_keys=True)
+            if type(data) != str:
+                data = json.dumps(data, sort_keys=True)
             cookies = self._prep_x509_header("POST", url, data)
             resp = self.session.post(
                 post_url,
