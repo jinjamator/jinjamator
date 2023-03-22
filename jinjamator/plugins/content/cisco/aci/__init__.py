@@ -499,14 +499,16 @@ def get_access_aep_name_by_vlan_id(
 #     thread.start()
 #     return thread
 
-def get_vlan_pools (*, _requires=_get_missing_apic_connection_vars):
-    pools = []
-    q = query("/api/node/mo/uni/infra.json?query-target=subtree&target-subtree-class=fvnsVlanInstP")
-    for pool in q['imdata']:
-        pools.append(pool['fvnsVlanInstP']['attributes'])
-    
-    return pools
 
+def get_vlan_pools(*, _requires=_get_missing_apic_connection_vars):
+    pools = []
+    q = query(
+        "/api/node/mo/uni/infra.json?query-target=subtree&target-subtree-class=fvnsVlanInstP"
+    )
+    for pool in q["imdata"]:
+        pools.append(pool["fvnsVlanInstP"]["attributes"])
+
+    return pools
 
 
 def get_all_vlans_from_pool(pool_name, *, _requires=_get_missing_apic_connection_vars):
@@ -737,7 +739,88 @@ def get_dict_from_node_dn(dn):
 
 def get_tenants():
     ret = []
-    for ten in query("/api/node/class/fvTenant.json")['imdata']:
-        ret.append(ten['fvTenant']['attributes']['name'])
-    
+    for ten in query("/api/node/class/fvTenant.json")["imdata"]:
+        ret.append(ten["fvTenant"]["attributes"]["name"])
+
     return ret
+
+
+def cleanup_url(query_url_or_dn):
+    tmp = query_url_or_dn.split("?")
+    query_str = "?".join(tmp[1:])
+    query_url_or_dn = tmp[0]  # we are not interrested in query strings -> strip it
+
+    if not query_url_or_dn.startswith("/"):
+        # always start with /
+        query_url_or_dn = f"/{query_url_or_dn}"
+    if query_url_or_dn.endswith(".json"):
+        query_url_or_dn = query_url_or_dn[:-5]
+    if query_url_or_dn.endswith(".xml"):
+        query_url_or_dn = query_url_or_dn[:-4]
+
+    if query_url_or_dn.startswith("/uni/"):
+        # so we are a dn lets make us a url
+        query_url_or_dn = f"/api/node/mo/uni{query_url_or_dn}"
+    query_url_or_dn = f"{query_url_or_dn}.json"
+
+    if query_url_or_dn.startswith("/api/node/mo/uni/") and query_url_or_dn.endswith(
+        ".json"
+    ):
+        return query_url_or_dn + query_str
+    else:
+        raise ValueError(
+            f"something went wrong, cannot build a valid APIC URL {query_url_or_dn}"
+        )
+
+
+def delete(
+    query_url_or_dn,
+    timeout=60,
+    force=False,
+    _requires=_get_missing_apic_connection_vars,
+):
+    session = connect_apic(False)
+    try:
+        data = session.delete(cleanup_url(query_url_or_dn), timeout)
+    except Exception as e:
+        log.error(e)
+        session.close()
+        return {"imdata": [], "totalCount": "0"}
+    session.close()
+    return json.loads(data.text)
+
+
+def post(data, timeout=60, force=False, _requires=_get_missing_apic_connection_vars):
+
+    if type(data) == str:
+        data = json.loads(data)
+    data_list = data
+    if "imdata" in data:
+        data_list = data["imdata"]
+    if type(data_list) != list:
+        raise ValueError(
+            "data must be an ACI imdata structure or a list of ACI objects"
+        )
+    session = connect_apic(False)
+    for item in data_list:
+        try:
+            dn = item[list(item.keys())[0]]["attributes"]["dn"]
+        except (IndexError, KeyError) as e:
+            log.error("cannot find dn in object -> skipping")
+            continue
+    try:
+        resp = session.post(f"/api/node/mo/{dn}.json", data, timeout)
+    except Exception as e:
+        log.error(e)
+        session.close()
+        return {"imdata": [], "totalCount": "0"}
+    if not resp.ok:
+        log.error("POST request failed: {0}".format(resp.text))
+        raise RuntimeError("POST request failed: {0}".format(json.dumps(item)))
+
+    else:
+        log.info(f"successfully sent config for dn {dn}")
+        log.debug(json.dumps(item, indent=2))
+
+    session.close()
+    return json.loads(resp.text)
