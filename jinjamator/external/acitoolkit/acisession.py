@@ -630,21 +630,23 @@ class Session(object):
 
         url = unquote(url)
 
-        log.debug(
-            (
-                "Preparing certificate based authentication with:"
-                "\n Cert DN: {}"
-                "\n Key file: {} "
-                "\n Request: {} {}"
-                "\n Data: {}"
-            ).format(cert_dn, self.key, method, url, data)
-        )
+        # log.debug(
+        #     (
+        #         "Preparing certificate based authentication with:"
+        #         "\n Cert DN: {}"
+        #         "\n Key file: {} "
+        #         "\n Request: {} {}"
+        #         "\n Data: {}"
+        #     ).format(cert_dn, self.key, method, url, data)
+        # )
 
         payload = "{}{}".format(method, url)
         if data:
             payload += data
 
-        signature = base64.b64encode(sign(self._x509Key, payload, "sha256"))
+        signature = base64.b64encode(
+            sign(self._x509Key, payload.encode("ascii"), "sha256")
+        )
         cookie = {
             "APIC-Request-Signature": signature.decode("ascii"),
             "APIC-Certificate-Algorithm": "v1.0",
@@ -652,7 +654,7 @@ class Session(object):
             "APIC-Certificate-DN": cert_dn,
         }
 
-        log.debug("Authentication cookie %s", cookie)
+        # log.debug("Authentication cookie %s", cookie)
         return cookie
 
     def _send_login(self, timeout=None):
@@ -892,6 +894,7 @@ class Session(object):
                   response.ok is True if request is sent successfully.
         """
         post_url = self.api + url
+
         log.debug("Posting url: %s data: %s", post_url, data)
 
         if self.cert_auth and not (
