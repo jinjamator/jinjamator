@@ -72,6 +72,7 @@ function table_dropdown_set_value(select, container, options) {
 
                         // dropdown.refresh() this loops with multiselect onInizialized -> just select via multiselect
                         $('#' + dropdown.id).multiselect('select', task_result[dropdown.propertyId]);
+                        $('#' + dropdown.id).multiselect('refresh')
 
                         //unlock dropdown
                         $(container[0]).children("button")[0].disabled = false
