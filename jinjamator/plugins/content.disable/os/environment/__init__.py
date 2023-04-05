@@ -18,3 +18,4 @@ def pop(var, default=None):
     except KeyError:
         data = default
     return data
+

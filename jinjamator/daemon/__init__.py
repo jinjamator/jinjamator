@@ -255,4 +255,4 @@ def run(cfg):
             )
     else:
         log.info(f">>>>> Restarting daemon at http://{host}:{port}/ <<<<<")
-        app.run(debug=False, host=host, port=port)
+        app.run(debug=False, host=host, port=port, processes=10, threaded=False)

@@ -15,20 +15,14 @@
 from netmiko import ConnectHandler, SCPConn
 from netmiko.exceptions import NetmikoAuthenticationException
 
-import textfsmplus
 import os
-from jinjamator.plugins.content.fsm import process
-from jinjamator.plugins.content.file import is_file
+
 
 import logging
 
 log = logging.getLogger()
 from netmiko import log as netmiko_log
 
-try:
-    from textfsmplus import clitable
-except ImportError:
-    import clitable
 
 
 def connect(**kwargs):
@@ -156,7 +150,7 @@ def query(command, connection=None, **kwargs):
 
     config = run(command, connection, **kwargs)
 
-    return process(device_type, command, config)
+    return fsm.process(device_type, command, config)
 
 
 def disconnect(connection):

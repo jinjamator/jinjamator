@@ -15,8 +15,9 @@
 from distutils.command.upload import upload
 import logging
 from .configuration import TaskConfiguration
+import jinjamator.plugin_loader.content
 from jinjamator.plugin_loader.content import (
-    ContentPluginLoader,
+    j2_load_plugins
 )
 from natsort import natsorted
 import glob
@@ -33,7 +34,7 @@ from getpass import getpass
 import importlib
 import sys
 from collections import defaultdict
-import json
+
 from deepmerge.merger import Merger
 from jinjamator.external.genson import SchemaBuilder
 import dictdiffer
@@ -43,7 +44,7 @@ import traceback
 import yaml
 from jsonschema import validate as validate_jsonschema
 import uuid
-from dotty_dict import dotty
+# from dotty_dict import dotty
 from jinjamator.plugin_loader.output import load_output_plugin
 from pprint import pformat
 import types
@@ -51,7 +52,7 @@ from jinja2 import nodes
 import tempfile
 from jinjamator.tools.password import redact
 from copy import deepcopy
-
+import json
 
 class CustomUndefinedName(pyflakes.messages.Message):
     message = "undefined name %r %r %r %r %r"
@@ -104,6 +105,7 @@ class TaskletFailed(ValueError):
 
 class JinjamatorTask(object):
     def __init__(self, run_mode="background"):
+        __builtins__["_jinjamator"]=self
         self._plugin_ldr = None
         self._current_tasklet = "jinamator-core"
         self._parent_tasklet = "jinamator-core"
@@ -131,6 +133,8 @@ class JinjamatorTask(object):
         self._results = tree()
         self._schema_extensions = []
         self._celery = None
+        
+
 
     def load(self, path):
         self.task_base_dir = path
@@ -166,22 +170,22 @@ class JinjamatorTask(object):
         else:
             raise ValueError(f"cannot load path {path}")
 
-        self._plugin_ldr = ContentPluginLoader(self)
-        if os.path.isdir(self._configuration["taskdir"] + "/plugins/content"):
-            self._log.debug(
-                "found task plugins directory "
-                + self._configuration["taskdir"]
-                + "/plugins/content"
-            )
-            self._plugin_ldr.load(self._configuration["taskdir"] + "/plugins/content")
+        # self._plugin_ldr = ContentPluginLoader(self)
+        # if os.path.isdir(self._configuration["taskdir"] + "/plugins/content"):
+        #     self._log.debug(
+        #         "found task plugins directory "
+        #         + self._configuration["taskdir"]
+        #         + "/plugins/content"
+        #     )
+        #     self._plugin_ldr.load(self._configuration["taskdir"] + "/plugins/content")
 
-        for content_plugin_dir in self._configuration.get(
-            "global_content_plugins_base_dirs", []
-        ):
-            self._plugin_ldr.load(f"{content_plugin_dir}")
+        # for content_plugin_dir in self._configuration.get(
+        #     "global_content_plugins_base_dirs", []
+        # ):
+        #     self._plugin_ldr.load(f"{content_plugin_dir}")
 
-        self.configuration._plugin_loader = self._plugin_ldr
-        self._configuration._plugin_loader = self._plugin_ldr
+        # self.configuration._plugin_loader = self._plugin_ldr
+        # self._configuration._plugin_loader = self._plugin_ldr
         self.setup_jinja2()
 
         self._tasklets = natsorted(self._tasklets)
@@ -224,7 +228,7 @@ class JinjamatorTask(object):
         self.j2_environment.trim_blocks = True
         self.j2_environment.lstrip_blocks = True
 
-        self.j2_environment = self._plugin_ldr.j2_load_plugins(self.j2_environment)
+        self.j2_environment = j2_load_plugins(self.j2_environment)
 
     def find_calls(self, ast):
         """Find all the nodes of a given type.  If the type is a tuple,
@@ -272,8 +276,8 @@ class JinjamatorTask(object):
             ):
                 self._undefined_vars.append(undef_var)
 
-        for cmd in list(self.function_calls(parsed_content)):
-            self.inject_dependency(cmd)
+        # for cmd in list(self.function_calls(parsed_content)):
+        #     self.inject_dependency(cmd)
 
     def get_py_tasklet_code(self, path):
         user_code = ""
@@ -283,9 +287,7 @@ class JinjamatorTask(object):
                 del user_code[0]
             task_code = "{0}\n{1}".format(
                 "from jinjamator.task.python import PythonTask\n\
-import sys,os\n\
-from jinjamator.plugin_loader.content import task_init_pluginloader\n\
-class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(self,globals())\n".format(
+class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                     self.task_base_dir
                 ),
                 "\n".join(["    " + s for s in user_code]),
@@ -294,7 +296,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
     def inject_dependency(self, cmd):
         try:
-            var_dependencies = self._plugin_ldr._filters.get(
+            var_dependencies = __builtins__["all_registered_j2_functions"].get(
                 cmd, print
             ).__kwdefaults__.get("_requires", [])
             if isinstance(var_dependencies, types.FunctionType):
@@ -305,7 +307,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                 for dep_var in var_dependencies:
                     if dep_var not in self._undefined_vars:
                         self._undefined_vars.append(dep_var)
-        except AttributeError:
+        except AttributeError as e:
             pass
 
     def analyze_py_tasklet(self, tasklet):
@@ -323,6 +325,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
         for undef_var in undefined_vars:
             code_line = code_lines[int(undef_var[1]) - 1][int(undef_var[2]) :]
+            
             res = re.match(r"(.*)[\(|\ ].*", code_line)
             if res:
                 cmd = res.group(1)
@@ -447,12 +450,13 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                     raw_data = stream.read()
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
-                    environment = self._plugin_ldr.j2_load_plugins(environment)
+                    environment = j2_load_plugins(environment)
+                    
                     parsed_data = environment.from_string(raw_data).render(
                         self.configuration._data
                     )
                     # final_data=yaml.safe_load(parsed_data)
-                    final_data = dotty(yaml.safe_load(parsed_data))
+                    final_data = yaml.safe_load(parsed_data)
 
                     for schema_extension in self._schema_extensions:
                         self._log.error("DEPRECATED")
@@ -463,7 +467,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                                 final_data[schema_extension["path"]][key] = value[
                                     "schema"
                                 ]
-                                if value.get("options"):
+                                if value.get("options"):  
                                     options_path = (
                                         schema_extension["path"]
                                         .replace("schema", "options")
@@ -474,7 +478,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
                                 final_data.update({key: value})
 
-                    final_data = final_data.to_dict()
                     # self._log.error(pformat(final_data))
 
                     if not final_data:
@@ -719,10 +722,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
             self._current_tasklet = tasklet
             retval = ""
-
             self._log.debug(
                 "running with dataset: \n{0}".format(
-                    json.dumps(redact(deepcopy(self.configuration._data))[1], indent=2)
+                    json.dumps(redact(deepcopy(self.configuration._data))[1])
                 )
             )
             if tasklet.endswith("j2"):
@@ -759,8 +761,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                 for k, v in iteritems(self.configuration._data):
                     setattr(module, k, v)
 
+                
                 setattr(module, "__file__", tasklet)
                 setattr(module.jinjaTask, "parent", self)
+
                 setattr(module.jinjaTask, "configuration", self.configuration._data)
                 setattr(module.jinjaTask, "_configuration", self._configuration._data)
                 setattr(module, "__code__", task_code)

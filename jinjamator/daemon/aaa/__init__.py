@@ -20,7 +20,7 @@ import ldap3
 
 
 from jinjamator.task.configuration import TaskConfiguration
-from jinjamator.plugin_loader.content import ContentPluginLoader
+# from jinjamator.plugin_loader.content import ContentPluginLoader
 from jinjamator.daemon.app import app
 from jinjamator.daemon.aaa.models import (
     User,
@@ -497,17 +497,17 @@ class LDAPAuthProvider(AuthProviderBase):
 
 
 def initialize(aaa_providers, _configuration):
-    plugin_loader = ContentPluginLoader(None)
-    for content_plugin_dir in _configuration.get(
-        "global_content_plugins_base_dirs", []
-    ):
-        plugin_loader.load(f"{content_plugin_dir}")
+    # plugin_loader = ContentPluginLoader(None)
+    # for content_plugin_dir in _configuration.get(
+    #     "global_content_plugins_base_dirs", []
+    # ):
+    #     plugin_loader.load(f"{content_plugin_dir}")
 
     for aaa_config_directory in _configuration.get("aaa_configuration_base_dirs", []):
         for config_file in sorted(glob(os.path.join(aaa_config_directory, "*.yaml"))):
             log.info(f"found aaa configuration {config_file}")
             cur_cfg = TaskConfiguration()
-            cur_cfg._plugin_loader = plugin_loader
+            # cur_cfg._plugin_loader = plugin_loader
             cur_cfg.merge_yaml(config_file)
             prov_name = cur_cfg.get("authlib_configuration", {}).get("name")
 

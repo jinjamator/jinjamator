@@ -1,8 +1,8 @@
-from jinjamator.plugins.content.linux.file import is_block
-import jinjamator.plugins.content.ssh as ssh
-import jinjamator.plugins.content.log as log
-import jinjamator.plugins.content.linux.disk as linux_disk
-import jinjamator.plugins.content.linux as linux
+# from jinjamator.plugins.content.linux.file import is_block
+# import jinjamator.plugins.content.ssh as ssh
+# import jinjamator.plugins.content.log as log
+# import jinjamator.plugins.content.linux.disk as linux_disk
+# import jinjamator.plugins.content.linux as linux
 
 
 def create (path,fstype,con=False,**kwargs):

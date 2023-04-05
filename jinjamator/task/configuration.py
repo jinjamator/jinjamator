@@ -17,7 +17,7 @@ from deepmerge.merger import Merger
 from deepmerge.strategy.core import STRATEGY_END
 import yaml
 import jinja2
-from jinjamator.plugin_loader.content import ContentPluginLoader
+from jinjamator.plugin_loader.content import j2_load_plugins
 import distutils.util
 import json
 from jinja2 import Undefined
@@ -88,7 +88,7 @@ class TaskConfiguration(object):
     def __init__(self):
         self._log = logging.getLogger()
         self._data = {}
-        self._plugin_loader = None
+        # self._plugin_loader = None
 
     def __getitem__(self, item):
         try:
@@ -155,7 +155,7 @@ class TaskConfiguration(object):
             )
         else:
             environment = jinja2.Environment(extensions=["jinja2.ext.do"])
-            environment = self._plugin_loader.j2_load_plugins(environment)
+            environment = j2_load_plugins(environment)
         return environment.from_string(template).render(self._data)
 
     def merge_yaml(
@@ -187,17 +187,17 @@ class TaskConfiguration(object):
                     for k, v in self._data.items():
                         if k not in list(parsed_raw_data.keys()):
                             parsed_raw_data[k] = v
-                    if self._plugin_loader._parent:
-                        data_backup = deepcopy(
-                            self._plugin_loader._parent.configuration._data
-                        )
-                        self._plugin_loader._parent.configuration._data = {
-                            **self._plugin_loader._parent.configuration._data,
-                            **parsed_raw_data,
-                        }
+                    # if self._plugin_loader._parent:
+                    #     data_backup = deepcopy(
+                    #         self._plugin_loader._parent.configuration._data
+                    #     )
+                    #     self._plugin_loader._parent.configuration._data = {
+                    #         **self._plugin_loader._parent.configuration._data,
+                    #         **parsed_raw_data,
+                    #     }
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
-                    environment = self._plugin_loader.j2_load_plugins(environment)
+                    environment = j2_load_plugins(environment)
 
                     parsed_raw_data["configuration"] = self._data
                     if private_data:
@@ -216,14 +216,14 @@ class TaskConfiguration(object):
                         self._log.error("retry 1")
                         breakpoint()
 
-                        environment = self._plugin_loader.j2_load_plugins(environment)
+                        environment = j2_load_plugins(environment)
                         parsed_data = environment.from_string(raw_data).render(
                             parsed_raw_data
                         )
 
                     final_data = yaml.safe_load(parsed_data)
-                    if self._plugin_loader._parent:
-                        self._plugin_loader._parent.configuration._data = data_backup
+                    # if self._plugin_loader._parent:
+                    #     self._plugin_loader._parent.configuration._data = data_backup
                     if not final_data:
                         final_data = {}
                     self.merge_dict(

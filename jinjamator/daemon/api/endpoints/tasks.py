@@ -39,7 +39,7 @@ from sqlalchemy import or_, and_
 import glob
 import os
 import xxhash
-import json
+import json as pyjson
 import uuid
 
 from werkzeug.utils import secure_filename
@@ -134,6 +134,8 @@ def discover_tasks(app):
                     available_tasks_by_path[dir_name] = task_info
                     try:
                         task = JinjamatorTask()
+                        
+                        
                         log.debug(app.config["JINJAMATOR_FULL_CONFIGURATION"])
                         task._configuration.merge_dict(
                             app.config["JINJAMATOR_FULL_CONFIGURATION"]
@@ -143,7 +145,7 @@ def discover_tasks(app):
                             os.path.join(task_info["base_dir"], task_info["path"])
                         )
                         with app.app_context():
-                            data = json.loads(
+                            data = pyjson.loads(
                                 jsonify(
                                     task.get_jsonform_schema()["schema"]
                                 ).data.decode("utf-8")
@@ -202,7 +204,7 @@ def discover_tasks(app):
                                 args = task_arguments.parse_args(request)
                                 schema_type = args.get("schema-type", "full")
                                 try:
-                                    preload_data = json.loads(
+                                    preload_data = pyjson.loads(
                                         args.get("preload-data", "{}")
                                     )
                                 except TypeError:
@@ -217,7 +219,7 @@ def discover_tasks(app):
                                     "api.", ""
                                 )
                                 inner_task = JinjamatorTask()
-
+                                
                                 inner_task._configuration.merge_dict(
                                     app.config["JINJAMATOR_FULL_CONFIGURATION"]
                                 )
@@ -352,7 +354,7 @@ def discover_tasks(app):
                                                 result = db_result["result"]
                                                 if "stdout" in result:
                                                     return jsonify(
-                                                        json.loads(result["stdout"])
+                                                        pyjson.loads(result["stdout"])
                                                     )
                                                 else:
                                                     logging.error(
