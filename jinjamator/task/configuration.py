@@ -187,10 +187,11 @@ class TaskConfiguration(object):
                     for k, v in self._data.items():
                         if k not in list(parsed_raw_data.keys()):
                             parsed_raw_data[k] = v
-                    _jinjamator.configuration._data ={
-                        **_jinjamator.configuration._data,
-                        **parsed_raw_data
-                    }
+                    if '_jinjamator' in __builtins__:
+                        _jinjamator.configuration._data ={
+                            **_jinjamator.configuration._data,
+                            **parsed_raw_data
+                        }
                     # if self._plugin_loader._parent:
                     #     data_backup = deepcopy(
                     #         self._plugin_loader._parent.configuration._data
