@@ -15,7 +15,7 @@
 from json import dumps as json_dumps, loads as json_loads
 
 
-def dumps(data):
+def dumps(data,**kwargs):
     """
     Convert structured json_dump-able data into a json-string
 
@@ -24,7 +24,11 @@ def dumps(data):
     :returns: json-string
     :rtype: string
     """
-    return json_dumps(data, sort_keys=True, indent=2)
+    if not "sort_keys" in kwargs:
+        kwargs["sort_keys"]=True
+    if not "indent" in kwargs:
+        kwargs["indent"]=2
+    return json_dumps(data,**kwargs)
 
 def dump(data,filepath):
     """

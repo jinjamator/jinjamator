@@ -26,6 +26,15 @@ from pprint import pprint
 log = logging.getLogger()
 
 
+import pkgutil
+
+__all__ = []
+for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
+    __all__.append(module_name)
+    _module = loader.find_module(module_name).load_module(module_name)
+    globals()[module_name] = _module
+
+
 switchdb = {
     "N9K-C93108TC-EX": {
         "uplinks": [49, 50, 51, 52, 53, 54],
@@ -101,6 +110,7 @@ def credentials_set():
 
 
 def _get_missing_apic_connection_vars():
+    log.info(_jinjamator.configuration)
     inject = []
     if not _jinjamator.configuration["apic_url"]:
         inject.append("apic_url")
@@ -824,3 +834,5 @@ def post(data, timeout=60, force=False, _requires=_get_missing_apic_connection_v
 
     session.close()
     return json.loads(resp.text)
+
+

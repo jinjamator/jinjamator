@@ -1,4 +1,4 @@
-import jinjamator.plugins.content.ssh as ssh
+# import jinjamator.plugins.content.ssh as ssh
 
 
 def status (service,con=False):

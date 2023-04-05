@@ -32,7 +32,7 @@ from configargparse import RawDescriptionHelpFormatter
 from jinjamator.task.configuration import TaskConfiguration
 from jinjamator.plugin_loader.output import load_output_plugin
 from jinjamator.tools.version import version, updated
-
+from jinjamator.plugin_loader.content import register_content_plugins
 
 __version__ = version
 __updated__ = updated
@@ -478,7 +478,9 @@ USAGE
                 self._configuration["jinjamator_user_directory"], "resources/python"
             ),
         )
-
+        
+        register_content_plugins(self._configuration["global_content_plugins_base_dirs"])
+        
         if self._configuration["daemonize"]:
             from jinjamator.daemon import run as app_run
 
@@ -486,9 +488,12 @@ USAGE
 
         else:
             # legacy cli task
+            
             from jinjamator.task import JinjamatorTask
 
             task = JinjamatorTask("interactive")
+            
+            
             if self._configuration["global_defaults"]:
                 task.configuration.merge_yaml(self._configuration["global_defaults"])
 

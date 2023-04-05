@@ -1,5 +1,5 @@
 import logging
-from jinjamator.plugins.content.file import load
+# from jinjamator.plugins.content.file import load
 import os
 
 log = logging.getLogger()
@@ -24,4 +24,5 @@ def python_requirements():
 
 
 def current_task_basedir():
+    # log.info(pformat(globals()))
     return _jinjamator.task_base_dir

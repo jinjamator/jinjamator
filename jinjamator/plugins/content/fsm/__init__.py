@@ -13,12 +13,9 @@
 # limitations under the License.
 
 import textfsmplus
+import textfsmplus.clitable
 import os
 
-try:
-    from textfsmplus import clitable
-except ImportError:
-    import clitable
 
 try:
     import ntc_templates
@@ -90,7 +87,7 @@ def process(device_type, command, data):
     """
 
     # internal templates
-    cli_table = clitable.CliTable(
+    cli_table = textfsmplus.clitable.CliTable(
         "index", "{0}/fsmtemplates".format(os.path.dirname(os.path.abspath(__file__)))
     )
     attrs = dict(Command=command, Platform=device_type)
@@ -99,7 +96,7 @@ def process(device_type, command, data):
         cli_table.ParseCmd(data, attrs)
     except textfsmplus.clitable.CliTableError:
         if ntc_templates_path:
-            cli_table = clitable.CliTable("index", ntc_templates_path)
+            cli_table = textfsmplus.clitable.CliTable("index", ntc_templates_path)
             cli_table.ParseCmd(data, attrs)
 
     structured_data = _clitable_to_dict(cli_table)

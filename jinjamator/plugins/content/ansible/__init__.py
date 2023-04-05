@@ -1,6 +1,9 @@
 # Experimental implementation to run ansible playbooks
 import logging
 
+import pkgutil
+
+
 try:
     import ansible_runner
 except ModuleNotFoundError:

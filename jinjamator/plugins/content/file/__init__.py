@@ -8,6 +8,14 @@ from jinjamator.plugins.content.file import ftp
 log = logging.getLogger(__name__)
 py_open = open
 
+import pkgutil
+
+__all__ = []
+for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
+    __all__.append(module_name)
+    _module = loader.find_module(module_name).load_module(module_name)
+    globals()[module_name] = _module
+
 
 def save(data, target_path, **kwargs):
     """save text data to a local file
