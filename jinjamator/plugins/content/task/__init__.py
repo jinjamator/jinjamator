@@ -35,10 +35,13 @@ def run(path, task_data=False, **kwargs):
         or parent_data.get("output_plugin", False)
         or "console"
     )
+    old_jinjamator=__builtins__['_jinjamator']
 
     task = JinjamatorTask(parent_private_data.get("task_run_mode"))
     task._configuration.merge_dict(parent_private_data)
-    task._parent_tasklet = _jinjamator._current_tasklet
+    task._parent_tasklet = old_jinjamator._current_tasklet
+    
+
 
     if parent_private_data.get("task_run_mode") == "background":
         backup = task._log.handlers[1].formatter._task
@@ -57,7 +60,7 @@ def run(path, task_data=False, **kwargs):
         task.configuration.merge_dict(parent_data)
 
     task.configuration["output_plugin"] = output_plugin
-    task._configuration["global_tasks_base_dirs"].insert(0, _jinjamator.task_base_dir)
+    task._configuration["global_tasks_base_dirs"].insert(0, old_jinjamator.task_base_dir)
 
     try:
         task.load(path)
@@ -78,6 +81,7 @@ def run(path, task_data=False, **kwargs):
         task._log.handlers[1].formatter._task = backup
         task._parent_tasklet = backup._parent_tasklet
     del task
+    __builtins__['_jinjamator']=old_jinjamator
     return retval
 
 
