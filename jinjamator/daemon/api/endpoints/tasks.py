@@ -133,7 +133,7 @@ def discover_tasks(app):
                     }
                     available_tasks_by_path[dir_name] = task_info
                     try:
-                        task = JinjamatorTask()
+                        task = JinjamatorTask(run_mode="discover")
                         
                         
                         log.debug(app.config["JINJAMATOR_FULL_CONFIGURATION"])
@@ -226,7 +226,6 @@ def discover_tasks(app):
 
                                 inner_task.configuration.merge_dict(preload_data)
 
-                                inner_task.load(relative_task_path)
 
                                 if environment_site not in [None, "None", ""]:
                                     inner_task._configuration[
@@ -256,6 +255,8 @@ def discover_tasks(app):
                                             403,
                                             f"User neither has no role environment_{env_name}|site_{site_name} nor environments_all nor administrator. Access denied.",
                                         )
+                                
+                                inner_task.load(relative_task_path)
 
                                 full_schema = inner_task.get_jsonform_schema()
 
