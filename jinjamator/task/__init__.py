@@ -190,10 +190,10 @@ class JinjamatorTask(object):
 
         self._tasklets = natsorted(self._tasklets)
         try:
+            # self._log.debug("loading {0}/defaults.yaml".format(path))
             self._default_values = self.configuration.merge_yaml(
-                "{0}/defaults.yaml".format(path), private_data=self._configuration._data
-            )
-            self._log.debug("loaded {0}/defaults.yaml".format(path))
+                "{0}/defaults.yaml".format(path), private_data=self._configuration._data)
+            # self._log.debug("finished loading {0}/defaults.yaml".format(path))
             for var in self._undefined_vars:
                 if var in self.configuration._data:
                     self._undefined_vars.remove(var)
@@ -204,7 +204,7 @@ class JinjamatorTask(object):
             pass
         except jinja2.exceptions.TemplateNotFound:
             pass
-
+        
         if self.configuration["undo"]:
             self.is_undo_run = True
             self._tasklets.reverse()
@@ -275,7 +275,7 @@ class JinjamatorTask(object):
                 and undef_var not in self._undefined_vars
             ):
                 self._undefined_vars.append(undef_var)
-
+        
         # for cmd in list(self.function_calls(parsed_content)):
         #     self.inject_dependency(cmd)
 
@@ -361,7 +361,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
         if var_name == "best_effort":
             self.configuration["best_effort"] = False
             return False
-        if self._configuration["task_run_mode"] == "background":
+        if self._configuration["task_run_mode"] == "discover":
+            return ""
+        elif self._configuration["task_run_mode"] == "background":
             raise KeyError(
                 "undefined variable found {0} and running in background -> cannot proceed".format(
                     var_name
@@ -394,6 +396,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                     self._configuration["task_run_mode"]
                 )
             )
+        self._undefined_vars.pop(self._undefined_vars.index(var_name))
 
         return self.configuration[var_name]
 
@@ -687,7 +690,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                     f"cannot run task because of undefined variables: {self._undefined_vars}"
                 )
             else:
-                for var in self._undefined_vars:
+                for var in deepcopy(self._undefined_vars):
                     self.handle_undefined_var(var)
         tmp = self.get_jsonform_schema()
 

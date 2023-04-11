@@ -20,10 +20,10 @@ import jinja2
 from jinjamator.plugin_loader.content import j2_load_plugins
 import distutils.util
 import json
-from jinja2 import Undefined
+from jinja2 import Undefined, meta 
 from copy import deepcopy
 from jinjamator.tools.password import redact
-
+import types
 
 class SafeLoaderIgnoreUnknown(yaml.SafeLoader):
     def ignore_unknown(self, node):
@@ -133,8 +133,7 @@ class TaskConfiguration(object):
     ):
         if list_strategy == "exclusive":
             list_strategy = self.exclusive_merge_list
-        # else:
-        #    list_strategy = [list_strategy]
+
         m = Merger(
             [(list, list_strategy), (dict, [dict_strategy])],
             [other_types_strategy],
@@ -187,22 +186,43 @@ class TaskConfiguration(object):
                     for k, v in self._data.items():
                         if k not in list(parsed_raw_data.keys()):
                             parsed_raw_data[k] = v
+                    backup_data={}
                     if '_jinjamator' in __builtins__:
+                        backup_data=_jinjamator.configuration._data
                         _jinjamator.configuration._data ={
                             **_jinjamator.configuration._data,
                             **parsed_raw_data
                         }
-                    # if self._plugin_loader._parent:
-                    #     data_backup = deepcopy(
-                    #         self._plugin_loader._parent.configuration._data
-                    #     )
-                    #     self._plugin_loader._parent.configuration._data = {
-                    #         **self._plugin_loader._parent.configuration._data,
-                    #         **parsed_raw_data,
-                    #     }
-
-                    environment = jinja2.Environment(extensions=["jinja2.ext.do"])
                     
+                    environment = jinja2.Environment(extensions=["jinja2.ext.do"])
+                    if '_jinjamator' in __builtins__:
+                        ast = environment.parse(raw_data)
+                        for var in meta.find_undeclared_variables(ast):
+                            for command in __builtins__['all_registered_j2_functions']:
+                                if command.startswith(var):
+                                    if command in raw_data:
+                                        try:
+                                            var_dependencies=__builtins__['all_registered_j2_functions'][command].__kwdefaults__.get('_requires',print)
+                                            if isinstance(var_dependencies, types.FunctionType):
+                                                for dep_var in var_dependencies():
+                                                    if dep_var not in _jinjamator._undefined_vars:
+                                                        _jinjamator._undefined_vars.append(dep_var)
+                                            if isinstance(var_dependencies, types.list):
+                                                for dep_var in var_dependencies:
+                                                    if dep_var not in _jinjamator._undefined_vars:
+                                                        _jinjamator._undefined_vars.append(dep_var)
+                                        except AttributeError:
+                                            pass
+                        if backup_data:
+                            _jinjamator.configuration._data=backup_data
+                        for var in deepcopy(_jinjamator._undefined_vars):    
+                            self._data[var]=_jinjamator.handle_undefined_var(var)
+                        
+                        
+                            
+                        
+
+
                     environment = j2_load_plugins(environment)
 
                     parsed_raw_data["configuration"] = self._data
@@ -226,10 +246,9 @@ class TaskConfiguration(object):
                         parsed_data = environment.from_string(raw_data).render(
                             parsed_raw_data
                         )
-
+                    
                     final_data = yaml.safe_load(parsed_data)
-                    # if self._plugin_loader._parent:
-                    #     self._plugin_loader._parent.configuration._data = data_backup
+                    
                     if not final_data:
                         final_data = {}
                     self.merge_dict(
@@ -239,7 +258,6 @@ class TaskConfiguration(object):
                         other_types_strategy,
                         type_conflict_strategy,
                     )
-
                     return final_data
                 except yaml.YAMLError as e:
                     self._log.error(e)
