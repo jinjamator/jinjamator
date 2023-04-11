@@ -213,8 +213,7 @@ class TaskConfiguration(object):
                                                         _jinjamator._undefined_vars.append(dep_var)
                                         except AttributeError:
                                             pass
-                        if backup_data:
-                            _jinjamator.configuration._data=backup_data
+
                         for var in deepcopy(_jinjamator._undefined_vars):    
                             self._data[var]=_jinjamator.handle_undefined_var(var)
                         
@@ -246,11 +245,16 @@ class TaskConfiguration(object):
                         parsed_data = environment.from_string(raw_data).render(
                             parsed_raw_data
                         )
-                    
+
+
                     final_data = yaml.safe_load(parsed_data)
-                    
+
                     if not final_data:
                         final_data = {}
+
+                    if backup_data:
+                        _jinjamator.configuration._data=backup_data
+
                     self.merge_dict(
                         final_data,
                         dict_strategy,
