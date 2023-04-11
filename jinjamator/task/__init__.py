@@ -396,7 +396,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
                     self._configuration["task_run_mode"]
                 )
             )
-        self._undefined_vars.pop(self._undefined_vars.index(var_name))
+        try:
+            self._undefined_vars.pop(self._undefined_vars.index(var_name))
+        except ValueError:
+            pass
 
         return self.configuration[var_name]
 
