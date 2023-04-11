@@ -110,7 +110,6 @@ def credentials_set():
 
 
 def _get_missing_apic_connection_vars():
-    log.info(_jinjamator.configuration)
     inject = []
     if not _jinjamator.configuration["apic_url"]:
         inject.append("apic_url")
