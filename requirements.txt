@@ -2,7 +2,7 @@ Werkzeug==2.2.3
 Jinja2>=3.0
 ipcalc
 netmiko>=4.1.2
-textfsmplus==0.2
+textfsmplus==0.2.1
 natsort
 xxhash
 xml2dict
@@ -28,7 +28,6 @@ Flask-SQLAlchemy==2.5.1
 SQLAlchemy==1.4.27
 SQLAlchemy-serializer==1.4.1
 python-magic
-dotty_dict
 docutils
 jinjamator-flask-restx
 argon2_cffi
