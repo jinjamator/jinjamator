@@ -117,3 +117,5 @@ jinjamator/tasks/customer
 *.code-workspace
 
 docs/_build/
+
+jinjamator/VERSION
