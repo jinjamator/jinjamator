@@ -1,14 +1,16 @@
 import setuptools
 import os
 from pathlib import Path
-from setuptools_git_versioning import version_from_git
+try:
+    from setuptools_git_versioning import version_from_git
 
 
-root_path = Path(__file__).parent
-version_file = f"{root_path}/jinjamator/VERSION"
-with open(version_file,"w") as fh:
-    fh.write(version_from_git())
-
+    root_path = Path(__file__).parent
+    version_file = f"{root_path}/jinjamator/VERSION"
+    with open(version_file,"w") as fh:
+        fh.write(version_from_git())
+except ModuleNotFoundError:
+    pass
 
 
 
