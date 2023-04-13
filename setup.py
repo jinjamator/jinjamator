@@ -47,7 +47,9 @@ setuptools.setup(
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",
     ],
-    scripts=["bin/jinjamator"],
+     entry_points = {
+        'console_scripts': ['jinjamator=jinjamator:__main__'],
+    }
     python_requires=">=3.7",
     zip_safe=False,
 )
