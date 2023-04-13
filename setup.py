@@ -1,9 +1,10 @@
 import setuptools
 import os
+from pathlib import Path
 
 
-
-version_file = f"jinjamator/VERSION"
+root_path = Path(__file__).parent
+version_file = f"{root_path}/jinjamator/VERSION"
 
 
 with open("README.rst", "r") as fh:
