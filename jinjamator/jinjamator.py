@@ -31,11 +31,12 @@ from configargparse import RawDescriptionHelpFormatter
 
 from jinjamator.task.configuration import TaskConfiguration
 from jinjamator.plugin_loader.output import load_output_plugin
-from jinjamator.tools.version import version, updated
 
+from pathlib import Path
+import datetime
 
-__version__ = version
-__updated__ = updated
+__version__ = Path(__file__).parent.joinpath("VERSION").read_text()[:-1]
+__updated__ = datetime.date.fromtimestamp(os. path.getmtime(Path(__file__).parent.joinpath("VERSION")))
 __date__ = "22.07.2019"
 __author__ = "Wilhelm Putz"
 
