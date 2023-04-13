@@ -1,10 +1,15 @@
 import setuptools
 import os
 from pathlib import Path
+from setuptools_git_versioning import version_from_git
 
 
 root_path = Path(__file__).parent
 version_file = f"{root_path}/jinjamator/VERSION"
+with open(version_file,"w") as fh:
+    fh.write(version_from_git())
+
+
 
 
 with open("README.rst", "r") as fh:
@@ -42,7 +47,8 @@ setuptools.setup(
     setup_requires=["setuptools-git-versioning<2"],
     setuptools_git_versioning={
         "enabled": True,
-        "version_file": version_file,
+        'version_file': version_file
+
     },
 
 )
