@@ -3,6 +3,9 @@ import os
 
 
 
+version_file = f"jinjamator/VERSION"
+
+
 with open("README.rst", "r") as fh:
     long_description = fh.read()
 
@@ -38,6 +41,7 @@ setuptools.setup(
     setup_requires=["setuptools-git-versioning<2"],
     setuptools_git_versioning={
         "enabled": True,
+        "version_file": version_file,
     },
 
 )
