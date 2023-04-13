@@ -50,7 +50,7 @@ class Program(object):
         self._program_name = os.path.basename(sys.argv[0])
         self._program_version = "v%s" % __version__
         self._program_build_date = str(__updated__)
-        self._program_shortdesc = __import__("__main__").__doc__.split("\n")[1]
+        self._program_shortdesc = ""
         self._program_date = str(__date__)
         self._program_author = __author__
         self._configuration = {}
