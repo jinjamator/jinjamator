@@ -14,13 +14,6 @@ with open("README.rst", "r") as fh:
 with open("requirements.txt", "r") as fh:
     install_requires = fh.read().split("\n")
 
-try:
-    from setuptools_git_versioning import version_from_git
-    with open(version_file,"w") as fh:
-        fh.write(version_from_git())
-except ModuleNotFoundError:
-    pass
-
 setuptools.setup(
     name="jinjamator",
     author="Wilhelm Putz",
@@ -50,8 +43,6 @@ setuptools.setup(
     setup_requires=["setuptools-git-versioning<2"],
     setuptools_git_versioning={
         "enabled": True,
-        'version_file': version_file
-
     },
 
 )
