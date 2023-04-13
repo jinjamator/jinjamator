@@ -31,7 +31,7 @@ setuptools.setup(
         "Topic :: Utilities",
     ],
      entry_points = {
-        'console_scripts': ['jinjamator=jinjamator:main'],
+        'console_scripts': ['jinjamator=jinjamator.jinjamator:main'],
     },
     python_requires=">=3.7",
     zip_safe=False,
