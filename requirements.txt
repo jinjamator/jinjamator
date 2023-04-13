@@ -49,4 +49,3 @@ openai
 ldap3
 testresources
 ansible-runner
-setuptools_git_versioning<2
