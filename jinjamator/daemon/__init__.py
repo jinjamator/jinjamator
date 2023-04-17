@@ -108,8 +108,8 @@ def configure(flask_app, _configuration):
     flask_app.config["SECRET_KEY"] = _configuration.get("secret-key")
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.config["SWAGGER_UI_DOC_EXPANSION"] = "list"
-    flask_app.config["RESTPLUS_VALIDATE"] = True
-    flask_app.config["RESTPLUS_MASK_SWAGGER"] = False
+    flask_app.config["RESTX_VALIDATE"] = True
+    flask_app.config["RESTX_MASK_SWAGGER"] = False
     flask_app.config["RESTX_ERROR_404_HELP"] = False
     flask_app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     flask_app.config["SESSION_COOKIE_SECURE"] = True
@@ -176,7 +176,9 @@ def initialize(flask_app, cfg):
         db.create_all(bind=["aaa"])
     init_aaa(aaa_providers, cfg)
 
-    api_blueprint = Blueprint("api", __name__, url_prefix="/api/")
+    api_blueprint = Blueprint("api", __name__, url_prefix="/api/", )
+    
+
     from jinjamator.daemon.api.endpoints.aaa import ns as aaa_namespace
 
     api.init_app(api_blueprint)
