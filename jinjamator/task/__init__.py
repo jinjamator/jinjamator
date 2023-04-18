@@ -190,10 +190,10 @@ class JinjamatorTask(object):
 
         self._tasklets = natsorted(self._tasklets)
         try:
-            # self._log.debug("loading {0}/defaults.yaml".format(path))
+            self._log.debug("loading {0}/defaults.yaml".format(path))
             self._default_values = self.configuration.merge_yaml(
                 "{0}/defaults.yaml".format(path), private_data=self._configuration._data)
-            # self._log.debug("finished loading {0}/defaults.yaml".format(path))
+            self._log.debug("finished loading {0}/defaults.yaml".format(path))
             for var in self._undefined_vars:
                 if var in self.configuration._data:
                     self._undefined_vars.remove(var)
@@ -326,9 +326,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
         for undef_var in undefined_vars:
             code_line = code_lines[int(undef_var[1]) - 1][int(undef_var[2]) :]
             
-            res = re.match(r"(.*)[\(].*", code_line)
+            res = re.match(r"(.*)\(.*", code_line)
             if res:
                 cmd = res.group(1)
+                print("found command",cmd)
                 self.inject_dependency(cmd)
             if (
                 undef_var[0] not in self.configuration._data
