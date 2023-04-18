@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# from jinjamator.plugin_loader.content import py_load_plugins
+from jinjamator.plugins.content.ssh import _get_missing_ssh_connection_vars
 
-
-def query(command, connection=None, **kwargs):
-    # py_load_plugins(globals())
+def query(command, connection=None, *,_requires=_get_missing_ssh_connection_vars, **kwargs):
     kwargs["device_type"] = "cisco_nxos"
     return ssh.query(command, connection, **kwargs)
