@@ -326,7 +326,8 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
         for undef_var in undefined_vars:
             code_line = code_lines[int(undef_var[1]) - 1][int(undef_var[2]) :]
-            res = re.match(r"(.*)[\(|\ ].*", code_line)
+            
+            res = re.match(r"(.*)[\(].*", code_line)
             if res:
                 cmd = res.group(1)
                 self.inject_dependency(cmd)
