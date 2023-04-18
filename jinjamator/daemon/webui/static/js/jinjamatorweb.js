@@ -910,7 +910,10 @@ function create_job(job_path, pre_defined_vars) {
             data['options']['fields']['output_plugin']['onFieldChange'] = function (e) {
 
 
-
+                console.log("event,check",e)
+                if (e.hasOwnProperty('originalEvent')){
+                    return true;
+                }
                 var control = $("#form").alpaca("get");
                 form_data = control.getValue();
 
@@ -928,6 +931,7 @@ function create_job(job_path, pre_defined_vars) {
 
 
                 client.plugins.output.read(this.getValue(e), {}, form_data).done(function (data) {
+                    // console.log(data)
                     options = data['schema']['options'];
                     schema = data['schema']['schema'];
 
@@ -949,7 +953,7 @@ function create_job(job_path, pre_defined_vars) {
                         //     }
                         // };
 
-
+                        // console.log(output_plugin_parameters.children)
                         output_plugin_parameters.addItem(var_name, schema.properties[var_name], options.fields[var_name], '', function (item) { });
                     });
                     console.log(output_plugin_parameters)
