@@ -23,9 +23,19 @@ import logging
 log = logging.getLogger()
 from netmiko import log as netmiko_log
 
+def _get_missing_ssh_connection_vars():
+    inject = []
+    if not _jinjamator.configuration["ssh_username"]:
+        inject.append("ssh_username")
+    if not _jinjamator.configuration["ssh_password"]:
+        inject.append("ssh_password")
+    if not _jinjamator.configuration["ssh_host"]:
+        inject.append("ssh_host")
+    print(inject)
+    return inject
 
 
-def connect(**kwargs):
+def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
     """Run a command via SSH and return the text output.
 
     :param command: The command that should be run.
@@ -109,8 +119,6 @@ def connect(**kwargs):
                 ),
             ),
         )
-        if cfg[var_name] == None:
-            cfg[var_name] = _jinjamator.handle_undefined_var(f"ssh_{var_name}")
         try:
             del kwargs[var_name]
         except KeyError:
@@ -124,8 +132,7 @@ def connect(**kwargs):
             netmiko_log.setLevel(logging.DEBUG)
         else:
             netmiko_log.setLevel(logging.ERROR)
-
-        connection = ConnectHandler(**cfg,**opts)
+        connection = ConnectHandler(**cfg)
         return connection
     except NetmikoAuthenticationException as e:
 
@@ -140,7 +147,7 @@ def connect(**kwargs):
             )
 
 
-def query(command, connection=None, **kwargs):
+def query(command, connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
     device_type = (
         kwargs.get("device_type")
         or _jinjamator.configuration.get(f"ssh_device_type")
@@ -157,7 +164,7 @@ def disconnect(connection):
     connection.cleanup()
 
 
-def run(command, connection=None, **kwargs):
+def run(command, connection=None, _requires=_get_missing_ssh_connection_vars,  **kwargs):
     auto_disconnect = False
     if not connection:
         connection = connect(**kwargs)
@@ -169,15 +176,15 @@ def run(command, connection=None, **kwargs):
             del kwargs[var_name]
         except KeyError:
             pass
-    for var_name in kwargs:
-        opts[var_name] = kwargs[var_name]
+    # for var_name in kwargs:
+    #     opts[var_name] = kwargs[var_name]
     retval = connection.send_command_expect(command, read_timeout=300, **opts)
     if auto_disconnect:
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
 
-def run_mlt(commands,connection=None,**kwargs):
+def run_mlt(commands,connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
     auto_disconnect = False
     if not connection:
         connection = connect(**kwargs)
@@ -197,10 +204,10 @@ def run_mlt(commands,connection=None,**kwargs):
     # netmiko_log.setLevel(backup_log_level)
     return retval
 
-def configure(commands_or_path, connection=None, **kwargs):
+def configure(commands_or_path, connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
     auto_disconnect = False
     commands = commands_or_path
-    if is_file(commands_or_path):
+    if os.path.isfile(commands_or_path):
         log.debug(f"loaded configuration from file {commands_or_path}")
         commands = [
             line.replace("\r", "") for line in file.load(commands_or_path).split("\n")
@@ -230,7 +237,7 @@ def configure(commands_or_path, connection=None, **kwargs):
     return retval
 
 
-def get_file (src,dst,connection=None,**kwargs):
+def get_file (src,dst,connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
     auto_disconnect = False
     if not connection:
         connection = connect(**kwargs)
@@ -251,7 +258,7 @@ def get_file (src,dst,connection=None,**kwargs):
     scp.close()
 
 
-def put_file (src,dst,connection=None,**kwargs):
+def put_file (src,dst,connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
     auto_disconnect = False
     if not connection:
         connection = connect(**kwargs)

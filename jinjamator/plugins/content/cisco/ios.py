@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from jinjamator.plugins.content.ssh import _get_missing_ssh_connection_vars
 
-def query(command, connection=None, **kwargs):
+def query(command, connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
     kwargs["device_type"] = "cisco_ios"
     return ssh.query(command, connection, **kwargs)
