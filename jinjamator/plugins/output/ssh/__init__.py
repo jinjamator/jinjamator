@@ -162,8 +162,9 @@ class ssh(outputPluginBase):
         self.init_plugin_params()
 
         pass
-
-    def get_json_form(configuration={}):
+    
+    @staticmethod
+    def get_json_schema(configuration={}):
         form = tree()
         form["schema"]["type"] = "object"
 
