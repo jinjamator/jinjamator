@@ -186,17 +186,10 @@ class JinjamatorTask(object):
 
         self._tasklets = natsorted(self._tasklets)
         try:
-<<<<<<< HEAD
-            self._default_values = self.configuration.merge_yaml(
-                "{0}/defaults.yaml".format(path), private_data=self._configuration._data
-            )
-            self._log.debug("loaded {0}/defaults.yaml".format(path))
-=======
             self._log.debug("loading {0}/defaults.yaml".format(path))
             self._default_values = self.configuration.merge_yaml(
                 "{0}/defaults.yaml".format(path), private_data=self._configuration._data)
             self._log.debug("finished loading {0}/defaults.yaml".format(path))
->>>>>>> 95d95a0 (fix the fix)
             for var in self._undefined_vars:
                 if var in self.configuration._data:
                     self._undefined_vars.remove(var)
@@ -774,7 +767,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
             self._log.debug(
                 "running with dataset: \n{0}".format(
-                    json.dumps(redact(deepcopy(self.configuration._data))[1], indent=2)
+                    json.dumps(redact(deepcopy(self.configuration._data))[1],indent=2,sort_keys=True)
                 )
             )
             if tasklet.endswith("j2"):
