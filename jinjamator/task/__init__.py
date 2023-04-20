@@ -337,7 +337,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             res = re.match(r"(.*)\(.*", code_line)
             if res:
                 cmd = res.group(1)
-                print("found command",cmd)
                 self.inject_dependency(cmd)
             if (
                 undef_var[0] not in self.configuration._data
