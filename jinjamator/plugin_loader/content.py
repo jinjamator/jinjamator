@@ -19,6 +19,7 @@ import pkgutil
 import types
 from inspect import getmembers, isfunction
 import pprint
+import json
 
 
 __all_plugins__ = {}
@@ -35,6 +36,8 @@ add_builtin("pprint",pprint.pprint)
 add_builtin("pformat",pprint.pformat)
 add_builtin("os",os)
 add_builtin("sys",sys)
+add_builtin("json",json)
+
 
 def register_content_plugins(plugin_paths):
     for loader, module_name, is_pkg in pkgutil.walk_packages(plugin_paths):
