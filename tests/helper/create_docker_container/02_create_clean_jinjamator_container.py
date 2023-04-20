@@ -18,12 +18,13 @@ client = docker.from_env()
 command = [
     "/bin/sh",
     "-c",
-    "cp /opt/jinjamator/bin/jinjamator /usr/local/bin \
-    && chmod ugo+x /usr/local/bin/jinjamator \
-    && pip3 install --no-warn-script-location -r /opt/jinjamator/requirements.txt \
-    && cd /opt/jinjamator \
-    && ./bin/jinjamator -t jinjamator/tasks/.internal/init_aaa -vvv\
-    && ./bin/jinjamator -d -vvvv",
+    "cp -r /opt/jinjamator/ /opt/jinjamator_install && pipx ensurepath && pipx install /opt/jinjamator_install && /root/.local/bin/jinjamator -t jinjamator/tasks/.internal/init_aaa -vvv && /root/.local/bin/jinjamator -d -vvvv  "
+    # "cp /opt/jinjamator/bin/jinjamator /usr/local/bin \
+    # && chmod ugo+x /usr/local/bin/jinjamator \
+    # && pip3 install --no-warn-script-location -r /opt/jinjamator/requirements.txt \
+    # && cd /opt/jinjamator \
+    # "jinjamator -t jinjamator/tasks/.internal/init_aaa -vvv\
+    # && jinjamator -d -vvvv",
 ]
 
 env = {line.split("=")[0]: line.split("=")[1] for line in environment}
@@ -50,7 +51,7 @@ for logline in container.logs(stream=True):
 
 
 atexit.register(cleanup, container)
-
+print(client.containers.get(container.id).ports)
 retval = {
     "id": container.id,
     "port": client.containers.get(container.id).ports["5000/tcp"][0]["HostPort"],
