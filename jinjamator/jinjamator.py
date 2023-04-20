@@ -35,7 +35,7 @@ from jinjamator.plugin_loader.output import load_output_plugin
 from pathlib import Path
 import datetime
 
-__version__ = Path(__file__).parent.joinpath("VERSION").read_text()[:-1]
+__version__ = Path(__file__).parent.joinpath("VERSION").read_text()
 __updated__ = datetime.date.fromtimestamp(os. path.getmtime(Path(__file__).parent.joinpath("VERSION")))
 __date__ = "22.07.2019"
 __author__ = "Wilhelm Putz"
