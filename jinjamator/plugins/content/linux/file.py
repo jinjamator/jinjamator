@@ -1,5 +1,4 @@
-# import jinjamator.plugins.content.linux as linux
-
+import pathlib
 
 def exists (path,con=False):
     return check_file(path,"-e",con)
@@ -38,12 +37,12 @@ def check_file (path,operator,con=False):
 
 
 def check_file_local (path,operator):
-    if operator == "-e": return file.exists(path)
-    elif operator == "-f": return file.is_file(path)
-    elif operator == "-d": return file.is_dir(path)
-    elif operator == "-b": return file.is_block(path)
-    elif operator == "-L": return file.is_symlink(path)
-    elif operator == "-S": return file.is_socket(path)
+    if operator == "-e": return pathlib.Path(path).exists()
+    elif operator == "-f": return pathlib.Path(path).is_file()
+    elif operator == "-d": return pathlib.Path(path).is_dir()
+    elif operator == "-b": return pathlib.Path(path).is_block_device()
+    elif operator == "-L": return pathlib.Path(path).is_symlink()
+    elif operator == "-S": return pathlib.Path(path).is_socket()
     else:
         log.error(f"Operator {operator} is not supported for local")
         return None
