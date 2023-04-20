@@ -169,7 +169,7 @@ def exists(filename):
     :return: True if it exists, False if not
     :rtype: ``bool``
     """
-    return pathlib.Path(filename).exists()
+    return pathlib.Path(str(filename)).exists()
 
 
 def resolve(fn=__file__):
