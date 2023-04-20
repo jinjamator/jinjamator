@@ -697,7 +697,35 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             else:
                 self._log.error(f"cannot find uploaded file {filename} -> skipping")
         self.configuration[file_upload_var_name] = filelist
-
+    def parse_exception(self,e,tasklet):
+        task_code = self.get_py_tasklet_code(tasklet)
+        _, _, tb = sys.exc_info()
+        error_text = ""
+        code_to_show = ""
+        for filename, lineno, funname, line in reversed(
+            traceback.extract_tb(tb)
+        ):
+            if filename == "<string>":
+                filename = tasklet
+            if filename == tasklet and funname == "__run__":
+                try:
+                    code_to_show = (
+                        "[ line "
+                        + str(lineno - 7)
+                        + " ] "
+                        + task_code.split("\n")[lineno - 1]
+                    )
+                    error_text += f"{e}\n{filename}:{lineno -7}, in {funname}\n    {line}\n {code_to_show}\n\n"
+                except Exception as inner_e:
+                    self._log.debug(
+                        f"cannot show code -> this is a bug \n{inner_e }\n task_code: {task_code}\nlineno: {lineno}"
+                    )
+            else:
+                error_text += (
+                    f"{e}\n{filename}:{lineno}, in {funname}\n    {line}\n"
+                )
+        return error_text
+        
     def run(self):
         if len(self._undefined_vars) > 0:
             if self._configuration["task_run_mode"] == "background":
@@ -793,32 +821,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                 try:
                     retval = module.jinjaTask().__run__()
                 except Exception as e:
-                    _, _, tb = sys.exc_info()
-                    error_text = ""
-                    code_to_show = ""
-                    for filename, lineno, funname, line in reversed(
-                        traceback.extract_tb(tb)
-                    ):
-                        if filename == "<string>":
-                            filename = tasklet
-                        if filename == tasklet and funname == "__run__":
-                            try:
-                                code_to_show = (
-                                    "[ line "
-                                    + str(lineno - 7)
-                                    + " ] "
-                                    + task_code.split("\n")[lineno - 1]
-                                )
-                                error_text += f"{e}\n{filename}:{lineno -7}, in {funname}\n    {line}\n {code_to_show}\n\n"
-                            except Exception as inner_e:
-                                self._log.debug(
-                                    f"cannot show code -> this is a bug \n{inner_e }\n task_code: {task_code}\nlineno: {lineno}"
-                                )
-                        else:
-                            error_text += (
-                                f"{e}\n{filename}:{lineno}, in {funname}\n    {line}\n"
-                            )
-
+                    error_text=self.parse_exception(e,tasklet)
                     self._log.error(error_text)
 
                     if self.configuration.get("best_effort"):
@@ -850,19 +853,34 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
             self._output_plugin.init_plugin_params()
             self._output_plugin.connect()
-            self._output_plugin.process(
-                retval, template_path=tasklet, current_data=self.configuration
-            )
+            try:
+                self._output_plugin.process(
+                    retval, template_path=tasklet, current_data=self.configuration
+                )
+                results.append(
+                    {
+                        "tasklet_path": tasklet,
+                        "result": retval,
+                        "status": "ok",
+                        "error": "",
+                        "skipped": [],
+                    }
+                )
 
-            results.append(
-                {
-                    "tasklet_path": tasklet,
-                    "result": retval,
-                    "status": "ok",
-                    "error": "",
-                    "skipped": [],
-                }
-            )
+            except Exception as e:
+                error_text=self.parse_exception(e,tasklet)
+                self._log.error(f"Output plugin {self._output_plugin} failed. {error_text}")
+                results.append(
+                    {
+                        "tasklet_path": tasklet,
+                        "result": retval,
+                        "status": "error",
+                        "error": error_text,
+                        "skipped": [],
+                    }
+                )
+
+
             to_process.pop(0)
             if self._configuration["task_run_mode"] == "background":
                 self._log.tasklet_result(
