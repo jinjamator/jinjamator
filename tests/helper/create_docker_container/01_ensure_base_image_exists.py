@@ -10,7 +10,7 @@ docker.api.build.process_dockerfile = lambda dockerfile, path: (
 )
 
 
-tag = f"jinjamator/jinjamator-runtime:latest"
+tag = baseimage
 client = docker.from_env()
 
 

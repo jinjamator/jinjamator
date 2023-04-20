@@ -4,7 +4,7 @@ import os, sys, logging
 from colorama import init
 import traceback
 from tempfile import mkstemp
-from jinjamator.task import TaskletFailed
+import jinjamator
 
 init()
 from colorama import Fore, Style
@@ -36,7 +36,7 @@ print(f"Logfile for this run is {log_file}")
 
 # logger.disabled = True
 
-# apic_url, apic_username, apic_password, ssh_host, ssh_username, ssh_password
+
 
 test_paths = []
 cfg = self.configuration
@@ -101,15 +101,18 @@ for test in tests:
     print(f"running tests defined in {test}:")
     try:
         task_return_values = task.run(test, cfg, output_plugin="null")
-    except TaskletFailed as e:
+    except jinjamator.task.TaskletFailed as e:
         task_return_values = e.results
 
     try:
         for retval in task_return_values:
+            # pprint(retval)
+            
             tasklet_path = retval["tasklet_path"]
             tasklet_return_value = retval["result"]
             tasklet_error = retval["error"]
             tasklet_status = retval["status"]
+            
             tasklet_skipped = retval["skipped"]
             log.debug(
                 "\n<--- Tasklet returned: --->\n\n"
@@ -122,7 +125,7 @@ for test in tests:
                 or "/api/" in tasklet_path
                 or "/tasks/" in tasklet_path
             ):
-                if tasklet_return_value == "OK":
+                if tasklet_return_value == "OK" and tasklet_status=="ok":
                     print(Fore.GREEN + str(tasklet_return_value))
                 else:
                     print(Fore.RED + "FAILED " + str(tasklet_error).split("\n")[0])
@@ -139,9 +142,14 @@ for test in tests:
                         skipped += 1
 
                 print(Style.RESET_ALL, end="")
-            elif "/output/" in tasklet_path:
+            elif "/output/" in tasklet_path and tasklet_status=="ok":
                 print(Fore.GREEN + "OK")
                 print(Style.RESET_ALL, end="")
+            elif "/output/" in tasklet_path and tasklet_status!="ok":
+                print(Fore.RED + "FAILED " + str(tasklet_error).split("\n")[0])
+                print(Style.RESET_ALL, end="")
+                failed += 1
+
             else:
                 print(Fore.YELLOW + "NOT IMPLEMENTED")
                 print(Style.RESET_ALL, end="")
