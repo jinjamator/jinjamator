@@ -1,1 +1,1 @@
-python3 -m jinjamator.jinjamator -vvv -t ./tests
+python3 -m jinjamator.jinjamator -vvv -t ./tests $@
