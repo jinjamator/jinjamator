@@ -16,6 +16,13 @@ for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
     _module = loader.find_module(module_name).load_module(module_name)
     globals()[module_name] = _module
 
+def resolve_path(path):
+    if path.startswith("~/"):
+        path=os.path.expanduser(path) 
+    if not path.startswith("/"):
+        path = f"{_jinjamator.task_base_dir}{os.path.sep}{path}"
+    return path
+
 
 def save(data, target_path, **kwargs):
     """save text data to a local file
@@ -32,6 +39,7 @@ def save(data, target_path, **kwargs):
           Should a existing file be overwritten?, defaults to True
     """
     mode = kwargs.get("mode", "w")
+    target_path=resolve_path(target_path)
     if (not os.path.exists(target_path)) or (
         kwargs.get("overwrite", True) and os.path.isfile(target_path)
     ):
@@ -57,8 +65,7 @@ def load(path, **kwargs):
         None at the moment.
     """
     mode = kwargs.get("mode", "r")
-    if not path.startswith("/"):
-        path = f"{_jinjamator.task_base_dir}{os.path.sep}{path}"
+    path=resolve_path(path)
     if os.path.isfile(path):
         with open(path, mode) as fh:
             return fh.read()
@@ -85,7 +92,7 @@ def open(url, flags="r"):
     if url.startswith("ftp"):
         return ftp.open(url, flags)
     else:
-        return py_open(url, flags)
+        return py_open(resolve_path(url), flags)
 
 
 def get_filename(filename):
@@ -98,6 +105,7 @@ def get_filename(filename):
     :return: Filename without path
     :rtype: ``str``
     """
+    filename=resolve_path(filename)
     return pathlib.Path(filename).name
 
 
@@ -153,6 +161,7 @@ def is_file(filename):
     :return: True if it is a file, False if not
     :rtype: ``bool``
     """
+    filename=resolve_path(filename)
     return pathlib.Path(filename).is_file()
 
 
@@ -165,6 +174,7 @@ def is_dir(filename):
     :return: True if it is a directory, False if not
     :rtype: ``bool``
     """
+    filename=resolve_path(filename)
     return pathlib.Path(filename).is_dir()
 
 
@@ -177,6 +187,7 @@ def exists(filename):
     :return: True if it exists, False if not
     :rtype: ``bool``
     """
+    filename=resolve_path(filename)
     return pathlib.Path(str(filename)).exists()
 
 
@@ -212,6 +223,7 @@ def mkdir(filename, mode=0o777, parents=False, exist_ok=False):
     :return: True if creation was successful
     :rtype: ``bool``
     """
+    filename=resolve_path(filename)
     return pathlib.Path(filename).mkdir(mode, parents, exist_ok)
 
 
@@ -225,6 +237,7 @@ def mkdir_p(filename):
     :return: True if creation was successful
     :rtype: ``bool``
     """
+    filename=resolve_path(filename)
     return mkdir(filename, parents=True, exist_ok=True)
 
 def rmdir(path,recursive=False):
@@ -238,6 +251,7 @@ def rmdir(path,recursive=False):
     :return: True if removal was successful
     :rtype: ``bool``
     """
+    path=resolve_path(path)
     if recursive:
         return rmdir_r(path)
     else:
@@ -252,6 +266,7 @@ def rmdir_r(path):
     :return: True if removal was successful
     :rtype: ``bool``
     """
+    path=resolve_path(path)
     if not path == "/":
         return shutil.rmtree(path,ignore_errors=True)
     else:
@@ -259,6 +274,7 @@ def rmdir_r(path):
         return False
 
 def dir(path,pattern='*',**kwargs):
+    path=resolve_path(path)
     content = sorted(pathlib.Path(path).glob(pattern))
     if 'fullpath' in kwargs:
         return [str(d) for d in content]
@@ -267,10 +283,9 @@ def dir(path,pattern='*',**kwargs):
         return [str(d.name) for d in content]
 
 def copy(src, dst, force_overwrite=False, **kwargs):
-    if not src.startswith("/"):
-        src = f"{_jinjamator.task_base_dir}{os.path.sep}{src}"
-    if not dst.startswith("/"):
-        dst = f"{_jinjamator.task_base_dir}{os.path.sep}{dst}"
+
+    src=resolve_path(src)
+    dst=resolve_path(dst)
 
     if exists(dst) and not force_overwrite:
         log.warn(f"skipping existing path {dst}")
@@ -293,11 +308,14 @@ def copy(src, dst, force_overwrite=False, **kwargs):
 
 
 def delete(path, recursive=False):
+    path=resolve_path(path)
     if not path.startswith("/"):
         path = f"{_jinjamator.task_base_dir}{os.path.sep}{path}"
     os.unlink(path)
 
 
 def move(src, dst, force_overwrite=False, **kwargs):
+    src=resolve_path(src)
+    dst=resolve_path(dst)    
     copy(src, dst, force_overwrite, **kwargs)
     delete(src)
