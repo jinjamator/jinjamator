@@ -12,8 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+run_tests: all
+test_obj_prefix: jmt_
+{% if file.exists('~/.jinjamator/test_configuration.yaml')%}
+{{file.load('~/.jinjamator/test_configuration.yaml')}}
+{%else%}
+{% do 'No local testconfiguration ~/.jinjamator/test_configuration.yaml found.'|log.info%}
+ssh_username: no_set
+ssh_password: no_set
+ssh_host: not_set
 apic_url: https://sandboxapicdc.cisco.com/
 apic_username: admin
 apic_password: ciscopsdt
-run_tests: all
-test_obj_prefix: jmt_
+{% endif %}
+
