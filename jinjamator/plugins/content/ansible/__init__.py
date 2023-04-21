@@ -1,6 +1,10 @@
 # Experimental implementation to run ansible playbooks
 import logging
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13755e0 (fix plugin inmport scope)
 try:
     import ansible_runner
 except ModuleNotFoundError:

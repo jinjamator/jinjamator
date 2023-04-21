@@ -1,9 +1,14 @@
 import shlex
 import subprocess
 import re
-import jinjamator.plugins.content.ssh as ssh
-import jinjamator.plugins.content.file.temp as temp
-import jinjamator.plugins.content.file as file
+import pkgutil
+
+__all__ = []
+for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
+    __all__.append(module_name)
+    _module = loader.find_module(module_name).load_module(module_name)
+    locals()[module_name] = _module
+
 
 
 def run (cmd,con=False, **kwargs):
