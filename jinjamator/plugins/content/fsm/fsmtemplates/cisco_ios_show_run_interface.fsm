@@ -1,0 +1,56 @@
+Value Required INTERFACE (\S+)
+Value PARENT_INTERFACE (\S+)
+Value DESCRIPTION (\S+.*)
+Value MTU (\S+)
+Value ENCAPSULATION (\S+)
+Value ENCAPSULATION_ID (\S+)
+Value VRF (\S+)
+Value SHUTDOWN (shutdown)
+Value List IP_ADDRESS (\S+)
+Value List IPV6_ADDRESS (\S+)
+Value SPEED (\S+)
+Value CHANNEL_GROUP (\S+)
+Value CHANNEL_MODE (\S+)
+Value PORT_PROFILE (\S+)
+Value SWITCHPORT_MODE (\S+)
+Value FEX_ASSOC_ID (\d+)
+Value Repeated,List TRUNK_ALLOWED_VLAN (\S+)
+Value ACCESS_VLAN (\S+)
+Value SPANNING_TREE_PORT_TYPE (\S+.*)
+Value List ADDITIONAL_CONFIG (.*)
+
+############### This is a fake file for now
+
+Start
+  # ^interface ${PARENT_INTERFACE}\.\S+ -> Continue
+  # ^interface ${INTERFACE} -> Interface_parse
+  ^.*
+
+
+# Interface_parse
+#   ^\s+ip address ${IP_ADDRESS}
+#   ^\s+ipv6 address ${IPV6_ADDRESS}
+#   ^\s+description ${DESCRIPTION}
+#   ^\s+mtu ${MTU}
+#   ^\s+encapsulation ${ENCAPSULATION} ${ENCAPSULATION_ID}
+#   ^\s+vrf member ${VRF}
+#   ^\s+speed ${SPEED}
+#   ^\s+channel-group ${CHANNEL_GROUP}( mode ${CHANNEL_MODE})?
+#   ^\s+inherit port-profile ${PORT_PROFILE}
+#   ^\s+switchport mode ${SWITCHPORT_MODE}
+#   ^\s+fex associate ${FEX_ASSOC_ID}
+#   ^\s+switchport trunk allowed vlan (${TRUNK_ALLOWED_VLAN}(?:,\s+)?)*\s*$$
+#   ^\s+switchport access vlan ${ACCESS_VLAN}
+#   ^\s+spanning-tree port type ${SPANNING_TREE_PORT_TYPE}
+#   ^\s+${SHUTDOWN}
+#   #Try to match additional lines preserving indentation
+#   ^\s\s${ADDITIONAL_CONFIG}$$
+#   ^\s+${ADDITIONAL_CONFIG}$$
+#   ^\s+$$
+#   #Empty line marks the end of an interface
+#   ^$$ -> Continue.Record
+#   ^$$ -> Start
+#   #There is no empty line after the interface-section and the next part (which could be clock)
+#   #Record it and jump back to start
+#   ^\S+.*$$ -> Record Start
+#   ^.* -> Error
