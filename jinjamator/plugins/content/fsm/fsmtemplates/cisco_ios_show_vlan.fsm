@@ -8,9 +8,14 @@ Start
   ^\d+\s+enet\s+CE.*$$
   ^VLAN\s+Name\s+Status\s+Ports.*$$
   ^VLAN\s+Type\s+Vlan-mode.*$$
+  ^VLAN\s+Type\s+SAID\s+MTU\s+Parent\s+RingNo\s+BridgeNo\s+Stp\s+BrdgMode\s+Trans1\s+Trans2$$ -> Ignore
   ^Primary\s+Secondary\s+Type\s+Ports.*$$
   ^----.*$$
   ^${VLAN_ID}\s+${NAME}\s+${STATUS}\s+(${PORTS}(?:,\s+)?)*.*$$
   ^\s+(${PORTS}(?:,\s+)?)+.*$$
   ^\s*$$
   ^. -> Error
+
+
+Ignore
+  ^.
