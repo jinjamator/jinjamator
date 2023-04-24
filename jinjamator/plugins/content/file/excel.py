@@ -55,6 +55,9 @@ def save(data, destination_path, **kwargs):
     :Keyword Arguments:
         Currently None
     """
+    if isinstance(data,dict):
+        data = convert_dict(data)
+    
     if isinstance(data, list):
         if isinstance(data[0], dict):
             xlsx = XLSXWriter(destination_path, overwrite=True)
@@ -134,3 +137,20 @@ def to_csv_ws(src_path, target_path=None, **kwargs):
             log.error(f"Cant save CSV, worksheet {ws} does not exist")
 
     return True
+
+
+def convert_dict (d):
+    """
+    Convert a dictionary to a list that can be written to excel
+
+    :param d: Dictionary which should be converted
+    :type src_path: dict
+    :return: List with the dict values
+    :rtype: list
+    """
+    rows = []
+
+    for v in d.values():
+        rows.append(v)
+    
+    return rows
