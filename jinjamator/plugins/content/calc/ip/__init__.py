@@ -47,11 +47,11 @@ def overlap (subnet1,subnet2):
 
 def network (ip):
     """
-    Returns the network of an IP-address in CIDR-notation
+    Returns the network of an IP-address
     Technically the return value is a ``ipcalc.IP`` object
 
     >>> print(network("192.168.0.5/24"))
-    192.168.0.0/24
+    192.168.0.0
 
     :param ip: IP-address in CIDR-notation
     :type ip: string
@@ -60,6 +60,25 @@ def network (ip):
     """
     net = ipcalc.Network(ip)
     return net.network()
+
+def network_cidr (ip):
+    """
+    Returns the network of an IP-address in CIDR notation
+    Technically the return value is a ``ipcalc.IP`` object
+
+    >>> print(network_cidr("192.168.0.5/24"))
+    192.168.0.0/24
+
+    :param ip: IP-address in CIDR-notation
+    :type ip: string
+    :returns: Network in CIDR notation
+    :rtype: string
+    """
+    net = ipcalc.Network(ip)
+    return str(net.network()) + "/" + str(net.subnet())
+
+
+
 
 
 def netmask (ip):
