@@ -252,6 +252,12 @@ CLIBaseMatrix = {
     r"fabricpath isis metric (\d+)": None,
     r"^(no) ?ip port-unreachable": None,
     r"^vpc orphan-port suspend": None,
+    r"^untagged cos (\d)": None,
+    r"^service-policy type qos input (\S+)": None,
+    r"^service-policy type queuing output (\S+)": None,
+    r"^service-policy type queuing input (\S+)": None,
+    r"^shutdown force": None,
+
 }
 
 
