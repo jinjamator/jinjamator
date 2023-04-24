@@ -1,0 +1,37 @@
+Value Required INTERFACE (\S+)
+
+############### This is a fake file for now
+
+Start
+  # ^interface ${PARENT_INTERFACE}\.\S+ -> Continue
+  # ^interface ${INTERFACE} -> Interface_parse
+  ^.*
+
+
+# Interface_parse
+#   ^\s+ip address ${IP_ADDRESS}
+#   ^\s+ipv6 address ${IPV6_ADDRESS}
+#   ^\s+description ${DESCRIPTION}
+#   ^\s+mtu ${MTU}
+#   ^\s+encapsulation ${ENCAPSULATION} ${ENCAPSULATION_ID}
+#   ^\s+vrf member ${VRF}
+#   ^\s+speed ${SPEED}
+#   ^\s+channel-group ${CHANNEL_GROUP}( mode ${CHANNEL_MODE})?
+#   ^\s+inherit port-profile ${PORT_PROFILE}
+#   ^\s+switchport mode ${SWITCHPORT_MODE}
+#   ^\s+fex associate ${FEX_ASSOC_ID}
+#   ^\s+switchport trunk allowed vlan (${TRUNK_ALLOWED_VLAN}(?:,\s+)?)*\s*$$
+#   ^\s+switchport access vlan ${ACCESS_VLAN}
+#   ^\s+spanning-tree port type ${SPANNING_TREE_PORT_TYPE}
+#   ^\s+${SHUTDOWN}
+#   #Try to match additional lines preserving indentation
+#   ^\s\s${ADDITIONAL_CONFIG}$$
+#   ^\s+${ADDITIONAL_CONFIG}$$
+#   ^\s+$$
+#   #Empty line marks the end of an interface
+#   ^$$ -> Continue.Record
+#   ^$$ -> Start
+#   #There is no empty line after the interface-section and the next part (which could be clock)
+#   #Record it and jump back to start
+#   ^\S+.*$$ -> Record Start
+#   ^.* -> Error
