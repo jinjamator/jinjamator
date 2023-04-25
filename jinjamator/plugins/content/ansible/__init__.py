@@ -1,7 +1,8 @@
 # Experimental implementation to run ansible playbooks
-import logging
+#import logging
 
-
+#Do not fail when there is no ansible_runner present on systems that do not use it
+#As the plugin is experimental ansible_runner might not be a hard dependency
 try:
     import ansible_runner
 except ModuleNotFoundError:
@@ -9,7 +10,21 @@ except ModuleNotFoundError:
 
 
 def run(playbook, inv, **kwargs):
-    log.console(f"Running {playbook} for {inv}")
+    """
+    Runs the given playbook on inventory.
+    Playbook may be the whole playbook, a filepath or a j2 file that shall be rendered
+
+    Args:
+        playbook (string): The playbook as string OR the filename of the playbook OR the filename of a j2 template that shall be rendered
+        inv (dict): A dict containing the inventory where the playbook shall be run
+    
+    Keyword Args:
+        undo (boolean): Run the playbook as "undo" if it supports it. Will set the undo-flag and reverse the order. Will only work with proper written j2 templates and will overwrite the 'undo' key in the data dict
+        data (dict): Dictionary containing the variables that shall be passed to the j2 template
+
+    Returns:
+        object(ansible_runner.runner.Runner): The return of ansible_runner.run()
+    """
 
     play_path = ""
     if "\n" not in playbook:
@@ -24,27 +39,36 @@ def run(playbook, inv, **kwargs):
                     else:
                         data = {}
 
+                    #Set undo in data if the undo keyword is set
+                    if 'undo' in kwargs:
+                        data['undo'] = kwargs['undo']
+                    
                     # log.console(f"J2 rendering. passed data is: {json.dumps(data)}")
+                    #merge jinjamator config with data - if jinjamator.configuration is an object
                     if isinstance(_jinjamator, object):
                         task_data = {**_jinjamator.configuration, **data}
                     else:
                         task_data = data
-                    # task_data = data
-                    # log.console(f"data after merge: {json.dumps(task_data)}")
-                    # if _jinjamator: print(f"_jinjamator does exist: {type(_jinjamator)}")
-                    # if _jinjamator.configuration: print(f"_jinjamator.configuration does exist: {type(_jinjamator.configuration)}")
-                    # if _jinjamator.configuration._data: print(f"_jinjamator.configuration._data does exist: {type(_jinjamator.configuration._data)}")
 
                     # Get rendered data and store it - it will be written and executed later
-                    # Untested because calling task.run() j2 from content-plugin does currently not work
                     playbook = task.run(playbook, task_data=task_data)[0]["result"]
                     play_path = ""  # to be sure
+
+                    #Also, do the undo-handling here if the parameter was set
+                    if 'undo' in data and data['undo'] == True:
+                        playbook = reverse_order(playbook)
+                        
                 else:
                     # Just an ordinary playbook
                     play_path = playbook
+                    #play_path = ""
+                    #Always read the playbook so we can do modifications
+                    #playbook = file.load(playbook)
             else:
-                log.error(f"Cannot find playbook: {playbook}")
-                play_path = False
+                #In this case the playbook is very short but not a file
+                #We will try to run int regardless
+                #log.error(f"Cannot find playbook: {playbook}")
+                play_path = ''
 
     if isinstance(play_path, str) and play_path == "":
         # playbook might be a string for all we can tell
@@ -56,6 +80,15 @@ def run(playbook, inv, **kwargs):
 
 
 def simple_inventory(hosts):
+    """
+    Creates a simple ansible compatible inventory dictionary of the given hist-list
+
+    Args:
+        hosts (list): List of hosts that should be part of the inventory
+
+    Returns:
+        dict: Very simple ansible inventory
+    """
     # Create a simple inventory that can be passed to run()
     inv = {"all": {"hosts": {}}}
 
@@ -65,8 +98,17 @@ def simple_inventory(hosts):
     return inv
 
 def reverse_order (playbook):
+    """
+    Reverses the tasks within a playbook.
+    Actually useful when using undo
+
+    Args:
+        playbook (str): string containing the playbook (not a filename)
+
+    Returns:
+        str: The reversed playbook string
+    """
     #Reverse the order of jobs and tasks
-    #used in combination with undo = True
     #parse the yaml
     pby = yaml.loads(playbook)
     #Reverse jobs
