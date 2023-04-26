@@ -162,8 +162,8 @@ class TaskConfiguration(object):
         path,
         dict_strategy="merge",
         list_strategy="exclusive",
-        other_types_strategy="use_existing",
-        type_conflict_strategy="use_existing",
+        other_types_strategy="override",
+        type_conflict_strategy="override",
         private_data=None,
     ):
         try:
