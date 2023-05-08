@@ -46,7 +46,17 @@ switchdb = {
         "downlinks": range(1, 49),
         "type": "leaf",
     },
+    "N9K-C93108TC-FX3P": {
+        "uplinks": [49, 50, 51, 52, 53, 54],
+        "downlinks": range(1, 49),
+        "type": "leaf",
+    },
     "N9K-C93180YC-FX": {
+        "uplinks": [49, 50, 51, 52, 53, 54],
+        "downlinks": range(1, 49),
+        "type": "leaf",
+    },
+    "N9K-C93180YC-FX3": {
         "uplinks": [49, 50, 51, 52, 53, 54],
         "downlinks": range(1, 49),
         "type": "leaf",
@@ -119,7 +129,7 @@ def _get_missing_apic_connection_vars():
         inject.append("apic_password")
     return inject
 
-
+ 
 def connect_apic(
     subscription_enabled=False, *, _requires=_get_missing_apic_connection_vars
 ):
