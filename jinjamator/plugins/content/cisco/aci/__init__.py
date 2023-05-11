@@ -663,10 +663,10 @@ def get_endpoint_table(*, _requires=_get_missing_apic_connection_vars):
     for endpoint_obj in query(
         '/api/node/class/fvCEp.json?query-target-filter=not(wcard(fvCEp.dn,"__ui_"))&rsp-subtree=children&target-subtree-class=fvRsCEpToPathEp'
     )["imdata"]:
-        ip = endpoint_obj["fvCEp"]["attributes"]["ip"]
-        mac = endpoint_obj["fvCEp"]["attributes"]["mac"]
-        encap = endpoint_obj["fvCEp"]["attributes"]["encap"]
-        ep_dn = endpoint_obj["fvCEp"]["attributes"]["dn"]
+        ip = endpoint_obj["fvCEp"]["attributes"].get("ip")
+        mac = endpoint_obj["fvCEp"]["attributes"].get("mac")
+        encap = endpoint_obj["fvCEp"]["attributes"].get("encap")
+        ep_dn = endpoint_obj["fvCEp"]["attributes"].get("dn")
 
         for path_obj in endpoint_obj["fvCEp"]["children"]:
             switch_a = None
