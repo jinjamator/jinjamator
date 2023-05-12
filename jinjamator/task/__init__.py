@@ -565,9 +565,15 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                 schema["schema"]["properties"][var]["type"] = "string"
                 schema["schema"]["properties"][var]["description"] = ""
                 schema["schema"]["properties"][var]["required"] = True
-                schema["schema"]["properties"][var]["default"] = value
                 if "pass" in var:
+                    if value:
+                        schema["schema"]["properties"][var]["default"] = "__redacted__"
                     schema["schema"]["properties"][var]["format"] = "password"
+                else:
+                    schema["schema"]["properties"][var]["default"] = value
+    
+                    
+                    
                 schema["view"]["wizard"]["bindings"][var] = 1
 
         if self._default_values:
@@ -580,14 +586,21 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             for k, v in builder.to_schema()["properties"].items():
                 schema["schema"]["properties"][k] = v
                 schema["options"]["fields"][k] = {}
-                schema["schema"]["properties"][k]["default"] = self._default_values[k]
+                if "pass" in k:
+                    if self._default_values[k]:
+                        schema["schema"]["properties"][k]["default"] = "__redacted__"
+                else:
+                    schema["schema"]["properties"][k]["default"] = self._default_values[k]
                 if self._default_values[k]:
                     schema["schema"]["properties"][k]["required"] = True
                 if "pass" in k:
                     schema["schema"]["properties"][k]["format"] = "password"
                 # schema["schema"]["properties"][k]["required"] = True
                 schema["view"]["wizard"]["bindings"][k] = 2
-                schema["data"][k] = self._default_values[k]
+                if "pass" in k:
+                    schema["data"][k] = "__redacted__"
+                else:
+                    schema["data"][k] = self._default_values[k]
                 enhanced = self.enhance_schema(self._default_values[k], k)
                 m.merge(schema["schema"]["properties"][k], enhanced)
 
