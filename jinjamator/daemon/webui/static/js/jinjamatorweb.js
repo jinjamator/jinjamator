@@ -864,6 +864,7 @@ function create_job(job_path, pre_defined_vars) {
                         "click": function () {
 
                             client.opts['stringifyData'] = true;
+                            url_data={'preload-defaults-from-site': $('#jinjamator_environment option:selected').val()}
                             var data = this.getValue();
 
                             var task = job_path;
@@ -882,20 +883,21 @@ function create_job(job_path, pre_defined_vars) {
                             }
 
                             delete data['output_plugin_parameters'];
+                            
 
                             if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true) {
 
                                 $('#modal-submit').modal('show')
                                 $('#modal-submit ').find('.btn-ok').unbind('click')
                                 $('#modal-submit ').find('.btn-ok').on('click', function () {
-                                    client.tasks.create(job_path, data).done(function (data) {
+                                    client.tasks.create(job_path, data,url_data).done(function (data) {
                                         $('#modal-submit').modal('hide')
                                         setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
                                     });
                                 })
                             }
                             else {
-                                client.tasks.create(job_path, data).done(function (data) {
+                                client.tasks.create(job_path, data,url_data).done(function (data) {
                                     setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
                                 });
 
