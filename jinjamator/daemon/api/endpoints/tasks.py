@@ -25,6 +25,7 @@ from jinjamator.daemon.api.endpoints.environments import (
 from jinjamator.daemon.api.restx import api
 from jinjamator.tools.docutils_helper import get_section_from_task_doc
 from jinjamator.task import JinjamatorTask
+from jinjamator.task.configuration import TaskConfiguration
 from sqlalchemy import select
 from jinjamator.external.celery.backends.database.models import Task as DB_Job
 from jinjamator.external.celery.backends.database.models import JobLog
@@ -298,6 +299,39 @@ def discover_tasks(app):
                                     "api.", ""
                                 )
                                 data = request.get_json()
+                                args = task_arguments.parse_args(request)
+                                environment_site = args.get(
+                                    "preload-defaults-from-site"
+                                )
+                                for k,v in deepcopy(data).items():
+                                    if v == "__redacted__":
+                                        del data[k]
+
+                                configuration=TaskConfiguration()
+                                configuration.merge_dict(data)
+                                if environment_site not in [None, "None", ""]:
+                                    env_name, site_name = environment_site.split("/")
+                                    roles = [
+                                        role["name"]
+                                        for role in g._user.get("roles", [])
+                                    ]
+                                    if (
+                                        f"environment_{env_name}|site_{site_name}"
+                                        in roles
+                                        or f"environments_all" in roles
+                                        or f"administrator" in roles
+                                    ):
+                                        configuration.merge_yaml(
+                                            "{}/defaults.yaml".format(
+                                                site_path_by_name.get(environment_site)
+                                            )
+                                        )
+                                    else:
+                                        abort(
+                                            403,
+                                            f"User neither has no role environment_{env_name}|site_{site_name} nor environments_all nor administrator. Access denied.",
+                                        )
+
                                 job_id = str(uuid.uuid4())
                                 user_id = g._user["id"]
                                 allow_debugger = User.roles.any(
@@ -305,6 +339,7 @@ def discover_tasks(app):
                                 )
                                 logging.info(f"USER ROLE DEBUGGER: {allow_debugger}")
 
+                                data=configuration._data
                                 job = run_jinjamator_task.apply_async(
                                     [
                                         relative_task_path,
