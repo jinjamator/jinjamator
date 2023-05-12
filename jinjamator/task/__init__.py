@@ -295,6 +295,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n".format(
         return task_code
 
     def inject_dependency(self, cmd):
+        if "(" in cmd:
+            left_cmd=cmd.split("(")[0]
+            self.inject_dependency(left_cmd)
         try:
             var_dependencies = __builtins__["all_registered_j2_functions"].get(
                 cmd, print
