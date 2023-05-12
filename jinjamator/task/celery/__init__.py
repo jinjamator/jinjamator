@@ -29,6 +29,9 @@ from copy import deepcopy
 import hashlib
 import math
 import random
+from jinjamator.daemon.api.endpoints.environments import (
+    site_path_by_name,
+)
 
 from jinjamator.task import JinjamatorTaskRunException
 
@@ -41,7 +44,7 @@ def generate_debugger_pw(pw_len) :
     return OTP
 
 @celery.task(bind=True)
-def run_jinjamator_task(self, path, data, output_plugin, user_id, debugger_cfg={}):
+def run_jinjamator_task(self, path, data, output_plugin, user_id, debugger_cfg={}, environment_site=None):
     """
     Jinjamator Celery Task runner.
     """
@@ -123,9 +126,14 @@ def run_jinjamator_task(self, path, data, output_plugin, user_id, debugger_cfg={
     )
 
     task._configuration.merge_dict(celery.conf["jinjamator_private_configuration"])
-
-    task.configuration.merge_dict(data)
+    for k,v in deepcopy(data).items():
+        if str(v) == "__redacted__":
+            del data[k]
     
+    task.configuration.merge_dict(data)
+    if environment_site:
+        task.configuration.merge_yaml("{}/defaults.yaml".format(site_path_by_name.get(environment_site)))
+
     if debugger_cfg.get('enabled'):
         debugger_pw=generate_debugger_pw(64)
         task._configuration._data["debugger_hash"]=hashlib.sha512(debugger_pw.encode('utf-8')).hexdigest()

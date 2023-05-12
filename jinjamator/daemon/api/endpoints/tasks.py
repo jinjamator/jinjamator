@@ -307,26 +307,19 @@ def discover_tasks(app):
                                     if v == "__redacted__":
                                         del data[k]
 
-                                configuration=TaskConfiguration()
-                                configuration.merge_dict(data)
+                                
                                 if environment_site not in [None, "None", ""]:
                                     env_name, site_name = environment_site.split("/")
                                     roles = [
                                         role["name"]
                                         for role in g._user.get("roles", [])
                                     ]
-                                    if (
+                                    if not (
                                         f"environment_{env_name}|site_{site_name}"
                                         in roles
                                         or f"environments_all" in roles
                                         or f"administrator" in roles
                                     ):
-                                        configuration.merge_yaml(
-                                            "{}/defaults.yaml".format(
-                                                site_path_by_name.get(environment_site)
-                                            )
-                                        )
-                                    else:
                                         abort(
                                             403,
                                             f"User neither has no role environment_{env_name}|site_{site_name} nor environments_all nor administrator. Access denied.",
@@ -339,7 +332,7 @@ def discover_tasks(app):
                                 )
                                 logging.info(f"USER ROLE DEBUGGER: {allow_debugger}")
 
-                                data=configuration._data
+
                                 job = run_jinjamator_task.apply_async(
                                     [
                                         relative_task_path,
@@ -347,6 +340,7 @@ def discover_tasks(app):
                                         data.get("output_plugin", "console"),
                                         user_id,
                                         {"enabled": True},
+                                        environment_site
                                     ],
                                     task_id=job_id,
                                     created_by_user_id=user_id,
