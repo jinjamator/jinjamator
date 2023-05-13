@@ -104,7 +104,7 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
         "port": 22,
         "device_type": "cisco_nxos",
         "fast_cli": False,
-        "verbose": True,
+        "verbose": False,
     }
 
     cfg = {}
@@ -128,10 +128,10 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
 
     try:
 
-        # if cfg["verbose"]:
-        #     netmiko_log.setLevel(logging.DEBUG)
-        # else:
-        #     netmiko_log.setLevel(logging.ERROR)
+        if cfg["verbose"]:
+            netmiko_log.setLevel(logging.DEBUG)
+        else:
+            netmiko_log.setLevel(logging.ERROR)
         connection = ConnectHandler(**cfg)
         return connection
     except NetmikoAuthenticationException as e:
