@@ -13,4 +13,4 @@ def connect(verify=False,disable_warnings=True, *,_requires=_get_missing_ise_con
     except:
         log.error('module pyiseers not available install via pip/pipx install pyise-ers')
         return None
-    return ERS(ise_node=_jinjamator.configuration._data['ise_hostname'], ers_user=_jinjamator.configuration._data['ise_username'], ers_pass=_jinjamator.configuration._data['ise_password'], verify=verify, disable_warnings=disable_warnings)
+    return ERS(ise_node=_jinjamator.configuration._data.get('ise_hostname'), ers_user=_jinjamator.configuration._data.get('ise_username'), ers_pass=_jinjamator.configuration._data.get('ise_password'), verify=verify, disable_warnings=disable_warnings)
