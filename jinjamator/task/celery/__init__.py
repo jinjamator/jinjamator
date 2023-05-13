@@ -144,7 +144,8 @@ def run_jinjamator_task(self, path, data, output_plugin, user_id, debugger_cfg={
     
     try:
         task.run()
-    except TaskletFailed:
+    except TaskletFailed as e:
+        task._log.error(e)
         raise JinjamatorTaskRunException("task failed")
 
     return {
