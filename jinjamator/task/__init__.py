@@ -813,6 +813,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                                 "skipped": skipped,
                             }
                         )
+                        [h.flush() for h in self._log.handlers]
                         raise TaskletFailed(
                             results,
                             f"tasklet {tasklet} has failed and best_effort is not defined -> exiting",

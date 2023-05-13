@@ -19,7 +19,10 @@ from json_log_formatter import JSONFormatter
 from datetime import datetime
 from jinjamator.tools.password import redact
 from time import sleep
+import threading
 
+
+__celery_log_lock__=threading.Lock()
 
 class NullCelery(object):
     def update_state(self, **kwargs):
@@ -34,6 +37,8 @@ class CeleryLogHandler(logging.Handler):
         self._celery_meta_template = {}
         self._q = []
         self._redacted_passwords = []
+        
+
 
     @property
     def contents(self):
@@ -49,17 +54,19 @@ class CeleryLogHandler(logging.Handler):
         self._celery_state = state
 
     def emit(self, record):
-        logging.disable(level=logging.CRITICAL)
-        meta = deepcopy(self._celery_meta_template)
-        self._q.append(json.loads(self.format(record)))
-        meta["log"] = self._q
-        meta["created_by_user_id"] = self.created_by_user_id
-        if record.levelno == logging.ERROR:
-            self._celery_state = "ERROR"
+        __celery_log_lock__.acquire()
+        try:
+            meta = deepcopy(self._celery_meta_template)
+            self._q.append(json.loads(self.format(record)))
+            meta["log"] = deepcopy(self._q)
+            meta["created_by_user_id"] = self.created_by_user_id
+            if record.levelno == logging.ERROR:
+                self._celery_state = "ERROR"
+            self._celery_task.update_state(state=self._celery_state, meta=meta)
+            self._q = []
+        finally:
+            __celery_log_lock__.release()
 
-        self._celery_task.update_state(state=self._celery_state, meta=meta)
-        self._q = []
-        logging.disable(logging.NOTSET)
 
 
 class CeleryLogFormatter(JSONFormatter):
