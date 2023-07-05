@@ -12,7 +12,7 @@ flatten_json==0.1.7
 netaddr
 future
 pyflakes
-openpyxl>=3
+openpyxl==3.0.10
 ciscoconfparse
 xmltodict
 pyopenssl
