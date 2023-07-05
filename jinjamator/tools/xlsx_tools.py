@@ -118,12 +118,12 @@ class XLSXReader(object):
             for cell in self.ws[row_index]:
                 try:
                     self.header_fields[cell.column - 1].append(
-                        self.get_value_with_merge_lookup(cell)
+                        str(self.get_value_with_merge_lookup(cell))
                     )
                 except IndexError:
                     self.header_fields.append([])
                     self.header_fields[cell.column - 1].append(
-                        self.get_value_with_merge_lookup(cell)
+                        str(self.get_value_with_merge_lookup(cell))
                     )
         self.header = [" ".join(f).strip() for f in self.header_fields]
         self._log.debug("finished parsing of header")
