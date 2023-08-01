@@ -99,6 +99,8 @@ class ContentPluginLoader(object):
             except ImportError as e:
                 self._log.error(f"cannot load content plugin {file}. {e}")
                 continue
+            except Exception as e:
+                self._log.error(f"cannot load content plugin {file}. {e}")
 
             for func_name in dir(module):
                 func = getattr(module, func_name)
