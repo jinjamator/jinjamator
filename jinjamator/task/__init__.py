@@ -481,7 +481,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
                                 final_data.update({key: value})
 
-                    final_data = final_data.to_dict()
                     # self._log.error(pformat(final_data))
 
                     if not final_data:
