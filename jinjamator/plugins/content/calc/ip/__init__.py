@@ -1,4 +1,5 @@
 import ipcalc
+import re
 
 def is_in (ip,subnet):
     """
@@ -179,3 +180,62 @@ def host_last (subnet):
     """
     net = ipcalc.Network(subnet)
     return net.host_last()
+
+def list_ips (subnet):
+    """
+    Lists all useable IPs of a network given in CIDR-notation
+    Will assume /32 if no CIDR is given
+    >>> print(list_ips("192.168.0.0/29"))
+    ['192.168.0.1', '192.168.0.2', '192.168.0.3', '192.168.0.4', '192.168.0.5', '192.168.0.6']
+    :param subnet: network in CIDR-notation
+    :type subnet: string
+    :returns: List of all useable IPs
+    :rtype: list
+    """
+
+    ips = []
+    for ip in ipcalc.Network(subnet):
+        ips.append(str(ip))
+
+    return ips
+
+
+def expand_range (string):
+    """
+    Will return all IP's or ranges within the defined ranges
+    >>> print(list_ips("192.168.0-3.0/29"))
+    ['192.168.0.0/29', '192.168.1.0/29', '192.168.2.0/29', '192.168.3.0/29']
+    >>> print(list_ips("192.168-169.0-2.5"))
+    ['192.168.0.5', '192.168.1.5', '192.168.2.5', '192.169.0.5', '192.169.1.5', '192.169.2.5']
+    :param subnet: network in CIDR-notation
+    :type subnet: string
+    :returns: List of all subnets/IPs that are in the defined range
+    :rtype: list
+    """
+
+    #Return a list of the string even if not - can be found
+    if not "-" in str(string): return [str(string)]
+
+    #wrap between two dots
+    string = "."+string+"."
+    groups = re.match(r"(.*)\.(\d+-\d+)\.(.*)",string).groups()
+    #print(groups)
+    #('.100.76', '11-12', '.1')
+    rparts = groups[1].split("-")
+    ranges = []
+    for i in range(int(rparts[0]),int(rparts[1])+1):
+        rstr = f"{groups[0]}.{i}.{groups[2]}"
+        #Remove the dots we added
+        if rstr.startswith("."): rstr = rstr[1:]
+        if rstr.endswith("."): rstr = rstr[:len(rstr)-1]
+
+        if "-" in rstr:
+            rranges = expand_range(rstr)
+            if isinstance(rranges,list): ranges += rranges
+            else:
+                log.warning(f"Cannot add elements to range. Expected list, got {type(rranges)}: {rranges}")
+        else:
+            ranges.append(rstr)
+
+    ranges.sort()
+    return ranges
