@@ -515,7 +515,8 @@ USAGE
             task.run()
 
 
-if __name__ == "__main__":
+
+def main():
     prog = Program()
     prog._program_version = __version__
     prog._program_date = __date__
@@ -523,3 +524,7 @@ if __name__ == "__main__":
     prog._program_author = __author__
     prog.setup()
     prog.run()
+
+
+if __name__ == "__main__":
+    main()
