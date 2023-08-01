@@ -163,13 +163,16 @@ If the URL contains "subscription=yes as parameter", a websocket session will be
     :return: dictionary containing the response from the APIC
     :rtype: ``dict``
     """
-
+    if _jinjamator._configuration["task_run_mode"] == "discover":
+        return ""
+    
     if not query_url.startswith("/"):
         query_url = f"/{query_url}"
     if "subscription=yes" in query_url:
         subscription_enabled = True
     else:
         subscription_enabled = False
+    
     session = connect_apic(subscription_enabled)
     try:
         data = session.get(query_url, timeout)

@@ -20,10 +20,10 @@ import jinja2
 from jinjamator.plugin_loader.content import ContentPluginLoader
 import distutils.util
 import json
-from jinja2 import Undefined
+from jinja2 import Undefined, meta 
 from copy import deepcopy
 from jinjamator.tools.password import redact
-
+import types
 
 class SafeLoaderIgnoreUnknown(yaml.SafeLoader):
     def ignore_unknown(self, node):
@@ -89,6 +89,7 @@ class TaskConfiguration(object):
         self._log = logging.getLogger()
         self._data = {}
         self._plugin_loader = None
+        
 
     def __getitem__(self, item):
         try:
@@ -187,6 +188,7 @@ class TaskConfiguration(object):
                     for k, v in self._data.items():
                         if k not in list(parsed_raw_data.keys()):
                             parsed_raw_data[k] = v
+                    backup_data={}
                     if self._plugin_loader._parent:
                         data_backup = deepcopy(
                             self._plugin_loader._parent.configuration._data
@@ -197,6 +199,55 @@ class TaskConfiguration(object):
                         }
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
+
+                    ast = environment.parse(raw_data)
+                    _jinjamator=self._plugin_loader._parent
+                    for var in meta.find_undeclared_variables(ast):
+                        for command in self._plugin_loader.get_functions():
+                            if command.startswith(var):
+                                if command in raw_data:
+                                    try:
+                                        var_dependencies=self._plugin_loader.get_functions()[command].__kwdefaults__.get('_requires',print)
+                                        if isinstance(var_dependencies, types.FunctionType):
+                                            for dep_var in var_dependencies():
+                                                if dep_var not in _jinjamator._undefined_vars:
+                                                    _jinjamator._undefined_vars.append(dep_var)
+                                        if isinstance(var_dependencies, types.list):
+                                            for dep_var in var_dependencies:
+                                                if dep_var not in _jinjamator._undefined_vars:
+                                                    _jinjamator._undefined_vars.append(dep_var)
+                                    except AttributeError:
+                                        pass
+                                    
+                    
+                    # if '_jinjamator' in __builtins__:
+                    
+                    # try:
+                        # 
+                        # for var in meta.find_undeclared_variables(ast):
+                            # for command in __builtins__['all_registered_j2_functions']:
+                                # if command.startswith(var):
+                                    # if command in raw_data:
+                                        # try:
+                                            # var_dependencies=__builtins__['all_registered_j2_functions'][command].__kwdefaults__.get('_requires',print)
+                                            # if isinstance(var_dependencies, types.FunctionType):
+                                                # for dep_var in var_dependencies():
+                                                    # if dep_var not in _jinjamator._undefined_vars:
+                                                        # _jinjamator._undefined_vars.append(dep_var)
+                                            # if isinstance(var_dependencies, types.list):
+                                                # for dep_var in var_dependencies:
+                                                    # if dep_var not in _jinjamator._undefined_vars:
+                                                        # _jinjamator._undefined_vars.append(dep_var)
+                                        # except AttributeError:
+                                            # pass
+                        # if backup_data:
+                            # _jinjamator.configuration._data=backup_data
+                        # for var in deepcopy(_jinjamator._undefined_vars):    
+                            # self._data[var]=_jinjamator.handle_undefined_var(var)
+                    # except SyntaxError:
+                        # pass
+
+
                     environment = self._plugin_loader.j2_load_plugins(environment)
 
                     parsed_raw_data["configuration"] = self._data

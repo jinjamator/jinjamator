@@ -9,12 +9,14 @@ log = logging.getLogger(__name__)
 py_open = open
 
 import pkgutil
-
-__all__ = []
-for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
-    __all__.append(module_name)
-    _module = loader.find_module(module_name).load_module(module_name)
-    locals()[module_name] = _module
+# 
+# __all__ = []
+# __path__= __file__
+# 
+# for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
+    # __all__.append(module_name)
+    # _module = loader.find_module(module_name).load_module(module_name)
+    # locals()[module_name] = _module
 
 def resolve_path(path):
     if path.startswith("~/"):

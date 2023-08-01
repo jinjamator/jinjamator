@@ -362,7 +362,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         if var_name == "best_effort":
             self.configuration["best_effort"] = False
             return False
-        if self._configuration["task_run_mode"] == "background":
+        
+        if self._configuration["task_run_mode"] == "discover":
+            return ""
+        elif self._configuration["task_run_mode"] == "background":
             raise KeyError(
                 "undefined variable found {0} and running in background -> cannot proceed".format(
                     var_name
@@ -395,6 +398,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                     self._configuration["task_run_mode"]
                 )
             )
+        self._undefined_vars.pop(self._undefined_vars.index(var_name))
 
         return self.configuration[var_name]
 
@@ -729,7 +733,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                     f"cannot run task because of undefined variables: {self._undefined_vars}"
                 )
             else:
-                for var in self._undefined_vars:
+                for var in deepcopy(self._undefined_vars):
                     self.handle_undefined_var(var)
         tmp = self.get_jsonform_schema()
 

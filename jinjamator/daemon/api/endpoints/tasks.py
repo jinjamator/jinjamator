@@ -42,6 +42,7 @@ import os
 import xxhash
 import json
 import uuid
+from jinjamator.plugin_loader.content import ContentPluginLoader
 
 from werkzeug.utils import secure_filename
 from copy import deepcopy
@@ -134,7 +135,7 @@ def discover_tasks(app):
                     }
                     available_tasks_by_path[dir_name] = task_info
                     try:
-                        task = JinjamatorTask()
+                        task = JinjamatorTask(run_mode="discover")
                         log.debug(app.config["JINJAMATOR_FULL_CONFIGURATION"])
                         task._configuration.merge_dict(
                             app.config["JINJAMATOR_FULL_CONFIGURATION"]
@@ -304,8 +305,24 @@ def discover_tasks(app):
                                     if v == "__redacted__":
                                         del data[k]
 
-                                configuration=TaskConfiguration()
-                                configuration.merge_dict(data)
+                                # configuration=TaskConfiguration()
+                                
+                                # plugin_loader = ContentPluginLoader(None)
+                                # for content_plugin_dir in app.config["JINJAMATOR_FULL_CONFIGURATION"].get(
+                                #     "global_content_plugins_base_dirs", []
+                                # ):
+                                #     plugin_loader.load(f"{content_plugin_dir}")
+
+                                
+
+                                # configuration.merge_dict(data)
+                                task=JinjamatorTask()
+                                
+                                task.configuration.merge_dict(data)
+                                task._configuration.merge_dict(app.config["JINJAMATOR_FULL_CONFIGURATION"])
+                                task.load(relative_task_path)
+
+
                                 if environment_site not in [None, "None", ""]:
                                     env_name, site_name = environment_site.split("/")
                                     roles = [
@@ -318,7 +335,7 @@ def discover_tasks(app):
                                         or f"environments_all" in roles
                                         or f"administrator" in roles
                                     ):
-                                        configuration.merge_yaml(
+                                        task.configuration.merge_yaml(
                                             "{}/defaults.yaml".format(
                                                 site_path_by_name.get(environment_site)
                                             )
@@ -335,8 +352,11 @@ def discover_tasks(app):
                                     JinjamatorRole.name == "debugger"
                                 )
                                 logging.info(f"USER ROLE DEBUGGER: {allow_debugger}")
+                                
+                                
 
-                                data=configuration._data
+                                data=task.configuration._data
+                                del task
                                 job = run_jinjamator_task.apply_async(
                                     [
                                         relative_task_path,
