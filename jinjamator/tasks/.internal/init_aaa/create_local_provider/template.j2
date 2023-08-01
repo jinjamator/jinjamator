@@ -2,9 +2,9 @@ type: local
 name: local
 display_name: Local Login
 static_users:
-    - username: {%raw%}{{{%endraw%} os.environ.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_ADMIN_USERNAME','admin') {%raw%}}}
+    - username: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_ADMIN_USERNAME','admin') {%raw%}}}
 {%endraw%}
-      password: {%raw%}{{{%endraw%} os.environ.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_ADMIN_PASSWORD','password') {%raw%}}}
+      password: {%raw%}{{{%endraw%} os.environment.get('JINJAMATOR_AAA_' + '{{provider_name | upper}}' + '_ADMIN_PASSWORD','password') {%raw%}}}
 {%endraw%}
       name: Local Administrator
       roles:
@@ -17,9 +17,9 @@ static_roles:
     - name: debugger
 # static roles by environment
 {% set prefix= 'JINJAMATOR_AAA_' + provider_name.upper() + '_STATIC_ROLE_' %}
-{% for var in os.environ %}
+{% for var in os.environ() %}
 {%   if var.startswith(prefix) %}
-    - name: {{os.environ.get(var)}}
+    - name: {{os.environment.get(var)}}
 {% endif %}
 {% endfor %}
 
