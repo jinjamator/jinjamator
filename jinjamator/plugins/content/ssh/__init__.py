@@ -134,13 +134,9 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
             netmiko_log.setLevel(logging.DEBUG)
         else:
             netmiko_log.setLevel(logging.ERROR)
-<<<<<<< HEAD
 
         connection = ConnectHandler(**cfg,**opts)
 
-=======
-        connection = ConnectHandler(**cfg)
->>>>>>> 709e740 (fix dependency injection, minor fixes)
         return connection
     except NetmikoAuthenticationException as e:
 
