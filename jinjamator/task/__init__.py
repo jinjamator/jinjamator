@@ -43,7 +43,6 @@ import traceback
 import yaml
 from jsonschema import validate as validate_jsonschema
 import uuid
-from dotty_dict import dotty
 from jinjamator.plugin_loader.output import load_output_plugin
 from pprint import pformat
 import types
@@ -460,7 +459,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                         self.configuration._data
                     )
                     # final_data=yaml.safe_load(parsed_data)
-                    final_data = dotty(yaml.safe_load(parsed_data))
+                    final_data = yaml.safe_load(parsed_data)
 
                     for schema_extension in self._schema_extensions:
                         self._log.error("DEPRECATED")
