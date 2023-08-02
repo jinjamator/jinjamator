@@ -27,14 +27,19 @@ from netmiko import log as netmiko_log
 
 def _get_missing_ssh_connection_vars():
     inject = []
-    if not _jinjamator.configuration["ssh_username"]:
-        inject.append("ssh_username")
-    if not _jinjamator.configuration["ssh_password"]:
-        inject.append("ssh_password")
-    if not _jinjamator.configuration["ssh_host"]:
-        inject.append("ssh_host")
-    print(inject)
+    try:
+        if not _jinjamator.configuration._data.get("ssh_username"):
+            inject.append("ssh_username")
+        if not _jinjamator.configuration._data.get("ssh_password"):
+            inject.append("ssh_password")
+        if not _jinjamator.configuration._data.get("ssh_host"):
+            inject.append("ssh_host")
+        print(inject)
+    except Exception:
+        pass
     return inject
+
+    
 
 
 def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
