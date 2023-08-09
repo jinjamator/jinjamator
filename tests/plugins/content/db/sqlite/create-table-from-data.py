@@ -4,7 +4,7 @@ cur.execute("SELECT * FROM test_01")
 data_from_db = []
 for row in cur.fetchall():
     data_from_db.append(dict(row))
-pprint(data_from_db)
-pprint(self.configuration["data"])
+print(data_from_db)
+print(self.configuration["data"])
 if data_from_db == self.configuration["data"]:
     return "OK"
