@@ -208,9 +208,9 @@ class XLSXWriter(object):
             )
 
     def sanitize_data(self):
-        data = self._data
 
-        if isinstance(data, str):
+        
+        if isinstance(self._data, str):
             try:
                 self._data = json.loads(self._data)
             except ValueError:
@@ -225,7 +225,7 @@ class XLSXWriter(object):
                 pass
 
         if isinstance(self._data, dict):
-            self._header = list(data.keys())
+            self._header = list(self._data.keys())
             is_pseudo_list = True
             for field in self._header:
                 try:
@@ -233,6 +233,7 @@ class XLSXWriter(object):
                 except ValueError:
                     is_pseudo_list = False
             if is_pseudo_list:  # convert to real list
+                
                 self._data = list(self._data.values())
             else:
                 self._data = flatten(self._data)
@@ -318,6 +319,8 @@ class XLSXWriter(object):
     def create_sheet_from_data(self, data, sheet_name):
         self._data = data
         self.sanitize_data()
+        data = self._data
+
 
         if self._append_sheet:
             try:
@@ -329,10 +332,17 @@ class XLSXWriter(object):
         else:
             ws = self._wb.create_sheet(title=sheet_name[:30], index=0)
             ws.append(self._header)
+        from pprint import pprint
+        
+        
         for row in data:
-            values = (row.get(k, "") for k in self._header)
+            if isinstance(row,dict):
+                values = (row.get(k, "") for k in self._header)
+            else:
+                values = row
             ws.append(values)
 
+    
         tab = Table(
             displayName=sheet_name[:30].replace(" ", "_"),
             ref=f"A1:{get_column_letter(ws.max_column)}{ws.max_row}",
