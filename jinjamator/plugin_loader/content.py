@@ -149,12 +149,12 @@ def task_init_pluginloader(parent, scope):
         "global_content_plugins_base_dirs", []
     ):
         ldr.load(f"{content_plugin_dir}")
-    if os.path.isdir(parent._configuration["taskdir"] + "/plugins/content"):
+    if os.path.isdir(parent._configuration["taskdir"] + "/_plugins/content"):
         ldr._log.debug(
             "found task plugins directory "
             + parent._configuration["taskdir"]
-            + "/plugins/content"
+            + "/_plugins/content"
         )
-        ldr._plugin_ldr.load(parent._configuration["taskdir"] + "/plugins/content")
+        ldr._plugin_ldr.load(parent._configuration["taskdir"] + "/_plugins/content")
 
     ldr.py_load_plugins(scope)

@@ -166,13 +166,13 @@ class JinjamatorTask(object):
             raise ValueError(f"cannot load path {path}")
 
         self._plugin_ldr = ContentPluginLoader(self)
-        if os.path.isdir(self._configuration["taskdir"] + "/plugins/content"):
+        if os.path.isdir(self._configuration["taskdir"] + "/_plugins/content"):
             self._log.debug(
                 "found task plugins directory "
                 + self._configuration["taskdir"]
-                + "/plugins/content"
+                + "/_plugins/content"
             )
-            self._plugin_ldr.load(self._configuration["taskdir"] + "/plugins/content")
+            self._plugin_ldr.load(self._configuration["taskdir"] + "/_plugins/content")
 
         for content_plugin_dir in self._configuration.get(
             "global_content_plugins_base_dirs", []
