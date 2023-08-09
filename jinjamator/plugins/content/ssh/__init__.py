@@ -34,7 +34,6 @@ def _get_missing_ssh_connection_vars():
             inject.append("ssh_password")
         if not _jinjamator.configuration._data.get("ssh_host"):
             inject.append("ssh_host")
-        print(inject)
     except Exception:
         pass
     return inject
