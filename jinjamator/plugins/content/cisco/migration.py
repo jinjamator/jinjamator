@@ -37,9 +37,7 @@ CLIBaseMatrix = {
     r"^(no )?cdp enable$": None,
     r"^(no )?cdp tlv (\S+)$": None,
     r"^switchport port-security$": None,
-    r"^switchport trunk allowed vlan (\d+)": None,
-    r"^switchport trunk allowed vlan add (\d+)": None,
-    r"^switchport trunk allowed vlan none": None,
+    r"^switchport trunk allowed vlan (\S+)": None,
     r"^switchport mode (\S+)": None,
     r"^(no )?switchport vlan mapping enable$": None,
     r"^mls qos vlan-based": None,
@@ -414,12 +412,10 @@ class TargetGeneric(object):
             return {}
         return {}
 
-    def switchport_trunk_allowed_vlan_add_dplus(self, data, match, int_obj):
-        # is handled by switchport_trunk_allowed_vlan_dplus
-        pass
 
-
-    def switchport_trunk_allowed_vlan_dplus(self, data, match, int_obj):
+    def switchport_trunk_allowed_vlan_Splus(self, data, match, int_obj):
+        if " add " in  data:
+            return {}
         rgx = self._parent.getRegex(r"switchport mode (\S+)")
         add_rgx = self._parent.getRegex(r"switchport trunk allowed vlan add (\S+)")
         res = None
