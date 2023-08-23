@@ -37,7 +37,9 @@ CLIBaseMatrix = {
     r"^(no )?cdp enable$": None,
     r"^(no )?cdp tlv (\S+)$": None,
     r"^switchport port-security$": None,
-    r"^switchport trunk allowed vlan (.*)": None,
+    r"^switchport trunk allowed vlan (\d+)": None,
+    r"^switchport trunk allowed vlan add (\d+)": None,
+    r"^switchport trunk allowed vlan none": None,
     r"^switchport mode (\S+)": None,
     r"^(no )?switchport vlan mapping enable$": None,
     r"^mls qos vlan-based": None,
@@ -412,19 +414,36 @@ class TargetGeneric(object):
             return {}
         return {}
 
-    def switchport_trunk_allowed_vlan_MATCHALL(self, data, match, int_obj):
+    def switchport_trunk_allowed_vlan_add_dplus(self, data, match, int_obj):
+        # is handled by switchport_trunk_allowed_vlan_dplus
+        pass
+
+
+    def switchport_trunk_allowed_vlan_dplus(self, data, match, int_obj):
         rgx = self._parent.getRegex(r"switchport mode (\S+)")
+        add_rgx = self._parent.getRegex(r"switchport trunk allowed vlan add (\S+)")
         res = None
+        tagged_vlans = []
+        tagged_vlans.append(match.group(1).lower())
+        
+        is_trunk=False
         for obj in int_obj.re_search_children(rgx):
             line = obj.text.strip()
             mode_match = self._parent.getRegex(r"^switchport mode (\S+)").match(line)
             res = self.switchport_mode_Splus(line, mode_match, int_obj)
-        try:
-            if res[0]["switchport"]["mode"] in ["trunk", "dynamic"]:
-                return {"switchport": {"tagged_vlans": match.group(1).lower()}}
-        except TypeError:
+            try:
+                if res[0]["switchport"]["mode"] in ["trunk", "dynamic"]:
+                    is_trunk= True
+            except TypeError:
+                return {}
+        for obj in int_obj.re_search_children(add_rgx):
+            line = obj.text.strip()
+            tagged_vlans+=list(add_rgx.match(line).groups())
+
+        if is_trunk:
+            return {"switchport": {"tagged_vlans": ','.join(tagged_vlans)}}
+        else:
             return {}
-        return {}
 
     def no_optswitchport_vlan_mapping_enable(self, data, match, int_obj):
         if match.group(1):
