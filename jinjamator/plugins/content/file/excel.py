@@ -130,7 +130,7 @@ def to_csv_ws(src_path, target_path=None, **kwargs):
             data = [
                 v for k, v in load(src_path, cache=False, work_sheet_name=ws).items()
             ]
-            tfn = f"{file.strip_suffix(target_path)}{fn_ws_sep}{ws}{file.get_suffix(target_path)}"
+            tfn = f"{file.strip_suffix(target_path)}{fn_ws_sep}{ws}.{file.get_suffix(target_path)}"
             log.debug(f"Saving csv to {tfn}")
             file.csv.save(data, tfn)
         else:
