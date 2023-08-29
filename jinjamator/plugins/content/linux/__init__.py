@@ -30,7 +30,10 @@ def exec_ssh(cmd,con, **kwargs):
 
 
 def exec_local(cmd):
-    cmd_list = shlex.split(cmd)
+    #Maybe someone already gave a list of parameters
+    if isinstance(cmd,list): cmd_list = cmd
+    else: cmd_list = shlex.split(cmd)
+
     ret = subprocess.run(cmd_list,capture_output=True)
     return [str(ret.stdout.decode("utf-8")).strip("\n"),str(ret.stderr.decode("utf-8")).strip("\n")]
 
