@@ -1,5 +1,23 @@
 import ipcalc
 import re
+from ipaddress import IPv4Network, IPv6Network
+# import pkgutil
+
+# __all__ = []
+
+# for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
+#     __all__.append(module_name)
+#     _module = loader.find_module(module_name).load_module(module_name)
+#     globals()[module_name] = _module
+
+######################### Attention ##########################
+# 
+# This module should undergo a rewrite to use IPv4Network instead of ipcalc
+# see issue in `is_in()`
+# Maybe also do some optimization as mentioned in https://codereview.stackexchange.com/questions/260598/check-if-ip-address-list-has-subnet-or-is-supernet
+# for is_in_list()
+
+
 
 def is_in (ip,subnet):
     """
@@ -14,9 +32,38 @@ def is_in (ip,subnet):
     :returns: True or False
     :rtype: bool
     """
-    net = ipcalc.Network(subnet)
-    return net.has_key(ip)
+    #ipcalc is broken as has_key() does only check for conflicts.
+    #This means that is_in("192.168.0.0/24","192.168.0.0/25") is True - while it should not
+    #net = ipcalc.Network(subnet)
+    #return net.has_key(ip)
 
+    #Quick-Fix for now is to use IPv4Network for this
+    if ":" in ip or ":" in subnet: 
+        #return IPv6Network(ip, False).subnet_of(IPv6Network(subnet, False))
+        net = ipcalc.Network(subnet)
+        return net.has_key(ip)
+    else: return IPv4Network(ip.strip(), False).subnet_of(IPv4Network(subnet.strip(), False))
+
+
+def is_in_list (ip,subnet_list):
+    """
+    Check if ``ip`` is within ``list of subnets``
+    >>> is_in("192.168.0.5","[172.16.0.0/24, 192.168.0.0/24]")
+    True
+
+    :param ip: IP-address or network in CIDR-notation
+    :type ip: string
+    :param subnet_list: list of networks in CIDR-notation
+    :type subnet_list: list
+    :returns: True or False
+    :rtype: bool
+    """
+    #This functionality was not included in is_in to save CPU cycles and prevent checking each time for a list type when there isn't one most of the time
+    if isinstance(subnet_list,list):
+        for subnet in subnet_list:
+            if is_in(ip,subnet): return True
+    
+    return False
 
 def overlap (subnet1,subnet2):
     """
@@ -222,9 +269,11 @@ def list_ips (subnet):
 def expand_range (string):
     """
     Will return all IP's or ranges within the defined ranges
-    >>> print(list_ips("192.168.0-3.0/29"))
+
+    >>> print(expand_range("192.168.0-3.0/29"))
     ['192.168.0.0/29', '192.168.1.0/29', '192.168.2.0/29', '192.168.3.0/29']
-    >>> print(list_ips("192.168-169.0-2.5"))
+
+    >>> print(expand_range("192.168-169.0-2.5"))
     ['192.168.0.5', '192.168.1.5', '192.168.2.5', '192.169.0.5', '192.169.1.5', '192.169.2.5']
     :param subnet: network in CIDR-notation
     :type subnet: string
