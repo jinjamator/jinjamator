@@ -240,6 +240,7 @@ class XLSXWriter(object):
                 self._header = list(self._data.keys())
 
         if isinstance(self._data, list):
+            data_type = "unknown"
             for index, line in enumerate(self._data):
                 data_type = "list_of_dict"
                 if isinstance(line, list):
@@ -251,13 +252,15 @@ class XLSXWriter(object):
                     raise ValueError(
                         f"Line {index} is neither, list nor dict. I don't know how to proceed further {line}"
                     )
-            if data_type == "list_of_dict":
-                self._header = list(self._data[0].keys())
-            else:
-                self._header = [
-                    f"column {counter}"
-                    for counter in range(1, len(self._data[index]) + 1)
-                ]
+                
+                #Tried to fix, needs checking
+                if data_type == "list_of_dict":
+                    self._header = list(self._data[0].keys())
+                else:
+                    self._header = [
+                        f"column {counter}"
+                        for counter in range(1, len(self._data[index]) + 1)
+                    ]
 
         if self._order_header:
             self._header = natsorted(self._header)
