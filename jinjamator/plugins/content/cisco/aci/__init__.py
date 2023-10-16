@@ -70,6 +70,7 @@ switchdb = {
         "type": "fex",
     },
     "N9K-C9364C": {"uplinks": [], "downlinks": range(1, 67), "type": "spine"},
+    "N9K-C9364C-GX": {"uplinks": [], "downlinks": range(1, 65), "type": "spine"},
     "N9K-C9332C": {"uplinks": [], "downlinks": range(1, 35), "type": "spine"},
     "N9K-C9336PQ": {"uplinks": [], "downlinks": range(1, 37), "type": "spine"},
     "N9K-C93600CD-GX": {
