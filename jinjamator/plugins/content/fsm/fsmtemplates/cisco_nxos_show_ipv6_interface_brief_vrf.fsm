@@ -1,5 +1,5 @@
 Value Required INTERFACE (\S+)
-Value Required IP_ADDRESS ([a-zA-Z0-9:/]+)
+Value Required IP_ADDRESS ([a-zA-Z0-9:/]+(\[.+\])?)
 Value IP_ADDRESS_LINK ([a-zA-Z0-9:/]+)
 Value STATUS_PROTO (\S+)
 Value STATUS_LINK (\S+)
