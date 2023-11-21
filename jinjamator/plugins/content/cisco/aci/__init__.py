@@ -27,70 +27,96 @@ log = logging.getLogger()
 
 
 switchdb = {
-    "N9K-C93108TC-EX": {
-        "uplinks": [49, 50, 51, 52, 53, 54],
-        "downlinks": range(1, 49),
-        "type": "leaf",
+    "leaf": {
+        "N9K-C93108TC-EX": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93108TC-FX": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93108TC-FX": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93108TC-FX": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93108TC-FX": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93108TC-FX3P": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93180YC-FX": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93180YC-FX3": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93240YC-FX2": {
+            "uplinks": [49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C9348GC-FXP": {
+            "uplinks": [53, 54],
+            "downlinks": range(1, 53),
+        },
+        "N9K-C93180YC-EX": {
+            "uplinks": [49, 50, 51, 52, 53, 54],
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93216TC-FX2": {
+            "uplinks": range(96, 109),
+            "downlinks": range(1, 97),
+        },
+        "N9K-C9396PX": {
+            "uplinks": range(49, 61),
+            "downlinks": range(1, 49),
+        },
+        "N9K-C93600CD-GX": {
+            "uplinks": [29, 30, 31, 32, 33, 34, 35, 36],
+            "downlinks": range(1, 29),
+        },
+        "TEST-LEAF": {
+            "uplinks": range(49, 50),
+            "downlinks": range(1, 2),
+        },
     },
-    "N9K-C93108TC-FX": {
-        "uplinks": [49, 50, 51, 52, 53, 54],
-        "downlinks": range(1, 49),
-        "type": "leaf",
+    "spine": {
+        "N9K-C9364C": {"uplinks": [], "downlinks": range(1, 67)},
+        "N9K-C9364C-GX": {
+            "uplinks": [],
+            "downlinks": range(1, 65),
+        },
+        "N9K-C9332C": {"uplinks": [], "downlinks": range(1, 35)},
+        "N9K-C9336PQ": {"uplinks": [], "downlinks": range(1, 37)},
+        "N9K-C93600CD-GX": {
+            "uplinks": [],
+            "downlinks": range(1, 37),
+        },
+        "TEST-SPINE": {"uplinks": [], "downlinks": range(1, 2)},
     },
-    "N9K-C93108TC-FX3P": {
-        "uplinks": [49, 50, 51, 52, 53, 54],
-        "downlinks": range(1, 49),
-        "type": "leaf",
+    "fex": {
+        "N2K-B22HP-P": {
+            "uplinks": range(17, 25),
+            "downlinks": range(1, 17),
+        },
+        "N2K-C2248TP-1GE": {
+            "uplinks": range(49, 53),
+            "downlinks": range(1, 49),
+        },
+        "TEST-FEX": {
+            "uplinks": range(49, 50),
+            "downlinks": range(1, 2),
+        },
     },
-    "N9K-C93180YC-FX": {
-        "uplinks": [49, 50, 51, 52, 53, 54],
-        "downlinks": range(1, 49),
-        "type": "leaf",
-    },
-    "N9K-C93180YC-FX3": {
-        "uplinks": [49, 50, 51, 52, 53, 54],
-        "downlinks": range(1, 49),
-        "type": "leaf",
-    },
-    "N9K-C93240YC-FX2": {
-        "uplinks": [49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60],
-        "downlinks": range(1, 49),
-        "type": "leaf",
-    },
-    "N9K-C9348GC-FXP": {"uplinks": [53, 54], "downlinks": range(1, 53), "type": "leaf"},
-    "N9K-C93180YC-EX": {
-        "uplinks": [49, 50, 51, 52, 53, 54],
-        "downlinks": range(1, 49),
-        "type": "leaf",
-    },
-    "N2K-B22HP-P": {"uplinks": range(17, 25), "downlinks": range(1, 17), "type": "fex"},
-    "N2K-C2248TP-1GE": {
-        "uplinks": range(49, 53),
-        "downlinks": range(1, 49),
-        "type": "fex",
-    },
-    "N9K-C9364C": {"uplinks": [], "downlinks": range(1, 67), "type": "spine"},
-    "N9K-C9364C-GX": {"uplinks": [], "downlinks": range(1, 65), "type": "spine"},
-    "N9K-C9332C": {"uplinks": [], "downlinks": range(1, 35), "type": "spine"},
-    "N9K-C9336PQ": {"uplinks": [], "downlinks": range(1, 37), "type": "spine"},
-    "N9K-C93600CD-GX": {
-        "uplinks": [],
-        "downlinks": range(1, 37),
-        "type": "spine",
-    },
-    "N9K-C93216TC-FX2": {
-        "uplinks": range(96, 109),
-        "downlinks": range(1, 97),
-        "type": "leaf",
-    },
-    "N9K-C9396PX": {
-        "uplinks": range(49, 61),
-        "downlinks": range(1, 49),
-        "type": "leaf",
-    },
-    "TEST-LEAF": {"uplinks": range(49, 50), "downlinks": range(1, 2), "type": "leaf"},
-    "TEST-SPINE": {"uplinks": [], "downlinks": range(1, 2), "type": "spine"},
-    "TEST-FEX": {"uplinks": range(49, 50), "downlinks": range(1, 2), "type": "fex"},
 }
 
 log = logging.getLogger()
@@ -126,7 +152,7 @@ def _get_missing_apic_connection_vars():
         inject.append("apic_password")
     return inject
 
- 
+
 def connect_apic(
     subscription_enabled=False, *, _requires=_get_missing_apic_connection_vars
 ):
@@ -171,14 +197,14 @@ If the URL contains "subscription=yes as parameter", a websocket session will be
     """
     if _jinjamator._configuration["task_run_mode"] == "discover":
         return ""
-    
+
     if not query_url.startswith("/"):
         query_url = f"/{query_url}"
     if "subscription=yes" in query_url:
         subscription_enabled = True
     else:
         subscription_enabled = False
-    
+
     session = connect_apic(subscription_enabled)
     try:
         data = session.get(query_url, timeout)
@@ -205,15 +231,15 @@ def model_is_spine(model):
 
 
 def get_leaf_types():
-    return [switch for switch in switchdb.keys() if switchdb[switch]["type"] == "leaf"]
+    return [switch for switch in switchdb["leaf"].keys()]
 
 
 def get_spine_types():
-    return [switch for switch in switchdb.keys() if switchdb[switch]["type"] == "spine"]
+    return [switch for switch in switchdb["spine"].keys()]
 
 
 def get_fex_types():
-    return [switch for switch in switchdb.keys() if switchdb[switch]["type"] == "fex"]
+    return [switch for switch in switchdb["fex"].keys()]
 
 
 def model_is_leaf(model):
@@ -223,7 +249,11 @@ def model_is_leaf(model):
 
 
 def get_role_by_model(model):
-    if aci_model_is_spine(model):
+    if model in list(switchdb["leaf"].keys()) and model in list(
+        switchdb["spine"].keys()
+    ) + list(switchdb["fex"].keys()):
+        return "unspecified"
+    elif aci_model_is_spine(model):
         return "spine"
     elif aci_model_is_leaf(model):
         return "leaf"
@@ -233,21 +263,21 @@ def get_role_by_model(model):
         return "unspecified"
 
 
-def get_all_uplinks(model):
-    return switchdb[model.upper()]["uplinks"]
+def get_all_uplinks(model, role="leaf"):
+    return switchdb[role][model.upper()]["uplinks"]
 
 
-def get_convertible_uplinks(model, count, min_uplinks=2):
+def get_convertible_uplinks(model, count, min_uplinks=2, role="leaf"):
     try:
-        possible = switchdb[model]["uplinks"][-count:]
+        possible = switchdb[role][model.upper()]["uplinks"][-count:]
     except KeyError:
         return []
-    if len(switchdb[model]["uplinks"]) - len(possible) < min_uplinks:
+    if len(switchdb[role][model.upper()]["uplinks"]) - len(possible) < min_uplinks:
         return []
     return possible
 
 
-def get_all_downlinks(model):
+def get_all_downlinks(model, role="leaf"):
     """
     Return all downlink ports from plugin internal switch database.
 
@@ -257,9 +287,9 @@ def get_all_downlinks(model):
     :rtype: list
     """
     try:
-        return switchdb[model.upper()]["downlinks"]
+        return switchdb[role][model.upper()]["downlinks"]
     except KeyError:
-        raise ValueError(f"Switchmodel {model} is not supported")
+        raise ValueError(f"Switchmodel {model} with role {role} is not supported")
 
 
 def get_parent_dn_from_child_dn(dn):
@@ -568,7 +598,6 @@ def dn_has_attribute(dn, key, value, *, _requires=_get_missing_apic_connection_v
 def get_all_configured_spine_uplinks(*, _requires=_get_missing_apic_connection_vars):
     infra_ports = {}
     try:
-
         infra_port_blks = query(
             "/api/node/class/infraSHPortS.json?query-target=children&target-subtree-class=infraPortBlk"
         )["imdata"]
@@ -810,7 +839,6 @@ def delete(
 
 
 def post(data, timeout=60, force=False, _requires=_get_missing_apic_connection_vars):
-
     if type(data) == str:
         data = json.loads(data)
     data_list = data
