@@ -37,9 +37,7 @@ CLIBaseMatrix = {
     r"^(no )?cdp enable$": None,
     r"^(no )?cdp tlv (\S+)$": None,
     r"^switchport port-security$": None,
-    r"^switchport trunk allowed vlan (\d+)": None,
-    r"^switchport trunk allowed vlan add (\d+)": None,
-    r"^switchport trunk allowed vlan none": None,
+    r"^switchport trunk allowed vlan (\S+)": None,
     r"^switchport mode (\S+)": None,
     r"^(no )?switchport vlan mapping enable$": None,
     r"^mls qos vlan-based": None,
@@ -259,6 +257,19 @@ CLIBaseMatrix = {
     r"^service-policy type queuing output (\S+)": None,
     r"^service-policy type queuing input (\S+)": None,
     r"^shutdown force": None,
+    r"^(no )?lacp port pdu-loss report": None,
+    r"^(no )?no egress port-channel load-balance random": None,
+    r"^(no )?switchport fabricpath native vlan tag": None,
+    r"^(no )?switchport monitor exclude header": None,
+    r"^(no )?negotiation auto": None,
+    r"^(no )?medium p2p": None,
+    r"^(no )?ptp enable": None,
+    r"^(no )?autonomic": None,
+    
+    
+    
+    
+    
 
 }
 
@@ -305,7 +316,7 @@ class TargetGeneric(object):
                 )
 
     def _default(self, data, match, int_obj):
-        self._log.warn("default handler used for data: {0}".format(data))
+        self._log.debug("default handler used for data: {0}".format(data))
         tmp = data.split(" ")
         val = tmp.pop()
         return {"_".join(tmp): val}
@@ -393,12 +404,13 @@ class TargetGeneric(object):
             line = obj.text.strip()
             mode_match = self._parent.getRegex(r"^switchport mode (\S+)").match(line)
             res = self.switchport_mode_Splus(line, mode_match, int_obj)
+
         try:
-            if res[0]["switchport"]["mode"] == "access":
-                return {"switchport": {"untagged_vlan": match.group(1).lower()}}
+            if res[0]["switchport"]["mode"] != "access":
+                return {}
         except TypeError:
-            return {}
-        return {}
+            return {"switchport": {"untagged_vlan": match.group(1).lower()}}
+        return {"switchport": {"untagged_vlan": match.group(1).lower()}}
 
     def switchport_trunk_native_vlan_dplus(self, data, match, int_obj):
         rgx = self._parent.getRegex(r"switchport mode (\S+)")
@@ -414,12 +426,10 @@ class TargetGeneric(object):
             return {}
         return {}
 
-    def switchport_trunk_allowed_vlan_add_dplus(self, data, match, int_obj):
-        # is handled by switchport_trunk_allowed_vlan_dplus
-        pass
 
-
-    def switchport_trunk_allowed_vlan_dplus(self, data, match, int_obj):
+    def switchport_trunk_allowed_vlan_Splus(self, data, match, int_obj):
+        if " add " in  data:
+            return {}
         rgx = self._parent.getRegex(r"switchport mode (\S+)")
         add_rgx = self._parent.getRegex(r"switchport trunk allowed vlan add (\S+)")
         res = None
@@ -538,10 +548,11 @@ class TargetGeneric(object):
             retval.append({"isMonitoring": True})
         else:
             retval.append({"isMonitoring": False})
-        if match.group(1):
-            val = False
-        else:
+        
+        if str(match.group(1)) == "no":
             val = True
+        else:
+            val = False
         retval.append({"isL3": val})
         retval.append({"isL2": not val})
         return retval
@@ -801,6 +812,7 @@ class TargetGeneric(object):
             {"ipv4": {add: {"type": ip_type}}},
             {"ipv4": {add: {"prefix": prefix}}},
             {"ipv4": {add: {"netmask": mask}}},
+            {"isL3": True, "isL2": False}
         ]
 
     # def standby_dplus_priority_Splus(self,data,match,int_obj):
