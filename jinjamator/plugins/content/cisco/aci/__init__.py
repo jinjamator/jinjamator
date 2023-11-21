@@ -837,3 +837,26 @@ def post(data, timeout=60, force=False, _requires=_get_missing_apic_connection_v
 
     session.close()
     return json.loads(resp.text)
+
+def get_interface_info(node_id,nxos_interface_name,pod_id = None, _requires=_get_missing_apic_connection_vars):
+    
+    if not pod_id:
+        pod_id=get_podid_by_switch_id(node_id)    
+    info={
+        't_dn':f"topology/pod-{pod_id}/paths-{node_id}/pathep-[{nxos_interface_name}]",
+        'is_breakout':False,
+        'is_lag':False,
+        'is_mlag':False,
+        'lag_name':''
+    }
+    for item in query(f'/api/node/mo/topology/pod-{pod_id}/node-{node_id}/sys/phys-[{nxos_interface_name}].json?&rsp-subtree-include=relations')["imdata"]:
+        all_keys = list(item.keys())    
+        if "eqptBrkoutP" in all_keys:
+            info['is_breakout']=True
+        if "pcAggrIf" in all_keys:
+            info['is_lag']=True
+            lag_name=info['lag_name']=item["pcAggrIf"]["attributes"]["name"]
+            for vpc_item in query(f'/api/node/class/vpcIf.json?query-target-filter=and(eq(vpcIf.name,"{lag_name}"))&order-by=vpcIf.modTs|desc')["imdata"]:
+                info['t_dn']=vpc_item['vpcIf']['attributes']['fabricPathDn']
+                info['is_mlag']=True
+    return info
