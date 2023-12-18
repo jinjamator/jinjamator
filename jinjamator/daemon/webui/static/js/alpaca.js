@@ -36419,6 +36419,16 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
 
                 self.options.upload.headers[Alpaca.CSRF_HEADER_NAME] = csrfToken;
             }
+            //  add bearer auth token for jinjamator
+            if (!self.options.upload) {
+                self.options.upload = {};
+            }
+
+            if (!self.options.upload.headers) {
+                self.options.upload.headers = {};
+            }
+            self.options.upload.headers["Authorization"]='Bearer ' + sessionStorage.getItem('access_token');
+
         },
 
         determineCsrfToken: function()
