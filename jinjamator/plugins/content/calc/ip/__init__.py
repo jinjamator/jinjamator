@@ -1,6 +1,6 @@
 import ipcalc
 import re
-from ipaddress import IPv4Network, IPv6Network
+from ipaddress import IPv4Network, IPv6Network, ip_address, ip_network
 # import pkgutil
 
 # __all__ = []
@@ -18,6 +18,40 @@ from ipaddress import IPv4Network, IPv6Network
 # for is_in_list()
 
 
+def is_ip (ip):
+    """
+    Check if ``ip`` is an ip address
+    >>> is_ip("192.168.0.5")
+    True
+
+    :param ip: IP-address that should be checked
+    :type ip: string
+    :returns: True or False
+    :rtype: bool
+    """
+    try:
+        is_ip = ip_address(ip)
+        return True
+    except:
+        return False
+
+def is_subnet (subnet):
+    """
+    Check if ``subnet`` is a subnet.
+    Also returns True if it is a host within a subnet
+    >>> is_subnet("192.168.0.5/24")
+    True
+
+    :param subnet: Subnet in CIDR notation that should be checked
+    :type subnet: string
+    :returns: True or False
+    :rtype: bool
+    """
+    try:
+        is_subn = ip_network(subnet,strict=False)
+        return True
+    except:
+        return False
 
 def is_in (ip,subnet):
     """
