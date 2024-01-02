@@ -76,15 +76,18 @@ def analyze_interface_name(shortname,result_prefix='',default_interface_prefix='
                 retval['chassis']=tmp
                 retval['card']=int(_res['b'])
                 retval['port']=int(_res['c'])
+                retval['name']=f"{retval['prefix']}{retval['chassis']}/{retval['card']}/{retval['port']}"
             else:
                 retval['is_breakout_interface']=True
                 retval['card']=tmp
                 retval['port']=int(_res['b'])
                 retval['lane']=int(_res['a'])
+                retval['name']=f"{retval['prefix']}{retval['card']}/{retval['port']}/{retval['lane']}"
         if is_ios:
                 retval['chassis']=tmp
                 retval['card']=int(_res['b'])
                 retval['port']=int(_res['c'])            
+                retval['name']=f"{retval['prefix']}{retval['chassis']}/{retval['card']}/{retval['port']}"
                 
 
     if _res['l3_sub_interface']:
