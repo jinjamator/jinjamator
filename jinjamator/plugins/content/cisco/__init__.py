@@ -1,10 +1,16 @@
 import re
 def analyze_interface_name(shortname,result_prefix='',default_interface_prefix='Ethernet'):
-
+    if not shortname:
+        log.error(f'cisco.analyze_interface_name: no shortname supplied')
+        return {}
     is_nxos=False
     is_ios=False
-
-    _res=re.match(r'(?P<prefix>\D+)(?P<a>\d+)/?(?P<b>\d+)?/?(?P<c>\d*)(?:\.(?P<l3_sub_interface>))?',shortname).groupdict()
+    _rgx=r'(?P<prefix>\D+)(?P<a>\d+)/?(?P<b>\d+)?/?(?P<c>\d*)(?:\.(?P<l3_sub_interface>))?'
+    try:
+        _res=re.match(_rgx,shortname).groupdict()
+    except AttributeError as err:
+        log.error(f'cisco.analyze_interface_name: shortname "{shortname}" does not match {_rgx}')
+        return {}
     
     if not _res['prefix']:
         _res['prefix']=default_prefix
