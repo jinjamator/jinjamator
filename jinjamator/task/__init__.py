@@ -697,11 +697,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         _, _, tb = sys.exc_info()
         error_text = ""
         code_to_show = ""
-        from pprint import pprint
         for filename, lineno, funname, line in reversed(
             traceback.extract_tb(tb)
         ):
-            print(filename, lineno, funname, line)
             if filename == "<string>":
                 filename = tasklet
             if filename == tasklet:
