@@ -766,12 +766,20 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
             self._current_tasklet = tasklet
             retval = ""
-
-            self._log.debug(
-                "running with dataset: \n{0}".format(
-                    json.dumps(redact(deepcopy(self.configuration._data))[1],indent=2,sort_keys=True)
+            redacted_config=redact(deepcopy(self.configuration._data))[1]
+            try:
+                self._log.debug(
+                    "running with dataset: \n{0}".format(
+                        json.dumps(redacted_config,indent=2,sort_keys=True)
+                    )
                 )
-            )
+            except TypeError:
+                # if sort fails just do not sort
+                self._log.debug(
+                    "running with dataset: \n{0}".format(
+                        json.dumps(redacted_config,indent=2)
+                    )
+                )
             if tasklet.endswith("j2"):
                 try:
                     template_string = ""
