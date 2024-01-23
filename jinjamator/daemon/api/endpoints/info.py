@@ -27,7 +27,7 @@ from flask import current_app as app
 log = logging.getLogger()
 
 ns = api.namespace(
-    "info", description="Operations related to jinjamator internal informations"
+    "info", description="Operations related to jinjamator internal information"
 )
 
 
