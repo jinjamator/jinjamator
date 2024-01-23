@@ -27,6 +27,8 @@ from jinjamator.daemon.api.endpoints.output_plugins import (
     discover_output_plugins,
 )
 from jinjamator.daemon.api.endpoints.files import ns as files_namespace
+from jinjamator.daemon.api.endpoints.info import ns as info_namespace
+
 from jinjamator.daemon.database import db
 from jinjamator.daemon.aaa import aaa_providers, initialize as init_aaa
 
@@ -162,7 +164,13 @@ def configure(flask_app, _configuration):
         flask_app.json.sort_keys = False
     else:
         flask_app.config["JSON_SORT_KEYS"] = False
-
+    
+    tmp=os.path.dirname(__file__).split(os.path.sep)[:-1] + ["VERSION"]
+    
+    with open(os.path.sep.join(tmp)) as fh:
+        version=fh.read()
+    flask_app.config["JINJAMATOR_VERSION"]=version
+    log.info("Starting jinjamator version: " + flask_app.config["JINJAMATOR_VERSION"])
 
 def initialize(flask_app, cfg):
     """
@@ -188,6 +196,7 @@ def initialize(flask_app, cfg):
     api.add_namespace(jobs_namespace)
     api.add_namespace(files_namespace)
     api.add_namespace(aaa_namespace)
+    api.add_namespace(info_namespace)
     flask_app.register_blueprint(api_blueprint)
     if flask_app.config["JINJAMATOR_WEB_UI_CLASS"].lower() in [
         "none",
