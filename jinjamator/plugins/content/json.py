@@ -24,7 +24,10 @@ def dumps(data):
     :returns: json-string
     :rtype: string
     """
-    return json_dumps(data, sort_keys=True, indent=2)
+    try:
+        return json_dumps(data, sort_keys=True, indent=2)
+    except  TypeError:
+        return json_dumps(data, sort_keys=False, indent=2)
 
 def dump(data,filepath):
     """
