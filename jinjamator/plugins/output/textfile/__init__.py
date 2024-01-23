@@ -5,7 +5,7 @@ from pprint import pprint
 import os
 import json
 import errno
-
+import tempfile
 
 class textfile(outputPluginBase):
     def addArguments(self):
@@ -33,7 +33,7 @@ class textfile(outputPluginBase):
 
     def process(self, data, **kwargs):
         if self._parent._configuration.get("task_run_mode") == "background":
-                    self._parent.configuration["output_directory"] = os.path.join(
+                    self._parent.configuration["textfile_output_directory"] = os.path.join(
                         self._parent._configuration.get(
                             "jinjamator_user_directory", tempfile.gettempdir()
                         ),
@@ -44,7 +44,7 @@ class textfile(outputPluginBase):
 
         try:
             os.makedirs(
-                self._parent.configuration.get("output_directory", "./"), exist_ok=True
+                self._parent.configuration.get("textfile_output_directory", "./"), exist_ok=True
             )
         except OSError as e:
             if e.errno != errno.EEXIST:
