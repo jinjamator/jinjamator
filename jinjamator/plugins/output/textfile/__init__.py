@@ -32,12 +32,22 @@ class textfile(outputPluginBase):
         pass
 
     def process(self, data, **kwargs):
+        if self._parent._configuration.get("task_run_mode") == "background":
+                    self._parent.configuration["output_directory"] = os.path.join(
+                        self._parent._configuration.get(
+                            "jinjamator_user_directory", tempfile.gettempdir()
+                        ),
+                        "logs",
+                        self._parent._configuration.get("jinjamator_job_id"),
+                        "files",
+                    )
+
         try:
-            os.mkdir(
-                self._parent.configuration.get("textfile_output_directory", "/tmp")
+            os.makedirs(
+                self._parent.configuration.get("output_directory", "./"), exist_ok=True
             )
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
+        except OSError as e:
+            if e.errno != errno.EEXIST:
                 raise
             pass
 
@@ -51,6 +61,12 @@ class textfile(outputPluginBase):
             generated_filename,
         )
         dest = self._parent.configuration.get("textfile_output_path", generated_dest)
+        if self._parent.configuration.get("textfile_file_suffix") == "json":
+            if not isinstance(data,str):
+                try:
+                    data=json.dumps(data,indent=2, sort_keys=True)
+                except ValueError:
+                    data=json.dumps(data,indent=2, sort_keys=False)
 
         with open(dest, "w") as fh:
             fh.write(data)
