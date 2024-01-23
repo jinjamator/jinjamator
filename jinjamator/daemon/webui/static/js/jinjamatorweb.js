@@ -104,6 +104,7 @@ $(function () {
      * @returns void
      */
     function setup() {
+        set_jinjamator_version()
         var tmp = get('skin')
         if (tmp && $.inArray(tmp, mySkins))
             changeSkin(tmp)
@@ -1205,6 +1206,21 @@ function download_file(url, filename) {
     req.send();
 }
 
+function set_jinjamator_version() {
+    access_token = sessionStorage.getItem('access_token');
+    var req = new XMLHttpRequest();
+    req.open("GET", "/api/info/version", true);
+    req.setRequestHeader('Authorization', 'Bearer ' + access_token);
+    req.onload = function (event) {
+        event.preventDefault();
+        var version_data = JSON.parse(req.response);
+        console.log(version_data)
+        $('.jinjamator_version').html( "<b>Version</b> " + version_data.version)
+
+        
+    };
+    req.send();
+}
 
 function timeline_render_elements(data) {
     var last_task = '';
