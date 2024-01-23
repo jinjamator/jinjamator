@@ -26,6 +26,7 @@ import os
 import xxhash
 from werkzeug.utils import secure_filename
 import magic
+from random import randrange
 
 
 log = logging.getLogger()
@@ -55,6 +56,8 @@ class FileUpload(Resource):
             data = uploaded_file.read()
             digest = xxhash.xxh128(data).hexdigest()
             file_path = os.path.join(base_dir, secure_filename(digest))
+            while os.path.exists(file_path):
+                file_path+=str(randrange(0, 9))
             with open(file_path, "wb") as fh:
                 fh.write(data)
 
