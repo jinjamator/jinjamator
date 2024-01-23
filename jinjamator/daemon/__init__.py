@@ -165,11 +165,16 @@ def configure(flask_app, _configuration):
     else:
         flask_app.config["JSON_SORT_KEYS"] = False
     
-    tmp=os.path.dirname(__file__).split(os.path.sep)[:-1] + ["VERSION"]
-    
-    with open(os.path.sep.join(tmp)) as fh:
-        version=fh.read()
+    version="not detected"
+    try:
+        from setuptools_git_versioning import version_from_git
+        version=version_from_git()
+    except:
+        tmp=os.path.dirname(__file__).split(os.path.sep)[:-1] + ["VERSION"]
+        with open(os.path.sep.join(tmp)) as fh:
+            version=fh.read()
     flask_app.config["JINJAMATOR_VERSION"]=version
+    
     log.info("Starting jinjamator version: " + flask_app.config["JINJAMATOR_VERSION"])
 
 def initialize(flask_app, cfg):
