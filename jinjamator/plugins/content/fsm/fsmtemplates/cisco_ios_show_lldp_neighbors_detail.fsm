@@ -44,7 +44,7 @@ Start
   ^\s*\^\s*
   ^\s*Total\s+entries\s+displayed -> Record
   ^\s*$$
-  ^.*$$ -> Error
+#  ^.*$$ -> Error
 
 GetDescription
   ^${SYSTEM_DESCRIPTION} -> IgnoreDescription
