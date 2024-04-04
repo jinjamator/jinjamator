@@ -343,7 +343,8 @@ class Program(object):
 
         logging.Logger.tasklet_result = tasklet_result
 
-        msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(funcName)s - %(levelname)s - %(message)s"
+        # msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(funcName)s - %(levelname)s - %(message)s"
+        msg_format = "%(asctime)s - [%(pathname)s:%(lineno)s] - %(levelname)s - %(message)s"
         stdout = logging.StreamHandler(sys.stdout)
         formatter = ColoredFormatter(msg_format)
         stdout.setFormatter(formatter)
