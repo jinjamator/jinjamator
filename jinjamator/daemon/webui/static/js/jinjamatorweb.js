@@ -7,8 +7,11 @@ var log_levels = {
     'TASKLET_RESULT': 0
 }
 
+
+
 $(function () {
     'use strict'
+    
     /**
      * Get access to plugins
      */
@@ -1159,35 +1162,27 @@ function list_jobs() {
 }
 
 
-function set_timeline_loglevel(level) {
+function set_timeline_loglevel() {
     // console.dir($('#job_id').innerText)
     job_id=$('#job_id')[0].innerText
     $('.timeline li').remove()
-    update_timeline(job_id)
-    
-    // $(".timeline-item-list-item").each(function () {
-    //     cur_level = $(this).find('#log_level').html()
-    //     if (levels[cur_level] > levels[level]) {
-    //         $(this).addClass('hidden');
-    //     } else {
-    //         $(this).removeClass('hidden');
-    //     }
-    // }
+    show_job(job_id,$('#log_severity')[0].value)
 
-    // );
 
 }
 
 
 function update_timeline(job_id) {
-    client.jobs.read(job_id).done(function (data) {
-
-        timeline_render_elements(data);
-        if ($('#job_id').length > 0) {
-            if (data['state'] == "PROGRESS" || data['state'] == "SCHEDULED" || data['state'] == "DEBUGGING")
-                setTimeout(update_timeline, 1000, job_id);
+    // client.jobs.read(job_id).done(function (data) {
+    var state= $('#job_status').html()
+    console.log(state)
+    if ($('#job_id').length > 0) {
+        if (state != "FAILURE" && state != "SUCCESS"){
+            setTimeout(update_timeline, 5000, job_id);
+            show_job(job_id,$('#log_severity')[0].value)
         }
-    });
+    }
+    // });
 
 }
 
@@ -1226,17 +1221,11 @@ function set_jinjamator_version() {
     req.send();
 }
 
-function timeline_render_elements(data) {
-    var last_task = '';
-    var last_tasklet = '';
-    var msg_idx = false;
-    var timeline = $('.timeline');
-    var rendered_timestamps = $.makeArray($('.time').map(function () {
-        return this.innerHTML;
-    }));
+function render_logs(data) {
     $('#job_status').html(data['state']);
     $('#job_status').addClass("badge");
     $('#job_status').addClass(badge_color_from_state(data['state']));
+
     if (data.files.length > 0) {
         $("#job_files").html('');
         data['files'].forEach(function (value, index, array) {
@@ -1248,137 +1237,210 @@ function timeline_render_elements(data) {
             $('<br>').appendTo('#job_files');
         });
     }
-
-
-
-
     $.each(data['log'], function (index, log_item) {
         var timestamp = Object.keys(log_item)[0];
+        var message = log_item[timestamp]['message']
 
-        if (!rendered_timestamps.includes(timestamp)) {
-
-
-            current_serverity=log_levels[$('#log_severity')[0].value]
-            // console.log(log_item[timestamp]['level'],log_levels[log_item[timestamp]['level']],current_serverity)
-
-            if (current_serverity >= log_levels[log_item[timestamp]['level']] ||  log_item[timestamp]['level'] == "TASKLET_RESULT" ){
+        const json_regexp = /{.*\}/gm;
+        
 
 
-                if (last_task != log_item[timestamp]['current_task']) {
-                    var timeline_label = timeline_templates.filter('#timeline-label-template');
-                    timeline_label.find('.time-label span').addClass('bg-blue');
-                    timeline_label.find('.time-label span').html(log_item[timestamp]['current_task']);
-                    timeline.append(timeline_label.html());
-                }
+        var tasklet = log_item[timestamp]['current_tasklet']
+        if (tasklet.length > 15)
+            var tasklet_short="..."+ tasklet.substring(tasklet.length -12) 
+        else
+            var tasklet_short=tasklet
+        var serverity=log_item[timestamp]['level']
+        
+        const myJSON = log_item[timestamp]['configuration'];
+        const formatter = new JSONFormatter(myJSON,0);
+        serverity_classes=""
+        switch (log_item[timestamp]['level']) {
+            case 'INFO':
+                serverity_classes = 'badge bg-blue';
+                break;
+            case 'WARNING':
+                serverity_classes = 'badge bg-yellow';
+                break;
+            case 'ERROR':
+                serverity_classes = 'badge bg-red';
+                break;
+            case 'DEBUG':
+                serverity_classes = 'badge bg-grey';
+                break;
+            case 'TASKLET_RESULT':
+                serverity_classes = 'badge bg-green';
+                break;
+        }
+        $('#log_table > tbody:last-child').append('<tr><td nowrap width="1%">' + timestamp + 
+        '</td><td nowrap width="1%" class="jinjamator_log_tasklet"><span class="tasklet_path_block">'+tasklet_short+ 
+        '</span><span class="tasklet_path_none">'+ tasklet +
+        '</span></td><td width="1%"><span style="min-width:70px;" class="'+serverity_classes+'">'+serverity+'</span>\
+        </td><td><span class="jinjamator_log_message jinjamator_log_message_collapsed" onclick=>' + message + '</span></td><td></td></tr>');
+        $('#log_table > tbody > tr:last-child > td:last-child').append(formatter.render())
+    
+    }
+    
+    )
+    $('.jinjamator_log_message').click(function() {
+        $(this).toggleClass('jinjamator_log_message_collapsed');
+        $(this).toggleClass('jinjamator_log_message_full');
+    });
+    $('.jinjamator_log_tasklet').click(function() {
+        console.log(this)
+        $(this).children().toggleClass('tasklet_path_block');
+        $(this).children().toggleClass('tasklet_path_none');
+    });
+    
 
 
-                var timeline_item = timeline_templates.filter('#timeline-content-template').clone(true);
 
-                switch (log_item[timestamp]['level']) {
-                    case 'INFO':
-                        timeline_item.find('.timeline-icon').addClass('bg-blue');
-                        timeline_item.find('.timeline-icon').addClass('fa-info');
 
-                        break;
-                    case 'WARNING':
-                        timeline_item.find('.timeline-icon').addClass('bg-yellow');
-                        timeline_item.find('.timeline-icon').addClass('fa-exclamation-triangle');
+}
+// function timeline_render_elements(data) {
+//     var last_task = '';
+//     var last_tasklet = '';
+//     var msg_idx = false;
+//     var timeline = $('.timeline');
+//     var rendered_timestamps = $.makeArray($('.time').map(function () {
+//         return this.innerHTML;
+//     }));
+//     $('#job_status').html(data['state']);
+//     $('#job_status').addClass("badge");
+//     $('#job_status').addClass(badge_color_from_state(data['state']));
 
-                        break;
-                    case 'ERROR':
-                        timeline_item.find('.timeline-icon').addClass('bg-red');
-                        timeline_item.find('.timeline-icon').addClass('fa-thumbs-down');
-                        break;
-                    case 'DEBUG':
-                        timeline_item.find('.timeline-icon').addClass('bg-grey');
-                        timeline_item.find('.timeline-icon').addClass('fa-bug');
-                        // timeline_item.find('.timeline-item-list-item').addClass('hidden');
-                        break;
-                    case 'TASKLET_RESULT':
-                        timeline_item.find('.timeline-icon').addClass('bg-green');
-                        timeline_item.find('.timeline-icon').addClass('fa-check-square');
 
-                        break;
-                }
+
+
+
+//     $.each(data['log'], function (index, log_item) {
+//         var timestamp = Object.keys(log_item)[0];
+
+//         if (!rendered_timestamps.includes(timestamp)) {
+
+
+//             current_serverity=log_levels[$('#log_severity')[0].value]
+//             // console.log(log_item[timestamp]['level'],log_levels[log_item[timestamp]['level']],current_serverity)
+
+//             if (current_serverity >= log_levels[log_item[timestamp]['level']] ||  log_item[timestamp]['level'] == "TASKLET_RESULT" ){
+
+
+//                 if (last_task != log_item[timestamp]['current_task']) {
+//                     var timeline_label = timeline_templates.filter('#timeline-label-template');
+//                     timeline_label.find('.time-label span').addClass('bg-blue');
+//                     timeline_label.find('.time-label span').html(log_item[timestamp]['current_task']);
+//                     timeline.append(timeline_label.html());
+//                 }
+
+
+//                 var timeline_item = timeline_templates.filter('#timeline-content-template').clone(true);
+
+//                 switch (log_item[timestamp]['level']) {
+//                     case 'INFO':
+//                         timeline_item.find('.timeline-icon').addClass('bg-blue');
+//                         timeline_item.find('.timeline-icon').addClass('fa-info');
+
+//                         break;
+//                     case 'WARNING':
+//                         timeline_item.find('.timeline-icon').addClass('bg-yellow');
+//                         timeline_item.find('.timeline-icon').addClass('fa-exclamation-triangle');
+
+//                         break;
+//                     case 'ERROR':
+//                         timeline_item.find('.timeline-icon').addClass('bg-red');
+//                         timeline_item.find('.timeline-icon').addClass('fa-thumbs-down');
+//                         break;
+//                     case 'DEBUG':
+//                         timeline_item.find('.timeline-icon').addClass('bg-grey');
+//                         timeline_item.find('.timeline-icon').addClass('fa-bug');
+//                         // timeline_item.find('.timeline-item-list-item').addClass('hidden');
+//                         break;
+//                     case 'TASKLET_RESULT':
+//                         timeline_item.find('.timeline-icon').addClass('bg-green');
+//                         timeline_item.find('.timeline-icon').addClass('fa-check-square');
+
+//                         break;
+//                 }
 
             
                 
 
-                timeline_item.find('.time').html(timestamp);
-                if (log_item[timestamp]['message'].length > (105 - log_item[timestamp]['current_tasklet'].length))
-                    var short_msg = log_item[timestamp]['message'].slice(0, (104 - log_item[timestamp]['current_tasklet'].length)) + '...';
-                else
-                    var short_msg = log_item[timestamp]['message'];
+//                 timeline_item.find('.time').html(timestamp);
+//                 if (log_item[timestamp]['message'].length > (105 - log_item[timestamp]['current_tasklet'].length))
+//                     var short_msg = log_item[timestamp]['message'].slice(0, (104 - log_item[timestamp]['current_tasklet'].length)) + '...';
+//                 else
+//                     var short_msg = log_item[timestamp]['message'];
 
 
 
-                timeline_item.find('.timeline-header').html('<strong>' + log_item[timestamp]['current_tasklet'] + '</strong> ');
+//                 timeline_item.find('.timeline-header').html('<strong>' + log_item[timestamp]['current_tasklet'] + '</strong> ');
 
 
-                timeline_item.find('#configuration').html('<div style="white-space: pre-wrap;">' + JSON.stringify(log_item[timestamp]['configuration'], null, 4) + '</div>');
-                timeline_item.find('#configuration').attr('id', 'configuration_' + index);
-                timeline_item.find('#nav_configuration').attr('href', '#configuration_' + index);
+//                 timeline_item.find('#configuration').html('<div style="white-space: pre-wrap;">' + JSON.stringify(log_item[timestamp]['configuration'], null, 4) + '</div>');
+//                 timeline_item.find('#configuration').attr('id', 'configuration_' + index);
+//                 timeline_item.find('#nav_configuration').attr('href', '#configuration_' + index);
 
-                timeline_item.find('#overview').attr('id', 'overview_' + index);
-                timeline_item.find('#nav_overview').attr('href', '#overview_' + index);
+//                 timeline_item.find('#overview').attr('id', 'overview_' + index);
+//                 timeline_item.find('#nav_overview').attr('href', '#overview_' + index);
 
-                timeline_item.find('#raw_log').html('<div style="white-space: pre-wrap;">' + JSON.stringify(log_item[timestamp], null, 4) + '</div>');
-                timeline_item.find('#raw_log').attr('id', 'raw_log_' + index);
-                timeline_item.find('#nav_raw_log').attr('href', '#raw_log_' + index);
+//                 timeline_item.find('#raw_log').html('<div style="white-space: pre-wrap;">' + JSON.stringify(log_item[timestamp], null, 4) + '</div>');
+//                 timeline_item.find('#raw_log').attr('id', 'raw_log_' + index);
+//                 timeline_item.find('#nav_raw_log').attr('href', '#raw_log_' + index);
 
-                timeline_item.find('#output_plugin').html(log_item[timestamp]['configuration']['output_plugin']);
-                timeline_item.find('#log_level').html(log_item[timestamp]['level']);
-                timeline_item.find('#current_task').html(log_item[timestamp]['current_task']);
-                timeline_item.find('#current_tasklet').html(log_item[timestamp]['current_tasklet']);
-                if (!log_item[timestamp]['parent_tasklet'])
-                    timeline_item.find('#parent_tasklet').html('None');
-                else
-                    timeline_item.find('#parent_tasklet').html(log_item[timestamp]['parent_tasklet']);
+//                 timeline_item.find('#output_plugin').html(log_item[timestamp]['configuration']['output_plugin']);
+//                 timeline_item.find('#log_level').html(log_item[timestamp]['level']);
+//                 timeline_item.find('#current_task').html(log_item[timestamp]['current_task']);
+//                 timeline_item.find('#current_tasklet').html(log_item[timestamp]['current_tasklet']);
+//                 if (!log_item[timestamp]['parent_tasklet'])
+//                     timeline_item.find('#parent_tasklet').html('None');
+//                 else
+//                     timeline_item.find('#parent_tasklet').html(log_item[timestamp]['parent_tasklet']);
 
-                if (!log_item[timestamp]['parent_task'])
-                    timeline_item.find('#parent_task').html('None');
-                else
-                    timeline_item.find('#parent_task').html(log_item[timestamp]['parent_task']);
+//                 if (!log_item[timestamp]['parent_task'])
+//                     timeline_item.find('#parent_task').html('None');
+//                 else
+//                     timeline_item.find('#parent_task').html(log_item[timestamp]['parent_task']);
 
-                prefix=  log_item[timestamp]['level'] + ':' + timestamp + ': <b>'
-                if (log_item[timestamp]['stdout']) {
-                    timeline_item.find('#console_output').html('<div style="white-space: pre-wrap;"><br>' + prefix + log_item[timestamp]['stdout'] + '</b></div>');
-                }
-                else{
-                    timeline_item.find('#console_output').html('<div style="white-space: pre-wrap;" ></div>');
-                }
-                msg_html=prefix + log_item[timestamp]['message'] + "</b>"
-                timeline_item.find('#full_message').html('<div style="white-space: pre-wrap;" class="full_message_'+index+'">' +msg_html + '</div>');
-                // console.log(msg_html,log_item[timestamp]['current_task'],log_item[timestamp]['current_tasklet'],last_task,last_tasklet)
+//                 prefix=  log_item[timestamp]['level'] + ':' + timestamp + ': <b>'
+//                 if (log_item[timestamp]['stdout']) {
+//                     timeline_item.find('#console_output').html('<div style="white-space: pre-wrap;"><br>' + prefix + log_item[timestamp]['stdout'] + '</b></div>');
+//                 }
+//                 else{
+//                     timeline_item.find('#console_output').html('<div style="white-space: pre-wrap;" ></div>');
+//                 }
+//                 msg_html=prefix + log_item[timestamp]['message'] + "</b>"
+//                 timeline_item.find('#full_message').html('<div style="white-space: pre-wrap;" class="full_message_'+index+'">' +msg_html + '</div>');
+//                 // console.log(msg_html,log_item[timestamp]['current_task'],log_item[timestamp]['current_tasklet'],last_task,last_tasklet)
                 
                 
-                //timeline_item.insertAfter($('#timeline_overview'));
-                if (log_item[timestamp]['current_task'] == last_task && log_item[timestamp]['current_tasklet'] == last_tasklet && msg_idx !== false && log_item[timestamp]['level'] != "TASKLET_RESULT"){
+//                 //timeline_item.insertAfter($('#timeline_overview'));
+//                 if (log_item[timestamp]['current_task'] == last_task && log_item[timestamp]['current_tasklet'] == last_tasklet && msg_idx !== false && log_item[timestamp]['level'] != "TASKLET_RESULT"){
                     
-                    t=timeline.find(".full_message_"+msg_idx);
-                    // console.log(t[0])
-                    // console.log("use index",msg_idx)
-                    t[0].innerHTML+= "<BR>" + msg_html
-                }
-                else{
-                    // console.log("add index",index)
-                    msg_idx=index
-                    timeline.append(timeline_item.html());
+//                     t=timeline.find(".full_message_"+msg_idx);
+//                     // console.log(t[0])
+//                     // console.log("use index",msg_idx)
+//                     t[0].innerHTML+= "<BR>" + msg_html
+//                 }
+//                 else{
+//                     // console.log("add index",index)
+//                     msg_idx=index
+//                     timeline.append(timeline_item.html());
                     
-                }
+//                 }
 
-                if (log_item[timestamp]['level'] == "TASKLET_RESULT"){
-                    msg_idx=false
-                }
+//                 if (log_item[timestamp]['level'] == "TASKLET_RESULT"){
+//                     msg_idx=false
+//                 }
                 
-            }
-            last_task = log_item[timestamp]['current_task'];
-            last_tasklet = log_item[timestamp]['current_tasklet'];
-    }});
+//             }
+//             last_task = log_item[timestamp]['current_task'];
+//             last_tasklet = log_item[timestamp]['current_tasklet'];
+//     }});
 
-}
+// }
 
-function show_job(job_id) {
+
+function show_job(job_id,filter_serverity) {
     update_breadcrumb('Jobs', 'Detail');
     $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
@@ -1388,12 +1450,24 @@ function show_job(job_id) {
             var timeline = timeline_templates.filter('#timeline-template');
             var timeline_overview_box = timeline_templates.filter('#timeline-overview-box-template');
             timeline_overview_box.find('#job_id').html(job_id);
+            
+            console.log("serv",filter_serverity)
 
 
             timeline.find('.timeline').append(timeline_overview_box.html());
             $(".all-content").html('<section class="content">' + timeline.html() + '</section>');
 
-            client.jobs.read(job_id).done(function (data) {
+            if (filter_serverity){
+                
+                $('#log_severity').val(filter_serverity);
+            }
+            
+            var current_serverity=$('#log_severity')[0].value
+            
+            
+            
+
+            client.jobs.read(job_id,{ "log-level":current_serverity }).done(function (data) {
 
                 $("#user_name").html(data['created_by_user_name']);
                 if ("debugger_password" in data) {
@@ -1401,10 +1475,33 @@ function show_job(job_id) {
                     <td nowrap id='debugger_url'>http://not-implemented-yet</td> \
                     <tr>").appendTo('#job_overview_table');
                 }
+                
 
-                timeline_render_elements(data);
+                render_logs(data);
                 $("#job_path").html(data['jinjamator_task']);
+                
 
+                if ($.fn.dataTable.isDataTable('#log_table')) {
+                    $('#log_table').DataTable().destroy();
+                }
+        
+                table = $('#log_table').DataTable({
+                    // dom: 'Bfrtip',
+                    // buttons: [
+                    //     {
+                    //         text: 'Create Role',
+                    //         action: function (e, dt, node, config) {
+                    //             create_role();
+                    //         }
+                    //     }
+                    // ],
+                    "lengthMenu": [
+                        [15, 30, 100, -1],
+                        [15, 30, 100, "All"]
+                    ]
+        
+                })
+                
 
             });
 
