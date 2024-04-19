@@ -1,0 +1,30 @@
+.jinjamator_log_message {
+
+}
+
+.jinjamator_log_message_collapsed {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    /* number of lines to show */
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    cursor: row-resize;
+}
+
+.jinjamator_log_message_full {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    cursor: row-resize;
+}
+
+
+
+.tasklet_path_block {
+    display: block;
+    cursor: col-resize;
+}
+.tasklet_path_none {
+    display: none;
+    cursor: col-resize;
+}
