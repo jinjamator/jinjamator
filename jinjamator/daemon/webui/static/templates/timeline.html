@@ -125,7 +125,7 @@
                         </tr>
                         <tr>
                             <th nowrap>Logseverity:</th>
-                            <td><select id='log_severity' class="form-control" onchange='set_timeline_loglevel(this.options[this.selectedIndex].value);'>
+                            <td><select id='log_severity' class="form-control" onchange='set_timeline_loglevel();'>
                       <option>ERROR</option>
                       <option>WARNING</option>
                       <option selected>INFO</option>
@@ -168,7 +168,28 @@
                 </table>
 
             </div>
+            <!-- <div id="terminal"></div> -->
+        </div>
+    </div>
+    <div id='timeline_logs' class="box box-default color-palette-box">
+        <div id='timeline-logs-box-header' class="box-header with-border">
+            <h3 class="box-title"><i class="fa fa-tag"></i> Logs:</h3>
+        </div>
+        <div class="box-body">
+            <table id="log_table" class="table table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th width="1%">Time</th>
+                    <th width="1%">Tasklet</th>
+                    <th width="1%">Level</th>
+                    <th width="90%">Message</th>
+                    <th width="1%">Configuration</th>
+                </tr>
+                </thead>
+                <tbody>
 
+                </tbody>
+            </table></div>
         </div>
     </div>
 </section>
