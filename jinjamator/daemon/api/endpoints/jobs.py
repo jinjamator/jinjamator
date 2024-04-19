@@ -145,12 +145,12 @@ class Job(Resource):
             abort(404, f"Job ID {job_id} not found")
 
         log_level_filter = JobLog.level.is_("TASKLET_RESULT")
-        if log_level in ["INFO", "WARNING", "ERROR", "DEBUG"]:
-            log_level_filter = or_(log_level_filter, JobLog.level.is_("INFO"))
-        if log_level in ["WARNING", "ERROR", "DEBUG"]:
-            log_level_filter = or_(log_level_filter, JobLog.level.is_("WARNING"))
-        if log_level in ["ERROR", "DEBUG"]:
+        if log_level in ["INFO","WARNING", "ERROR", "DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("ERROR"))
+        if log_level in ["INFO","WARNING", "DEBUG"]:
+            log_level_filter = or_(log_level_filter, JobLog.level.is_("WARNING"))
+        if log_level in ["INFO", "DEBUG"]:
+            log_level_filter = or_(log_level_filter, JobLog.level.is_("INFO"))
         if log_level in ["DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("DEBUG"))
 
