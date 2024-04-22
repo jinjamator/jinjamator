@@ -120,6 +120,10 @@ def configure(flask_app, _configuration):
     flask_app.config["CELERY_RESULT_BACKEND"] = _configuration.get(
         "celery_result_backend"
     )
+    flask_app.config["CELERY_RESULT_EXPIRES"] = _configuration.get(
+        "celery_result_expires"
+    )
+
     flask_app.config["SQLALCHEMY_DATABASE_URI"] = _configuration.get(
         "celery_result_backend"
     )
