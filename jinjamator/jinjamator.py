@@ -180,6 +180,14 @@ class Program(object):
             env_var="JINJAMATOR_DAEMON_CELERY_RESULT_BACKEND_URL",
         )
         self._parser.add_argument(
+            "--celery-result-expires",
+            dest="_celery_result_expires",
+            type=int,
+            default=0,
+            help="lifetime of results in the database [default: keep results forever]",
+            env_var="JINJAMATOR_DAEMON_CELERY_RESULT_EXPIRES",
+        )        
+        self._parser.add_argument(
             "--max-celery-worker",
             dest="_max_celery_worker",
             default=f"2",
