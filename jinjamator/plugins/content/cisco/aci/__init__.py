@@ -184,7 +184,7 @@ def connect_apic(
     return apic_session
 
 
-def query(query_url, timeout=60, *, _requires=_get_missing_apic_connection_vars):
+def query(query_url, timeout=60, fail_on_error=True, *, _requires=_get_missing_apic_connection_vars):
     """[summary]
 
     :param query_url: URL for the query, eg. "/api/node/class/topology/pod-1/node-101/faultSummary.json". \
@@ -211,7 +211,10 @@ If the URL contains "subscription=yes as parameter", a websocket session will be
     except Exception as e:
         log.error(e)
         session.close()
-        return {"imdata": [], "totalCount": "0"}
+        if fail_on_error:
+            raise
+        else:
+            return {"imdata": [], "totalCount": "0"}
     session.close()
     return json.loads(data.text)
 
