@@ -1061,7 +1061,18 @@ function clone_job(job_id) {
         if (configuration.jinjamator_job_id !== undefined) {
             delete configuration.jinjamator_job_id;
         }
+        if (data.files.length > 0) {
+            data['files'].forEach(function (value, index, array) {
+                configuration["filenames"].forEach(function (form_data, form_index, form_array) {
+                    if (form_data.name == value) {
+                        configuration["filenames"][form_index].filesystem_path=data.id + '/' + value
+                    }
 
+                });
+                
+            });
+        }
+        
         create_job(data['jinjamator_task'], configuration);
     });
 

@@ -665,18 +665,29 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         os.makedirs(target_dir, exist_ok=True)
         upload_result = self.configuration[file_upload_var_name]
         filelist = []
+
         for cfg in upload_result:
             filename = cfg["name"]
-            if os.path.isfile(cfg["filesystem_path"]):
-                dirname = os.path.dirname(cfg["filesystem_path"])
-                if dirname != self._configuration["uploads_folder"]:
+            dirname = os.path.dirname(cfg["filesystem_path"])
+            possible_clone_file_path = os.path.join(self._configuration.get("jinjamator_user_directory"),"logs" , dirname , "files" , filename)
+            
+            is_clone=False
+            if dirname == self._configuration["uploads_folder"]:
+                pass
+            elif os.path.realpath(possible_clone_file_path) == possible_clone_file_path:
+                cfg["filesystem_path"] = possible_clone_file_path
+                is_clone=True
+                pass
+            else:
                     self._log.error(
-                        f"{dirname} is not equal uploads_folder {self._configuration['uploads_folder']} -> skipping"
+                        f"{dirname} neither is equal uploads_folder {self._configuration['uploads_folder']} nor starts with jinjamator_user_directory {self._configuration['jinjamator_user_directory']} -> skipping"
                     )
                     continue
+            if os.path.isfile(cfg["filesystem_path"]):
+                
                 dst_filename = f"{target_dir}/{filename}"
                 self._log.debug(
-                    f"Moving file {cfg['filesystem_path']} to {dst_filename}"
+                    f"Copying file {cfg['filesystem_path']} to {dst_filename}"
                 )
                 src_fh = open(cfg["filesystem_path"], "rb")
                 dst_fh = open(dst_filename, "wb")
@@ -687,7 +698,10 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                     dst_fh.write(buffer)
                 src_fh.close()
                 dst_fh.close()
-                os.unlink(cfg["filesystem_path"])
+                if not is_clone:
+                    self._log.debug(f"Deleting file {cfg['filesystem_path']}")
+                    os.unlink(cfg["filesystem_path"])
+                    
                 filelist.append(dst_filename)
             else:
                 self._log.error(f"cannot find uploaded file {filename} -> skipping")
