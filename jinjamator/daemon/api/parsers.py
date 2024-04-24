@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask_restx import reqparse
+from flask_restx import reqparse, fields, inputs
 from jinjamator.daemon.api.endpoints.environments import available_environments
 from jinjamator.daemon.api.inputs import task_data
 from werkzeug.datastructures import FileStorage
+
 
 import logging
 
@@ -45,7 +46,13 @@ job_arguments.add_argument(
     choices=["TASKLET_RESULT", "INFO", "WARNING", "ERROR", "DEBUG"],
     help="Set the upper loglevel limit for the log entries returned",
 )
-
+job_arguments.add_argument(
+    "logs-newer-than",
+    type=inputs.datetime_from_iso8601,
+    required=False,
+    default="1970-01-01T00:00:00.0000",
+    help="get logs created > $logs-newer-than. Expected format is ISO8601. Eg.: 1970-01-01T00:00:00.0000",
+)
 upload_parser = reqparse.RequestParser()
 upload_parser.add_argument("files", location="files", type=FileStorage, required=True)
 
