@@ -224,7 +224,13 @@ class DatabaseBackend(BaseBackend):
         """Delete expired meta-data."""
         session = self.ResultSession()
         expires = self.expires
+        
         now = self.app.now()
+        logger.debug(f"celery cleanup run: expires is set to {expires} now {now} ")
+        if not expires:
+            logger.debug("celery expires is set to None or 0 -> refusing to cleanup")
+            return None
+        
         with session_cleanup(session):
             session.query(Task).filter(Task.date_done < (now - expires)).delete()
             session.query(TaskSet).filter(TaskSet.date_done < (now - expires)).delete()
