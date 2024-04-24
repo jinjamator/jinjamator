@@ -121,8 +121,17 @@ class Job(Resource):
         except ValueError:
             abort(400, "Task ID not in UUID V4 format")
 
+        import logging
+        logging.basicConfig()
+        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
         args = job_arguments.parse_args(request)
         log_level = args.get("log-level", "DEBUG")
+        newer_than = args.get("logs-newer-than", None)
+        
+
+
+            
         try:
             job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).first()
             user = User.query.filter(User.id == int(job.created_by_user_id)).first()
@@ -144,7 +153,7 @@ class Job(Resource):
             log.error(e)
             abort(404, f"Job ID {job_id} not found")
 
-        log_level_filter = JobLog.level.is_("TASKLET_RESULT")
+        log_level_filter = JobLog.level.is_("TASKLET_RESULT")            
         if log_level in ["INFO","WARNING", "ERROR", "DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("ERROR"))
         if log_level in ["INFO","WARNING", "DEBUG"]:
@@ -153,6 +162,10 @@ class Job(Resource):
             log_level_filter = or_(log_level_filter, JobLog.level.is_("INFO"))
         if log_level in ["DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("DEBUG"))
+
+        if newer_than:
+            log_level_filter = and_(log_level_filter,JobLog.timestamp > newer_than)
+
 
         for row in (
             db.session.query(JobLog)
