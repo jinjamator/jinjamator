@@ -121,9 +121,9 @@ class Job(Resource):
         except ValueError:
             abort(400, "Task ID not in UUID V4 format")
 
-        import logging
-        logging.basicConfig()
-        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+        # import logging
+        # logging.basicConfig()
+        # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
         args = job_arguments.parse_args(request)
         log_level = args.get("log-level", "DEBUG")
