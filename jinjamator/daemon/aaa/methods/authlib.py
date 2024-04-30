@@ -4,8 +4,9 @@ log = logging.getLogger()
 from authlib.integrations.flask_client import OAuth, OAuthError
 from jinjamator.daemon.aaa.models import (
     User,
+    Oauth2UpstreamToken,
+    JinjamatorToken,
     JinjamatorRole,
-    Oauth2UpstreamToken
 )
 from flask import g, url_for, abort
 from copy import deepcopy
