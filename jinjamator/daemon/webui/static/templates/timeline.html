@@ -108,9 +108,11 @@
                         <tr>
                             <th nowrap>Job ID:</th>
                             <td nowrap id='job_id'>n/a</td>
+
+                        </tr>
+                        <tr>
                             <th nowrap>Created by User:</th>
                             <td nowrap id='user_name'>n/a</td>
-
                         </tr>
                         <tr>
                             <th nowrap>Job Path:</th>
@@ -155,7 +157,7 @@
                                 <th></th>
                                 <td></td>
                                 <th></th>
-                                <td width='90%' align="right">
+                                <td width='90%' align="right" nowrap>
 
                                     <button type="button" class="btn btn-default" onclick="clone_job($('#job_id').html())">Clone</button>
                                     <button type="button" class="btn btn-default" onclick="undo_job($('#job_id').html())">Undo</button>
