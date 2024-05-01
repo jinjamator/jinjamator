@@ -344,12 +344,18 @@ class Program(object):
     def setupLogging(self):
         global logging
         logging.addLevelName(90, "TASKLET_RESULT")
+        logging.addLevelName(89, "CONSOLE")
 
         def tasklet_result(self, message, *args, **kws):
             # Yes, logger takes its '*args' as 'args'.
             self._log(90, message, args, **kws)
 
+        def console(self, message, *args, **kws):
+            self._log(89, message, args, **kws)
+
         logging.Logger.tasklet_result = tasklet_result
+        logging.Logger.console = console
+
 
         # msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(funcName)s - %(levelname)s - %(message)s"
         msg_format = "%(asctime)s - [%(pathname)s:%(lineno)s] - %(levelname)s - %(message)s"

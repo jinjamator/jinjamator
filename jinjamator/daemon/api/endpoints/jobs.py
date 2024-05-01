@@ -153,7 +153,8 @@ class Job(Resource):
             log.error(e)
             abort(404, f"Job ID {job_id} not found")
 
-        log_level_filter = JobLog.level.is_("TASKLET_RESULT")            
+        log_level_filter = JobLog.level.is_("TASKLET_RESULT")
+        log_level_filter = or_(log_level_filter, JobLog.level.is_("CONSOLE"))
         if log_level in ["INFO","WARNING", "ERROR", "DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("ERROR"))
         if log_level in ["INFO","WARNING", "DEBUG"]:
