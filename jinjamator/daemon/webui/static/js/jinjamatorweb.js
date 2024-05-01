@@ -1201,7 +1201,7 @@ function update_timeline(job_id,table) {
             client.jobs.read(job_id,{},options).done(function (data) {
                 render_logs(data,table)
                 
-                setTimeout(update_timeline, 1000, job_id,table);
+                setTimeout(update_timeline, 2000, job_id,table);
             });
             
 
@@ -1301,18 +1301,19 @@ function render_logs(data,table) {
             case 'TASKLET_RESULT':
                 serverity_classes = 'badge bg-green';
                 break;
-        }
+            case 'CONSOLE':
+                serverity_classes = 'badge bg-black';
+                break;
+            }
+
+        
+
         row_html='<tr><td nowrap width="1%">' + timestamp + 
         '</td><td nowrap width="1%" class="jinjamator_log_tasklet"><span class="tasklet_path_block">'+tasklet_short+ 
         '</span><span class="tasklet_path_none">'+ tasklet +
         '</span></td><td width="1%"><span style="min-width:70px;" class="'+serverity_classes+'">'+serverity+'</span>\
-        </td><td><span class="jinjamator_log_message jinjamator_log_message_collapsed" onclick=>' + message + '</span></td><td></td></tr>'
+        </td><td><span class="jinjamator_log_message jinjamator_log_message_collapsed">' + message + '</span></td><td></td></tr>'
         row_data=row_html
-        // plain_row = [timestamp,tasklet_short,tasklet,serverity,message,formatter.render()]
-        // table.rows.add( $(row_data) ).draw();
-
-        // table.row.add($(row_html))
-        // table.draw()
 
         
         $('#log_table > tbody:last-child').append(row_html);
@@ -1320,6 +1321,8 @@ function render_logs(data,table) {
         $('#log_table > tbody > tr:last-child > td:last-child').append(formatter.render())
         
         $("#last_rendered_log_timestamp").text(timestamp.replace(" ","T"))
+        
+
     }
     
     )
@@ -1331,19 +1334,18 @@ function render_logs(data,table) {
         ]
 
     }).draw();
-    $('.jinjamator_log_message').click(function() {
+
+    $('#log_table').on('click', '.jinjamator_log_message', function () {
         $(this).toggleClass('jinjamator_log_message_collapsed');
         $(this).toggleClass('jinjamator_log_message_full');
-    });
-    $('.jinjamator_log_tasklet').click(function() {
-        // console.log(this)
+                
+    })
+
+    $('#log_table').on('click', '.jinjamator_log_tasklet', function () {
         $(this).children().toggleClass('tasklet_path_block');
         $(this).children().toggleClass('tasklet_path_none');
-    });
-    
-    
-
-
+                
+    })
 
 
 }

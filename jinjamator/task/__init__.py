@@ -100,7 +100,13 @@ class TaskletFailed(ValueError):
         self.message = message
         super().__init__(self.message)
 
-
+class JinjamatorStringIO(StringIO):
+    def write(self, s: str) -> int:
+        if s.strip():
+            log=logging.getLogger()
+            log.console(s.strip())
+        return super().write(s)
+    
 class JinjamatorTask(object):
     def __init__(self, run_mode="background"):
         self._plugin_ldr = None
@@ -123,7 +129,7 @@ class JinjamatorTask(object):
         self._default_values = {}
         self._configuration["task_run_mode"] = run_mode
         if self._configuration["task_run_mode"] == "background":
-            sys.stdout = self._stdout = StringIO()
+            sys.stdout = self._stdout = JinjamatorStringIO()
         else:
             self._stdout = sys.stdout
 
