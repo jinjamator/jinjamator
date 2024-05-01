@@ -10,12 +10,15 @@
     line-clamp: 1;
     -webkit-box-orient: vertical;
     cursor: row-resize;
+    white-space: unset;
 }
 
 .jinjamator_log_message_full {
     -webkit-line-clamp: unset;
     line-clamp: unset;
     cursor: row-resize;
+    white-space: pre;
+
 }
 
 
