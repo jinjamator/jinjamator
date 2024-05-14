@@ -206,35 +206,38 @@ class DatabaseBackend(BaseBackend):
     @retry
     def _delete_group(self, group_id):
         """Delete meta-data for group by id."""
-        session = self.ResultSession()
-        with session_cleanup(session):
-            session.query(TaskSet).filter(TaskSet.taskset_id == group_id).delete()
-            session.flush()
-            session.commit()
+        return None
+        # session = self.ResultSession()
+        # with session_cleanup(session):
+        #     session.query(TaskSet).filter(TaskSet.taskset_id == group_id).delete()
+        #     session.flush()
+        #     session.commit()
 
     @retry
     def _forget(self, task_id):
         """Forget about result."""
-        session = self.ResultSession()
-        with session_cleanup(session):
-            session.query(Task).filter(Task.task_id == task_id).delete()
-            session.commit()
+        return None
+        # session = self.ResultSession()
+        # with session_cleanup(session):
+        #     session.query(Task).filter(Task.task_id == task_id).delete()
+        #     session.commit()
 
     def cleanup(self):
         """Delete expired meta-data."""
-        session = self.ResultSession()
-        expires = self.expires
+        return None
+        # session = self.ResultSession()
+        # expires = self.expires
         
-        now = self.app.now()
-        logger.debug(f"celery cleanup run: expires is set to {expires} now {now} ")
-        if not expires:
-            logger.debug("celery expires is set to None or 0 -> refusing to cleanup")
-            return None
+        # now = self.app.now()
+        # logger.debug(f"celery cleanup run: expires is set to {expires} now {now} ")
+        # if not expires:
+        #     logger.debug("celery expires is set to None or 0 -> refusing to cleanup")
+        #     return None
         
-        with session_cleanup(session):
-            session.query(Task).filter(Task.date_done < (now - expires)).delete()
-            session.query(TaskSet).filter(TaskSet.date_done < (now - expires)).delete()
-            session.commit()
+        # with session_cleanup(session):
+        #     session.query(Task).filter(Task.date_done < (now - expires)).delete()
+        #     session.query(TaskSet).filter(TaskSet.date_done < (now - expires)).delete()
+        #     session.commit()
 
     def __reduce__(self, args=(), kwargs={}):
         kwargs.update(
