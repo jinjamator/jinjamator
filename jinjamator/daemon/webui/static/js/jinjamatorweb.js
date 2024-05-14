@@ -1054,10 +1054,13 @@ function create_job(job_path, pre_defined_vars) {
 
 }
 
-function clone_job(job_id) {
+function clone_job(job_id, undo) {
     client.jobs.read(job_id).done(function (data) {
         var timestamp = Object.keys(data['log'][0])[0];
         var configuration = data['log'][0][timestamp]['configuration'];
+        if (undo){
+            configuration["undo"]=true;
+        }
         if (configuration.jinjamator_job_id !== undefined) {
             delete configuration.jinjamator_job_id;
         }
@@ -1080,12 +1083,7 @@ function clone_job(job_id) {
 }
 
 function undo_job(job_id) {
-    client.jobs.read(job_id).done(function (data) {
-        var timestamp = Object.keys(data['log'][0])[0];
-        var configuration = data['log'][0][timestamp]['configuration'];
-        configuration['undo'] = true;
-        create_job(data['jinjamator_task'], configuration);
-    });
+    clone_job(job_id, true);
 }
 
 function badge_color_from_state(state) {
