@@ -11,7 +11,7 @@ var log_levels = {
 
 $(function () {
     'use strict'
-    
+
     /**
      * Get access to plugins
      */
@@ -217,30 +217,30 @@ $(function () {
 })
 
 
-class SmoothOverlay{
-    constructor(overlay_selector="#overlay"){
-        this.overlay_selector=overlay_selector
-        this.overlay=$(this.overlay_selector)
-        this.usage_count=0
+class SmoothOverlay {
+    constructor(overlay_selector = "#overlay") {
+        this.overlay_selector = overlay_selector
+        this.overlay = $(this.overlay_selector)
+        this.usage_count = 0
     }
 
-    fadeIn(msec){
+    fadeIn(msec) {
         // log.debug("SmoothOverlay","fadeIn",msec)
-        if (this.usage_count <= 0){
-            this.usage_count=0
+        if (this.usage_count <= 0) {
+            this.usage_count = 0
             $(this.overlay_selector).fadeIn(msec)
         }
         this.usage_count++
     }
-    fadeOut(msec,ignore=false){
+    fadeOut(msec, ignore = false) {
         // log.debug("SmoothOverlay","fadeOut",msec)
         this.usage_count--
-        if ((this.usage_count == 0) && (ignore == false)){
-            $(this.overlay_selector).fadeOut(msec)   
+        if ((this.usage_count == 0) && (ignore == false)) {
+            $(this.overlay_selector).fadeOut(msec)
         }
     }
-    reset(){
-        this.usage_count=0
+    reset() {
+        this.usage_count = 0
     }
 }
 
@@ -256,11 +256,11 @@ class logging {
     constructor(level = logging.INFO) {
         this.level = level;
         this._init()
-        this.prefix=""
+        this.prefix = ""
     }
 
     _init() {
-        
+
         if (console.log.bind === "undefined") {
             // IE < 10
 
@@ -319,11 +319,11 @@ class logging {
         this._init();
     }
 
-    setPrefix(prefix){
-        this.prefix= `[${prefix}]`
+    setPrefix(prefix) {
+        this.prefix = `[${prefix}]`
         this._init();
     }
-    
+
 }
 
 
@@ -875,7 +875,7 @@ function create_job(job_path, pre_defined_vars) {
                         "click": function () {
 
                             client.opts['stringifyData'] = true;
-                            url_data={'preload-defaults-from-site': $('#jinjamator_environment option:selected').val()}
+                            url_data = { 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }
                             var data = this.getValue();
 
                             var task = job_path;
@@ -894,21 +894,21 @@ function create_job(job_path, pre_defined_vars) {
                             }
 
                             delete data['output_plugin_parameters'];
-                            
+
 
                             if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true) {
 
                                 $('#modal-submit').modal('show')
                                 $('#modal-submit ').find('.btn-ok').unbind('click')
                                 $('#modal-submit ').find('.btn-ok').on('click', function () {
-                                    client.tasks.create(job_path, data,url_data).done(function (data) {
+                                    client.tasks.create(job_path, data, url_data).done(function (data) {
                                         $('#modal-submit').modal('hide')
                                         setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
                                     });
                                 })
                             }
                             else {
-                                client.tasks.create(job_path, data,url_data).done(function (data) {
+                                client.tasks.create(job_path, data, url_data).done(function (data) {
                                     setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
                                 });
 
@@ -923,8 +923,8 @@ function create_job(job_path, pre_defined_vars) {
             data['options']['fields']['output_plugin']['onFieldChange'] = function (e) {
 
 
-                console.log("event,check",e)
-                if (e.hasOwnProperty('originalEvent')){
+                console.log("event,check", e)
+                if (e.hasOwnProperty('originalEvent')) {
                     return true;
                 }
                 var control = $("#form").alpaca("get");
@@ -1058,8 +1058,8 @@ function clone_job(job_id, undo) {
     client.jobs.read(job_id).done(function (data) {
         var timestamp = Object.keys(data['log'][0])[0];
         var configuration = data['log'][0][timestamp]['configuration'];
-        if (undo){
-            configuration["undo"]=true;
+        if (undo) {
+            configuration["undo"] = true;
         }
         if (configuration.jinjamator_job_id !== undefined) {
             delete configuration.jinjamator_job_id;
@@ -1068,14 +1068,14 @@ function clone_job(job_id, undo) {
             data['files'].forEach(function (value, index, array) {
                 configuration["filenames"].forEach(function (form_data, form_index, form_array) {
                     if (form_data.name == value) {
-                        configuration["filenames"][form_index].filesystem_path=data.id + '/' + value
+                        configuration["filenames"][form_index].filesystem_path = data.id + '/' + value
                     }
 
                 });
-                
+
             });
         }
-        
+
         create_job(data['jinjamator_task'], configuration);
     });
 
@@ -1172,39 +1172,38 @@ function list_jobs() {
 
 
 function set_timeline_loglevel() {
-    // console.dir($('#job_id').innerText)
-    job_id=$('#job_id')[0].innerText
+    job_id = $('#job_id')[0].innerText
     $('.timeline li').remove()
-    show_job(job_id,$('#log_severity')[0].value)
+    show_job(job_id, $('#log_severity')[0].value)
 
 
 }
 
 
-function update_timeline(job_id,table) {
+function update_timeline(job_id, table) {
     // client.jobs.read(job_id).done(function (data) {
-    var state= $('#job_status').html()
+    var state = $('#job_status').html()
     console.log(state)
     if ($('#job_id').length > 0) {
-        if (state != "FAILURE" && state != "SUCCESS"){
-            var current_serverity=$('#log_severity')[0].value
-            var last_timestamp_rendered=$("#last_rendered_log_timestamp").text()
-            var options={}
-            options["log-level"]=current_serverity
-            if (last_timestamp_rendered){
-                options["logs-newer-than"]=last_timestamp_rendered;
+        if (state != "FAILURE" && state != "SUCCESS") {
+            var current_serverity = $('#log_severity')[0].value
+            var last_timestamp_rendered = $("#last_rendered_log_timestamp").text()
+            var options = {}
+            options["log-level"] = current_serverity
+            if (last_timestamp_rendered) {
+                options["logs-newer-than"] = last_timestamp_rendered;
             }
             // console.log(last_timestamp_rendered)
-            
-            client.jobs.read(job_id,{},options).done(function (data) {
-                render_logs(data,table)
-                
-                setTimeout(update_timeline, 2000, job_id,table);
+
+            client.jobs.read(job_id, {}, options).done(function (data) {
+                render_logs(data, table)
+
+                setTimeout(update_timeline, 2000, job_id, table);
             });
-            
+
 
             // show_job(job_id,$('#log_severity')[0].value)
-        
+
         }
     }
     // });
@@ -1239,16 +1238,16 @@ function set_jinjamator_version() {
         event.preventDefault();
         var version_data = JSON.parse(req.response);
         console.log(version_data)
-        $('.jinjamator_version').html( "<b>Version</b> " + version_data.version)
+        $('.jinjamator_version').html("<b>Version</b> " + version_data.version)
 
-        
+
     };
     req.send();
 }
 
 
 
-function render_logs(data,table) {
+function render_logs(data, table) {
     $('#job_status').html(data['state']);
     $('#job_status').addClass("badge");
     $('#job_status').addClass(badge_color_from_state(data['state']));
@@ -1270,19 +1269,19 @@ function render_logs(data,table) {
         var message = log_item[timestamp]['message']
 
         const json_regexp = /{.*\}/gm;
-        
+
 
 
         var tasklet = log_item[timestamp]['current_tasklet']
         if (tasklet.length > 15)
-            var tasklet_short="..."+ tasklet.substring(tasklet.length -12) 
+            var tasklet_short = "..." + tasklet.substring(tasklet.length - 12)
         else
-            var tasklet_short=tasklet
-        var serverity=log_item[timestamp]['level']
-        
+            var tasklet_short = tasklet
+        var serverity = log_item[timestamp]['level']
+
         const myJSON = log_item[timestamp]['configuration'];
-        const formatter = new JSONFormatter(myJSON,0);
-        serverity_classes=""
+        const formatter = new JSONFormatter(myJSON, 0);
+        serverity_classes = ""
         switch (log_item[timestamp]['level']) {
             case 'INFO':
                 serverity_classes = 'badge bg-blue';
@@ -1302,29 +1301,29 @@ function render_logs(data,table) {
             case 'CONSOLE':
                 serverity_classes = 'badge bg-black';
                 break;
-            }
+        }
 
-        
 
-        row_html='<tr><td nowrap width="1%">' + timestamp + 
-        '</td><td nowrap width="1%" class="jinjamator_log_tasklet"><span class="tasklet_path_block">'+tasklet_short+ 
-        '</span><span class="tasklet_path_none">'+ tasklet +
-        '</span></td><td width="1%"><span style="min-width:70px;" class="'+serverity_classes+'">'+serverity+'</span>\
+
+        row_html = '<tr><td nowrap width="1%">' + timestamp +
+            '</td><td nowrap width="1%" class="jinjamator_log_tasklet"><span class="tasklet_path_block">' + tasklet_short +
+            '</span><span class="tasklet_path_none">' + tasklet +
+            '</span></td><td width="1%"><span style="min-width:70px;" class="' + serverity_classes + '">' + serverity + '</span>\
         </td><td><span class="jinjamator_log_message jinjamator_log_message_collapsed">' + message + '</span></td><td></td></tr>'
-        row_data=row_html
+        row_data = row_html
 
-        
+
         $('#log_table > tbody:last-child').append(row_html);
-        
+
         $('#log_table > tbody > tr:last-child > td:last-child').append(formatter.render())
-        
-        $("#last_rendered_log_timestamp").text(timestamp.replace(" ","T"))
-        
+
+        $("#last_rendered_log_timestamp").text(timestamp.replace(" ", "T"))
+
 
     }
-    
+
     )
-    
+
     $('#log_table').DataTable({
         "lengthMenu": [
             [15, 30, 100, -1],
@@ -1336,20 +1335,20 @@ function render_logs(data,table) {
     $('#log_table').on('click', '.jinjamator_log_message', function () {
         $(this).toggleClass('jinjamator_log_message_collapsed');
         $(this).toggleClass('jinjamator_log_message_full');
-                
+
     })
 
     $('#log_table').on('click', '.jinjamator_log_tasklet', function () {
         $(this).children().toggleClass('tasklet_path_block');
         $(this).children().toggleClass('tasklet_path_none');
-                
+
     })
 
 
 }
 
 
-function show_job(job_id,filter_serverity) {
+function show_job(job_id, filter_serverity) {
     update_breadcrumb('Jobs', 'Detail');
     $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
@@ -1359,24 +1358,24 @@ function show_job(job_id,filter_serverity) {
             var timeline = timeline_templates.filter('#timeline-template');
             var timeline_overview_box = timeline_templates.filter('#timeline-overview-box-template');
             timeline_overview_box.find('#job_id').html(job_id);
-            
+
             // console.log("serv",filter_serverity)
 
 
             timeline.find('.timeline').append(timeline_overview_box.html());
             $(".all-content").html('<section class="content">' + timeline.html() + '</section>');
 
-            if (filter_serverity){
-                
+            if (filter_serverity) {
+
                 $('#log_severity').val(filter_serverity);
             }
-            
-            var current_serverity=$('#log_severity')[0].value
-            
-            
-            
 
-            client.jobs.read(job_id,{ "log-level":current_serverity }).done(function (data) {
+            var current_serverity = $('#log_severity')[0].value
+
+
+
+
+            client.jobs.read(job_id, { "log-level": current_serverity }).done(function (data) {
 
                 $("#user_name").html(data['created_by_user_name']);
                 if ("debugger_password" in data) {
@@ -1384,13 +1383,13 @@ function show_job(job_id,filter_serverity) {
                     <td nowrap id='debugger_url'>http://not-implemented-yet</td> \
                     <tr>").appendTo('#job_overview_table');
                 }
-                
 
-                
+
+
                 if ($.fn.dataTable.isDataTable('#log_table')) {
                     $('#log_table').DataTable().destroy();
                 }
-        
+
                 table = $('#log_table').DataTable({
                     // dom: 'Bfrtip',
                     // buttons: [
@@ -1405,14 +1404,14 @@ function show_job(job_id,filter_serverity) {
                         [15, 30, 100, -1],
                         [15, 30, 100, "All"]
                     ]
-        
+
                 })
-                render_logs(data,table);
+                render_logs(data, table);
                 $("#job_path").html(data['jinjamator_task']);
-                
 
 
-                
+
+
 
             });
 
