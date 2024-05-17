@@ -5,6 +5,7 @@
 
 .jinjamator_log_nowap_small {
     white-space: nowrap;
+    width: 1%;
 }
 
 .jinjamator_log_message_collapsed {
