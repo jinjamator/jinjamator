@@ -397,6 +397,7 @@ function list_roles() {
 
         table = $('#roles_list').DataTable({
             dom: 'Bfrtip',
+            autoWidth: false,
             buttons: [
                 {
                     text: 'Create Role',
@@ -702,6 +703,7 @@ function list_users() {
 
         table = $('#users_list').DataTable({
             dom: 'Bfrtip',
+            autoWidth: false,
             buttons: [
                 {
                     text: 'Create User',
@@ -765,6 +767,7 @@ function list_tasks() {
         $.fn.dataTable.ext.search.pop() // dirty but is the only thing that works at the moment
         delete $.fn.DataTable.ext.order["alpaca"]
         table = $('#task_list').DataTable({
+            autoWidth: false,
             "lengthMenu": [
                 [15, 30, 100, -1],
                 [15, 30, 100, "All"]
@@ -1152,6 +1155,7 @@ function list_jobs() {
         }
 
         table = $('#list_jobs').DataTable({
+            autoWidth: false,
             "lengthMenu": [
                 [15, 30, 100, -1],
                 [15, 30, 100, "All"]
@@ -1175,15 +1179,12 @@ function set_timeline_loglevel() {
     job_id = $('#job_id')[0].innerText
     $('.timeline li').remove()
     show_job(job_id, $('#log_severity')[0].value)
-
-
 }
 
 
 function update_timeline(job_id, table) {
     // client.jobs.read(job_id).done(function (data) {
     var state = $('#job_status').html()
-    console.log(state)
     if ($('#job_id').length > 0) {
         if (state != "FAILURE" && state != "SUCCESS") {
             var current_serverity = $('#log_severity')[0].value
@@ -1196,8 +1197,7 @@ function update_timeline(job_id, table) {
             // console.log(last_timestamp_rendered)
 
             client.jobs.read(job_id, {}, options).done(function (data) {
-                render_logs(data, table)
-
+                render_logs(data)
                 setTimeout(update_timeline, 2000, job_id, table);
             });
 
@@ -1240,14 +1240,13 @@ function set_jinjamator_version() {
         console.log(version_data)
         $('.jinjamator_version').html("<b>Version</b> " + version_data.version)
 
-
     };
     req.send();
 }
 
 
 
-function render_logs(data, table) {
+function render_logs(data) {
     $('#job_status').html(data['state']);
     $('#job_status').addClass("badge");
     $('#job_status').addClass(badge_color_from_state(data['state']));
@@ -1263,84 +1262,60 @@ function render_logs(data, table) {
             $('<br>').appendTo('#job_files');
         });
     }
-    $('#log_table').DataTable().destroy();
+
     $.each(data['log'], function (index, log_item) {
         var timestamp = Object.keys(log_item)[0];
         var message = log_item[timestamp]['message']
 
         const json_regexp = /{.*\}/gm;
 
-
-
         var tasklet = log_item[timestamp]['current_tasklet']
-        if (tasklet.length > 15)
-            var tasklet_short = "..." + tasklet.substring(tasklet.length - 12)
-        else
-            var tasklet_short = tasklet
         var serverity = log_item[timestamp]['level']
 
-        const myJSON = log_item[timestamp]['configuration'];
-        const formatter = new JSONFormatter(myJSON, 0);
-        serverity_classes = ""
-        switch (log_item[timestamp]['level']) {
-            case 'INFO':
-                serverity_classes = 'badge bg-blue';
-                break;
-            case 'WARNING':
-                serverity_classes = 'badge bg-yellow';
-                break;
-            case 'ERROR':
-                serverity_classes = 'badge bg-red';
-                break;
-            case 'DEBUG':
-                serverity_classes = 'badge bg-grey';
-                break;
-            case 'TASKLET_RESULT':
-                serverity_classes = 'badge bg-green';
-                break;
-            case 'CONSOLE':
-                serverity_classes = 'badge bg-black';
-                break;
-        }
 
 
 
-        row_html = '<tr><td nowrap width="1%">' + timestamp +
-            '</td><td nowrap width="1%" class="jinjamator_log_tasklet"><span class="tasklet_path_block">' + tasklet_short +
-            '</span><span class="tasklet_path_none">' + tasklet +
-            '</span></td><td width="1%"><span style="min-width:70px;" class="' + serverity_classes + '">' + serverity + '</span>\
-        </td><td><span class="jinjamator_log_message jinjamator_log_message_collapsed">' + message + '</span></td><td></td></tr>'
-        row_data = row_html
+        $('#log_table').DataTable().row.add([timestamp, tasklet, serverity, log_item[timestamp]['configuration'],message]);
+
+        // row_html = '<tr><td nowrap width="1%">' + timestamp +
+        //     '</td><td nowrap width="1%" class="jinjamator_log_tasklet"><span class="tasklet_path_block">' + tasklet_short +
+        //     '</span><span class="tasklet_path_none">' + tasklet +
+        //     '</span></td><td width="1%"><span style="min-width:70px;" class="' + serverity_classes + '">' + serverity + '</span>\
+        // </td><td><span class="jinjamator_log_message jinjamator_log_message_collapsed">' + message + '</span></td><td></td></tr>'
+        // row_data = row_html
 
 
-        $('#log_table > tbody:last-child').append(row_html);
+        // $('#log_table > tbody:last-child').append(row_html);
 
-        $('#log_table > tbody > tr:last-child > td:last-child').append(formatter.render())
+        // $('#log_table > tbody > tr:last-child > td:last-child').append(formatter.render())
 
         $("#last_rendered_log_timestamp").text(timestamp.replace(" ", "T"))
 
 
-    }
+    })
+    $('#log_table').DataTable().draw(false);
 
-    )
+    // $('#log_table').DataTable({
+    //     "lengthMenu": [
+    //         [15, 30, 100, -1],
+    //         [15, 30, 100, "All"]
+    //     ]
 
-    $('#log_table').DataTable({
-        "lengthMenu": [
-            [15, 30, 100, -1],
-            [15, 30, 100, "All"]
-        ]
-
-    }).draw();
+    // }).draw();
 
     $('#log_table').on('click', '.jinjamator_log_message', function () {
-        $(this).toggleClass('jinjamator_log_message_collapsed');
-        $(this).toggleClass('jinjamator_log_message_full');
+        if ($(this).hasClass('jinjamator_log_message_raw')){
+            $(this).innerText=this.innerText.replaceAll("\n","<BR>")
+            $(this).removeClass('jinjamator_log_message_raw');
+        }
+        
+
+        $(this).toggleClass('jinjamator_log_message_collapsed jinjamator_log_message_full');
 
     })
 
     $('#log_table').on('click', '.jinjamator_log_tasklet', function () {
-        $(this).children().toggleClass('tasklet_path_block');
-        $(this).children().toggleClass('tasklet_path_none');
+        $(this).children().toggleClass('tasklet_path_block tasklet_path_none');
 
     })
 
@@ -1391,6 +1366,8 @@ function show_job(job_id, filter_serverity) {
                 }
 
                 table = $('#log_table').DataTable({
+                    autoWidth: false,
+
                     // dom: 'Bfrtip',
                     // buttons: [
                     //     {
@@ -1400,13 +1377,109 @@ function show_job(job_id, filter_serverity) {
                     //         }
                     //     }
                     // ],
+                    columns: [
+                        {
+                            title: 'Time',
+                            className: "jinjamator_log_nowap_small",
+                            width: '1%'
+                        },
+                        {
+                            title: 'Tasklet',
+                            className: "jinjamator_log_nowap_small jinjamator_log_tasklet",
+                            width: '1%',
+                            render: function (data, type, row) {
+                                
+                                var tasklet = data
+                                var tasklet_short = tasklet
+                                
+                                if (tasklet.length > 15)
+                                    var tasklet_short = "..." + tasklet.substring(tasklet.length - 12)
+
+                                return '<span class="tasklet_path_block">' + tasklet_short + '</span><span class="tasklet_path_none">' + tasklet + '</span>'
+                            }
+                            
+        
+                        },
+                        {
+                            title: 'Level',
+                            className: "jinjamator_log_nowap_small",
+                            width: '1%',
+                            render: function (data, type, row) {
+                                serverity_classes = ""
+                                switch (data) {
+                                    case 'INFO':
+                                        serverity_classes = 'badge bg-blue';
+                                        break;
+                                    case 'WARNING':
+                                        serverity_classes = 'badge bg-yellow';
+                                        break;
+                                    case 'ERROR':
+                                        serverity_classes = 'badge bg-red';
+                                        break;
+                                    case 'DEBUG':
+                                        serverity_classes = 'badge bg-grey';
+                                        break;
+                                    case 'TASKLET_RESULT':
+                                        serverity_classes = 'badge bg-green';
+                                        break;
+                                    case 'CONSOLE':
+                                        serverity_classes = 'badge bg-black';
+                                        break;
+                                }
+                                return '<span style="min-width:70px;" class="' + serverity_classes + '">' + data + '</span>'
+                            }
+                        },
+                        {
+                            title: 'Configuration',
+                            className: 'jinjamator_log_nowap_small',
+                            render: function (data, type, row, meta) {
+                                
+                                const formatter = new JSONFormatter(data, 0);
+                                return formatter.render()
+                            }
+                        },
+                        {
+                            title: 'Message',
+                            render: function (data, type, row) {
+                                var trimmed=data.trim()
+                                if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("{") && trimmed.endsWith("}"))){
+                                    try {
+                                        var js_data=JSON.parse(trimmed)
+                                        const formatter = new JSONFormatter(js_data, 0);
+                                        return formatter.render()
+                                    }
+                                    catch(e){ 
+                                        try {
+                                            // try to convert python datastructure to json -> this is a minimalistic poc, but works most of the time so it's good enough for now
+                                            trimmed=trimmed.replaceAll("'","----'----")
+                                            trimmed=trimmed.replaceAll('"',"'")
+                                            trimmed=trimmed.replaceAll("----'----",'"')
+                                            trimmed=trimmed.replaceAll(": None",': null')
+                                            trimmed=trimmed.replaceAll(": True",': true')
+                                            trimmed=trimmed.replaceAll(": False",': false')
+                                            var js_data=JSON.parse(trimmed)
+                                            const formatter = new JSONFormatter(js_data, 0);
+                                            return formatter.render()
+                                        }
+                                        catch(e){ 
+    
+                                        }
+    
+                                    }
+                                }
+                                return "<span class='jinjamator_log_message jinjamator_log_message_collapsed jinjamator_log_message_raw'>" + trimmed + "</span>"
+                            }
+                            
+                        },
+
+                    ],
                     "lengthMenu": [
                         [15, 30, 100, -1],
                         [15, 30, 100, "All"]
                     ]
 
                 })
-                render_logs(data, table);
+                render_logs(data);
                 $("#job_path").html(data['jinjamator_task']);
 
 
