@@ -1,5 +1,10 @@
 .jinjamator_log_message {
+    overflow: hidden;
 
+}
+
+.jinjamator_log_nowap_small {
+    white-space: nowrap;
 }
 
 .jinjamator_log_message_collapsed {
@@ -10,14 +15,15 @@
     line-clamp: 1;
     -webkit-box-orient: vertical;
     cursor: row-resize;
-    white-space: unset;
+    /* white-space: unset; */
+    min-width: 100px;
 }
 
 .jinjamator_log_message_full {
     -webkit-line-clamp: unset;
     line-clamp: unset;
     cursor: row-resize;
-    white-space: pre;
+    /* white-space: pre; */
 
 }
 
@@ -30,4 +36,14 @@
 .tasklet_path_none {
     display: none;
     cursor: col-resize;
+}
+
+#timeline_logs {
+    overflow-x: hidden;
+}
+
+.dt-search {
+    float: right;
+    margin-right: 20px;
+    margin-bottom: 20px;
 }
