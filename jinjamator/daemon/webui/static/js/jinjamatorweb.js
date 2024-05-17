@@ -240,7 +240,9 @@ class SmoothOverlay {
         }
     }
     reset() {
+        this.fadeOut();
         this.usage_count = 0
+        
     }
 }
 
@@ -905,12 +907,14 @@ function create_job(job_path, pre_defined_vars) {
                                 $('#modal-submit ').find('.btn-ok').unbind('click')
                                 $('#modal-submit ').find('.btn-ok').on('click', function () {
                                     client.tasks.create(job_path, data, url_data).done(function (data) {
-                                        $('#modal-submit').modal('hide')
+                                        $('#modal-submit').modal('hide');
+                                        wizard_overlay.fadeIn();
                                         setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
                                     });
                                 })
                             }
                             else {
+                                wizard_overlay.fadeIn();
                                 client.tasks.create(job_path, data, url_data).done(function (data) {
                                     setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
                                 });
@@ -1058,6 +1062,8 @@ function create_job(job_path, pre_defined_vars) {
 }
 
 function clone_job(job_id, undo) {
+    wizard_overlay.fadeIn()
+    
     client.jobs.read(job_id).done(function (data) {
         var timestamp = Object.keys(data['log'][0])[0];
         var configuration = data['log'][0][timestamp]['configuration'];
@@ -1080,6 +1086,7 @@ function clone_job(job_id, undo) {
         }
 
         create_job(data['jinjamator_task'], configuration);
+        wizard_overlay.fadeOut()
     });
 
 
@@ -1488,7 +1495,7 @@ function show_job(job_id, filter_serverity) {
 
             });
 
-
+            wizard_overlay.reset()
             $('.main-section').removeClass('hidden');
 
             setTimeout(update_timeline, 1000, job_id, table);
