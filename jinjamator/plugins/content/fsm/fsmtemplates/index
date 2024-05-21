@@ -249,6 +249,7 @@ cisco_nxos_show_ipv6_interface.fsm, .*, cisco_nxos, sh[[ow]] ipv[[6]] int[[erfac
 cisco_nxos_show_ip_igmp_groups_vrf_all.fsm, .*, cisco_nxos, sh[[ow]] i[[p]] igmp gr[[oups]] vrf all
 cisco_nxos_show_spanning-tree.fsm, .*, cisco_nxos, sh[[ow]] sp[[anning-tree]]
 cisco_nxos_show_bfd_neighbors.fsm, .*, cisco_nxos, sh[[ow]] bfd nei[[ghbors]]( vrf)?( \S+)?
+cisco_nxos_show_system_internal_ptp_bad-corrections.fsm, .*, cisco_nxos, sh[[ow]] sys[[tem]] int[[ernal]] ptp bad[[-corrections]]
 
 cisco_nxos_show_run_interface.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] int[[erface]]
 cisco_nxos_show_run_port-profile.fsm, .*, cisco_nxos, sh[[ow]] run[[ning-config]] port-pr[[ofile]]

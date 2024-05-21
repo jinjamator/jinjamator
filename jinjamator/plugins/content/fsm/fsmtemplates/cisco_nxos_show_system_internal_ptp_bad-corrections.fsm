@@ -1,0 +1,20 @@
+Value SLAVE_PORT (\S+)
+Value SUP_TIME ([A-Za-z]+\s[A-Za-z]+\s+\d+\s\d\d:\d\d:\d\d\s\d+)
+Value SUP_TIME_NS (\d+)
+Value CORRECTION ([-]?\d+)
+Value MEAN_PATH_DELAY (\d+)
+Value MASTER_TIMESTAMP_S (\d+)
+Value MASTER_TIMESTAMP_NS (\d+)
+Value SLAVE_TIMESTAMP_S (\d+)
+Value SLAVE_TIMESTAMP_NS (\d+)
+Value SYNC_SEQID (\d+)
+Value PTP_TS_CORR ([-]?\d+)
+
+
+Start
+  ^PTP past corrections
+  ^---------
+  ^Slave Port
+  #^(\S+)\s+([A-Za-z]+\s[A-Za-z]+\s+\d+\s\d\d:\d\d:\d\d\s\d+)\s+(\d+)\s+([-]?\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([-]?\d+)\s+
+  ^(${SLAVE_PORT})\s+(${SUP_TIME})\s+(${SUP_TIME_NS})\s+(${CORRECTION})\s+(${MEAN_PATH_DELAY})\s+(${MASTER_TIMESTAMP_S})\s+(${MASTER_TIMESTAMP_NS})\s+(${SLAVE_TIMESTAMP_S})\s+(${SLAVE_TIMESTAMP_NS})\s+(${SYNC_SEQID})\s+(${PTP_TS_CORR})\s* -> Record
+  ^. -> Error
