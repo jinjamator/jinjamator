@@ -167,18 +167,6 @@ def discover_tasks(app):
 
                         @ns.route(f"/{task_info['path']}", endpoint=task_info["path"])
                         class APIJinjamatorTask(Resource):
-                            @api.doc(
-                                f"get_task_{task_info['path'].replace(os.path.sep,'_')}_schema"
-                            )
-                            @api.expect(task_arguments)
-                            @api.doc(
-                                params={
-                                    "Authorization": {
-                                        "in": "header",
-                                        "description": "A valid access token",
-                                    }
-                                }
-                            )
                             def calc_role():
                                 recursive_roles = []
                                 tmp = ""
@@ -194,6 +182,19 @@ def discover_tasks(app):
                                     User.roles.any(JinjamatorRole.name == "tasks_all"),
                                     *recursive_roles,
                                 )
+                            @api.doc(
+                                f"get_task_{task_info['path'].replace(os.path.sep,'_')}_schema"
+                            )
+                            @api.expect(task_arguments)
+                            @api.doc(
+                                params={
+                                    "Authorization": {
+                                        "in": "header",
+                                        "description": "A valid access token",
+                                    }
+                                }
+                            )
+
 
                             @require_role(role=calc_role())
                             def get(self):
