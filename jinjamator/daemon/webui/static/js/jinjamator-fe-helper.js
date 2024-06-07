@@ -197,7 +197,7 @@ function dropdown_fill_table(element, checked, options) {
             target.__key_cache__.splice(idx, 1)
         }
         target.setValue(value);
-        $("td.dataTables_empty").parent().remove() // workaround alpaca datatables bug
+        $("td.dt-empty").parent().remove() // workaround alpaca datatables bug
 
     })
 }

@@ -1312,7 +1312,7 @@ function render_logs(data) {
 
     $('#log_table').on('click', '.jinjamator_log_message', function () {
         if ($(this).hasClass('jinjamator_log_message_raw')){
-            $(this).innerText=this.innerText.replaceAll("\n","<BR>")
+            $(this)[0].innerHTML=$(this)[0].innerHTML.replaceAll("\n","<BR>").replaceAll("\r","<BR>")
             $(this).removeClass('jinjamator_log_message_raw');
         }
         
