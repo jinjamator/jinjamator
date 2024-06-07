@@ -1,4 +1,17 @@
 Value Filldown INTERFACE (\S+/\S+)
+Value Filldown TRANSCEIVER_TYPE (\S+)
+Value Filldown NAME (\S+)
+Value Filldown PART_NUMBER (\S+)
+Value Filldown REV (\S+)
+Value Filldown SERIAL (\S+)
+Value Filldown BITRATE (.+)
+Value Filldown LINK_DIAMETER (.+)
+Value Filldown LINK_MAX_LEN (.+)
+Value Filldown CISCO_ID (\S+)
+Value Filldown CISCO_EXT_ID (\S+)
+Value Filldown CISCO_PART_NUMBER (\S+)
+Value Filldown CISCO_PRODUCT_ID (\S+)
+Value Filldown CISCO_VERSION (\S+)
 Value LANE (\d+)
 Value TEMPERATURE_VALUE (([-\+]?\d+\.\d+|(N\/A)))
 Value TEMPERATURE_ALARM_HIGH (([-\+]?\d+\.\d+|(N\/A)))
@@ -25,17 +38,30 @@ Value TX_ALARM_HIGH (([-\+]?\d+\.\d+|(N\/A)))
 Value TX_ALARM_LOW (([-\+]?\d+\.\d+|(N\/A)))
 Value TX_WARN_HIGH (([-\+]?\d+\.\d+|(N\/A)))
 Value TX_WARN_LOW (([-\+]?\d+\.\d+|(N\/A)))
-Value TRANSCEIVER_TYPE (\S+)
+
+
 
 Start
   ^${INTERFACE}
   ^Lane Number:${LANE}
   ^\s+type is ${TRANSCEIVER_TYPE}
+  ^\s+name is ${NAME}
+  ^\s+part number is ${PART_NUMBER}
+  ^\s+revision is ${REV} 
+  ^\s+serial number is ${SERIAL}
+  ^\s+nominal bitrate is ${BITRATE}\s*$$
+  ^\s+Link length supported for ${LINK_DIAMETER} fiber is ${LINK_MAX_LEN}\s*$$
+  ^\s+cisco id is ${CISCO_ID}
+  ^\s+cisco extended id number is ${CISCO_EXT_ID}
+  ^\s+cisco part number is ${CISCO_PART_NUMBER}
+  ^\s+cisco product id is ${CISCO_PRODUCT_ID}
+  ^\s+cisco version id is ${CISCO_VERSION}
   ^\s+Temperature\s+${TEMPERATURE_VALUE}\s+(\w+\s+)?[+-]*\s+${TEMPERATURE_ALARM_HIGH}\s+(\w+\s+)?[+-]*\s+${TEMPERATURE_ALARM_LOW}\s+(\w+\s+)?[+-]*\s+${TEMPERATURE_WARN_HIGH}\s+(\w+\s+)?[+-]*\s+${TEMPERATURE_WARN_LOW}
   ^\s+Voltage\s+${VOLTAGE_VALUE}\s+(\w+\s+)?[+-]*\s+${VOLTAGE_ALARM_HIGH}\s+(\w+\s+)?[+-]*\s+${VOLTAGE_ALARM_LOW}\s+(\w+\s+)?[+-]*\s+${VOLTAGE_WARN_HIGH}\s+(\w+\s+)?[+-]*\s+${VOLTAGE_WARN_LOW}
   ^\s+Current\s+${AMPS_VALUE}\s+(\w+\s+)?[+-]*\s+${AMPS_ALARM_HIGH}\s+(\w+\s+)?[+-]*\s+${AMPS_ALARM_LOW}\s+(\w+\s+)?[+-]*\s+${AMPS_WARN_HIGH}\s+(\w+\s+)?[+-]*\s+${AMPS_WARN_LOW}
   ^\s+Rx\s+Power\s+${RX_VALUE}\s+(\w+\s+)?[+-]*\s+${RX_ALARM_HIGH}\s+(\w+\s+)?[+-]*\s+${RX_ALARM_LOW}\s+(\w+\s+)?[+-]*\s+${RX_WARN_HIGH}\s+(\w+\s+)?[+-]*\s+${RX_WARN_LOW}
   ^\s+Tx\s+Power\s+${TX_VALUE}\s+(\w+\s+)?[+-]*\s+${TX_ALARM_HIGH}\s+(\w+\s+)?[+-]*\s+${TX_ALARM_LOW}\s+(\w+\s+)?[+-]*\s+${TX_WARN_HIGH}\s+(\w+\s+)?[+-]*\s+${TX_WARN_LOW}
+  ^\s+transceiver is not present -> Clearall
   ^\s+Note: -> Record
 
 EOF
