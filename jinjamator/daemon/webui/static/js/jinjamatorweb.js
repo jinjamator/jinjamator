@@ -1075,12 +1075,14 @@ function clone_job(job_id, undo) {
         }
         if (data.files.length > 0) {
             data['files'].forEach(function (value, index, array) {
+                if (configuration["filenames"]){
                 configuration["filenames"].forEach(function (form_data, form_index, form_array) {
                     if (form_data.name == value) {
                         configuration["filenames"][form_index].filesystem_path = data.id + '/' + value
                     }
-
+                
                 });
+            }
 
             });
         }
