@@ -43,6 +43,7 @@ jsonpickle
 py-zabbix
 pyjq
 netaddr
+six
 pyvmomi
 coloredlogs
 openai
