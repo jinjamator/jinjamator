@@ -44,7 +44,7 @@ py-zabbix
 pyjq
 netaddr
 six
-pyvmomi
+pyvmomi < 8.3
 coloredlogs
 openai
 ldap3
