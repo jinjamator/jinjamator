@@ -405,11 +405,17 @@ def discover_tasks(app):
                                         ]:
                                             db_result = db_job[0].to_dict()
                                             if "result" in db_result:
+                                                
                                                 result = db_result["result"]
-                                                if "stdout" in result:
-                                                    return jsonify(
-                                                        json.loads(result["stdout"])
-                                                    )
+                                                
+                                                if "stdout" in result:    
+                                                    try:
+                                                        retval=json.loads(result["stdout"])
+                                                    except Exception as e:
+                                                        log.error(result)
+                                                        return abort(500, f'error, cannot json serialize data: {str(result["stdout"])}')
+                                                    return jsonify( retval )
+                                                    
                                                 else:
                                                     logging.error(
                                                         f"found no result in jobdata {db_result}"
