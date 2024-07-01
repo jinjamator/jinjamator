@@ -1444,7 +1444,27 @@ function show_job(job_id, filter_serverity) {
                             render: function (data, type, row, meta) {
                                 
                                 const formatter = new JSONFormatter(data, 0);
-                                return formatter.render()
+                                var div = document.createElement("div")
+                                var icon = document.createElement("i")
+                                icon.classList=["fa fa-fw fa-expand right"]
+                                div.appendChild(icon)
+                                icon.onclick = function() {
+                                    if (formatter.open){
+                                        formatter.openAtDepth(0);    
+                                    }
+                                    else{
+                                        formatter.openAtDepth(1000);
+                                    }
+                                    
+                                    icon.classList.toggle("fa-compress");
+                                    icon.classList.toggle("fa-expand");
+                                    console.dir(formatter)
+                                }
+                                
+                                div.append(formatter.render())
+                                return div                                            
+                      
+                      
                             }
                         },
                         {
@@ -1455,7 +1475,27 @@ function show_job(job_id, filter_serverity) {
                                     try {
                                         var js_data=JSON.parse(trimmed)
                                         const formatter = new JSONFormatter(js_data, 0);
-                                        return formatter.render()
+                                        formatter.openAtDepth(0);
+                                        
+                                        var div = document.createElement("div")
+                                        var icon = document.createElement("i")
+                                        icon.classList=["fa fa-fw fa-expand right"]
+                                        div.appendChild(icon)
+                                        icon.onclick = function() {
+                                            if (formatter.open){
+                                                formatter.openAtDepth(0);    
+                                            }
+                                            else{
+                                                formatter.openAtDepth(1000);
+                                            }
+                                            
+                                            icon.classList.toggle("fa-compress");
+                                            icon.classList.toggle("fa-expand");
+                                            console.dir(formatter)
+                                        }
+                                        
+                                        div.append(formatter.render())
+                                        return div
                                     }
                                     catch(e){ 
                                         try {
@@ -1468,8 +1508,27 @@ function show_job(job_id, filter_serverity) {
                                             trimmed=trimmed.replaceAll(": False",': false')
                                             var js_data=JSON.parse(trimmed)
                                             const formatter = new JSONFormatter(js_data, 0);
-                                            return formatter.render()
-                                        }
+                                            var div = document.createElement("div")
+                                            var icon = document.createElement("i")
+                                            icon.classList=["fa fa-fw fa-expand right"]
+                                            div.appendChild(icon)
+                                            icon.onclick = function() {
+                                                if (formatter.open){
+                                                    formatter.openAtDepth(0);    
+                                                }
+                                                else{
+                                                    formatter.openAtDepth(1000);
+                                                }
+                                                
+                                                icon.classList.toggle("fa-compress");
+                                                icon.classList.toggle("fa-expand");
+                                                console.dir(formatter)
+                                            }
+                                            
+                                            div.append(formatter.render())
+                                            return div                                            
+                                  
+                                            }
                                         catch(e){ 
     
                                         }
