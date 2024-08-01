@@ -66,3 +66,17 @@ def load (filepath):
         return json.loads(file.load(filepath))
     else:
         return False
+
+def save (data,filepath):
+    """
+    Write structured json_dump-able data directly to a file
+    Alias for json.dump() to be consistent with other plugins
+
+    :param data: structured json_dumps()-able data
+    :type data: list,dict
+    :param filepath: path to target-file
+    :type filpath: string
+    :returns: Returns True on success, False on Failure
+    :rtype: bool
+    """
+    return dump(data,filepath)
