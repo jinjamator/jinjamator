@@ -265,10 +265,7 @@ CLIBaseMatrix = {
     r"^(no )?medium p2p": None,
     r"^(no )?ptp enable": None,
     r"^(no )?autonomic": None,
-    
-    
-    
-    
+    r"^mdns-sd (\S+)":None,
     
 
 }
@@ -1015,7 +1012,7 @@ class portMigrationHelper(object):
                                 )
 
                 if not found:
-                    raise Exception("Unknown config line '{0}'".format(line))
+                    self._log.error("Unknown config line '{0}'".format(line))
 
     def analyze_fex_hif_ports_cisco_nxos(self):
         self._FEXHostInterfaces = self._cfg.find_objects(
