@@ -22,6 +22,8 @@ Value List ADDITIONAL_CONFIG (.*)
 
 
 Start
+  #Ignore the "interface breakout" section
+  ^interface breakout
   ^interface ${PARENT_INTERFACE}\.\S+ -> Continue
   ^interface ${INTERFACE} -> Interface_parse
 

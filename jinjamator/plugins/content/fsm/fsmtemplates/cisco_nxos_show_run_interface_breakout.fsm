@@ -1,0 +1,6 @@
+Value MODULE (\S+)
+Value PORTS (\S+)
+Value MAP (\S+)
+
+Start
+  ^interface breakout module ${MODULE} port ${PORTS} map ${MAP} -> Record
