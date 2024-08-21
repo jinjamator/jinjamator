@@ -1,5 +1,6 @@
 import re
 def analyze_interface_name(shortname,result_prefix='',default_interface_prefix='Ethernet'):
+    shortname=shortname.lower()
     if not shortname:
         log.error(f'cisco.analyze_interface_name: no shortname supplied')
         return {}
@@ -10,7 +11,9 @@ def analyze_interface_name(shortname,result_prefix='',default_interface_prefix='
         _res=re.match(_rgx,shortname).groupdict()
     except AttributeError as err:
         log.error(f'cisco.analyze_interface_name: shortname "{shortname}" does not match {_rgx}')
-        return {}
+    except Exception as err:
+        log.error(f'cisco.analyze_interface_name: shortname "{shortname}" triggers exception')
+        raise err
     
     if not _res['prefix']:
         _res['prefix']=default_prefix
