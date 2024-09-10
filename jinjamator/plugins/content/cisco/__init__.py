@@ -1,6 +1,6 @@
 import re
 def analyze_interface_name(shortname,result_prefix='',default_interface_prefix='Ethernet'):
-    shortname=shortname.lower()
+    shortname=shortname.lower().strip()
     if not shortname:
         log.error(f'cisco.analyze_interface_name: no shortname supplied')
         return {}
@@ -16,7 +16,7 @@ def analyze_interface_name(shortname,result_prefix='',default_interface_prefix='
         raise err
     
     if not _res['prefix']:
-        _res['prefix']=default_prefix
+        _res['prefix']=default_interface_prefix
 
     prefix=_res['prefix'].strip().lower()
 
