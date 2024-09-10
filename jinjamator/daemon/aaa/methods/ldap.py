@@ -4,6 +4,9 @@ from jinjamator.daemon.aaa.models import (
     JinjamatorRole,
 )
 import ldap3
+import logging
+log = logging.getLogger()
+
 
 class LDAPAuthProvider(AuthProviderBase):
     def __init__(self, app=None):
