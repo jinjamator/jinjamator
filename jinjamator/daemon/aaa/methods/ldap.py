@@ -5,7 +5,12 @@ from jinjamator.daemon.aaa.models import (
 )
 import ldap3
 import logging
+import random
+import string
+
 log = logging.getLogger()
+from jinjamator.daemon.app import app
+from jinjamator.daemon.database import db
 
 
 class LDAPAuthProvider(AuthProviderBase):
