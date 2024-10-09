@@ -1462,6 +1462,14 @@ function show_job(job_id, filter_serverity) {
                                 var div = document.createElement("div")
                                 var icon = document.createElement("i")
                                 icon.classList=["fa fa-fw fa-expand right"]
+                                icon.style="cursor:pointer";
+                                var copy_raw = document.createElement("i")
+                                copy_raw.classList=["fa fa-fw fa-copy right"]
+                                copy_raw.style="cursor:pointer";
+                                copy_raw.onclick = function(){
+                                    navigator.clipboard.writeText(JSON.stringify(data,null, 2));
+                                }
+                                div.appendChild(copy_raw)  
                                 div.appendChild(icon)
                                 icon.onclick = function() {
                                     if (formatter.open){
@@ -1473,7 +1481,6 @@ function show_job(job_id, filter_serverity) {
                                     
                                     icon.classList.toggle("fa-compress");
                                     icon.classList.toggle("fa-expand");
-                                    console.dir(formatter)
                                 }
                                 
                                 div.append(formatter.render())
@@ -1493,8 +1500,17 @@ function show_job(job_id, filter_serverity) {
                                         formatter.openAtDepth(0);
                                         
                                         var div = document.createElement("div")
+                                        
                                         var icon = document.createElement("i")
                                         icon.classList=["fa fa-fw fa-expand right"]
+                                        icon.style="cursor:pointer";
+                                        var copy_raw = document.createElement("i")
+                                        copy_raw.classList=["fa fa-fw fa-copy right"]
+                                        copy_raw.style="cursor:pointer";
+                                        copy_raw.onclick = function(){
+                                            navigator.clipboard.writeText(trimmed);
+                                        }
+                                        div.appendChild(copy_raw)  
                                         div.appendChild(icon)
                                         icon.onclick = function() {
                                             if (formatter.open){
@@ -1506,7 +1522,6 @@ function show_job(job_id, filter_serverity) {
                                             
                                             icon.classList.toggle("fa-compress");
                                             icon.classList.toggle("fa-expand");
-                                            console.dir(formatter)
                                         }
                                         
                                         div.append(formatter.render())
@@ -1526,7 +1541,16 @@ function show_job(job_id, filter_serverity) {
                                             var div = document.createElement("div")
                                             var icon = document.createElement("i")
                                             icon.classList=["fa fa-fw fa-expand right"]
+                                            icon.style="cursor:pointer";
+                                            var copy_raw = document.createElement("i")
+                                            copy_raw.classList=["fa fa-fw fa-copy right"]
+                                            copy_raw.style="cursor:pointer";
+                                            copy_raw.onclick = function(){
+                                                navigator.clipboard.writeText(trimmed);
+                                            }
+                                            div.appendChild(copy_raw)  
                                             div.appendChild(icon)
+                                            
                                             icon.onclick = function() {
                                                 if (formatter.open){
                                                     formatter.openAtDepth(0);    
@@ -1537,7 +1561,6 @@ function show_job(job_id, filter_serverity) {
                                                 
                                                 icon.classList.toggle("fa-compress");
                                                 icon.classList.toggle("fa-expand");
-                                                console.dir(formatter)
                                             }
                                             
                                             div.append(formatter.render())
@@ -1545,12 +1568,31 @@ function show_job(job_id, filter_serverity) {
                                   
                                             }
                                         catch(e){ 
-    
                                         }
     
                                     }
                                 }
-                                return "<span class='jinjamator_log_message jinjamator_log_message_collapsed jinjamator_log_message_raw'>" + trimmed + "</span>"
+                                var top_div = document.createElement("div")
+                                var l_div = document.createElement("div")
+                                l_div.style="display: inline-block;"
+                                var r_div = document.createElement("div")
+                                r_div.style="float: right;"
+                                var span = document.createElement("span")
+                                span.classList=["jinjamator_log_message jinjamator_log_message_collapsed jinjamator_log_message_raw"]
+                                var copy_raw = document.createElement("i")
+                                copy_raw.classList=["fa fa-fw fa-copy right"]
+                                copy_raw.style="cursor:pointer";
+                                copy_raw.onclick = function(){
+                                    navigator.clipboard.writeText(trimmed);
+                                }
+
+                                span.innerText=trimmed   
+                                l_div.appendChild(span)
+                                r_div.appendChild(copy_raw)
+                                top_div.appendChild(l_div)
+                                top_div.appendChild(r_div)
+                                
+                                return top_div
                             }
                             
                         },
