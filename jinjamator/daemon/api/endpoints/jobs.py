@@ -23,6 +23,7 @@ from jinjamator.daemon.database import db
 from jinjamator.daemon.api.parsers import job_arguments
 from jinjamator.daemon.aaa import require_role
 from jinjamator.daemon.aaa.models import User, JinjamatorRole
+
 from flask import current_app as app
 
 from sqlalchemy import select, and_, or_, exc
@@ -54,6 +55,9 @@ class JobCollection(Resource):
         Returns a list of all jobs.
         """
         response = []
+        user_roles = [role["name"] for role in g._user["roles"]]
+
+
         try:
             rs = db.session.execute(
                 select(
@@ -74,27 +78,34 @@ class JobCollection(Resource):
             return response
 
         for job in rs.fetchall():
-            user = User.query.filter(User.id == int(job.created_by_user_id)).first()
+            user = User.query.filter(User.id == int(job.created_by_user_id)).first()           
+        
             if user:
                 username = str(user.username)
             else:
                 username = f"deleted (id is {job.created_by_user_id})"
-
-            response.append(
-                {
-                    "job": {
-                        "number": str(job.id),
-                        "id": str(job.task_id),
-                        "state": str(job.status),
-                        "date_done": str(job.date_done),
-                        "date_start": str(job.date_start),
-                        "date_scheduled": str(job.date_scheduled),
-                        "task": str(job.jinjamator_task),
-                        "created_by_user_id": int(job.created_by_user_id),
-                        "created_by_user_name": username,
+            allowed=False
+            if "administrator" in user_roles or "tasks_all" in user_roles:
+                allowed=True
+            for role in user_roles:
+                if f"task_{str(job.jinjamator_task)}".startswith(role):
+                    allowed=True
+            if allowed:
+                response.append(
+                    {
+                        "job": {
+                            "number": str(job.id),
+                            "id": str(job.task_id),
+                            "state": str(job.status),
+                            "date_done": str(job.date_done),
+                            "date_start": str(job.date_start),
+                            "date_scheduled": str(job.date_scheduled),
+                            "task": str(job.jinjamator_task),
+                            "created_by_user_id": int(job.created_by_user_id),
+                            "created_by_user_name": username,
+                        }
                     }
-                }
-            )
+                )
 
         return response
 
@@ -135,6 +146,16 @@ class Job(Resource):
         try:
             job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).first()
             user = User.query.filter(User.id == int(job.created_by_user_id)).first()
+            user_roles = [role["name"] for role in g._user["roles"]]
+
+            allowed=False
+            if "administrator" in user_roles or "tasks_all" in user_roles:
+                allowed=True
+            for role in user_roles:
+                if f"task_{str(job.jinjamator_task)}".startswith(role):
+                    allowed=True
+            if not allowed:
+                abort(403, f"You have no accees to {job_id}, as you have no permission for {job.jinjamator_task} ")
             response = {
                 "id": job.task_id,
                 "state": job.status,
@@ -144,7 +165,6 @@ class Job(Resource):
                 "created_by_user_id": int(job.created_by_user_id),
                 "created_by_user_name": str(user.username),
             }
-            user_roles = [role["name"] for role in g._user["roles"]]
 
             if "debugger" in user_roles:
                 response["debugger_password"] = str(job.debugger_password)
