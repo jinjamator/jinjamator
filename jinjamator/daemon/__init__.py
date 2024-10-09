@@ -173,6 +173,8 @@ def configure(flask_app, _configuration):
     try:
         from setuptools_git_versioning import version_from_git
         version=version_from_git()
+        if version == "0.0.1":
+            raise Exception("no git version detected")
     except:
         tmp=os.path.dirname(__file__).split(os.path.sep)[:-1] + ["VERSION"]
         with open(os.path.sep.join(tmp)) as fh:
