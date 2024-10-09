@@ -800,7 +800,18 @@ function create_job(job_path, pre_defined_vars) {
     if (!pre_defined_vars) {
         pre_defined_vars = {}
     }
-    update_breadcrumb('Jobs', 'Create');
+
+    if (("undo" in pre_defined_vars) && (pre_defined_vars.undo == true)){
+        update_breadcrumb('Jobs', 'Undo ' + pre_defined_vars.__old_job_id__);
+    }
+    else if(("__clone__" in pre_defined_vars)) {
+        update_breadcrumb('Jobs', 'Clone ' + pre_defined_vars.__old_job_id__ );
+    }
+    else{
+        update_breadcrumb('Jobs', 'Create');
+    }
+
+    
 
 
     $.get("static/templates/main_content_section.html", function (data) {
@@ -1067,10 +1078,13 @@ function clone_job(job_id, undo) {
     client.jobs.read(job_id).done(function (data) {
         var timestamp = Object.keys(data['log'][0])[0];
         var configuration = data['log'][0][timestamp]['configuration'];
+        
+
         if (undo) {
             configuration["undo"] = true;
         }
         if (configuration.jinjamator_job_id !== undefined) {
+            
             delete configuration.jinjamator_job_id;
         }
         if (data.files.length > 0) {
@@ -1086,7 +1100,8 @@ function clone_job(job_id, undo) {
 
             });
         }
-
+        configuration["__clone__"]=true;
+        configuration["__old_job_id__"]= job_id;
         create_job(data['jinjamator_task'], configuration);
         wizard_overlay.fadeOut()
     });
