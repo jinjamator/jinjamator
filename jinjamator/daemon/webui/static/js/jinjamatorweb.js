@@ -1573,10 +1573,11 @@ function show_job(job_id, filter_serverity) {
                                     }
                                 }
                                 var top_div = document.createElement("div")
+                                top_div.style="display: inline-flex;box-sizing: border-box;min-width:100%;"
                                 var l_div = document.createElement("div")
-                                l_div.style="display: inline-block;"
+                                l_div.style="display: inline-block;min-width:100%;margin-right: -19px;"
                                 var r_div = document.createElement("div")
-                                r_div.style="float: right;"
+                                r_div.style="float: right;box-sizing: border-box;"
                                 var span = document.createElement("span")
                                 span.classList=["jinjamator_log_message jinjamator_log_message_collapsed jinjamator_log_message_raw"]
                                 var copy_raw = document.createElement("i")
