@@ -461,9 +461,19 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
                     environment = self._plugin_ldr.j2_load_plugins(environment)
-                    parsed_data = environment.from_string(raw_data).render(
-                        self.configuration._data
-                    )
+                    try:
+                        parsed_data = environment.from_string(raw_data).render(
+                            self.configuration._data
+                        )
+                    except jinja2.exceptions.TemplateSyntaxError as e:                     
+                        txt=[]
+                        for num, line in enumerate(raw_data.split("\n"),1):
+                            txt.append(str(num).zfill(4) + " " + line)
+                        
+                        self._log.error("Cannot parse schema.yaml.\n" + e.message + " in line " + str(e.lineno) + ".\n\n" + txt[e.lineno -1 ] + "\n")
+
+                        return {}
+                        
                     # final_data=yaml.safe_load(parsed_data)
                     final_data = yaml.safe_load(parsed_data)
 
