@@ -1461,15 +1461,27 @@ function show_job(job_id, filter_serverity) {
                                 const formatter = new JSONFormatter(data, 0);
                                 var div = document.createElement("div")
                                 var icon = document.createElement("i")
-                                icon.classList=["fa fa-fw fa-expand right"]
-                                icon.style="cursor:pointer";
-                                var copy_raw = document.createElement("i")
-                                copy_raw.classList=["fa fa-fw fa-copy right"]
-                                copy_raw.style="cursor:pointer";
+                                icon.classList=["fa fa-fw fa-expand right jm_icon"]
+                                
+                                
+                                var copy_raw=document.createElement("a")
+                                copy_raw.setAttribute("href","#");
+                                copy_raw.setAttribute("data-tooltip","Copied!")
+                                
+
+
+                                var copy_raw_icon = document.createElement("i")
+                                copy_raw_icon.classList=["fa fa-fw fa-copy right jm_icon"]
+                                copy_raw.appendChild(copy_raw_icon)
+                                
+                                
                                 copy_raw.onclick = function(){
                                     navigator.clipboard.writeText(JSON.stringify(data,null, 2));
+                                    $(this).toggleClass("show_tooltip")
+                                      
+                                    window.setTimeout(function(){$(this).toggleClass("show_tooltip")},2);
                                 }
-                                div.appendChild(copy_raw)  
+                                div.appendChild(copy_raw)
                                 div.appendChild(icon)
                                 icon.onclick = function() {
                                     if (formatter.open){
@@ -1482,7 +1494,7 @@ function show_job(job_id, filter_serverity) {
                                     icon.classList.toggle("fa-compress");
                                     icon.classList.toggle("fa-expand");
                                 }
-                                
+
                                 div.append(formatter.render())
                                 return div                                            
                       
@@ -1502,16 +1514,18 @@ function show_job(job_id, filter_serverity) {
                                         var div = document.createElement("div")
                                         
                                         var icon = document.createElement("i")
-                                        icon.classList=["fa fa-fw fa-expand right"]
-                                        icon.style="cursor:pointer";
+                                        icon.classList=["fa fa-fw fa-expand right jm_icon"]
+                                
                                         var copy_raw = document.createElement("i")
-                                        copy_raw.classList=["fa fa-fw fa-copy right"]
-                                        copy_raw.style="cursor:pointer";
+                                        copy_raw.classList=["fa fa-fw fa-copy right jm_icon"]
                                         copy_raw.onclick = function(){
-                                            navigator.clipboard.writeText(trimmed);
+                                            try{
+                                                navigator.clipboard.writeText(JSON.stringify(JSON.parse(data),null, 2));
+                                            }
+                                            catch(e){
+                                                navigator.clipboard.writeText(data)  
+                                            }
                                         }
-                                        div.appendChild(copy_raw)  
-                                        div.appendChild(icon)
                                         icon.onclick = function() {
                                             if (formatter.open){
                                                 formatter.openAtDepth(0);    
@@ -1524,6 +1538,7 @@ function show_job(job_id, filter_serverity) {
                                             icon.classList.toggle("fa-expand");
                                         }
                                         
+                                        div.append(copy_raw)
                                         div.append(formatter.render())
                                         return div
                                     }
@@ -1540,15 +1555,18 @@ function show_job(job_id, filter_serverity) {
                                             const formatter = new JSONFormatter(js_data, 0);
                                             var div = document.createElement("div")
                                             var icon = document.createElement("i")
-                                            icon.classList=["fa fa-fw fa-expand right"]
-                                            icon.style="cursor:pointer";
+                                            icon.classList=["fa fa-fw fa-expand right jm_icon"]
+                                
                                             var copy_raw = document.createElement("i")
-                                            copy_raw.classList=["fa fa-fw fa-copy right"]
-                                            copy_raw.style="cursor:pointer";
+                                            copy_raw.classList=["fa fa-fw fa-copy right jm_icon"]
                                             copy_raw.onclick = function(){
-                                                navigator.clipboard.writeText(trimmed);
+                                                try{
+                                                    navigator.clipboard.writeText(JSON.stringify(JSON.parse(data),null, 2));
+                                                }
+                                                catch(e){
+                                                    navigator.clipboard.writeText(data)  
+                                                }
                                             }
-                                            div.appendChild(copy_raw)  
                                             div.appendChild(icon)
                                             
                                             icon.onclick = function() {
@@ -1580,13 +1598,12 @@ function show_job(job_id, filter_serverity) {
                                 r_div.style="float: right;box-sizing: border-box;"
                                 var span = document.createElement("span")
                                 span.classList=["jinjamator_log_message jinjamator_log_message_collapsed jinjamator_log_message_raw"]
+                                
                                 var copy_raw = document.createElement("i")
-                                copy_raw.classList=["fa fa-fw fa-copy right"]
-                                copy_raw.style="cursor:pointer";
+                                copy_raw.classList=["fa fa-fw fa-copy right jm_icon"]
                                 copy_raw.onclick = function(){
-                                    navigator.clipboard.writeText(trimmed);
+                                    navigator.clipboard.writeText(data);
                                 }
-
                                 span.innerText=trimmed   
                                 l_div.appendChild(span)
                                 r_div.appendChild(copy_raw)
