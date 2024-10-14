@@ -52,3 +52,15 @@
 .right {
     float: right;
 }
+
+
+.jm_icon {
+    cursor:pointer;
+}
+
+.jm_icon:active{
+    cursor:pointer;
+    transform:scale(0.8)
+}
+
+
