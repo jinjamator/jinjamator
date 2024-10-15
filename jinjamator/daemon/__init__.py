@@ -55,6 +55,7 @@ from jinjamator.daemon.aaa.models import (
 )
 
 
+
 celery = Celery("jinjamator")
 log = logging.getLogger()
 
@@ -79,6 +80,8 @@ def init_celery(_configuration):
     """
 
     celery.conf.broker_url = _configuration.get("celery_broker")
+    jinjamatro_schedule_path=os.path.join(_configuration.get("jinjamator_user_directory"),"jinjamator_schedule.yaml")
+    
     if celery.conf.broker_url == "filesystem://":
         data_folder = os.path.join(
             _configuration.get("jinjamator_user_directory"), "broker", "data"
@@ -95,8 +98,32 @@ def init_celery(_configuration):
         }
 
     celery.conf.result_backend = "jm+" + _configuration.get("celery_result_backend")
-    celery.conf.update({"jinjamator_private_configuration": _configuration})
 
+    celery.conf.update({"jinjamator_private_configuration": _configuration})
+    
+    if os.path.isfile(jinjamatro_schedule_path):
+        try:
+            import yaml
+            with open(jinjamatro_schedule_path, 'r') as fh:
+                yaml_sched_cfg = yaml.safe_load(fh)
+        except Exception as e:
+            log.error(f"Cannot Parse {jinjamatro_schedule_path} {e.message} in line {e.line} -> no scheduled tasks will be available!")
+            return celery
+        _sched_cfg={}        
+        for name,cfg in yaml_sched_cfg.items():
+            if "repeat" in cfg:
+                _sched_cfg[name]={
+                    'task': 'jinjamator.task.celery.run_jinjamator_task',
+                    'schedule': int(cfg["repeat"]),
+                    'args': (cfg["task_path"],cfg.get('configuration',{}),cfg.get('output_plugin',"console"),cfg.get('run_as_userid',1))
+                }
+        
+        # self, path, data, output_plugin, user_id, debugger_cfg
+
+        celery.conf.beat_schedule = _sched_cfg
+        celery.conf.timezone = 'UTC'
+    else:
+        log.error(f"Cannot find {jinjamatro_schedule_path} -> no scheduled tasks will be available!")
     return celery
 
 
@@ -181,6 +208,10 @@ def configure(flask_app, _configuration):
             version=fh.read()
     flask_app.config["JINJAMATOR_VERSION"]=version
     
+
+
+
+
     log.info("Starting jinjamator version: " + flask_app.config["JINJAMATOR_VERSION"])
 
 def initialize(flask_app, cfg):
@@ -230,6 +261,7 @@ def run(cfg):
     discover_output_plugins(app)
     discover_environments(app)
     discover_tasks(app)
+   
 
     port = cfg.get("daemon_listen_port", "5000")
     host = cfg.get("daemon_listen_address", "127.0.0.1")
@@ -258,6 +290,8 @@ def run(cfg):
                         cfg["celery_beat_database"],
                     ]
                 )
+                
+
                 sys.exit(0)
             else:
                 if not cfg.get("just_worker"):
