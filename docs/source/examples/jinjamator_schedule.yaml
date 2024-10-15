@@ -1,0 +1,11 @@
+run_demo_sched_task_15s:
+  repeat: 15
+  task_path: schedtest
+  output_plugin: console
+  configuration:
+    teststr: asdf
+    testint: 1
+    testlist:
+      - a 
+      - b
+      - c
