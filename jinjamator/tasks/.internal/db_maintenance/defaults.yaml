@@ -1,0 +1,3 @@
+log_severities_to_delete: 
+  - DEBUG
+keep_for_days: 30

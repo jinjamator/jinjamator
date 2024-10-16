@@ -34,12 +34,15 @@ from jinjamator.daemon.aaa import aaa_providers, initialize as init_aaa
 
 
 from pprint import pformat
+from celery.schedules import crontab
+
 import os, sys
 
 
 import logging
 import importlib
 import celery
+
 
 celery.app.backends.BACKEND_ALIASES[
     "jm"
@@ -78,10 +81,11 @@ def init_celery(_configuration):
     """
     Configure Celery
     """
-
+    celery.conf.timezone = _configuration.get("celery_beat_timezone",'UTC') 
     celery.conf.broker_url = _configuration.get("celery_broker")
     jinjamatro_schedule_path=os.path.join(_configuration.get("jinjamator_user_directory"),"jinjamator_schedule.yaml")
-    
+    _sched_cfg={}
+
     if celery.conf.broker_url == "filesystem://":
         data_folder = os.path.join(
             _configuration.get("jinjamator_user_directory"), "broker", "data"
@@ -109,7 +113,7 @@ def init_celery(_configuration):
         except Exception as e:
             log.error(f"Cannot Parse {jinjamatro_schedule_path} {e.message} in line {e.line} -> no scheduled tasks will be available!")
             return celery
-        _sched_cfg={}        
+        
         for name,cfg in yaml_sched_cfg.items():
             if "repeat" in cfg:
                 _sched_cfg[name]={
@@ -120,10 +124,18 @@ def init_celery(_configuration):
         
         # self, path, data, output_plugin, user_id, debugger_cfg
 
-        celery.conf.beat_schedule = _sched_cfg
-        celery.conf.timezone = 'UTC'
+
+        
+        
     else:
-        log.error(f"Cannot find {jinjamatro_schedule_path} -> no scheduled tasks will be available!")
+        log.error(f"Cannot find {jinjamatro_schedule_path} -> no scheduled user tasks will be available!")
+    
+    _sched_cfg["__DB__MAINTENANCE__"]={
+                    'task': 'jinjamator.task.celery.run_jinjamator_task',
+                    'schedule': crontab(*_configuration['run_db_maintenance_at'].split(" ")),
+                    'args': (".internal/db_maintenance",{},"console",1)
+                }    
+    celery.conf.beat_schedule = _sched_cfg
     return celery
 
 
