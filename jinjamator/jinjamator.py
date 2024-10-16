@@ -195,12 +195,20 @@ class Program(object):
             env_var="JINJAMATOR_MAX_CELERY_WORKER",
         )
         self._parser.add_argument(
-            "--celery-heartbeat-database",
+            "--celery-beat-database",
             dest="_celery_beat_database",
             default=f'{self._configuration.get("jinjamator_user_directory", tempfile.gettempdir())}/jinjamator-beat.db',
             help="celery result beat Database (required for daemon mode)  [default: %(default)s]",
             env_var="JINJAMATOR_DAEMON_CELERY_BEAT_DB_PATH",
         )
+        self._parser.add_argument(
+            "--celery-beat-timezone",
+            dest="_celery_beat_timezone",
+            default=f'UTC',
+            help="Timezone celery beat should use [default: %(default)s]",
+            env_var="JINJAMATOR_CELERY_BEAT_TZ",
+        )
+
         self._parser.add_argument(
             "--task-base-dir",
             dest="_global_tasks_base_dirs",
@@ -340,6 +348,24 @@ class Program(object):
             help="If the task debugger is enabled the a port within this port range will be used",
             env_var="JINJAMATOR_DEBUGGER_PORTS",
         )
+
+        self._parser.add_argument(
+            "--keep-debug-logs",
+            dest="_keep_debug_logs",
+            default=30,
+            type=int,
+            help="Days to keep the debug logs of each task run. Use <=0 to disable [default: %(default)s]",
+            env_var="JINJAMATOR_KEEP_DEBUG_LOGS",
+        )
+
+        self._parser.add_argument(
+            "--run-db-maintenance-at",
+            dest="_run_db_maintenance_at",
+            default="30 3 * * *",
+            help="Specify when to run DB maintenance in crontab syntax (<minute> <hour> <day_of_week> <day_of_month> <month_of_year>) [default: %(default)s] which means daily at 03:30.",
+            env_var="JINJAMATOR_RUN_DB_MAINTENANCE_AT",
+        )
+
 
     def setupLogging(self):
         global logging
