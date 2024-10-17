@@ -54,10 +54,12 @@ class ContentPluginLoader(object):
         self._functions = {}
         self._parent = parent
         self._base_plugin_imports = []
+        self._plugins_loaded=[]
         if parent:
             self._prepare_import_list()
 
     def _prepare_import_list(self):
+        self._plugins_loaded=[]
         for content_plugin_dir in self._parent._configuration.get(
             "global_content_plugins_base_dirs", []
         ):
@@ -70,6 +72,7 @@ class ContentPluginLoader(object):
                 self._base_plugin_imports.append(
                     f"import jinjamator.plugins.content.{tmp} as {tmp}"
                 )
+                self._plugins_loaded.append(tmp)
 
     def load(self, base_dir):
         files = glob.glob(
@@ -101,7 +104,12 @@ class ContentPluginLoader(object):
                 continue
             except Exception as e:
                 self._log.error(f"cannot load content plugin {file}. {e}")
-
+            for imported_mod_name in self._plugins_loaded:
+                m=getattr(module,imported_mod_name)
+                if hasattr(self._parent, "parent"):
+                    setattr(m, "_jinjamator", self._parent.parent)
+                else:
+                    setattr(m, "_jinjamator", self._parent)
             for func_name in dir(module):
                 func = getattr(module, func_name)
                 if isinstance(func, types.FunctionType):
