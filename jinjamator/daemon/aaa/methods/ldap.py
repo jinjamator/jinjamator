@@ -62,11 +62,11 @@ class LDAPAuthProvider(AuthProviderBase):
 
     def login(self, request):
         try:
-            username = request.json.get("username")
-            password = request.json.get("password")
+            username = request.json.get("username","").lower()
+            password = request.json.get("password","").lower()
         except Exception as e:
-            username = request.args.get("username")
-            password = request.args.get("password")
+            username = request.args.get("username","").lower()
+            password = request.args.get("password","").lower()
         if not username or not password:
             return {"message": "Invalid Request (did you send your data as json?)"}, 400
 
