@@ -63,10 +63,10 @@ class LDAPAuthProvider(AuthProviderBase):
     def login(self, request):
         try:
             username = request.json.get("username","").lower()
-            password = request.json.get("password","").lower()
+            password = request.json.get("password")
         except Exception as e:
             username = request.args.get("username","").lower()
-            password = request.args.get("password","").lower()
+            password = request.args.get("password")
         if not username or not password:
             return {"message": "Invalid Request (did you send your data as json?)"}, 400
 
@@ -167,7 +167,7 @@ class LDAPAuthProvider(AuthProviderBase):
                                     .filter_by(name=jm_group)
                                     .first()
                                 )
-                                if role:
+                                if role and role not in user.roles:
                                     user.roles.append(role)
                                 else:
                                     log.error(f"role {jm_group} not found")
