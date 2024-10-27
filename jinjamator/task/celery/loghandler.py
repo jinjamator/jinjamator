@@ -70,6 +70,7 @@ class CeleryLogHandler(logging.Handler):
 
 
 class CeleryLogFormatter(JSONFormatter):
+        
     def set_jinjamator_task(self, task):
         self._task = task
 
@@ -79,7 +80,7 @@ class CeleryLogFormatter(JSONFormatter):
     def json_record(self, message, extra, record):
 
         if "time" not in extra:
-            extra["time"] = datetime.utcnow()
+            extra["time"] = datetime.now()
 
         if record.exc_info:
             message = message + str(self.formatException(record.exc_info))
