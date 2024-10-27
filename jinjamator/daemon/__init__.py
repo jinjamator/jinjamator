@@ -82,6 +82,7 @@ def init_celery(_configuration):
     Configure Celery
     """
     celery.conf.timezone = _configuration.get("celery_beat_timezone",'UTC') 
+    log.info(f"celery will use timezone {celery.conf.timezone}")
     celery.conf.broker_url = _configuration.get("celery_broker")
     jinjamatro_schedule_path=os.path.join(_configuration.get("jinjamator_user_directory"),"jinjamator_schedule.yaml")
     _sched_cfg={}
