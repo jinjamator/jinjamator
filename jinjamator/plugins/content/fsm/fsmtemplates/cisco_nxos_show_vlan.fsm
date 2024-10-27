@@ -13,4 +13,5 @@ Start
   ^${VLAN_ID}\s+${NAME}\s+${STATUS}\s+(${PORTS}(?:,\s+)?)*.*$$
   ^\s+(${PORTS}(?:,\s+)?)+.*$$
   ^\s*$$
+  ^Remote SPAN VLANs.*$$
   ^. -> Error
