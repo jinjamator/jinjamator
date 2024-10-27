@@ -1,3 +1,11 @@
+try:
+    import ctypes
+    ctypes.CDLL("libssl.so").OSSL_PROVIDER_load(None, b"legacy")
+    ctypes.CDLL("libssl.so").OSSL_PROVIDER_load(None, b"default")
+    import hashlib
+except:
+    pass 
+
 from . import AuthProviderBase
 from jinjamator.daemon.aaa.models import (
     User,
@@ -42,7 +50,7 @@ class LDAPAuthProvider(AuthProviderBase):
         retval = []
         current_level += 1
         if current_level >= self._maximum_group_recursion:
-            log.error(
+            log.info(
                 f"Maximum recursion for _resolve_groups_recursive {current_level} reached"
             )
             return groups
@@ -67,6 +75,12 @@ class LDAPAuthProvider(AuthProviderBase):
         except Exception as e:
             username = request.args.get("username","").lower()
             password = request.args.get("password")
+        if '\\' in username:
+            username=username.split('\\')[-1]
+        if "@" in username:
+            username=username.split('@')[0]
+
+
         if not username or not password:
             return {"message": "Invalid Request (did you send your data as json?)"}, 400
 
@@ -97,6 +111,10 @@ class LDAPAuthProvider(AuthProviderBase):
                     f"Authentication Error: invalid username and or password for user {username}"
                 )
                 return {"message": "Invalid Credentials"}, 401
+
+            except Exception as e:
+                log.error(e)
+                return {"message": "Unexpected authentication error, please contact your jinjamator administrator"}, 500
 
             if not self._connection:
                 return {"message": "Authentication Backend not ready"}, 401
