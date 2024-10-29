@@ -553,6 +553,7 @@ USAGE
                     self._log.error(
                         f'Task directory {self._configuration["taskdir"]} not found -> exiting'
                     )
+                return None
             task.run()
 
 
