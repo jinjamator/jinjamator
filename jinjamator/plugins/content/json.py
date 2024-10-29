@@ -15,19 +15,30 @@
 from json import dumps as json_dumps, loads as json_loads
 
 
-def dumps(data):
+def dumps(data, color=False):
     """
     Convert structured json_dump-able data into a json-string
 
     :param data: json_dumps()-able data
     :type data: list,dict
+    :param color: Use pygments to highlight json data
+    :type color: boolean
     :returns: json-string
     :rtype: string
     """
+    retval="{}"
+
     try:
-        return json_dumps(data, sort_keys=True, indent=2)
+        retval=json_dumps(data, sort_keys=True, indent=2)
     except  TypeError:
-        return json_dumps(data, sort_keys=False, indent=2)
+        retval=json_dumps(data, sort_keys=False, indent=2)
+    if color:
+        try:
+            from pygments import highlight, lexers, formatters
+        except ImportError:
+            return retval
+        return highlight(retval, lexers.JsonLexer(), formatters.TerminalFormatter())
+    return retval
 
 def dump(data,filepath):
     """
