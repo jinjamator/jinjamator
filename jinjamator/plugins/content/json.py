@@ -27,7 +27,7 @@ def dumps(data, color=False):
     :rtype: string
     """
     retval="{}"
-
+    
     try:
         retval=json_dumps(data, sort_keys=True, indent=2)
     except  TypeError:
@@ -36,8 +36,11 @@ def dumps(data, color=False):
         try:
             from pygments import highlight, lexers, formatters
         except ImportError:
+            log.error("cannot import pygments (run pip install pygments to install), no colorization possible")
             return retval
-        return highlight(retval, lexers.JsonLexer(), formatters.TerminalFormatter())
+        if _jinjamator._configuration.get("task_run_mode","interactive") == "interactive":
+            formatter=formatters.TerminalFormatter()
+        return highlight(retval, lexers.JsonLexer(), formatter)
     return retval
 
 def dump(data,filepath):
