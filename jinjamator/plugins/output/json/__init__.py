@@ -20,10 +20,39 @@ from json import dumps
 
 class json(outputPluginBase):
     def addArguments(self):
-        pass
+        self._parent._parser.add_argument(
+            "-jc",
+            "--json-color",
+            dest="json_color",
+            action="count",
+            help="colorize json output",
+        )
 
     def connect(self, **kwargs):
-        pass
+        self.json_color=False
+        if self._parent.configuration.get("json_color"):
+            self.json_color = True
+        
 
     def process(self, data, **kwargs):
-        return print(str(dumps(data)).strip())
+        
+
+        retval="{}"
+        try:
+            retval=dumps(data, sort_keys=True, indent=2)
+        except  TypeError:
+            retval=dumps(data, sort_keys=False, indent=2)
+        if self.json_color:
+            try:
+                from pygments import highlight, lexers, formatters
+            except ImportError:
+                self._parent._log.error("cannot import pygments (run pip install pygments to install), no colorization possible")
+                print(retval.strip())
+                return retval
+            if self._parent._configuration.get("task_run_mode","interactive") == "interactive":
+                formatter=formatters.TerminalFormatter()
+            print(highlight(retval, lexers.JsonLexer(), formatter).strip())
+            return retval
+        print(retval.strip())
+        return retval
+
