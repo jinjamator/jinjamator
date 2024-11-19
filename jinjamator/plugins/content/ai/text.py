@@ -15,10 +15,10 @@ def _get_missing_openai_connection_vars():
 
 def get_cache_dir():
     #json.dump(_jinjamator.configuration,"jm-cfg.json")
-    file.save(json.dumps(dict(_jinjamator.configuration)),"jm-cfg.json")
-    print(f"Cache dir: {_jinjamator.configuration['openai_cache_dir']}")
-    print(f"Token: {_jinjamator.configuration['openai_access_token']}")
-    print(f"Data dir: {_jinjamator.configuration['data_dir']}")
+    #file.save(json.dumps(dict(_jinjamator.configuration)),"jm-cfg.json")
+    #print(f"Cache dir: {_jinjamator.configuration['openai_cache_dir']}")
+    #print(f"Token: {_jinjamator.configuration['openai_access_token']}")
+    #print(f"Data dir: {_jinjamator.configuration['data_dir']}")
     
     if not "openai_cache_dir" in _jinjamator.configuration._data:
         _jinjamator.configuration._data[
