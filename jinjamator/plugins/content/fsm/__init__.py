@@ -14,6 +14,7 @@
 
 import textfsmplus
 import os
+import re
 
 try:
     from textfsmplus import clitable
@@ -28,6 +29,15 @@ try:
     )
 except ImportError:
     ntc_templates_path = None
+
+#Strings that shall be looked for in the data to determine that there is an error presen (i.e command not found) which will kill the parser
+#These are regex strings
+error_strings = {"cisco_nxos": 
+                    [
+                        "^% Invalid command at '\^' marker.\s*$"
+                    ]
+                }
+
 
 
 def _clitable_to_dict(cli_table):
@@ -95,6 +105,13 @@ def process(device_type, command, data):
     )
     attrs = dict(Command=command, Platform=device_type)
 
+    #Return an empty dict if a specified error-strin is in the output instead of valid data
+    if device_type in error_strings.keys():
+        for es in error_strings[device_type]:
+            for line in str(data).splitlines():
+                if re.search(es,line):
+                    log.warning(f"Found error string {es} for {device_type} in command {command}")
+                    return dict()
     try:
         cli_table.ParseCmd(data, attrs)
     except textfsmplus.clitable.CliTableError:
