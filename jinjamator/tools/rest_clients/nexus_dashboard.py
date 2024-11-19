@@ -59,6 +59,15 @@ class NexusDashboardNIRResource(NexusDashboardResource):
         entries = []
         while not finished:
             result = self.list_no_page(**kwargs)
+            #Catch None responses when Nexus Dashboard sends success while being not able to get any data
+            #Looks like this:
+            #Response(url='https://100.76.254.146/sedgeapi/v1/cisco-nir/api/api/telemetry/v2/insightsGroup/SWM/anomalies/aggregateAffectedObjects.json?insightsGroupName=SWM&startTs=1970-01-01T00%3A00%3A00%2B00%3A00&endTs=2024-11-19T10%3A58%3A57%2B00%3A00&mnemonicTitle=CONNECTED_EP_LEARNING_ERROR&count=100&offset=200', method='GET', body={'success': True, 'messages': [{'code': 5018, 'severity': 'INFO', 'message': 'The requested resource: null does not exist on this server given the provided parameters'}]}, headers=Headers({'access-control-allow-origin': '*', 'content-length': '240', 'content-type': 'application/json', 'date': 'Tue, 19 Nov 2024 10:59:06 GMT', 'referrer-policy': 'strict-origin-when-cross-origin', 'server': 'Werkzeug/2.0.2 Python/3.8.10', 'strict-transport-security': 'max-age=31536000; includeSubDomains', 'x-content-type-options': 'nosniff', 'x-frame-options': 'SAMEORIGIN', 'x-ratelimit-limit': '-1', 'x-ratelimit-remaining': '-1', 'x-ratelimit-reset': '1559582945', 'x-xss-protection': '1; mode=block'}), status_code=200, client_response=<Response [200 OK]>)
+            if result.body.get("entries") is None:
+                logging.warning("Query returned None")
+                logging.debug(result)
+                result.body["entries"] = []
+                return result
+            
             results = len(result.body.get("entries"))
             try:
                 total = result.body["totalResultsCount"]
