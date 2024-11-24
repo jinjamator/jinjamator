@@ -5,6 +5,9 @@ Value BIDIR (bidir)
 
 
 Start
+  #PIM Global
+  ^ip pim rp-address ${RP_ADDRESS} group-list ${GROUP_LIST}( ${BIDIR})? -> Record
+  #PIM VRF
   ^vrf context ${VRF} -> VRF_parse
 
 

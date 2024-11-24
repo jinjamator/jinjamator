@@ -1,7 +1,9 @@
 import openai
+from openai import OpenAI
 import xxhash
 import os
 from time import sleep
+from pprint import pprint
 
 
 def _get_missing_openai_connection_vars():
@@ -12,6 +14,12 @@ def _get_missing_openai_connection_vars():
 
 
 def get_cache_dir():
+    #json.dump(_jinjamator.configuration,"jm-cfg.json")
+    #file.save(json.dumps(dict(_jinjamator.configuration)),"jm-cfg.json")
+    #print(f"Cache dir: {_jinjamator.configuration['openai_cache_dir']}")
+    #print(f"Token: {_jinjamator.configuration['openai_access_token']}")
+    #print(f"Data dir: {_jinjamator.configuration['data_dir']}")
+    
     if not "openai_cache_dir" in _jinjamator.configuration._data:
         _jinjamator.configuration._data[
             "openai_cache_dir"
@@ -44,15 +52,15 @@ def cache_value(prompt, data):
 def generate(
     prompt,
     disable_cache=False,
-    model="text-davinci-003",
+    model="gpt-3.5-turbo",
     temperature=0,
     max_tokens=3000,
     index=0,
     _requires=_get_missing_openai_connection_vars,
 ):
-    if not _jinjamator.configuration["openai_access_token"]:
-        _jinjamator.handle_undefined_var("openai_access_token")
-    openai.api_key = _jinjamator.configuration["openai_access_token"]
+    if not _jinjamator.configuration["openai_access_token"]: _jinjamator.handle_undefined_var("openai_access_token")
+    client = OpenAI(api_key=_jinjamator.configuration["openai_access_token"])
+    #openai.api_key = _jinjamator.configuration["openai_access_token"]
     cache_filepath, cache_data = get_cached_value(prompt)
     if cache_data and not disable_cache:
         log.debug(f"using cache data from {cache_filepath}")
@@ -61,14 +69,16 @@ def generate(
         log.debug(f"cache entry not found {cache_filepath}")
         try:
             response = str(
-                openai.Completion.create(
+                #openai.Completion.create(
+                client.completions.create(
                     model=model,
                     prompt=prompt,
                     temperature=temperature,
                     max_tokens=max_tokens,
                 )
             )
-        except openai.error.RateLimitError:
+        #except openai.error.RateLimitError:
+        except openai.RateLimitError:
             w = random.randint(1, 10)
             log.warning(f"Openai is overloaded -> waiting for " + w)
             sleep(w)
