@@ -5,6 +5,7 @@ from jinjamator.external.rest_client.resource import Resource
 from jinjamator.external.rest_client.request import make_request
 from jinjamator.external.rest_client.models import Request
 from types import MethodType
+import urllib.parse
 
 
 class CiscoTokenAPIResource(Resource):
@@ -50,20 +51,20 @@ class CiscoSupportAPIClient(object):
         self._log = logging.getLogger()
         self._base_url = url
         self._grant_type = kwargs.get("grant_type", "client_credentials")
-        self._login_url = kwargs.get("login_url", "https://cloudsso.cisco.com/as/")
+        self._login_url = kwargs.get("login_url", "https://id.cisco.com/oauth2/default/v1/")
         # /as/token.oauth2
         self.tokenapi = API(
             api_root_url=self._login_url,  # base api url
             params={},  # default params
-            headers={},  # default headers
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},  # default headers
             timeout=10,  # default timeout in seconds
             append_slash=False,  # append slash to final url
-            json_encode_body=True,  # encode body as json
+            json_encode_body=False,  # encode body as json
             ssl_verify=kwargs.get("ssl_verify", True),
             resource_class=CiscoTokenAPIResource,
         )
         self.tokenapi.add_resource(
-            self._login_url, "token.oauth2", CiscoTokenAPIResource
+            self._login_url, "token", CiscoTokenAPIResource
         )
 
         self.api = API(
@@ -88,13 +89,14 @@ class CiscoSupportAPIClient(object):
         # token.oauth2
 
         auth_data = (
-            self.tokenapi._resources["token.oauth2"]
+            self.tokenapi._resources["token"]
             .create(
-                params={
+                body=urllib.parse.urlencode({
                     "grant_type": self._grant_type,
                     "client_id": client_id,
                     "client_secret": client_secret,
-                }
+                }),
+                headers={"Content-Type":"application/x-www-form-urlencoded"}
             )
             .body
         )
