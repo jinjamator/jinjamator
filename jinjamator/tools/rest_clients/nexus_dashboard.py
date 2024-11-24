@@ -59,13 +59,15 @@ class NexusDashboardNIRResource(NexusDashboardResource):
         entries = []
         while not finished:
             result = self.list_no_page(**kwargs)
-            results = len(result.body.get("entries"))
+            results = len(result.body.get("entries",[]))
             try:
                 total = result.body["totalResultsCount"]
             except KeyError:
                 logging.warning("Got no results")
                 logging.debug(results)
                 result.body["entries"] = []
+                del self.params["count"]
+                del self.params["offset"]
                 return result
                 total = 0
             offset = self.params["offset"]
