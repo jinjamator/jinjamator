@@ -46,7 +46,7 @@ class CiscoSupportAPI(Resource):
 
 
 class CiscoSupportAPIClient(object):
-    def __init__(self, url="https://api.cisco.com/", **kwargs):
+    def __init__(self, url="https://apix.cisco.com/", **kwargs):
         self._log = logging.getLogger()
         self._base_url = url
         self._grant_type = kwargs.get("grant_type", "client_credentials")
