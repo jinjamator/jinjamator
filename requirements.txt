@@ -16,7 +16,7 @@ openpyxl==3.0.10
 ciscoconfparse
 xmltodict
 pyopenssl
-celery==5.2.3
+celery==5.4.0
 dictdiffer
 json_log_formatter
 pyyaml
@@ -45,7 +45,7 @@ netaddr
 six
 pyvmomi < 8.0.3
 coloredlogs
-openai
+openai==0.28
 ldap3
 testresources
 ansible-runner
