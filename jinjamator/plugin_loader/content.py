@@ -14,11 +14,9 @@
 
 import logging
 import glob
-import importlib
 import sys
 import os
 import inspect
-from types import ModuleType
 import types
 from copy import deepcopy
 
@@ -28,9 +26,9 @@ def import_code(code, name, add_to_sys_modules=False):
     Returns a newly generated module.
     """
     import sys
-    import imp
+    
 
-    module = imp.new_module(name)
+    module = types.ModuleType(name)
     module.__file__ = ":inmemory:"
 
     exec(code, module.__dict__)
