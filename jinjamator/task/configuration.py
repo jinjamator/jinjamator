@@ -18,12 +18,12 @@ from deepmerge.strategy.core import STRATEGY_END
 import yaml
 import jinja2
 from jinjamator.plugin_loader.content import ContentPluginLoader
-import distutils.util
 import json
 from jinja2 import Undefined, meta 
 from copy import deepcopy
 from jinjamator.tools.password import redact
 import types
+from str2bool3.str_utils import str2bool
 
 class SafeLoaderIgnoreUnknown(yaml.SafeLoader):
     def ignore_unknown(self, node):
@@ -306,7 +306,7 @@ class TaskConfiguration(object):
                         except ValueError:
                             pass
                         try:
-                            self._data[_map[0]] = bool(distutils.util.strtobool(val))
+                            self._data[_map[0]] = bool(str2bool(val))
                             continue
                         except ValueError:
                             pass
