@@ -51,3 +51,4 @@ testresources
 ansible-runner
 setuptools_git_versioning
 colorama
+str2bool3

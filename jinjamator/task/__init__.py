@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from distutils.command.upload import upload
 import logging
 from .configuration import TaskConfiguration
 from jinjamator.plugin_loader.content import (
@@ -38,7 +37,6 @@ from deepmerge.merger import Merger
 from jinjamator.external.genson import SchemaBuilder
 import dictdiffer
 import copy
-from distutils.util import strtobool
 import traceback
 import yaml
 from jsonschema import validate as validate_jsonschema
