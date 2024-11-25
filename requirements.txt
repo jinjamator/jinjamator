@@ -51,3 +51,4 @@ testresources
 ansible-runner
 setuptools_git_versioning
 colorama
+-e git+https://github.com/ExaForce/pyjq.git@d4b4378299e469a1c46dde36977ab3529c5da81c#egg=pyjq
