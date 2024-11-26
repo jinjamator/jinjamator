@@ -4,7 +4,7 @@ import xxhash
 import os
 from time import sleep
 from pprint import pprint
-
+import random
 
 def _get_missing_openai_connection_vars():
     inject = []
@@ -78,7 +78,10 @@ def generate(
                 )
             )
         #except openai.error.RateLimitError:
-        except openai.RateLimitError:
+        except openai.RateLimitError as e:
+            if "insufficient_quota" in e.message:
+                log.error(e)
+                return "###ERROR_GENERATING_TEXT###"
             w = random.randint(1, 10)
             log.warning(f"Openai is overloaded -> waiting for " + w)
             sleep(w)
