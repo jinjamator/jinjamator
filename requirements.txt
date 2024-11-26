@@ -45,7 +45,7 @@ netaddr
 six
 pyvmomi < 8.0.3
 coloredlogs
-openai==0.28
+openai==1.55.1
 ldap3
 testresources
 ansible-runner
