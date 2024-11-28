@@ -15,7 +15,7 @@ pyflakes
 openpyxl==3.0.10
 ciscoconfparse
 xmltodict
-pyopenssl
+pyopenssl<24
 celery==5.4.0
 dictdiffer
 json_log_formatter
