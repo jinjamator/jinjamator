@@ -34,7 +34,7 @@ except ImportError:
 #These are regex strings
 error_strings = {"cisco_nxos": 
                     [
-                        "^% Invalid command at '\^' marker.\s*$"
+                        r"^% Invalid command at '\^' marker.\s*$"
                     ]
                 }
 
