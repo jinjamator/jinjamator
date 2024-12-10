@@ -297,8 +297,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         if not obj:
             obj=self._plugin_ldr._functions.get(lst[0])
             if not obj:
-                raise Exception("never come here")
-            
+                return []
         if len(lst) > 1:
             
             sub=getattr(obj,lst[1])
@@ -314,9 +313,6 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             self.inject_dependency(left_cmd)
         try:
             var_dependencies=self.get_dependencies(cmd)
-            # var_dependencies = self._plugin_ldr._functions.get(
-            #     cmd, print
-            # ).__kwdefaults__.get("_requires", [])
             if isinstance(var_dependencies, types.FunctionType):
                 for dep_var in var_dependencies():
                     if dep_var not in self._undefined_vars:
