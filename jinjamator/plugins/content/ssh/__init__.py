@@ -146,12 +146,12 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
 
         if _jinjamator.configuration["best_effort"]:
             _jinjamator._log.error(
-                f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
+                f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
             )
             return ""
         else:
             raise Exception(
-                f'Unable to run command {command} on platform {cfg["device_type"]} - {str(e)}'
+                f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
             )
 
 
