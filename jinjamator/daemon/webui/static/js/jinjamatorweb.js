@@ -877,8 +877,11 @@ function create_job(job_path, pre_defined_vars) {
                                                 });
 
                                             } else {
-                                                form_item.setValue(data['data'][key]);
-                                                form_item.refresh();
+                                                if(!(key in required_vars)){
+                                                    form_item.setValue(data['data'][key]);
+                                                    form_item.refresh();
+                                                }
+
                                             }
 
                                         }
@@ -896,6 +899,7 @@ function create_job(job_path, pre_defined_vars) {
 
                             var task = job_path;
                             delete data['task'];
+
                             for (property in data['output_plugin_parameters']) {
                                 data[property] = data['output_plugin_parameters'][property];
                             }
