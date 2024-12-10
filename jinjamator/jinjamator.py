@@ -85,7 +85,7 @@ class Program(object):
             "--output-plugin",
             dest="output_plugin",
             help="selects the plugin which is used for futher data processing after tasklet template has been rendered [default: %(default)s] (CLI only)",
-            default="console",
+            default=None,
         )
         self._parser.add_argument(
             "-m",
@@ -434,6 +434,7 @@ USAGE
                     self._configuration[arg[1:]] = getattr(self._args, arg)
                 else:
                     self.configuration[arg] = getattr(self._args, arg)
+            
 
             load_output_plugin(
                 self,
@@ -533,17 +534,22 @@ USAGE
             task = JinjamatorTask("interactive")
             if self._configuration["global_defaults"]:
                 task.configuration.merge_yaml(self._configuration["global_defaults"])
+            
+            if not self.configuration["output_plugin"]:
+                del self.configuration["output_plugin"]
 
             task.configuration.merge_dict(self.configuration)
             task._configuration.merge_dict(self._configuration)
 
-            task.load_output_plugin(
-                self.configuration["output_plugin"],
-                self._configuration["global_output_plugins_base_dirs"],
-            )
+
+
 
             try:
                 task.load(self._configuration["taskdir"])
+                task.load_output_plugin(
+                task.configuration["output_plugin"],
+                self._configuration["global_output_plugins_base_dirs"],
+            )
             except ValueError:
                 if os.path.isdir(self._configuration["taskdir"]):
                     self._log.error(
