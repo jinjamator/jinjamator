@@ -29,6 +29,7 @@ import xmltodict
 from flatten_json import flatten
 from natsort import natsorted
 from collections import OrderedDict
+from copy import deepcopy
 
 __version__ = "0.3"
 __author__ = "Wilhelm Putz"
@@ -262,10 +263,8 @@ class XLSXWriter(object):
                         for counter in range(1, len(self._data[index]) + 1)
                     ]
 
-        if self._order_header:
-            self._header = natsorted(self._header)
-
         if self._column_order:
+            data=[]
             for row in self._data:
                 new_row = OrderedDict()
                 for column in self._column_order:
@@ -275,12 +274,11 @@ class XLSXWriter(object):
                         new_row[column] = ""
 
                 data.append(new_row)
+            self._data=data
             self._header = self._column_order
 
-        for old, new in self._rename_columns:
-            for i, val in enumerate(self._header):
-                if val == old:
-                    self._header[i] = new
+        elif self._order_header:
+            self._header = natsorted(self._header)
 
     def optimize_column_widths(self, ws):
         column_widths = []
@@ -323,7 +321,11 @@ class XLSXWriter(object):
         self._data = data
         self.sanitize_data()
         data = self._data
-
+        header=deepcopy(self._header)
+        for old, new in self._rename_columns:
+            for i, val in enumerate(self._header):
+                if val == old:
+                    header[i] = new
 
         if self._append_sheet:
             try:
@@ -331,10 +333,10 @@ class XLSXWriter(object):
 
             except BaseException:
                 ws = self._wb.create_sheet(title=sheet_name[:30], index=0)
-                ws.append(self._header)
+                ws.append(header)
         else:
             ws = self._wb.create_sheet(title=sheet_name[:30], index=0)
-            ws.append(self._header)
+            ws.append(header)
         from pprint import pprint
         
         
