@@ -70,8 +70,8 @@ class excel(outputPluginBase):
         )
 
         self._parent._parser.add_argument(
-            "--excel-set-columns",
-            dest="columns",
+            "--excel-set-column-order",
+            dest="column_order",
             help="Set columns. Format: <col_name_1>:<col_name_2>:<col_name_n> [default: %(default)s]",
         )
 
@@ -129,8 +129,8 @@ class excel(outputPluginBase):
             file_name.replace(os.path.sep, "_"),
         )
 
-        if self._parent.configuration.get("columns"):
-            column_order = self._parent.configuration.get("columns").split(":")
+        if self._parent.configuration.get("column_order"):
+            column_order = self._parent.configuration.get("column_order").split(":")
         else:
             column_order = False
 
