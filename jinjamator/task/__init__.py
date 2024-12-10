@@ -292,14 +292,31 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             )
         return task_code
 
+    def get_dependencies(self,command,obj=None):
+        lst=command.split(".")
+        if not obj:
+            obj=self._plugin_ldr._functions.get(lst[0])
+            if not obj:
+                raise Exception("never come here")
+            
+        if len(lst) > 1:
+            
+            sub=getattr(obj,lst[1])
+            if sub:
+                return self.get_dependencies(".".join(lst[1:]),sub)
+        return obj.__kwdefaults__.get("_requires", [])
+        
+
+
     def inject_dependency(self, cmd):
         if "(" in cmd:
             left_cmd=cmd.split("(")[0]
             self.inject_dependency(left_cmd)
         try:
-            var_dependencies = self._plugin_ldr._filters.get(
-                cmd, print
-            ).__kwdefaults__.get("_requires", [])
+            var_dependencies=self.get_dependencies(cmd)
+            # var_dependencies = self._plugin_ldr._functions.get(
+            #     cmd, print
+            # ).__kwdefaults__.get("_requires", [])
             if isinstance(var_dependencies, types.FunctionType):
                 for dep_var in var_dependencies():
                     if dep_var not in self._undefined_vars:
