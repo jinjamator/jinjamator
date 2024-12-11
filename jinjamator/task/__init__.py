@@ -292,7 +292,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             )
         return task_code
 
-    def get_dependencies(self,command,obj=None):
+    def get_dependencies(self, command, options, obj=None):
         lst=command.split(".")
         if not obj:
             obj=self._plugin_ldr._functions.get(lst[0])
@@ -302,22 +302,28 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             
             sub=getattr(obj,lst[1])
             if sub:
-                return self.get_dependencies(".".join(lst[1:]),sub)
-        return obj.__kwdefaults__.get("_requires", [])
+                return self.get_dependencies(".".join(lst[1:]),options,sub)
+        # this will not work for many cases, but is sufficiant for now
+        retval=obj.__kwdefaults__.get("_requires", [])
+        if isinstance(retval, types.FunctionType):
+            retval=retval()
+        for option in options.split(","):
+            if "=" in option: 
+                var_name = option.strip().split("=")[0].strip()
+                if var_name in retval:
+                    retval.remove(var_name)
+        return retval
         
 
 
-    def inject_dependency(self, cmd):
-        if "(" in cmd:
-            left_cmd=cmd.split("(")[0]
-            self.inject_dependency(left_cmd)
+    def inject_dependency(self, cmd, options=None):
         try:
-            var_dependencies=self.get_dependencies(cmd)
+            var_dependencies=self.get_dependencies(cmd,options)
             if isinstance(var_dependencies, types.FunctionType):
                 for dep_var in var_dependencies():
                     if dep_var not in self._undefined_vars:
                         self._undefined_vars.append(dep_var)
-            if isinstance(var_dependencies, types.list):
+            if isinstance(var_dependencies, list):
                 for dep_var in var_dependencies:
                     if dep_var not in self._undefined_vars:
                         self._undefined_vars.append(dep_var)
@@ -340,10 +346,11 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         for undef_var in undefined_vars:
             code_line = code_lines[int(undef_var[1]) - 1][int(undef_var[2]) :]
             
-            res = re.match(r"(.*)\(.*", code_line)
+            res = re.match(r"(.*)\((.*)\)", code_line)
             if res:
                 cmd = res.group(1)
-                self.inject_dependency(cmd)
+                options = res.group(2)
+                self.inject_dependency(cmd,options)
             if (
                 undef_var[0] not in self.configuration._data
                 and undef_var[0] not in self.j2_environment.globals.keys()
