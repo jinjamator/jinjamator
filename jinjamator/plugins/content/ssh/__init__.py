@@ -126,6 +126,10 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
             ),
         )
         try:
+            del kwargs['ssh_' + var_name]
+        except KeyError:
+            pass
+        try:
             del kwargs[var_name]
         except KeyError:
             pass
