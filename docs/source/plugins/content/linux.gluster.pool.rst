@@ -1,13 +1,12 @@
-device.cisco.catalyst
+linux.gluster.pool
 ===============================================
 
 .. toctree::
     :maxdepth: 1
 
-    device.cisco.catalyst.c9200.rst
 
 
-.. py:function:: device.cisco.catalyst.new():
+.. py:function:: linux.gluster.pool.list(con=False):
 
     not documented yet
 

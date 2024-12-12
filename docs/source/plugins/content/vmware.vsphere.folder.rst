@@ -12,7 +12,7 @@ vmware.vsphere.folder
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a folder, false if not 
+    :return: True if it is a folder, false if not
     :rtype: bool
     
 
@@ -22,7 +22,7 @@ vmware.vsphere.folder
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a folder, false if not 
+    :return: True if it is a folder, false if not
     :rtype: bool
     
 

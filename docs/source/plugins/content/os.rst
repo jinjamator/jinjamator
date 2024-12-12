@@ -7,6 +7,10 @@ os
     os.environment.rst
 
 
+.. py:function:: os.environ():
+
+    not documented yet
+
 .. py:function:: os.mkdir(path):
 
     not documented yet

@@ -1,4 +1,4 @@
-device.switch
+cisco.tacpac
 ===============================================
 
 .. toctree::
@@ -6,7 +6,7 @@ device.switch
 
 
 
-.. py:function:: device.switch.new(vendor, model):
+.. py:function:: cisco.tacpac.remove_header(content):
 
     not documented yet
 

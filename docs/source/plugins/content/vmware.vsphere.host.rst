@@ -31,7 +31,7 @@ vmware.vsphere.host
 
 .. py:function:: vmware.vsphere.host.get_dict(obj, **kwargs):
 
-    Get all hosts beneath the object and return a dictionary. 
+    Get all hosts beneath the object and return a dictionary.
 
     :param obj: The object within we shall search for hosts (datacenter or cluster)
     :type obj: object
@@ -64,7 +64,7 @@ vmware.vsphere.host
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a host, false if not 
+    :return: True if it is a host, false if not
     :rtype: bool
     
 
@@ -74,7 +74,7 @@ vmware.vsphere.host
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a host, false if not 
+    :return: True if it is a host, false if not
     :rtype: bool
     
 

@@ -7,6 +7,7 @@ file
     file.csv.rst
     file.excel.rst
     file.ftp.rst
+    file.temp.rst
 
 
 .. py:function:: file.change_suffix(filename, suffix=False):
@@ -30,7 +31,7 @@ file
 
     not documented yet
 
-.. py:function:: file.dir(path, pattern='', **kwargs):
+.. py:function:: file.dir(path, pattern='*', **kwargs):
 
     not documented yet
 
@@ -153,6 +154,10 @@ file
     :return: Absolute path of the files directory
     :rtype: ``str``
     
+
+.. py:function:: file.resolve_path(path):
+
+    not documented yet
 
 .. py:function:: file.rmdir(path, recursive=False):
 

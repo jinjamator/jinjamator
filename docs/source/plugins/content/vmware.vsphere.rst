@@ -157,7 +157,7 @@ vmware.vsphere
     :type obj: object
     :param type_name: The type
     :type type_name: string
-    :return: True or False 
+    :return: True or False
     :rtype: bool
     
 
@@ -167,7 +167,7 @@ vmware.vsphere
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a vCenter, False if not 
+    :return: True if it is a vCenter, False if not
     :rtype: bool
     
 
@@ -177,7 +177,7 @@ vmware.vsphere
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a vCenter, False if not 
+    :return: True if it is a vCenter, False if not
     :rtype: bool
     
 

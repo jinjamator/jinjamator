@@ -5,10 +5,15 @@ cisco.aci
     :maxdepth: 1
 
     cisco.aci.apic.rst
+    cisco.aci.object.rst
     cisco.aci.test.rst
 
 
-.. py:function:: cisco.aci.connect_apic(subscription_enabled=False, *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.cleanup_url(query_url_or_dn):
+
+    not documented yet
+
+.. py:function:: cisco.aci.connect_apic(subscription_enabled=False, *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
@@ -20,7 +25,11 @@ cisco.aci
     :rtype: boolean
     
 
-.. py:function:: cisco.aci.dn_exists(dn, *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.delete(query_url_or_dn, timeout=60, force=False, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
+
+    not documented yet
+
+.. py:function:: cisco.aci.dn_exists(dn, *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     Checks if the dn exists. Logs API Error to error log.
 
@@ -30,19 +39,19 @@ cisco.aci
     :rtype: ``bool``
     
 
-.. py:function:: cisco.aci.dn_has_attribute(dn, key, value, *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.dn_has_attribute(dn, key, value, *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_access_aep_name_by_vlan_id(vlan_id, dn_filter='Access', *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_access_aep_name_by_vlan_id(vlan_id, dn_filter='Access', *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_configured_spine_uplinks(*, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_all_configured_spine_uplinks(*, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_downlinks(model):
+.. py:function:: cisco.aci.get_all_downlinks(model, role='leaf'):
 
     Return all downlink ports from plugin internal switch database.
 
@@ -52,27 +61,27 @@ cisco.aci
     :rtype: list
     
 
-.. py:function:: cisco.aci.get_all_fabric_ports(*, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_all_fabric_ports(*, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_lldp_neighbours(*, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_all_lldp_neighbours(*, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_nodes(index_by='id', *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_all_nodes(index_by='id', *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_uplinks(model):
+.. py:function:: cisco.aci.get_all_uplinks(model, role='leaf'):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_all_vlans_from_pool(pool_name, *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_all_vlans_from_pool(pool_name, *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
-.. py:function:: cisco.aci.get_convertible_uplinks(model, count, min_uplinks=2):
+.. py:function:: cisco.aci.get_convertible_uplinks(model, count, min_uplinks=2, role='leaf'):
 
     not documented yet
 
@@ -92,7 +101,7 @@ cisco.aci
 
     not documented yet
 
-.. py:function:: cisco.aci.get_endpoint_table(*, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_endpoint_table(*, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
@@ -100,11 +109,15 @@ cisco.aci
 
     not documented yet
 
+.. py:function:: cisco.aci.get_interface_info(node_id, nxos_interface_name, pod_id=None, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
+
+    not documented yet
+
 .. py:function:: cisco.aci.get_leaf_types():
 
     not documented yet
 
-.. py:function:: cisco.aci.get_next_free_vpc_domain_id(*, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_next_free_vpc_domain_id(*, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
@@ -112,7 +125,7 @@ cisco.aci
 
     not documented yet
 
-.. py:function:: cisco.aci.get_podid_by_switch_id(switch_id, *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_podid_by_switch_id(switch_id, *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     Retrive the pod_id for a switch_id from APIC, if not possible ask user to enter pod_id
 
@@ -135,7 +148,7 @@ cisco.aci
 
     not documented yet
 
-.. py:function:: cisco.aci.get_vlan_pools(*, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.get_vlan_pools(*, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
@@ -149,7 +162,7 @@ cisco.aci
     :rtype: ``bool``
     
 
-.. py:function:: cisco.aci.is_dn_in_use(dn, ignore_children=False, *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.is_dn_in_use(dn, ignore_children=False, *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     not documented yet
 
@@ -209,7 +222,15 @@ cisco.aci
     :rtype: ``str``
     
 
-.. py:function:: cisco.aci.query(query_url, timeout=60, *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.post(data, timeout=60, force=False, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
+
+    not documented yet
+
+.. py:function:: cisco.aci.pprint(object, stream=None, indent=1, width=80, depth=None, *, compact=False, sort_dicts=True, underscore_numbers=False):
+
+    not documented yet
+
+.. py:function:: cisco.aci.query(query_url, timeout=60, fail_on_error=True, *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     [summary]
 
@@ -221,7 +242,7 @@ cisco.aci
     :rtype: ``dict``
     
 
-.. py:function:: cisco.aci.version(apic_node_id=1, *, _requires=<function _get_missing_apic_connection_vars at 0x7f023a1980d0>):
+.. py:function:: cisco.aci.version(apic_node_id=1, *, _requires=<function _get_missing_apic_connection_vars at 0x7f9dcc848b80>):
 
     Returns the firmware version of an APIC
 

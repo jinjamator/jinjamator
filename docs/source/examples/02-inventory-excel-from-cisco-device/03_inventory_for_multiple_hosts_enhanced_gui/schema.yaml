@@ -1,0 +1,47 @@
+# this configutation is based on alpacajs see http://www.alpacajs.org/documentation.html
+# the main difference is that the schema and options parts are grouped below the variable
+# definition for practicality. Furthermore the form_step 1, 2 or 3 for the wizard can be
+# set. The schema.yaml is also a j2 jinamator tasklet. So you can use jinjamator content
+# plugins and variables aswell as all standard jinja2 syntax 
+
+
+device_list:
+  form_step: 1
+  schema:
+    type: array
+    enum: 
+# generate dropdown values from device_list defined in defaults.yaml
+{% for i in all_devices%}
+      - {{i}}
+{%endfor%}
+  options:
+    order: 1
+    type: select
+    multiselect:
+      enableFiltering: True
+      includeSelectAllOption: True
+      enableCaseInsensitiveFiltering: True
+    multiple: True
+    label: Devices
+    helpers:
+        - 'Select Switches For Inventory'
+
+ssh_username:
+  form_step: 1
+  schema:
+    type: string
+  options:
+    order: 2
+    label: Username
+    helpers:
+      - 'Enter SSH Username'
+
+ssh_password:
+  form_step: 1
+  schema:
+    type: string
+  options:
+    order: 3
+    label: Password
+    helpers:
+      - 'Enter SSH Password'

@@ -31,7 +31,7 @@ vmware.vsphere.cluster
 
     :param obj: The cluster-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -41,7 +41,7 @@ vmware.vsphere.cluster
 
     :param obj: The cluster-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -69,7 +69,7 @@ vmware.vsphere.cluster
 
     :param obj: The cluster-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -98,7 +98,7 @@ vmware.vsphere.cluster
 
     :param obj: The cluster-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -108,7 +108,7 @@ vmware.vsphere.cluster
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a cluster, false if not 
+    :return: True if it is a cluster, false if not
     :rtype: bool
     
 
@@ -118,7 +118,7 @@ vmware.vsphere.cluster
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a cluster, false if not 
+    :return: True if it is a cluster, false if not
     :rtype: bool
     
 

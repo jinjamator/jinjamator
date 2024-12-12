@@ -1,0 +1,16 @@
+# default to excel output plugin
+output_plugin: excel
+# use custom col order and do not show vid col
+column_order: "hostname:pid:sn:name:descr"
+# use nice col headers
+rename_columns:
+  - pid:PID
+  - sn:Serial
+  - name:Name
+  - descr:Description
+# use a proper sheetname instead of sheet 1
+sheet_name: Inventory
+excel_file_name: demo1
+device_list:
+  - 100.76.0.1
+  - 192.168.76.1

@@ -46,7 +46,7 @@ vmware.vsphere.datastore
 
     :param obj: The datastore-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -56,7 +56,7 @@ vmware.vsphere.datastore
 
     :param obj: The datastore-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -81,7 +81,7 @@ vmware.vsphere.datastore
 
     :param obj: The datastore-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -101,7 +101,7 @@ vmware.vsphere.datastore
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a datastore, false if not 
+    :return: True if it is a datastore, false if not
     :rtype: bool
     
 
@@ -111,7 +111,7 @@ vmware.vsphere.datastore
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a datastore, false if not 
+    :return: True if it is a datastore, false if not
     :rtype: bool
     
 

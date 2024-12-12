@@ -6,11 +6,11 @@ ssh
 
 
 
-.. py:function:: ssh.configure(commands_or_path, connection=None, **kwargs):
+.. py:function:: ssh.configure(commands_or_path, connection=None, _requires=<function _get_missing_ssh_connection_vars at 0x7f9dcc7d6700>, **kwargs):
 
     not documented yet
 
-.. py:function:: ssh.connect(**kwargs):
+.. py:function:: ssh.connect(_requires=<function _get_missing_ssh_connection_vars at 0x7f9dcc7d6700>, **kwargs):
 
     Run a command via SSH and return the text output.
 
@@ -80,23 +80,23 @@ ssh
 
     not documented yet
 
-.. py:function:: ssh.get_file(src, dst, connection=None, **kwargs):
+.. py:function:: ssh.get_file(src, dst, connection=None, _requires=<function _get_missing_ssh_connection_vars at 0x7f9dcc7d6700>, **kwargs):
 
     not documented yet
 
-.. py:function:: ssh.put_file(src, dst, connection=None, **kwargs):
+.. py:function:: ssh.put_file(src, dst, connection=None, _requires=<function _get_missing_ssh_connection_vars at 0x7f9dcc7d6700>, **kwargs):
 
     not documented yet
 
-.. py:function:: ssh.query(command, connection=None, **kwargs):
+.. py:function:: ssh.query(command, connection=None, _requires=<function _get_missing_ssh_connection_vars at 0x7f9dcc7d6700>, **kwargs):
 
     not documented yet
 
-.. py:function:: ssh.run(command, connection=None, **kwargs):
+.. py:function:: ssh.run(command, connection=None, _requires=<function _get_missing_ssh_connection_vars at 0x7f9dcc7d6700>, **kwargs):
 
     not documented yet
 
-.. py:function:: ssh.run_mlt(commands, connection=None, **kwargs):
+.. py:function:: ssh.run_mlt(commands, connection=None, _requires=<function _get_missing_ssh_connection_vars at 0x7f9dcc7d6700>, **kwargs):
 
     not documented yet
 
