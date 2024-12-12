@@ -190,7 +190,7 @@ def run(command, connection=None, _requires=_get_missing_ssh_connection_vars,  *
             pass
     # for var_name in kwargs:
     #     opts[var_name] = kwargs[var_name]
-    retval = connection.send_command_expect(command, read_timeout=300, **opts)
+    retval = connection.send_command_expect(command, read_timeout=kwargs.get("read_timeout",300), **opts)
     if auto_disconnect:
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
