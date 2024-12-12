@@ -1,0 +1,12 @@
+output_plugin: excel
+# use custom col order and do not show vid col
+column_order: "pid:sn:name:descr"
+# use nice col headers
+rename_columns:
+  - pid:PID
+  - sn:Serial
+  - name:Name
+  - descr:Description
+# use a proper sheetname instead of sheet 1
+sheet_name: Inventory
+excel_file_name: demo1

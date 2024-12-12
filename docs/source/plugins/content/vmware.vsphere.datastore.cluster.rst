@@ -30,7 +30,7 @@ vmware.vsphere.datastore.cluster
 
     :param obj: The datastore-cluster-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -60,7 +60,7 @@ vmware.vsphere.datastore.cluster
 
     :param obj: The datastore-cluster-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -70,7 +70,7 @@ vmware.vsphere.datastore.cluster
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a datastore-cluster, false if not 
+    :return: True if it is a datastore-cluster, false if not
     :rtype: bool
     
 
@@ -80,7 +80,7 @@ vmware.vsphere.datastore.cluster
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a datastore-cluster, false if not 
+    :return: True if it is a datastore-cluster, false if not
     :rtype: bool
     
 

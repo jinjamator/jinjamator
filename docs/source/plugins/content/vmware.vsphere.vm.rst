@@ -31,7 +31,7 @@ vmware.vsphere.vm
 
     :param obj: The VM-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -41,7 +41,7 @@ vmware.vsphere.vm
 
     :param obj: The VM-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -51,13 +51,13 @@ vmware.vsphere.vm
 
     :param obj: The VM-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
 .. py:function:: vmware.vsphere.vm.get_dict(obj, **kwargs):
 
-    Get all VMs beneath the object and return a dictionary. 
+    Get all VMs beneath the object and return a dictionary.
 
     :param obj: The object within we shall search for VMs (datacenter; cluster is not yet implemented)
     :type obj: object
@@ -77,7 +77,7 @@ vmware.vsphere.vm
 
     :param obj: The VM-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -87,7 +87,7 @@ vmware.vsphere.vm
 
     :param obj: The VM-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -112,7 +112,7 @@ vmware.vsphere.vm
 
     :param obj: The VM-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -122,7 +122,7 @@ vmware.vsphere.vm
 
     :param obj: The VM-object
     :type obj: object
-    :return: List of objects 
+    :return: List of objects
     :rtype: list
     
 
@@ -132,7 +132,7 @@ vmware.vsphere.vm
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a VM, false if not 
+    :return: True if it is a VM, false if not
     :rtype: bool
     
 
@@ -142,7 +142,7 @@ vmware.vsphere.vm
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a VM, false if not 
+    :return: True if it is a VM, false if not
     :rtype: bool
     
 

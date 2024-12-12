@@ -15,8 +15,9 @@ Welcome to jinjamator's documentation!
    usage/installation
    usage/quickstart-cli
    usage/quickstart-daemon
-
+   /examples/index.rst
    /plugins/content/index.rst
+   
 
 
 

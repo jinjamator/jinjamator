@@ -6,11 +6,21 @@ file.excel
 
 
 
+.. py:function:: file.excel.convert_dict(d):
+
+    Convert a dictionary to a list that can be written to excel
+
+    :param d: Dictionary which should be converted
+    :type src_path: dict
+    :return: List with the dict values
+    :rtype: list
+    
+
 .. py:function:: file.excel.get_worksheets(path, **kwargs):
 
     Gets all available worksheets within a xlsx-file and returns a list
-    
-    :param path: Path to excel file 
+
+    :param path: Path to excel file
     :type path: str
     :return: Returns a list with all worksheets within the excel-file
     :rtype: list
@@ -24,10 +34,26 @@ file.excel
     :type path: ``str``
     :return: a list of ``dict``
     :rtype: list of dict
-    
+
     :Keyword Arguments:
         * *work_sheet_name* (``str``) --
            Name of the worksheet to return data from, defaults to Sheet1 if neither *work_sheet_name* nor *Sheet1* is found the worksheet on index 0 is used.
+    
+
+.. py:function:: file.excel.save(data, destination_path, **kwargs):
+
+    Generate a xlsx file from a datastructure. Currently just a single sheet is supported
+
+    :param data: Currently data must be a list of dicts.
+    :type data: list of dict
+    :param destination_path: Path of the resulting CSV file.
+    :type destination_path: str
+    :raises ValueError: If the format of data cannot be determined.
+    :return: Returns True on success.
+    :rtype: bool
+
+    :Keyword Arguments:
+        Currently None
     
 
 .. py:function:: file.excel.to_csv(src_path, target_path=None, **kwargs):

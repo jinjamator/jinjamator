@@ -26,7 +26,7 @@ vmware.vsphere.datacenter
 
 .. py:function:: vmware.vsphere.datacenter.get_dict(obj, **kwargs):
 
-    Get all datacenters beneath the object and return a dictionary. 
+    Get all datacenters beneath the object and return a dictionary.
 
     :param obj: The object within we shall search for datacenters (vCenter or folder)
     :type obj: object
@@ -42,7 +42,7 @@ vmware.vsphere.datacenter
 
 .. py:function:: vmware.vsphere.datacenter.get_list(obj, **kwargs):
 
-    Get all datacenters beneath the object and return a list. 
+    Get all datacenters beneath the object and return a list.
     This function is much faster than get_dict() when the vCenter-object is present (passed within *kwargs* or present as default)
 
     :param obj: The object within we shall search for datacenters (vCenter or folder)
@@ -61,7 +61,7 @@ vmware.vsphere.datacenter
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a datacenter, false if not 
+    :return: True if it is a datacenter, false if not
     :rtype: bool
     
 
@@ -71,7 +71,7 @@ vmware.vsphere.datacenter
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a datacenter, false if not 
+    :return: True if it is a datacenter, false if not
     :rtype: bool
     
 

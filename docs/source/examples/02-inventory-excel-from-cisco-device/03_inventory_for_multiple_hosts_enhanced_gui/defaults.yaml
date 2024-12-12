@@ -1,0 +1,34 @@
+# use single step wizard instead of 3 step wizard
+wizard_template: simple
+# Show the "are you sure?" Modal before submitting the task
+wizard_ask_before_submit: True
+
+# default to excel output plugin
+output_plugin: excel
+# use custom col order and do not show vid col
+column_order: "hostname:pid:sn:name:descr"
+# use nice col headers
+rename_columns:
+  - pid:PID
+  - sn:Serial
+  - name:Name
+  - descr:Description
+# use a proper sheetname instead of sheet 1
+sheet_name: Inventory
+excel_file_name: demo1
+
+device_list:
+  - 100.76.0.1
+  - 192.168.76.1
+
+all_devices:
+  - 100.76.0.1
+  - 192.168.76.1
+# The defaults.yaml has a limited set of jinjamator tasklet funtions. So you can use a limited set of jinjamator content
+# plugins and variables aswell as all standard jinja2 syntax to generate dynamic defaults.
+{%for i in range(1,10)%}
+  - 1.1.1.{{i}}
+{%endfor%}
+
+# set netmiko to verbose
+ssh_verbose: True

@@ -40,7 +40,7 @@ vmware.vsphere.cluster.respool
 
 .. py:function:: vmware.vsphere.cluster.respool.get_list(obj, **kwargs):
 
-    Get all resource-pools beneath the object and return a list. 
+    Get all resource-pools beneath the object and return a list.
     This function is much faster than get_dict() when the vCenter-object is present (passed within *kwargs* or present as default)
 
     :param obj: The object within we shall search for resource-pools (cluster)
@@ -59,7 +59,7 @@ vmware.vsphere.cluster.respool
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a resource-pool, false if not 
+    :return: True if it is a resource-pool, false if not
     :rtype: bool
     
 
@@ -69,7 +69,7 @@ vmware.vsphere.cluster.respool
 
     :param obj: The object
     :type obj: object
-    :return: True if it is a resource-pool, false if not 
+    :return: True if it is a resource-pool, false if not
     :rtype: bool
     
 

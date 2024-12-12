@@ -11,7 +11,7 @@ For a local install just run:
 
 .. code:: shell
 
-    pip3 install jinjamator
+    pip install pipx && pipx install jinjamator
 
 This should automatically setup jinjamator.
 

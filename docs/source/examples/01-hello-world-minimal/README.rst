@@ -16,8 +16,8 @@ Jinja2:
 
 
 
-CLI
-*****
+Run The Task Via CLI
+**********************
 
 run the python task
 
@@ -31,13 +31,13 @@ run the jinja2 task
 
     jinjamator -t <path to examples>/01-hello-world-minimal/jinja2
 
-Web
-*****
-To start the daemon setup RabbitMQ as described in the installation section and run jinjamator with following command.
+Run The Task Via WebGUI
+***************************
+To start the daemon run jinjamator with following command.
 
 .. code-block:: bash
 
-    jinjamator --task-base-dir <path to examples> --celery-broker-url amqp://jinjamator:<password chosen at setup>@localhost:5672/jinjamator
+    jinjamator --task-base-dir <path to examples>  -d -vvv
 
 Then open a browser and open http://localhost:5000
 
