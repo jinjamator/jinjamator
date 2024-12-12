@@ -1,0 +1,24 @@
+vlan 10
+  name VLAN_10
+
+vlan 11
+  name VLAN_11
+
+interface vlan 11
+  description desc 11
+  ip address 1.1.1.1 255.255.255.0
+  no shutdown  
+
+vlan 12
+  name VLAN_12
+
+interface vlan 12
+  description desc 12
+  ip vrf forwarding VRF_B
+  ip address 2.2.2.2 255.255.255.0
+  no shutdown  
+
+no vlan 13
+  name VLAN_13
+
+no interface vlan 13

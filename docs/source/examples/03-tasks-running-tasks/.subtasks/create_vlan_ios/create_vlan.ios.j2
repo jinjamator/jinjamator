@@ -1,0 +1,17 @@
+{%if undo %}no {% endif %}vlan {{vlan_id}}
+  name {{vlan_name}}
+
+{%if undo %}no interface vlan {{vlan_id}}{% endif %}
+
+{% if ip_address and netmask and not undo %}
+interface vlan {{vlan_id}}
+  {% if description %}
+  description {{description}}
+  {% endif %}
+  {% if vrf %}
+  ip vrf forwarding {{vrf}}
+  {% endif %}
+  ip address {{ip_address}} {{netmask}}
+  no shutdown  
+{% endif %}
+
