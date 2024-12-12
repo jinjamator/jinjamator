@@ -27,7 +27,7 @@ All default values for the task can be defined in the defaults.yaml file and ove
   :language: yaml
 
 
-**More advanced implementation for multiple hosts with enhanced GUI:**
+**Even more advanced implementation for multiple hosts with enhanced GUI:**
 
 .. literalinclude:: 03_inventory_for_multiple_hosts_enhanced_gui/run.py
   :language: python

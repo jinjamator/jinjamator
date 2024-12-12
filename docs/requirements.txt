@@ -1,3 +1,5 @@
 sphinx==7.4.7
 sphinxcontrib-jinjadomain
 sphinx-rtd-theme
+sphinxcontrib-xlsxtable
+-e git+https://github.com/jinjamator/pygments-ios.git@5c1f9e4a12f11e69a553a18b66197acb27ab8f16#egg=pygments_ios

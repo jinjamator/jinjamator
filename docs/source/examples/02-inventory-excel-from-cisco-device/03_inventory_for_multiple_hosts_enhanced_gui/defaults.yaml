@@ -24,8 +24,9 @@ device_list:
 all_devices:
   - 100.76.0.1
   - 192.168.76.1
-# The defaults.yaml has a limited set of jinjamator tasklet funtions. So you can use a limited set of jinjamator content
-# plugins and variables aswell as all standard jinja2 syntax to generate dynamic defaults.
+# The defaults.yaml has a limited set of jinjamator tasklet funtions. 
+# So you can use a limited set of jinjamator content plugins and variables 
+# aswell as all standard jinja2 syntax to generate dynamic defaults.
 {%for i in range(1,10)%}
   - 1.1.1.{{i}}
 {%endfor%}
