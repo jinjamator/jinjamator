@@ -188,7 +188,7 @@ class JinjamatorTask(object):
         try:
             self._log.debug("loading {0}/defaults.yaml".format(path))
             self._default_values = self.configuration.merge_yaml(
-                "{0}/defaults.yaml".format(path), private_data=self._configuration._data)
+                "{0}/defaults.yaml".format(path), private_data=self._configuration._data,list_strategy="use_existing",dict_strategy="use_existing")
             self._log.debug("finished loading {0}/defaults.yaml".format(path))
             for var in self._undefined_vars:
                 if var in self.configuration._data:
