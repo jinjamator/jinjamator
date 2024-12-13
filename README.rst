@@ -51,6 +51,16 @@ Install jinjamator by running:
     
     pip3 install pipx && pipx install jinjamator
 
+
+After successfull installation you should run following commands to initialize aaa
+
+.. code:: shell
+
+    export JINJAMATOR_AAA_LOCAL_ADMIN_USERNAME=admin
+    export JINJAMATOR_AAA_LOCAL_ADMIN_PASSWORD=SomeSecurePassword
+    jinjamator -t `pipx runpip jinjamator show jinjamator | grep Location | cut -d ' ' -f 2`/jinjamator/tasks/.internal/init_aaa
+
+
 Contribute
 ----------
 
