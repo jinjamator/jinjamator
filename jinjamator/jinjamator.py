@@ -400,7 +400,7 @@ class Program(object):
         )
         self._program_license = f"""{self._program_shortdesc}
 
-  Copyright 2019 Wilhelm Putz
+  Copyright 2024 Wilhelm Putz
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
