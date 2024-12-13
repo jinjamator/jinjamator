@@ -124,6 +124,19 @@ class TaskConfiguration(object):
         """a list strategy to append elements if not already in list."""
         return base + [i for i in nxt if i not in base]
 
+    def use_existing_list(self, config, path, base, nxt):
+        print(base,nxt)
+        if not base:
+            return nxt
+        return base
+
+    def use_existing_dict(self, config, path, base, nxt):
+        for k,v in nxt.items():
+            if k in base:
+                continue
+            base[k]=v
+        return base
+
     def merge_dict(
         self,
         dict_data,
@@ -134,6 +147,10 @@ class TaskConfiguration(object):
     ):
         if list_strategy == "exclusive":
             list_strategy = self.exclusive_merge_list
+        elif list_strategy == "use_existing":
+            list_strategy = self.use_existing_list
+        if dict_strategy == "use_existing":
+            dict_strategy=self.use_existing_dict
         # else:
         #    list_strategy = [list_strategy]
         m = Merger(
@@ -184,7 +201,6 @@ class TaskConfiguration(object):
                     parsed_raw_data = yaml.safe_load("\n".join(tmp))
                     if not parsed_raw_data:
                         parsed_raw_data = {}
-
                     for k, v in self._data.items():
                         if k not in list(parsed_raw_data.keys()):
                             parsed_raw_data[k] = v
@@ -219,35 +235,6 @@ class TaskConfiguration(object):
                                     except AttributeError:
                                         pass
                                     
-                    
-                    # if '_jinjamator' in __builtins__:
-                    
-                    # try:
-                        # 
-                        # for var in meta.find_undeclared_variables(ast):
-                            # for command in __builtins__['all_registered_j2_functions']:
-                                # if command.startswith(var):
-                                    # if command in raw_data:
-                                        # try:
-                                            # var_dependencies=__builtins__['all_registered_j2_functions'][command].__kwdefaults__.get('_requires',print)
-                                            # if isinstance(var_dependencies, types.FunctionType):
-                                                # for dep_var in var_dependencies():
-                                                    # if dep_var not in _jinjamator._undefined_vars:
-                                                        # _jinjamator._undefined_vars.append(dep_var)
-                                            # if isinstance(var_dependencies, types.list):
-                                                # for dep_var in var_dependencies:
-                                                    # if dep_var not in _jinjamator._undefined_vars:
-                                                        # _jinjamator._undefined_vars.append(dep_var)
-                                        # except AttributeError:
-                                            # pass
-                        # if backup_data:
-                            # _jinjamator.configuration._data=backup_data
-                        # for var in deepcopy(_jinjamator._undefined_vars):    
-                            # self._data[var]=_jinjamator.handle_undefined_var(var)
-                    # except SyntaxError:
-                        # pass
-
-
                     environment = self._plugin_loader.j2_load_plugins(environment)
 
                     parsed_raw_data["configuration"] = self._data
@@ -277,6 +264,7 @@ class TaskConfiguration(object):
                         self._plugin_loader._parent.configuration._data = data_backup
                     if not final_data:
                         final_data = {}
+                    
                     self.merge_dict(
                         final_data,
                         dict_strategy,
