@@ -310,9 +310,22 @@ class apic(outputPluginBase):
             return False
         except TypeError:
             pass
+        
+        if not "imdata" in data:
+            self._log.error("ACI objects need to be within an imdata object")
+            raise processError
+        
         for item in data["imdata"]:
+            
+            success_log=""
+            
             try:
                 dn = item[list(item.keys())[0]]["attributes"]["dn"]
+                if item.get("success_log"):
+                    success_log=item.get("success_log")
+                    del item["success_log"]
+                else:
+                    success_log=f"Successfully sent config for dn {dn} to APIC"
                 self.check_acl(item)
             except IndexError:
                 continue
@@ -327,6 +340,6 @@ class apic(outputPluginBase):
                 raise processError
 
             else:
-                self._log.info("successfully sent config for dn {0}".format(dn))
+                self._log.info(success_log)
                 self._log.debug(json.dumps(item, indent=2))
         return True
