@@ -131,6 +131,7 @@ class JinjamatorTask(object):
         self._results = tree()
         self._schema_extensions = []
         self._celery = None
+        self._output_plugin_error=False
 
     def load(self, path):
         self.task_base_dir = path
@@ -904,6 +905,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             self._output_plugin.init_plugin_params()
             self._output_plugin.connect()
             try:
+                self._output_plugin_error=False
                 self._output_plugin.process(
                     retval, template_path=tasklet, current_data=self.configuration
                 )
@@ -918,8 +920,8 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                 )
 
             except Exception as e:
+                self._output_plugin_error=True
                 error_text=self.parse_exception(e,tasklet)
-                self._log.error(f"Output plugin {self._output_plugin} failed. {error_text}")
                 results.append(
                     {
                         "tasklet_path": tasklet,
@@ -936,4 +938,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                 self._log.tasklet_result(
                     "{0}".format(retval)
                 )  # this submits the result via celery
+            
+            if self._output_plugin_error:
+                raise JinjamatorTaskRunException(f"Output plugin {self._output_plugin} failed. {error_text}")
         return results
