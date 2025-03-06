@@ -25,6 +25,7 @@ import logging
 log = logging.getLogger()
 from netmiko import log as netmiko_log
 
+
 def _get_missing_ssh_connection_vars():
     inject = []
     try:
@@ -34,14 +35,13 @@ def _get_missing_ssh_connection_vars():
             inject.append("ssh_password")
         if not _jinjamator.configuration._data.get("ssh_host"):
             inject.append("ssh_host")
-    except Exception:
+    except Exception as e:
+        log.error(e)
         pass
     return inject
 
-    
 
-
-def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
+def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
     """Run a command via SSH and return the text output.
 
     :param command: The command that should be run.
@@ -60,8 +60,8 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
         * *ssh_port* (``int``), ``optional`` --
            SSH TCP port, defaults to 22
         * *ssh_device_type* (``str``), ``optional`` --
-           Netmiko device type, defaults to "cisco_nxos". 
-           Currently supported device_types can be found here: https://github.com/ktbyers/netmiko/tree/develop/netmiko 
+           Netmiko device type, defaults to "cisco_nxos".
+           Currently supported device_types can be found here: https://github.com/ktbyers/netmiko/tree/develop/netmiko
         * *fast_cli* (``bool``), ``optional`` --
            Use Netmiko fast_cli mode, defaults to False
         * *verbose* (``bool``), ``optional`` --
@@ -73,15 +73,15 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
             * Any of *ssh_username*, *ssh_password*, *ssh_host* is not specified via command line parameter in CLI Mode and the user enters the data correctly via CLI.
             * The task is run via Daemon mode and ssh_username, ssh_password, ssh_host are defined in the task defaults.yaml, environment site defaults.yaml.
             * The task is run via Daemon mode and ssh_username, ssh_password, ssh_host are entered correctly in the generated webform.
-            
-        
+
+
         the raw output of the command show inventory from a cisco nxos box is returned by the tasklet .
 
         jinja2 tasklet:
-        
+
             .. code-block:: jinja
-                
-                {{ssh.run('show inventory')}} 
+
+                {{ssh.run('show inventory')}}
 
         python tasklet:
 
@@ -92,10 +92,10 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
         To set the arguments directly on call of the function. The example will ask for the password and connects to 1.2.3.4 port 22 and runs the command "show inventory"
 
         jinja2 tasklet:
-        
+
             .. code-block:: jinja
-                
-                {{ssh.run('show inventory',ssh_username=admin,ssh_host='1.2.3.4')}} 
+
+                {{ssh.run('show inventory',ssh_username=admin,ssh_host='1.2.3.4')}}
 
         python tasklet:
 
@@ -126,7 +126,7 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
             ),
         )
         try:
-            del kwargs['ssh_' + var_name]
+            del kwargs["ssh_" + var_name]
         except KeyError:
             pass
         try:
@@ -137,17 +137,15 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
         opts[var_name] = kwargs[var_name]
 
     try:
-
         if cfg["verbose"]:
             netmiko_log.setLevel(logging.DEBUG)
         else:
             netmiko_log.setLevel(logging.ERROR)
 
-        connection = ConnectHandler(**cfg,**opts)
+        connection = ConnectHandler(**cfg, **opts)
 
         return connection
     except NetmikoAuthenticationException as e:
-
         if _jinjamator.configuration["best_effort"]:
             _jinjamator._log.error(
                 f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
@@ -159,7 +157,9 @@ def connect(_requires=_get_missing_ssh_connection_vars, **kwargs):
             )
 
 
-def query(command, connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
+def query(
+    command, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
+):
     device_type = (
         kwargs.get("device_type")
         or _jinjamator.configuration.get(f"ssh_device_type")
@@ -176,7 +176,9 @@ def disconnect(connection):
     connection.cleanup()
 
 
-def run(command, connection=None, _requires=_get_missing_ssh_connection_vars,  **kwargs):
+def run(
+    command, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
+):
     auto_disconnect = False
     if not connection:
         connection = connect(**kwargs)
@@ -190,13 +192,18 @@ def run(command, connection=None, _requires=_get_missing_ssh_connection_vars,  *
             pass
     # for var_name in kwargs:
     #     opts[var_name] = kwargs[var_name]
-    retval = connection.send_command_expect(command, read_timeout=kwargs.get("read_timeout",300), **opts)
+    retval = connection.send_command_expect(
+        command, read_timeout=kwargs.get("read_timeout", 300), **opts
+    )
     if auto_disconnect:
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
 
-def run_mlt(commands,connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
+
+def run_mlt(
+    commands, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
+):
     auto_disconnect = False
     if not connection:
         connection = connect(**kwargs)
@@ -216,7 +223,14 @@ def run_mlt(commands,connection=None, _requires=_get_missing_ssh_connection_vars
     # netmiko_log.setLevel(backup_log_level)
     return retval
 
-def configure(commands_or_path, connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
+
+def configure(
+    commands_or_path,
+    connection=None,
+    *,
+    _requires=_get_missing_ssh_connection_vars,
+    **kwargs,
+):
     auto_disconnect = False
     commands = commands_or_path
     if os.path.isfile(commands_or_path):
@@ -249,7 +263,9 @@ def configure(commands_or_path, connection=None, _requires=_get_missing_ssh_conn
     return retval
 
 
-def get_file (src,dst,connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
+def get_file(
+    src, dst, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
+):
     auto_disconnect = False
     if not connection:
         connection = connect(**kwargs)
@@ -263,14 +279,16 @@ def get_file (src,dst,connection=None, _requires=_get_missing_ssh_connection_var
             pass
     for var_name in kwargs:
         opts[var_name] = kwargs[var_name]
-    
+
     scp = SCPConn(connection)
-    scp.scp_get_file(src,dst)
-    #Needed
+    scp.scp_get_file(src, dst)
+    # Needed
     scp.close()
 
 
-def put_file (src,dst,connection=None, _requires=_get_missing_ssh_connection_vars, **kwargs):
+def put_file(
+    src, dst, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
+):
     auto_disconnect = False
     if not connection:
         connection = connect(**kwargs)
@@ -284,8 +302,8 @@ def put_file (src,dst,connection=None, _requires=_get_missing_ssh_connection_var
             pass
     for var_name in kwargs:
         opts[var_name] = kwargs[var_name]
-    
+
     scp = SCPConn(connection)
-    scp.scp_put_file(src,dst)
-    #Needed
+    scp.scp_put_file(src, dst)
+    # Needed
     scp.close()
