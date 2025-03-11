@@ -924,7 +924,8 @@ class Session(object):
                 timeout=timeout,
                 proxies=self._proxies,
             )
-            if resp.status_code == 403:
+            if resp.status_code in [403, 503]:
+                time.sleep(1)
                 log.error(resp.text)
                 log.error("Trying to login again....")
                 resp = self._send_login()
