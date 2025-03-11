@@ -80,7 +80,7 @@ class XLSXReader(object):
                     )
                 )
                 self.ws = self.wb[self.wb.sheetnames[0]]
-            self.lastRow = self.get_last_row_in_col()
+            self.lastRow = self.get_maximum_rows()
 
     def datetime_handler(self, x):
         if isinstance(x, datetime.datetime):
@@ -129,13 +129,22 @@ class XLSXReader(object):
         self.header = [" ".join(f).strip() for f in self.header_fields]
         self._log.debug("finished parsing of header")
 
-    def get_last_row_in_col(self, col="A"):
-        lastRow = self.ws.max_row
+    def get_maximum_rows(self):
+        rows = 0
+        for max_row, row in enumerate(self.ws, 1):
+            if not all(col.value is None for col in row):
+                rows += 1
+        self._log.debug("detected lastRowIn: {0}".format(rows))
+        return rows
 
-        while self.ws.cell(column=1, row=lastRow).value is None and lastRow > 0:
-            lastRow -= 1
-        self._log.debug("detected lastRowIn: {0}".format(lastRow))
-        return lastRow
+    # def get_last_row_in_col(self, col="A"):
+    #     lastRow = self.ws.max_row
+    #     ws.max_column
+    #     while self.ws.cell(column=1, row=lastRow).value is None and lastRow > 0:
+    #         lastRow -= 1
+    #     self._log.debug("detected lastRowIn: {0}".format(lastRow))
+        
+    #     return lastRow
 
     def get_header_for_col(self, col):
         return self.header[col - 1]
