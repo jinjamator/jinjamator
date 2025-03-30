@@ -60,7 +60,7 @@ def save(data, destination_path, **kwargs):
     
     if isinstance(data, list):
         if isinstance(data[0], dict):
-            xlsx = XLSXWriter(destination_path, overwrite=True)
+            xlsx = XLSXWriter(destination_path, overwrite=True,**kwargs)
             xlsx.create_sheet_from_data(data, kwargs.get("sheet_name", "Sheet1"))
             xlsx.save()
             log.debug(
