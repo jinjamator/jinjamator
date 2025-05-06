@@ -132,25 +132,26 @@
                             <td width='90%'></td>
                         </tr>
                         <tr>
-                            <th nowrap>Logseverity:</th>
-                            <td><select id='log_severity' class="form-control" onchange='set_timeline_loglevel();'>
-                      <option>ERROR</option>
-                      <option>WARNING</option>
-                      <option selected>INFO</option>
-                      <option>DEBUG</option>
-                    </select> 
-                    <td width='90%'>
-                    <div class="form-group">
-                        <!-- <label>
-                        <input type="checkbox" class="flat-red" checked class="form-control">
-                        </label> -->
-                        <!-- <label>
-                        Group Logs by Tasklet
-                        </label> -->
-                        </div>
-                    </td>             
-                
-                </td>
+                            <th nowrap>Show Log Severity:</th>
+                            <td>
+                                <select id='log_severity' class="form-control" onchange='set_timeline_loglevel();'>
+                                    <option>ERROR</option>
+                                    <option>WARNING</option>
+                                    <option selected>INFO</option>
+                                    <option>DEBUG</option>
+                                </select> 
+                                <td width='90%' style="vertical-align: bottom;">
+                                        <label>
+                                        <input type="checkbox" class="flat-red" class="form-control" id="show_tasklet_results" onchange='toggle_timeline_show_tasklet_results();'>
+                                        </label>
+                                        <label style="vertical-align: top;">&nbsp;Show Tasklet Results</label>
+                                        <!-- <label style="vertical-align: top;">&nbsp;|&nbsp; </label> -->
+                                        <!-- <label>
+                                            <input type="checkbox" class="flat-red" checked class="form-control">
+                                        </label>
+                                        <label style="vertical-align: top;">&nbsp;Show Task <Summary></Summary></label> -->
+                                </td>             
+                            </td>
                             <th></th>
                             <td width='90%'></td>
                         </tr>
@@ -159,22 +160,22 @@
                             <td nowrap><span id='job_files'>n/a</span></td>
                             <th></th>
                             <td width='90%'></td>
-                            <tr>
-                                <th></th>
-                                <td></td>
-                                <th></th>
-                                <td width='90%' align="right" nowrap>
-
-                                    <button type="button" class="btn btn-default" onclick="clone_job($('#job_id').html(), false)">Clone</button>
-                                    <button type="button" class="btn btn-default" onclick="undo_job($('#job_id').html()), true">Undo</button>
-
-                                </td>
-                            </tr>
                         </tr>
-
+                        <tr class="jm_result_summary">
+                            <th>Result Summary:</th>
+                            <td colspan="2"><span id='jm_result_summary' class="jm_result_summary_text">n/a</span></td>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <td></td>
+                            <th></th>
+                            <td width='90%' align="right" nowrap>
+                                <button type="button" class="btn btn-default" onclick="clone_job($('#job_id').html(), false)">Clone</button>
+                                <button type="button" class="btn btn-default" onclick="undo_job($('#job_id').html()), true">Undo</button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
-
             </div>
             <!-- <div id="terminal"></div> -->
         </div>

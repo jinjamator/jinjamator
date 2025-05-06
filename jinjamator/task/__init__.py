@@ -27,7 +27,6 @@ from pyflakes.reporter import Reporter as pyflakes_reporter
 import pyflakes.messages
 import re
 from io import StringIO
-from future.utils import iteritems
 from getpass import getpass
 import importlib
 import sys
@@ -859,7 +858,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                 task_code = self.get_py_tasklet_code(tasklet)
 
                 module = import_code(task_code, tasklet[:-3].replace("/", "."))
-                for k, v in iteritems(self.configuration._data):
+                for k, v in self.configuration._data.items():
                     setattr(module, k, v)
 
                 setattr(module, "__file__", tasklet)

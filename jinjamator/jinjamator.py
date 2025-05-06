@@ -118,12 +118,19 @@ class Program(object):
         self._parser.add_argument(
             "-V", "--version", action="version", version=self._program_version_message
         )
+        # self._parser.add_argument(
+        #     "-g",
+        #     "--global-defaults",
+        #     dest="_global_defaults",
+        #     default=None,
+        #     help="path to a global defaults.yaml [default: %(default)s]",
+        # )
         self._parser.add_argument(
-            "-g",
-            "--global-defaults",
-            dest="_global_defaults",
+            "-s",
+            "--use-site",
+            dest="_use_site",
             default=None,
-            help="path to a global defaults.yaml [default: %(default)s]",
+            help="Use an environment/site e.g: customer1/site2 [default: %(default)s]",
         )
 
         self._parser.add_argument(
@@ -371,6 +378,7 @@ class Program(object):
         global logging
         logging.addLevelName(90, "TASKLET_RESULT")
         logging.addLevelName(89, "CONSOLE")
+        logging.addLevelName(88, "TASK_SUMMARY")
 
         def tasklet_result(self, message, *args, **kws):
             # Yes, logger takes its '*args' as 'args'.
@@ -379,8 +387,12 @@ class Program(object):
         def console(self, message, *args, **kws):
             self._log(89, message, args, **kws)
 
+        def summary(self, message, *args, **kws):
+            self._log(88, message, args, **kws)
+
         logging.Logger.tasklet_result = tasklet_result
         logging.Logger.console = console
+        logging.Logger.summary = summary
 
 
         # msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(funcName)s - %(levelname)s - %(message)s"
@@ -532,20 +544,35 @@ USAGE
             from jinjamator.task import JinjamatorTask
 
             task = JinjamatorTask("interactive")
-            if self._configuration["global_defaults"]:
-                task.configuration.merge_yaml(self._configuration["global_defaults"])
+
+
+            # if self._configuration["global_defaults"]:
+            #     task.configuration.merge_yaml(self._configuration["global_defaults"])
+
             
+            
+
             if not self.configuration["output_plugin"]:
                 del self.configuration["output_plugin"]
 
             task.configuration.merge_dict(self.configuration)
             task._configuration.merge_dict(self._configuration)
-
-
-
-
+            
+            if self._configuration["use_site"]:
+                from jinjamator.plugin_loader.content import ContentPluginLoader  
+                loader=ContentPluginLoader(self)
+                task.configuration._plugin_loader=loader    
+                loader.load(self._configuration["global_output_plugins_base_dirs"])  
+                for basedir in self._configuration["global_environments_base_dirs"]:
+                    environment_name,site_name = self._configuration["use_site"].split("/")
+                    envsite_defautls_path=os.path.sep.join([basedir,environment_name,'sites',site_name,"defaults.yaml"] )
+                    if os.path.isfile(envsite_defautls_path):
+                        self._log.debug(f"using defaults from {envsite_defautls_path}")
+                        task.configuration.merge_yaml(envsite_defautls_path)
+    
             try:
                 task.load(self._configuration["taskdir"])
+
                 task.load_output_plugin(
                 task.configuration["output_plugin"],
                 self._configuration["global_output_plugins_base_dirs"],

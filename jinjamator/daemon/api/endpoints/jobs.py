@@ -118,6 +118,34 @@ class JobCollection(Resource):
     }
 )
 class Job(Resource):
+
+    def merge_query_to_response(self, response, query_result):
+        
+
+        for row in query_result:
+            response["log"].append(
+                {
+                    str(row.timestamp): {
+                        "configuration": json.loads(row.configuration),
+                        "current_task": row.current_task,
+                        "current_task_id": row.current_task_id,
+                        "current_tasklet": row.current_tasklet,
+                        "level": row.level,
+                        "message": row.message,
+                        "parent_task_id": row.parent_task_id,
+                        "parent_tasklet": row.parent_tasklet,
+                        "stdout": row.stdout,
+                    }
+                }
+            )
+
+        for file_path in glob(os.path.join(self.files_base_dir, "*")):
+            if os.path.isfile(file_path):
+                response["files"].append(file_path.replace(self.files_base_dir, "")[1:])
+
+        return response
+    
+
     @api.expect(job_arguments)
     @api.response(404, "Task not found Error")
     @api.response(400, "Task ID not in UUID V4 format")
@@ -139,9 +167,11 @@ class Job(Resource):
         args = job_arguments.parse_args(request)
         log_level = args.get("log-level", "DEBUG")
         newer_than = args.get("logs-newer-than", None)
-        
+        show_tasklet_result = args.get("show-tasklet-results", False)
 
-
+        self.files_base_dir = os.path.join(
+            app.config["JINJAMATOR_USER_DIRECTORY"], "logs", job_id, "files"
+        )
             
         try:
             job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).first()
@@ -173,8 +203,27 @@ class Job(Resource):
             log.error(e)
             abort(404, f"Job ID {job_id} not found")
 
-        log_level_filter = JobLog.level.is_("TASKLET_RESULT")
-        log_level_filter = or_(log_level_filter, JobLog.level.is_("CONSOLE"))
+        
+        log_level_filter = JobLog.level.is_("CONSOLE")
+
+        if log_level == "TASK_SUMMARY":
+            log_level_filter = JobLog.level.is_("TASK_SUMMARY")
+            response=self.merge_query_to_response(response,
+                    [db.session.query(JobLog)
+                    .filter(and_(JobLog.task_id == job_id, log_level_filter))
+                    .order_by(JobLog.timestamp.desc())
+                    .first()]
+                )
+            
+            return response
+
+        log_level_filter = or_(log_level_filter, JobLog.level.is_("TASK_SUMMARY"))
+
+        if show_tasklet_result.lower() == "true":
+            log_level_filter = or_(log_level_filter, JobLog.level.is_("TASKLET_RESULT"))
+        
+
+
         if log_level in ["INFO","WARNING", "ERROR", "DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("ERROR"))
         if log_level in ["INFO","WARNING", "DEBUG"]:
@@ -187,33 +236,11 @@ class Job(Resource):
         if newer_than:
             log_level_filter = and_(log_level_filter,JobLog.timestamp > newer_than)
 
-
-        for row in (
+        response=self.merge_query_to_response(response,
             db.session.query(JobLog)
             .filter(and_(JobLog.task_id == job_id, log_level_filter))
             .order_by(JobLog.timestamp)
             .all()
-        ):
-            response["log"].append(
-                {
-                    str(row.timestamp): {
-                        "configuration": json.loads(row.configuration),
-                        "current_task": row.current_task,
-                        "current_task_id": row.current_task_id,
-                        "current_tasklet": row.current_tasklet,
-                        "level": row.level,
-                        "message": row.message,
-                        "parent_task_id": row.parent_task_id,
-                        "parent_tasklet": row.parent_tasklet,
-                        "stdout": row.stdout,
-                    }
-                }
-            )
-        files_base_dir = os.path.join(
-            app.config["JINJAMATOR_USER_DIRECTORY"], "logs", job_id, "files"
         )
-        for file_path in glob(os.path.join(files_base_dir, "*")):
-            if os.path.isfile(file_path):
-                response["files"].append(file_path.replace(files_base_dir, "")[1:])
-
+    
         return response

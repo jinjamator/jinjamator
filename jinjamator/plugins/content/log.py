@@ -50,3 +50,6 @@ def debug(message):
 def console(message):
     print(message)
     l.debug(f"console log: {message}")
+
+def summary(message):
+    l.summary(message)
