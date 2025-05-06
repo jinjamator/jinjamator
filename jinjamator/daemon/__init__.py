@@ -44,9 +44,9 @@ import importlib
 import celery
 
 
-celery.app.backends.BACKEND_ALIASES[
-    "jm"
-] = "jinjamator.external.celery.backends.database:DatabaseBackend"
+celery.app.backends.BACKEND_ALIASES["jm"] = (
+    "jinjamator.external.celery.backends.database:DatabaseBackend"
+)
 from celery import Celery
 from jinjamator.external.celery.backends.database import DatabaseBackend
 from jinjamator.daemon.aaa.models import (
@@ -56,7 +56,6 @@ from jinjamator.daemon.aaa.models import (
     JinjamatorRole,
     UserRoleLink,
 )
-
 
 
 celery = Celery("jinjamator")
@@ -81,11 +80,13 @@ def init_celery(_configuration):
     """
     Configure Celery
     """
-    celery.conf.timezone = _configuration.get("celery_beat_timezone",'UTC') 
+    celery.conf.timezone = _configuration.get("celery_beat_timezone", "UTC")
     log.info(f"celery will use timezone {celery.conf.timezone}")
     celery.conf.broker_url = _configuration.get("celery_broker")
-    jinjamatro_schedule_path=os.path.join(_configuration.get("jinjamator_user_directory"),"jinjamator_schedule.yaml")
-    _sched_cfg={}
+    jinjamatro_schedule_path = os.path.join(
+        _configuration.get("jinjamator_user_directory"), "jinjamator_schedule.yaml"
+    )
+    _sched_cfg = {}
 
     if celery.conf.broker_url == "filesystem://":
         data_folder = os.path.join(
@@ -105,37 +106,44 @@ def init_celery(_configuration):
     celery.conf.result_backend = "jm+" + _configuration.get("celery_result_backend")
 
     celery.conf.update({"jinjamator_private_configuration": _configuration})
-    
+
     if os.path.isfile(jinjamatro_schedule_path):
         try:
             import yaml
-            with open(jinjamatro_schedule_path, 'r') as fh:
+
+            with open(jinjamatro_schedule_path, "r") as fh:
                 yaml_sched_cfg = yaml.safe_load(fh)
         except Exception as e:
-            log.error(f"Cannot Parse {jinjamatro_schedule_path} {e.message} in line {e.line} -> no scheduled tasks will be available!")
+            log.error(
+                f"Cannot Parse {jinjamatro_schedule_path} {e.message} in line {e.line} -> no scheduled tasks will be available!"
+            )
             return celery
-        
-        for name,cfg in yaml_sched_cfg.items():
+
+        for name, cfg in yaml_sched_cfg.items():
             if "repeat" in cfg:
-                _sched_cfg[name]={
-                    'task': 'jinjamator.task.celery.run_jinjamator_task',
-                    'schedule': int(cfg["repeat"]),
-                    'args': (cfg["task_path"],cfg.get('configuration',{}),cfg.get('output_plugin',"console"),cfg.get('run_as_userid',1))
+                _sched_cfg[name] = {
+                    "task": "jinjamator.task.celery.run_jinjamator_task",
+                    "schedule": int(cfg["repeat"]),
+                    "args": (
+                        cfg["task_path"],
+                        cfg.get("configuration", {}),
+                        cfg.get("output_plugin", "console"),
+                        cfg.get("run_as_userid", 1),
+                    ),
                 }
-        
+
         # self, path, data, output_plugin, user_id, debugger_cfg
 
-
-        
-        
     else:
-        log.error(f"Cannot find {jinjamatro_schedule_path} -> no scheduled user tasks will be available!")
-    
-    _sched_cfg["__DB__MAINTENANCE__"]={
-                    'task': 'jinjamator.task.celery.run_jinjamator_task',
-                    'schedule': crontab(*_configuration['run_db_maintenance_at'].split(" ")),
-                    'args': (".internal/db_maintenance",{},"console",1)
-                }    
+        log.error(
+            f"Cannot find {jinjamatro_schedule_path} -> no scheduled user tasks will be available!"
+        )
+
+    _sched_cfg["__DB__MAINTENANCE__"] = {
+        "task": "jinjamator.task.celery.run_jinjamator_task",
+        "schedule": crontab(*_configuration["run_db_maintenance_at"].split(" ")),
+        "args": (".internal/db_maintenance", {}, "console", 1),
+    }
     celery.conf.beat_schedule = _sched_cfg
     return celery
 
@@ -208,24 +216,22 @@ def configure(flask_app, _configuration):
         flask_app.json.sort_keys = False
     else:
         flask_app.config["JSON_SORT_KEYS"] = False
-    
-    version="not detected"
+
+    version = "not detected"
     try:
         from setuptools_git_versioning import version_from_git
-        version=version_from_git()
+
+        version = version_from_git()
         if version == "0.0.1":
             raise Exception("no git version detected")
     except:
-        tmp=os.path.dirname(__file__).split(os.path.sep)[:-1] + ["VERSION"]
+        tmp = os.path.dirname(__file__).split(os.path.sep)[:-1] + ["VERSION"]
         with open(os.path.sep.join(tmp)) as fh:
-            version=fh.read()
-    flask_app.config["JINJAMATOR_VERSION"]=version
-    
-
-
-
+            version = fh.read()
+    flask_app.config["JINJAMATOR_VERSION"] = version
 
     log.info("Starting jinjamator version: " + flask_app.config["JINJAMATOR_VERSION"])
+
 
 def initialize(flask_app, cfg):
     """
@@ -239,8 +245,11 @@ def initialize(flask_app, cfg):
         db.create_all(bind=["aaa"])
     init_aaa(aaa_providers, cfg)
 
-    api_blueprint = Blueprint("api", __name__, url_prefix="/api/", )
-    
+    api_blueprint = Blueprint(
+        "api",
+        __name__,
+        url_prefix="/api/",
+    )
 
     from jinjamator.daemon.api.endpoints.aaa import ns as aaa_namespace
 
@@ -274,7 +283,6 @@ def run(cfg):
     discover_output_plugins(app)
     discover_environments(app)
     discover_tasks(app)
-   
 
     port = cfg.get("daemon_listen_port", "5000")
     host = cfg.get("daemon_listen_address", "127.0.0.1")
@@ -303,7 +311,6 @@ def run(cfg):
                         cfg["celery_beat_database"],
                     ]
                 )
-                
 
                 sys.exit(0)
             else:

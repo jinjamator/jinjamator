@@ -57,7 +57,6 @@ class JobCollection(Resource):
         response = []
         user_roles = [role["name"] for role in g._user["roles"]]
 
-
         try:
             rs = db.session.execute(
                 select(
@@ -78,18 +77,18 @@ class JobCollection(Resource):
             return response
 
         for job in rs.fetchall():
-            user = User.query.filter(User.id == int(job.created_by_user_id)).first()           
-        
+            user = User.query.filter(User.id == int(job.created_by_user_id)).first()
+
             if user:
                 username = str(user.username)
             else:
                 username = f"deleted (id is {job.created_by_user_id})"
-            allowed=False
+            allowed = False
             if "administrator" in user_roles or "tasks_all" in user_roles:
-                allowed=True
+                allowed = True
             for role in user_roles:
                 if f"task_{str(job.jinjamator_task)}".startswith(role):
-                    allowed=True
+                    allowed = True
             if allowed:
                 response.append(
                     {
@@ -120,7 +119,6 @@ class JobCollection(Resource):
 class Job(Resource):
 
     def merge_query_to_response(self, response, query_result):
-        
 
         for row in query_result:
             response["log"].append(
@@ -144,7 +142,6 @@ class Job(Resource):
                 response["files"].append(file_path.replace(self.files_base_dir, "")[1:])
 
         return response
-    
 
     @api.expect(job_arguments)
     @api.response(404, "Task not found Error")
@@ -172,20 +169,23 @@ class Job(Resource):
         self.files_base_dir = os.path.join(
             app.config["JINJAMATOR_USER_DIRECTORY"], "logs", job_id, "files"
         )
-            
+
         try:
             job = db.session.query(DB_Job).filter(DB_Job.task_id == job_id).first()
             user = User.query.filter(User.id == int(job.created_by_user_id)).first()
             user_roles = [role["name"] for role in g._user["roles"]]
 
-            allowed=False
+            allowed = False
             if "administrator" in user_roles or "tasks_all" in user_roles:
-                allowed=True
+                allowed = True
             for role in user_roles:
                 if f"task_{str(job.jinjamator_task)}".startswith(role):
-                    allowed=True
+                    allowed = True
             if not allowed:
-                abort(403, f"You have no accees to {job_id}, as you have no permission for {job.jinjamator_task} ")
+                abort(
+                    403,
+                    f"You have no accees to {job_id}, as you have no permission for {job.jinjamator_task} ",
+                )
             response = {
                 "id": job.task_id,
                 "state": job.status,
@@ -203,30 +203,30 @@ class Job(Resource):
             log.error(e)
             abort(404, f"Job ID {job_id} not found")
 
-        
         log_level_filter = JobLog.level.is_("CONSOLE")
 
         if log_level == "TASK_SUMMARY":
             log_level_filter = JobLog.level.is_("TASK_SUMMARY")
-            response=self.merge_query_to_response(response,
-                    [db.session.query(JobLog)
+            response = self.merge_query_to_response(
+                response,
+                [
+                    db.session.query(JobLog)
                     .filter(and_(JobLog.task_id == job_id, log_level_filter))
                     .order_by(JobLog.timestamp.desc())
-                    .first()]
-                )
-            
+                    .first()
+                ],
+            )
+
             return response
 
         log_level_filter = or_(log_level_filter, JobLog.level.is_("TASK_SUMMARY"))
 
         if show_tasklet_result.lower() == "true":
             log_level_filter = or_(log_level_filter, JobLog.level.is_("TASKLET_RESULT"))
-        
 
-
-        if log_level in ["INFO","WARNING", "ERROR", "DEBUG"]:
+        if log_level in ["INFO", "WARNING", "ERROR", "DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("ERROR"))
-        if log_level in ["INFO","WARNING", "DEBUG"]:
+        if log_level in ["INFO", "WARNING", "DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("WARNING"))
         if log_level in ["INFO", "DEBUG"]:
             log_level_filter = or_(log_level_filter, JobLog.level.is_("INFO"))
@@ -234,13 +234,14 @@ class Job(Resource):
             log_level_filter = or_(log_level_filter, JobLog.level.is_("DEBUG"))
 
         if newer_than:
-            log_level_filter = and_(log_level_filter,JobLog.timestamp > newer_than)
+            log_level_filter = and_(log_level_filter, JobLog.timestamp > newer_than)
 
-        response=self.merge_query_to_response(response,
+        response = self.merge_query_to_response(
+            response,
             db.session.query(JobLog)
             .filter(and_(JobLog.task_id == job_id, log_level_filter))
             .order_by(JobLog.timestamp)
-            .all()
+            .all(),
         )
-    
+
         return response

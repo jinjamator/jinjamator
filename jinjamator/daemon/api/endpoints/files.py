@@ -57,7 +57,7 @@ class FileUpload(Resource):
             digest = xxhash.xxh128(data).hexdigest()
             file_path = os.path.join(base_dir, secure_filename(digest))
             while os.path.exists(file_path):
-                file_path+=str(randrange(0, 9))
+                file_path += str(randrange(0, 9))
             with open(file_path, "wb") as fh:
                 fh.write(data)
 

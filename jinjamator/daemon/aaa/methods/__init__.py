@@ -1,4 +1,5 @@
 import logging
+
 log = logging.getLogger()
 from jinjamator.daemon.app import app
 from jinjamator.daemon.database import db
@@ -8,6 +9,7 @@ from jinjamator.daemon.aaa.models import (
     JinjamatorToken,
     JinjamatorRole,
 )
+
 
 class AuthProviderBase(object):
     def __init__(self, app=None):
@@ -129,4 +131,3 @@ class AuthProviderBase(object):
                     f"Created static role {new_role.name} with id {new_role.id} "
                 )
         return True
-

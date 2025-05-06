@@ -23,7 +23,6 @@ from jinjamator.daemon.aaa import require_role
 from flask import current_app as app
 
 
-
 log = logging.getLogger()
 
 ns = api.namespace(
@@ -42,5 +41,3 @@ class VersionInfo(Resource):
         Get running Jinjamator version
         """
         return {"version": app.config["JINJAMATOR_VERSION"]}
-
-

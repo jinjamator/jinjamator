@@ -80,7 +80,7 @@ class Login(Resource):
     @api.expect(aaa_login_post)
     def post(self, provider_name="local"):
         """
-        Login User via POST request. 
+        Login User via POST request.
         OIDC providers will redirect to the authentication portal of the IDp, local authentication will directly return A valid access token
         """
         if provider_name in aaa_providers:
