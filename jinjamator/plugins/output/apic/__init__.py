@@ -240,16 +240,16 @@ class apic(outputPluginBase):
                 self._dn_acls[apic_dn_acl_rule["regex"]] = {
                     "rgx": re.compile(apic_dn_acl_rule["regex"]),
                     "acls": {
-                        "create": True
-                        if "create" in apic_dn_acl_rule["acls"]
-                        else False,
+                        "create": (
+                            True if "create" in apic_dn_acl_rule["acls"] else False
+                        ),
                         "read": True,
-                        "update": True
-                        if "update" in apic_dn_acl_rule["acls"]
-                        else False,
-                        "delete": True
-                        if "delete" in apic_dn_acl_rule["acls"]
-                        else False,
+                        "update": (
+                            True if "update" in apic_dn_acl_rule["acls"] else False
+                        ),
+                        "delete": (
+                            True if "delete" in apic_dn_acl_rule["acls"] else False
+                        ),
                     },
                     "remark": apic_dn_acl_rule.get("remark", ""),
                 }
@@ -310,22 +310,22 @@ class apic(outputPluginBase):
             return False
         except TypeError:
             pass
-        
+
         if not "imdata" in data:
             self._log.error("ACI objects need to be within an imdata object")
             raise processError
-        
+
         for item in data["imdata"]:
-            
-            success_log=""
-            
+
+            success_log = ""
+
             try:
                 dn = item[list(item.keys())[0]]["attributes"]["dn"]
                 if item.get("success_log"):
-                    success_log=item.get("success_log")
+                    success_log = item.get("success_log")
                     del item["success_log"]
                 else:
-                    success_log=f"Successfully sent config for dn {dn} to APIC"
+                    success_log = f"Successfully sent config for dn {dn} to APIC"
                 self.check_acl(item)
             except IndexError:
                 continue
