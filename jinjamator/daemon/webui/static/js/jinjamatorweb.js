@@ -1404,18 +1404,19 @@ function show_job(job_id, filter_serverity) {
 
             var current_serverity = $('#log_severity')[0].value;
             
-            
+            var options =  { "log-level": current_serverity,"show-tasklet-results":"false" }
             
             var show_tasklet_results = localStorage.getItem("show_tasklet_results");
             
             if (show_tasklet_results === "true"){
                 $("#show_tasklet_results")[0].checked=true;
+                options["show-tasklet-results"]="true"
             }
                 
             
             
             
-            client.jobs.read(job_id, { "log-level": current_serverity,"show-tasklet-results":show_tasklet_results }).done(function (data) {
+            client.jobs.read(job_id,options).done(function (data) {
 
 
                 $("#user_name").html(data['created_by_user_name']);
