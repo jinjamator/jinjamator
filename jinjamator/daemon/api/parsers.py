@@ -43,7 +43,7 @@ job_arguments.add_argument(
     type=str,
     required=False,
     default="DEBUG",
-    choices=["TASK_SUMMARY","TASKLET_RESULT", "INFO", "WARNING", "ERROR", "DEBUG"],
+    choices=["TASK_SUMMARY", "TASKLET_RESULT", "INFO", "WARNING", "ERROR", "DEBUG"],
     help="Set the upper loglevel limit for the log entries returned. Selection of TASK_SUMMARY will exclusivly return the last TASK_SUMMARY.",
 )
 
@@ -60,10 +60,9 @@ job_arguments.add_argument(
     type=str,
     required=False,
     default="false",
-    choices=["true","false"],
+    choices=["true", "false"],
     help="Include tasklet results in logs output.",
 )
-
 
 
 upload_parser = reqparse.RequestParser()

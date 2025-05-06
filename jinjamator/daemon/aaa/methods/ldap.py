@@ -1,10 +1,11 @@
 try:
     import ctypes
+
     ctypes.CDLL("libssl.so").OSSL_PROVIDER_load(None, b"legacy")
     ctypes.CDLL("libssl.so").OSSL_PROVIDER_load(None, b"default")
     import hashlib
 except:
-    pass 
+    pass
 
 from . import AuthProviderBase
 from jinjamator.daemon.aaa.models import (
@@ -70,16 +71,15 @@ class LDAPAuthProvider(AuthProviderBase):
 
     def login(self, request):
         try:
-            username = request.json.get("username","").lower()
+            username = request.json.get("username", "").lower()
             password = request.json.get("password")
         except Exception as e:
-            username = request.args.get("username","").lower()
+            username = request.args.get("username", "").lower()
             password = request.args.get("password")
-        if '\\' in username:
-            username=username.split('\\')[-1]
+        if "\\" in username:
+            username = username.split("\\")[-1]
         if "@" in username:
-            username=username.split('@')[0]
-
+            username = username.split("@")[0]
 
         if not username or not password:
             return {"message": "Invalid Request (did you send your data as json?)"}, 400
@@ -114,7 +114,9 @@ class LDAPAuthProvider(AuthProviderBase):
 
             except Exception as e:
                 log.error(e)
-                return {"message": "Unexpected authentication error, please contact your jinjamator administrator"}, 500
+                return {
+                    "message": "Unexpected authentication error, please contact your jinjamator administrator"
+                }, 500
 
             if not self._connection:
                 return {"message": "Authentication Backend not ready"}, 401
@@ -202,5 +204,3 @@ class LDAPAuthProvider(AuthProviderBase):
                 else:
                     log.debug(f"User {username} not in group {allowed_group}")
         return {"message": "Invalid Credentials"}, 401
-
-

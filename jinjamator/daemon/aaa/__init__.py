@@ -35,7 +35,6 @@ from .methods.authlib import AuthLibAuthProvider
 from .methods.local import LocalAuthProvider
 
 
-
 from datetime import datetime
 from calendar import timegm
 from flask import request
@@ -53,6 +52,7 @@ from copy import deepcopy
 import string
 
 import logging
+
 log = logging.getLogger()
 
 

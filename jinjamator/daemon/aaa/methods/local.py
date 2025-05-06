@@ -1,4 +1,5 @@
 import logging
+
 log = logging.getLogger()
 from jinjamator.daemon.aaa.models import (
     User,
@@ -10,6 +11,7 @@ from jinjamator.daemon.app import app
 from jinjamator.daemon.database import db
 
 from . import AuthProviderBase
+
 
 class LocalAuthProvider(AuthProviderBase):
     def __init__(self, app=None):

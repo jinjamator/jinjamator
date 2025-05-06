@@ -182,6 +182,7 @@ def discover_tasks(app):
                                     User.roles.any(JinjamatorRole.name == "tasks_all"),
                                     *recursive_roles,
                                 )
+
                             @api.doc(
                                 f"get_task_{task_info['path'].replace(os.path.sep,'_')}_schema"
                             )
@@ -194,8 +195,6 @@ def discover_tasks(app):
                                     }
                                 }
                             )
-
-
                             @require_role(role=calc_role())
                             def get(self):
                                 """
@@ -302,27 +301,26 @@ def discover_tasks(app):
                                 environment_site = args.get(
                                     "preload-defaults-from-site"
                                 )
-                                for k,v in deepcopy(data).items():
+                                for k, v in deepcopy(data).items():
                                     if v == "__redacted__":
                                         del data[k]
 
                                 # configuration=TaskConfiguration()
-                                
+
                                 # plugin_loader = ContentPluginLoader(None)
                                 # for content_plugin_dir in app.config["JINJAMATOR_FULL_CONFIGURATION"].get(
                                 #     "global_content_plugins_base_dirs", []
                                 # ):
                                 #     plugin_loader.load(f"{content_plugin_dir}")
 
-                                
-
                                 # configuration.merge_dict(data)
-                                task=JinjamatorTask()
-                                
-                                task.configuration.merge_dict(data)
-                                task._configuration.merge_dict(app.config["JINJAMATOR_FULL_CONFIGURATION"])
-                                task.load(relative_task_path)
+                                task = JinjamatorTask()
 
+                                task.configuration.merge_dict(data)
+                                task._configuration.merge_dict(
+                                    app.config["JINJAMATOR_FULL_CONFIGURATION"]
+                                )
+                                task.load(relative_task_path)
 
                                 if environment_site not in [None, "None", ""]:
                                     env_name, site_name = environment_site.split("/")
@@ -353,10 +351,8 @@ def discover_tasks(app):
                                     JinjamatorRole.name == "debugger"
                                 )
                                 logging.info(f"USER ROLE DEBUGGER: {allow_debugger}")
-                                
-                                
 
-                                data=task.configuration._data
+                                data = task.configuration._data
                                 del task
                                 job = run_jinjamator_task.apply_async(
                                     [
@@ -405,17 +401,22 @@ def discover_tasks(app):
                                         ]:
                                             db_result = db_job[0].to_dict()
                                             if "result" in db_result:
-                                                
+
                                                 result = db_result["result"]
-                                                
-                                                if "stdout" in result:    
+
+                                                if "stdout" in result:
                                                     try:
-                                                        retval=json.loads(result["stdout"])
+                                                        retval = json.loads(
+                                                            result["stdout"]
+                                                        )
                                                     except Exception as e:
                                                         log.error(result)
-                                                        return abort(500, f'error, cannot json serialize data: {str(result["stdout"])}')
-                                                    return jsonify( retval )
-                                                    
+                                                        return abort(
+                                                            500,
+                                                            f'error, cannot json serialize data: {str(result["stdout"])}',
+                                                        )
+                                                    return jsonify(retval)
+
                                                 else:
                                                     logging.error(
                                                         f"found no result in jobdata {db_result}"

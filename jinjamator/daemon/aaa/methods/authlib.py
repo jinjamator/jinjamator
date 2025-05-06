@@ -1,5 +1,6 @@
 from . import AuthProviderBase
 import logging
+
 log = logging.getLogger()
 from authlib.integrations.flask_client import OAuth, OAuthError
 from jinjamator.daemon.aaa.models import (
@@ -22,8 +23,6 @@ from jinjamator.daemon.database import db
 from datetime import datetime
 from calendar import timegm
 import string
-
-
 
 
 class AuthLibAuthProvider(AuthProviderBase):
@@ -139,4 +138,3 @@ class AuthLibAuthProvider(AuthProviderBase):
             )
         log.debug(f"generating new token for user_id: {self._user.id}")
         return self._user.generate_auth_token().access_token
-
