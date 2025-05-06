@@ -49,29 +49,29 @@ def send_config_set(
     enter_config_mode=True,
 ):
     """
-        Send configuration commands down the SSH channel.
-        config_commands is an iterable containing all of the configuration commands.
-        The commands will be executed one after the other.
-        Automatically exits/enters configuration mode.
-        :param config_commands: Multiple configuration commands to be sent to the device
-        :type config_commands: list or string
-        :param exit_config_mode: Determines whether or not to exit config mode after complete
-        :type exit_config_mode: bool
-        :param delay_factor: Factor to adjust delays
-        :type delay_factor: int
-        :param max_loops: Controls wait time in conjunction with delay_factor (default: 150)
-        :type max_loops: int
-        :param strip_prompt: Determines whether or not to strip the prompt
-        :type strip_prompt: bool
-        :param strip_command: Determines whether or not to strip the command
-        :type strip_command: bool
-        :param config_mode_command: The command to enter into config mode
-        :type config_mode_command: str
-        :param cmd_verify: Whether or not to verify command echo for each command in config_set
-        :type cmd_verify: bool
-        :param enter_config_mode: Do you enter config mode before sending config commands
-        :type exit_config_mode: bool
-        """
+    Send configuration commands down the SSH channel.
+    config_commands is an iterable containing all of the configuration commands.
+    The commands will be executed one after the other.
+    Automatically exits/enters configuration mode.
+    :param config_commands: Multiple configuration commands to be sent to the device
+    :type config_commands: list or string
+    :param exit_config_mode: Determines whether or not to exit config mode after complete
+    :type exit_config_mode: bool
+    :param delay_factor: Factor to adjust delays
+    :type delay_factor: int
+    :param max_loops: Controls wait time in conjunction with delay_factor (default: 150)
+    :type max_loops: int
+    :param strip_prompt: Determines whether or not to strip the prompt
+    :type strip_prompt: bool
+    :param strip_command: Determines whether or not to strip the command
+    :type strip_command: bool
+    :param config_mode_command: The command to enter into config mode
+    :type config_mode_command: str
+    :param cmd_verify: Whether or not to verify command echo for each command in config_set
+    :type cmd_verify: bool
+    :param enter_config_mode: Do you enter config mode before sending config commands
+    :type exit_config_mode: bool
+    """
 
     delay_factor = self.select_delay_factor(delay_factor)
     if config_commands is None:
@@ -162,7 +162,7 @@ class ssh(outputPluginBase):
         self.init_plugin_params()
 
         pass
-    
+
     @staticmethod
     def get_json_schema(configuration={}):
         form = tree()

@@ -7,6 +7,7 @@ import json
 import errno
 import tempfile
 
+
 class textfile(outputPluginBase):
     def addArguments(self):
         self._parent._parser.add_argument(
@@ -33,18 +34,19 @@ class textfile(outputPluginBase):
 
     def process(self, data, **kwargs):
         if self._parent._configuration.get("task_run_mode") == "background":
-                    self._parent.configuration["textfile_output_directory"] = os.path.join(
-                        self._parent._configuration.get(
-                            "jinjamator_user_directory", tempfile.gettempdir()
-                        ),
-                        "logs",
-                        self._parent._configuration.get("jinjamator_job_id"),
-                        "files",
-                    )
+            self._parent.configuration["textfile_output_directory"] = os.path.join(
+                self._parent._configuration.get(
+                    "jinjamator_user_directory", tempfile.gettempdir()
+                ),
+                "logs",
+                self._parent._configuration.get("jinjamator_job_id"),
+                "files",
+            )
 
         try:
             os.makedirs(
-                self._parent.configuration.get("textfile_output_directory", "./"), exist_ok=True
+                self._parent.configuration.get("textfile_output_directory", "./"),
+                exist_ok=True,
             )
         except OSError as e:
             if e.errno != errno.EEXIST:
@@ -62,11 +64,11 @@ class textfile(outputPluginBase):
         )
         dest = self._parent.configuration.get("textfile_output_path", generated_dest)
         if self._parent.configuration.get("textfile_file_suffix") == "json":
-            if not isinstance(data,str):
+            if not isinstance(data, str):
                 try:
-                    data=json.dumps(data,indent=2, sort_keys=True)
+                    data = json.dumps(data, indent=2, sort_keys=True)
                 except ValueError:
-                    data=json.dumps(data,indent=2, sort_keys=False)
+                    data = json.dumps(data, indent=2, sort_keys=False)
 
         with open(dest, "w") as fh:
             fh.write(data)
