@@ -43,16 +43,29 @@ job_arguments.add_argument(
     type=str,
     required=False,
     default="DEBUG",
-    choices=["TASKLET_RESULT", "INFO", "WARNING", "ERROR", "DEBUG"],
-    help="Set the upper loglevel limit for the log entries returned",
+    choices=["TASK_SUMMARY","TASKLET_RESULT", "INFO", "WARNING", "ERROR", "DEBUG"],
+    help="Set the upper loglevel limit for the log entries returned. Selection of TASK_SUMMARY will exclusivly return the last TASK_SUMMARY.",
 )
+
 job_arguments.add_argument(
     "logs-newer-than",
     type=inputs.datetime_from_iso8601,
     required=False,
     default="1970-01-01T00:00:00.0000",
-    help="get logs created > $logs-newer-than. Expected format is ISO8601. Eg.: 1970-01-01T00:00:00.0000",
+    help="Get logs created > $logs-newer-than. Expected format is ISO8601. Eg.: 1970-01-01T00:00:00.0000",
 )
+
+job_arguments.add_argument(
+    "show-tasklet-results",
+    type=str,
+    required=False,
+    default="false",
+    choices=["true","false"],
+    help="Include tasklet results in logs output.",
+)
+
+
+
 upload_parser = reqparse.RequestParser()
 upload_parser.add_argument("files", location="files", type=FileStorage, required=True)
 

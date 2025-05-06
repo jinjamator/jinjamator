@@ -811,268 +811,281 @@ function create_job(job_path, pre_defined_vars) {
         update_breadcrumb('Jobs', 'Create');
     }
 
-    
-
-
-    $.get("static/templates/main_content_section.html", function (data) {
+    sessionStorage.setItem("job_path",job_path)
+    $.get("/api/tasks/" + job_path + "/resources/html/form.html", function (data){
+        update_breadcrumb('Jobs', 'Create:  <b>' + job_path + '</b>');
         $(".all-content").html('<section class="content">' + data + '</section>');
-        $(".main-content-box").replaceWith(`
-        <div id="overlay">
-            <div class="cv-spinner">
-                <span class="spinner"></span>
-            </div>
-        </div>
-        <div id="form" class="jinjamator-task-wizard">
-        </div><script type="text/x-handlebars-template" id="ationbar">
-        {{#if options.hideActionBar}}
-        <div class="alpaca-array-actionbar alpaca-array-actionbar-{{actionbarStyle}} btn-group" data-alpaca-array-actionbar-parent-field-id="{{parentFieldId}}" data-alpaca-array-actionbar-field-id="{{fieldId}}" data-alpaca-array-actionbar-item-index="{{itemIndex}}">
-          {{#each actions}}
-          <button class="alpaca-array-actionbar-action {{../view.styles.smallButton}}" data-alpaca-array-actionbar-action="{{action}}">
-                  {{#if this.iconClass}}
-                  <i class="{{this.iconClass}}"></i>
-                  {{/if}}
-                  {{#if label}}{{{label}}}{{/if}}
-              </button> {{/each}}
-        </div>
-        {{/if}}
-      </script>`);
-
         $.ajax({
             url: "/api/tasks/" + job_path + "/resources/js/form.js",
             dataType: "script",
             error: function () { }
         });
 
-
-        client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(pre_defined_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function (data) {
-
-            $.extend(data['view']['wizard'], {
-                "buttons": {
-                    "next": {
-                        "click": function (e) {
-                            control = $('#form').alpaca('get');
-
-                            if ($('li.active[data-alpaca-wizard-step-index]')[0].getAttribute('data-alpaca-wizard-step-index') == 0) {
-                                defaults_step = $('[data-alpaca-wizard-role="step"]')[1];
-
-                                required_vars = {}
-                                $.each(data['view']['wizard']['bindings'], function (key, value) {
-                                    if (value == 1) {
-                                        required_vars[key] = $('[name="' + key + '"]').val();
-                                    }
-                                });
-                                client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(required_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() },).done(function (data) {
-
-
-                                    $.each(data['view']['wizard']['bindings'], function (key, value) {
-                                        if (value == 2) {
-                                            form_item = control.getControlByPath("/" + key);
-                                            if (form_item === undefined) {
-
-                                                control.createItem(key, data['schema']['properties'][key], data['options']['fields'][key], data['data'][key], 0, function (item) {
-                                                    control.registerChild(item, 1);
-                                                    defaults_step.append(item.containerItemEl[0]);
-
-
-                                                });
-
-                                            } else {
-                                                if(!(key in required_vars)){
-                                                    form_item.setValue(data['data'][key]);
-                                                    form_item.refresh();
-                                                }
-
+    }).fail(
+        function(){
+            $.get("static/templates/main_content_section.html", function (data) {
+                $(".all-content").html('<section class="content">' + data + '</section>');
+                $(".main-content-box").replaceWith(`
+                <div id="overlay">
+                    <div class="cv-spinner">
+                        <span class="spinner"></span>
+                    </div>
+                </div>
+                <div id="form" class="jinjamator-task-wizard">
+                </div><script type="text/x-handlebars-template" id="ationbar">
+                {{#if options.hideActionBar}}
+                <div class="alpaca-array-actionbar alpaca-array-actionbar-{{actionbarStyle}} btn-group" data-alpaca-array-actionbar-parent-field-id="{{parentFieldId}}" data-alpaca-array-actionbar-field-id="{{fieldId}}" data-alpaca-array-actionbar-item-index="{{itemIndex}}">
+                  {{#each actions}}
+                  <button class="alpaca-array-actionbar-action {{../view.styles.smallButton}}" data-alpaca-array-actionbar-action="{{action}}">
+                          {{#if this.iconClass}}
+                          <i class="{{this.iconClass}}"></i>
+                          {{/if}}
+                          {{#if label}}{{{label}}}{{/if}}
+                      </button> {{/each}}
+                </div>
+                {{/if}}
+              </script>`);
+        
+                $.ajax({
+                    url: "/api/tasks/" + job_path + "/resources/js/form.js",
+                    dataType: "script",
+                    error: function () { }
+                });
+        
+        
+                client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(pre_defined_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function (data) {
+        
+                    $.extend(data['view']['wizard'], {
+                        "buttons": {
+                            "next": {
+                                "click": function (e) {
+                                    control = $('#form').alpaca('get');
+        
+                                    if ($('li.active[data-alpaca-wizard-step-index]')[0].getAttribute('data-alpaca-wizard-step-index') == 0) {
+                                        defaults_step = $('[data-alpaca-wizard-role="step"]')[1];
+        
+                                        required_vars = {}
+                                        $.each(data['view']['wizard']['bindings'], function (key, value) {
+                                            if (value == 1) {
+                                                required_vars[key] = $('[name="' + key + '"]').val();
                                             }
-
+                                        });
+                                        client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(required_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() },).done(function (data) {
+        
+        
+                                            $.each(data['view']['wizard']['bindings'], function (key, value) {
+                                                if (value == 2) {
+                                                    form_item = control.getControlByPath("/" + key);
+                                                    if (form_item === undefined) {
+        
+                                                        control.createItem(key, data['schema']['properties'][key], data['options']['fields'][key], data['data'][key], 0, function (item) {
+                                                            control.registerChild(item, 1);
+                                                            defaults_step.append(item.containerItemEl[0]);
+        
+        
+                                                        });
+        
+                                                    } else {
+                                                        if(!(key in required_vars)){
+                                                            form_item.setValue(data['data'][key]);
+                                                            form_item.refresh();
+                                                        }
+        
+                                                    }
+        
+                                                }
+                                            });
+                                        });
+                                    }
+                                }
+                            },
+                            "submit": {
+                                "click": function () {
+        
+                                    client.opts['stringifyData'] = true;
+                                    url_data = { 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }
+                                    var data = this.getValue();
+        
+                                    var task = job_path;
+                                    delete data['task'];
+        
+                                    for (property in data['output_plugin_parameters']) {
+                                        data[property] = data['output_plugin_parameters'][property];
+                                    }
+        
+                                    for (property in data) {
+                                        if (property.startsWith('__no_vars_')) {
+                                            delete data[property];
                                         }
-                                    });
-                                });
-                            }
-                        }
-                    },
-                    "submit": {
-                        "click": function () {
-
-                            client.opts['stringifyData'] = true;
-                            url_data = { 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }
-                            var data = this.getValue();
-
-                            var task = job_path;
-                            delete data['task'];
-
-                            for (property in data['output_plugin_parameters']) {
-                                data[property] = data['output_plugin_parameters'][property];
-                            }
-
-                            for (property in data) {
-                                if (property.startsWith('__no_vars_')) {
-                                    delete data[property];
-                                }
-                                if (data[property] === null) {
-                                    delete data[property];
-                                }
-                            }
-
-                            delete data['output_plugin_parameters'];
-
-
-                            if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true) {
-
-                                $('#modal-submit').modal('show')
-                                $('#modal-submit ').find('.btn-ok').unbind('click')
-                                $('#modal-submit ').find('.btn-ok').on('click', function () {
-                                    client.tasks.create(job_path, data, url_data).done(function (data) {
-                                        $('#modal-submit').modal('hide');
+                                        if (data[property] === null) {
+                                            delete data[property];
+                                        }
+                                    }
+        
+                                    delete data['output_plugin_parameters'];
+        
+        
+                                    if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true) {
+        
+                                        $('#modal-submit').modal('show')
+                                        $('#modal-submit ').find('.btn-ok').unbind('click')
+                                        $('#modal-submit ').find('.btn-ok').on('click', function () {
+                                            client.tasks.create(job_path, data, url_data).done(function (data) {
+                                                $('#modal-submit').modal('hide');
+                                                wizard_overlay.fadeIn();
+                                                setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
+                                            });
+                                        })
+                                    }
+                                    else {
                                         wizard_overlay.fadeIn();
-                                        setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
-                                    });
-                                })
+                                        client.tasks.create(job_path, data, url_data).done(function (data) {
+                                            setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
+                                        });
+        
+                                    }
+        
+        
+        
+                                }
                             }
-                            else {
-                                wizard_overlay.fadeIn();
-                                client.tasks.create(job_path, data, url_data).done(function (data) {
-                                    setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
-                                });
-
-                            }
-
-
-
                         }
-                    }
-                }
-            });
-            data['options']['fields']['output_plugin']['onFieldChange'] = function (e) {
-
-
-                console.log("event,check", e)
-                if (e.hasOwnProperty('originalEvent')) {
-                    return true;
-                }
-                var control = $("#form").alpaca("get");
-                form_data = control.getValue();
-
-                output_plugin_parameters = control.getControlByPath("/output_plugin_parameters");
-                // console.log(output_plugin_parameters)
-                console.log(output_plugin_parameters)
-                $.each(output_plugin_parameters.children, function (key, value) {
-                    // console.log(0)
-                    // console.log(output_plugin_parameters.children[key].propertyId)
-                    if (typeof (output_plugin_parameters.children[0].propertyId) !== 'undefined') {
-                        output_plugin_parameters.removeItem(output_plugin_parameters.children[0].propertyId, function () { });
-                    }
-                });
-
-
-
-                client.plugins.output.read(this.getValue(e), {}, form_data).done(function (data) {
-                    // console.log(data)
-                    options = data['schema']['options'];
-                    schema = data['schema']['schema'];
-
-
-                    order = {}
-                    $.each(options.fields, function (key, value) {
-                        order[value.order] = key;
                     });
-
-                    $.each(order, function (index, var_name) {
-
-
-                        // data.properties[var_name] = data['schema']['properties'][var_name];
-                        // if (typeof(options) !== 'undefined') {
-                        //     if (typeof(options.fields.validator) !== 'undefined') {
-                        //         if (typeof(options.fields[var_name].validator) !== 'undefined') {
-                        //             options.fields[var_name].validator = new Function("return " + options.fields[var_name].validator.replace(/(\r\n|\n|\r)/gm, ""))();
-                        //         }
-                        //     }
-                        // };
-
-                        // console.log(output_plugin_parameters.children)
-                        output_plugin_parameters.addItem(var_name, schema.properties[var_name], options.fields[var_name], '', function (item) { });
-                    });
-                    console.log(output_plugin_parameters)
-                });
-
-
-
-
-
-            }
-            data.options['allowNull'] = true;
-
-
-            data['postRender'] = function (control) {
-                form_data = control.getValue();
-
-
-                if ('output_plugin' in form_data) {
-                    var output_plugin_name = form_data['output_plugin'];
-                } else {
-                    console.log('output_plugin undefined defaulting to console');
-                    var output_plugin_name = 'console';
-
-                }
-
-
-                client.plugins.output.read(output_plugin_name, {}, form_data).done(function (data) {
-                    var itemId = "output_plugin_parameters";
-                    var itemSchema = data['schema']['schema']
-                    var itemOptions = data['schema']['options']
-
-                    var insertAfterId = "output_plugin";
-                    output_plugin = $('[data-alpaca-field-name="output_plugin"]')[0];
-                    // console.dir(output_plugin)
-
-                    control.createItem(itemId, itemSchema, itemOptions, {}, '', function (item) {
-                        control.registerChild(item, 3);
-                        output_plugin.parentNode.append(item.containerItemEl[0]);
-
-                    });
-
-                });
-
-
-                if ('post_render' in data) {
-                    // console.log(data['post_render'])
-                    window[data['post_render']](control)
-                }
-            };
-            var step_counter = [0, 0, 0]
-            $.each(data['view']['wizard']['bindings'], function (key, value) {
-                step_counter[value - 1]++;
-            });
-            step_counter.forEach(function (value, index, array) {
-                if (value == 0) {
-                    var step = index + 1;
-                    data['schema']['properties']['__no_vars_' + step] = {
-                        'required': false,
-                        'title': 'No variables',
-                        'type': "string",
-                        'readonly': true
+                    data['options']['fields']['output_plugin']['onFieldChange'] = function (e) {
+        
+        
+                        console.log("event,check", e)
+                        if (e.hasOwnProperty('originalEvent')) {
+                            return true;
+                        }
+                        var control = $("#form").alpaca("get");
+                        form_data = control.getValue();
+        
+                        output_plugin_parameters = control.getControlByPath("/output_plugin_parameters");
+                        // console.log(output_plugin_parameters)
+                        console.log(output_plugin_parameters)
+                        $.each(output_plugin_parameters.children, function (key, value) {
+                            // console.log(0)
+                            // console.log(output_plugin_parameters.children[key].propertyId)
+                            if (typeof (output_plugin_parameters.children[0].propertyId) !== 'undefined') {
+                                output_plugin_parameters.removeItem(output_plugin_parameters.children[0].propertyId, function () { });
+                            }
+                        });
+        
+        
+        
+                        client.plugins.output.read(this.getValue(e), {}, form_data).done(function (data) {
+                            // console.log(data)
+                            options = data['schema']['options'];
+                            schema = data['schema']['schema'];
+        
+        
+                            order = {}
+                            $.each(options.fields, function (key, value) {
+                                order[value.order] = key;
+                            });
+        
+                            $.each(order, function (index, var_name) {
+        
+        
+                                // data.properties[var_name] = data['schema']['properties'][var_name];
+                                // if (typeof(options) !== 'undefined') {
+                                //     if (typeof(options.fields.validator) !== 'undefined') {
+                                //         if (typeof(options.fields[var_name].validator) !== 'undefined') {
+                                //             options.fields[var_name].validator = new Function("return " + options.fields[var_name].validator.replace(/(\r\n|\n|\r)/gm, ""))();
+                                //         }
+                                //     }
+                                // };
+        
+                                // console.log(output_plugin_parameters.children)
+                                output_plugin_parameters.addItem(var_name, schema.properties[var_name], options.fields[var_name], '', function (item) { });
+                            });
+                            console.log(output_plugin_parameters)
+                        });
+        
+        
+        
+        
+        
                     }
-                    data['view']['wizard']['bindings']['__no_vars_' + step] = step
-
-                }
+                    data.options['allowNull'] = true;
+        
+        
+                    data['postRender'] = function (control) {
+                        form_data = control.getValue();
+        
+        
+                        if ('output_plugin' in form_data) {
+                            var output_plugin_name = form_data['output_plugin'];
+                        } else {
+                            console.log('output_plugin undefined defaulting to console');
+                            var output_plugin_name = 'console';
+        
+                        }
+        
+        
+                        client.plugins.output.read(output_plugin_name, {}, form_data).done(function (data) {
+                            var itemId = "output_plugin_parameters";
+                            var itemSchema = data['schema']['schema']
+                            var itemOptions = data['schema']['options']
+        
+                            var insertAfterId = "output_plugin";
+                            output_plugin = $('[data-alpaca-field-name="output_plugin"]')[0];
+                            // console.dir(output_plugin)
+        
+                            control.createItem(itemId, itemSchema, itemOptions, {}, '', function (item) {
+                                control.registerChild(item, 3);
+                                output_plugin.parentNode.append(item.containerItemEl[0]);
+        
+                            });
+        
+                        });
+        
+        
+                        if ('post_render' in data) {
+                            // console.log(data['post_render'])
+                            window[data['post_render']](control)
+                        }
+                    };
+                    var step_counter = [0, 0, 0]
+                    $.each(data['view']['wizard']['bindings'], function (key, value) {
+                        step_counter[value - 1]++;
+                    });
+                    step_counter.forEach(function (value, index, array) {
+                        if (value == 0) {
+                            var step = index + 1;
+                            data['schema']['properties']['__no_vars_' + step] = {
+                                'required': false,
+                                'title': 'No variables',
+                                'type': "string",
+                                'readonly': true
+                            }
+                            data['view']['wizard']['bindings']['__no_vars_' + step] = step
+        
+                        }
+                    });
+        
+        
+        
+                    $("#form").alpaca(data);
+        
+        
+        
+        
+        
+                    $('.main-content-box-title').remove();
+                    $('.main-section').removeClass('hidden');
+                });
+        
+        
+        
+        
+        
             });
+        }
+    )
 
 
-
-            $("#form").alpaca(data);
-
-
-
-
-
-            $('.main-content-box-title').remove();
-            $('.main-section').removeClass('hidden');
-        });
-
-
-
-
-
-    });
 
 }
 
@@ -1209,10 +1222,15 @@ function set_timeline_loglevel() {
     show_job(job_id, $('#log_severity')[0].value)
 }
 
+function toggle_timeline_show_tasklet_results() {
+    localStorage.setItem("show_tasklet_results",String($("#show_tasklet_results")[0].checked))
+    set_timeline_loglevel();
+}
 
 function update_timeline(job_id, table) {
     // client.jobs.read(job_id).done(function (data) {
     var state = $('#job_status').html()
+    
     if ($('#job_id').length > 0) {
         if (state != "FAILURE" && state != "SUCCESS") {
             var current_serverity = $('#log_severity')[0].value
@@ -1222,7 +1240,8 @@ function update_timeline(job_id, table) {
             if (last_timestamp_rendered) {
                 options["logs-newer-than"] = last_timestamp_rendered;
             }
-            // console.log(last_timestamp_rendered)
+            options["show-tasklet-results"]=localStorage.getItem("show_tasklet_results");
+
 
             client.jobs.read(job_id, {}, options).done(function (data) {
                 render_logs(data)
@@ -1290,7 +1309,8 @@ function render_logs(data) {
             $('<br>').appendTo('#job_files');
         });
     }
-
+    
+    update_summary_text=false;
     $.each(data['log'], function (index, log_item) {
         var timestamp = Object.keys(log_item)[0];
         var message = log_item[timestamp]['message']
@@ -1300,11 +1320,15 @@ function render_logs(data) {
         var tasklet = log_item[timestamp]['current_tasklet']
         var serverity = log_item[timestamp]['level']
 
+        
+        if (serverity == "TASK_SUMMARY"){
+            update_summary_text=message
+        }
+        else{
+            $('#log_table').DataTable().row.add([timestamp, tasklet, serverity, log_item[timestamp]['configuration'],message]);
 
-
-
-        $('#log_table').DataTable().row.add([timestamp, tasklet, serverity, log_item[timestamp]['configuration'],message]);
-
+        }
+        
         // row_html = '<tr><td nowrap width="1%">' + timestamp +
         //     '</td><td nowrap width="1%" class="jinjamator_log_tasklet"><span class="tasklet_path_block">' + tasklet_short +
         //     '</span><span class="tasklet_path_none">' + tasklet +
@@ -1321,6 +1345,11 @@ function render_logs(data) {
 
 
     })
+    
+    if (update_summary_text){
+                $('#jm_result_summary')[0].innerText=update_summary_text
+    }
+
     $('#log_table').DataTable().draw(false);
 
     // $('#log_table').DataTable({
@@ -1373,12 +1402,21 @@ function show_job(job_id, filter_serverity) {
                 $('#log_severity').val(filter_serverity);
             }
 
-            var current_serverity = $('#log_severity')[0].value
+            var current_serverity = $('#log_severity')[0].value;
+            
+            
+            
+            var show_tasklet_results = localStorage.getItem("show_tasklet_results");
+            
+            if (show_tasklet_results === "true"){
+                $("#show_tasklet_results")[0].checked=true;
+            }
+                
+            
+            
+            
+            client.jobs.read(job_id, { "log-level": current_serverity,"show-tasklet-results":show_tasklet_results }).done(function (data) {
 
-
-
-
-            client.jobs.read(job_id, { "log-level": current_serverity }).done(function (data) {
 
                 $("#user_name").html(data['created_by_user_name']);
                 if ("debugger_password" in data) {
@@ -1401,7 +1439,7 @@ function show_job(job_id, filter_serverity) {
                     //     {
                     //         text: 'Create Role',
                     //         action: function (e, dt, node, config) {
-                    //             create_role();
+                    //             alert('fa');
                     //         }
                     //     }
                     // ],
@@ -1450,6 +1488,11 @@ function show_job(job_id, filter_serverity) {
                                     case 'TASKLET_RESULT':
                                         serverity_classes = 'badge bg-green';
                                         break;
+                                    case 'TASK_SUMMARY':
+                                        serverity_classes = 'badge bg-green';
+                                        break;
+    
+                                        
                                     case 'CONSOLE':
                                         serverity_classes = 'badge bg-black';
                                         break;

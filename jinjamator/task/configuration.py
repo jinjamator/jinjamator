@@ -206,13 +206,22 @@ class TaskConfiguration(object):
                             parsed_raw_data[k] = v
                     backup_data={}
                     if self._plugin_loader._parent:
-                        data_backup = deepcopy(
-                            self._plugin_loader._parent.configuration._data
-                        )
-                        self._plugin_loader._parent.configuration._data = {
-                            **self._plugin_loader._parent.configuration._data,
-                            **parsed_raw_data,
-                        }
+                        try:
+                            data_backup = deepcopy(
+                                self._plugin_loader._parent.configuration._data
+                            )
+                            self._plugin_loader._parent.configuration._data = {
+                                **self._plugin_loader._parent.configuration._data,
+                                **parsed_raw_data,
+                            }
+                        except AttributeError:
+                            data_backup = deepcopy(
+                                self._plugin_loader._parent.configuration
+                            )
+                            self._plugin_loader._parent.configuration = {
+                                **self._plugin_loader._parent.configuration,
+                                **parsed_raw_data,
+                            }
 
                     environment = jinja2.Environment(extensions=["jinja2.ext.do"])
 
