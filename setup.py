@@ -48,5 +48,6 @@ setuptools.setup(
 )
 
 from setuptools_git_versioning import version_from_git
+  
 with open(version_file,"w") as fh:
     fh.write(version_from_git())
