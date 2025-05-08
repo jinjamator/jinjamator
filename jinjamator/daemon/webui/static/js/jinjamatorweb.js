@@ -1347,7 +1347,11 @@ function render_logs(data) {
     })
     
     if (update_summary_text){
-                $('#jm_result_summary')[0].innerText=update_summary_text
+                $('#jm_result_summary')[0].innerHTML=update_summary_text
+                if ($('#jm_result_summary_script').length == 1){
+                    window.eval($('#jm_result_summary_script')[0].innerText);
+                }
+                
     }
 
     $('#log_table').DataTable().draw(false);

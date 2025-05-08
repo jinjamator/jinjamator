@@ -13,8 +13,23 @@
 # limitations under the License.
 
 import logging
+import os
+from html.parser import HTMLParser
 
 l = logging.getLogger("")
+
+class HTMLTagRemover(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.result = []
+
+    def handle_data(self, data):
+        if self.lasttag not in ["script"]:
+            self.result.append(data)
+
+    def get_text(self):
+        return ''.join(self.result)
+
 
 
 def info(message):
@@ -51,5 +66,24 @@ def console(message):
     print(message)
     l.debug(f"console log: {message}")
 
-def summary(message):
+
+
+def summary(message, **kwargs):
+    filename=kwargs.get("create_file")
+    
+    if isinstance(filename,bool):
+        if filename:
+            filename="results_summary.txt"
+    if filename:
+        textfile_output_directory = os.path.join(_jinjamator._configuration.get("jinjamator_user_directory"),"logs", _jinjamator._configuration.get("jinjamator_job_id"),"files")
+        log.debug(f"saving summary to {textfile_output_directory}")
+        os.makedirs(textfile_output_directory, exist_ok=True)
+        if not kwargs.get("keep_tags"):
+            remover = HTMLTagRemover()
+            remover.feed(message)
+            txt_msg=remover.get_text()
+        else:
+            txt_msg=message
+        file.save(txt_msg, f"{textfile_output_directory}{os.path.sep}{filename}")
+
     l.summary(message)
