@@ -18,6 +18,13 @@ from jinjamator.task import JinjamatorTask
 import logging
 
 
+
+def simple_run(path, task_data=False, **kwargs):
+    if "output_plugin" not in kwargs:
+        kwargs["output_plugin"]="null"
+    return run(path, task_data, **kwargs)[0]["result"]
+
+
 def run(path, task_data=False, **kwargs):
     """calls another jinjamator task"""
 
