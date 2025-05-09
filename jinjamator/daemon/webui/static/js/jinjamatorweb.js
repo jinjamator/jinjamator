@@ -1295,6 +1295,7 @@ function set_jinjamator_version() {
 
 function render_logs(data) {
     $('#job_status').html(data['state']);
+    $('#job_status').removeClass();
     $('#job_status').addClass("badge");
     $('#job_status').addClass(badge_color_from_state(data['state']));
 
