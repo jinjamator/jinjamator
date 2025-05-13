@@ -920,6 +920,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
             except Exception as e:
                 self._output_plugin_error=True
+                
                 error_text=self.parse_exception(e,tasklet)
                 results.append(
                     {
@@ -930,6 +931,9 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
                         "skipped": [],
                     }
                 )
+                self._log.error("Output Plugin failed: " + error_text)
+                if not self.configuration.get("best_effort"):
+                    raise TaskletFailed(results,f"Output Plugin {self._configuration["output_plugin"]} failed and best_effort is not set -> Task failed")
 
 
             to_process.pop(0)
