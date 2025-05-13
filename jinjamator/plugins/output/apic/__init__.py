@@ -318,28 +318,44 @@ class apic(outputPluginBase):
         for item in data["imdata"]:
 
             success_log = ""
+            error_summary = ""
+            success_summary = ""
+
+            if item.get("success_log"):
+                success_log = item.get("success_log")
+                del item["success_log"]
+            if item.get("error_task_summary"):
+                error_summary=item["error_task_summary"]
+                del item["error_task_summary"]
+            if item.get("success_task_summary"):
+                success_summary=item["success_task_summary"]
+                del item["success_task_summary"]
+
+            self._log.debug(item)
 
             try:
                 dn = item[list(item.keys())[0]]["attributes"]["dn"]
-                if item.get("success_log"):
-                    success_log = item.get("success_log")
-                    del item["success_log"]
-                else:
+                if not success_log:
                     success_log = f"Successfully sent config for dn {dn} to APIC"
                 self.check_acl(item)
             except IndexError:
                 continue
+           
+            
+
             resp = self.apic_session.push_to_apic(
                 "/api/node/mo/{0}.json".format(dn), item, timeout=None
             )
             if not resp.ok:
                 self._log.error("POST request failed: {0}".format(pformat(resp.text)))
-                self._log.debug(pformat(item))
+                self._log.summary(error_summary.replace("###APIC_ERROR_MESSAGE###",pformat(resp.text)))
                 if "best_effort" in self._parent.configuration._data.keys():
                     return True
                 raise processError
 
             else:
                 self._log.info(success_log)
+                if success_summary:
+                    self._log.summary(success_summary.replace("###APIC_SUCCESS_MESSAGE###",pformat(resp.text)))
                 self._log.debug(json.dumps(item, indent=2))
         return True
