@@ -36,9 +36,18 @@ def load(path, **kwargs):
     xlsx = XLSXReader(
         path, kwargs.get("work_sheet_name", "Sheet1"), kwargs.get("cache", True)
     )
+    if kwargs.get("all_sheets") == True:
+        del kwargs["all_sheets"]
+        retval={}
+        log.debug(f"loading all sheets {xlsx.get_worksheets()} from {path}")
+        for ws_name in xlsx.get_worksheets():
+            retval["ws_name"]=load(path,work_sheet_name=ws_name,**kwargs)
+        return retval
+    
     xlsx.parse_header(kwargs.get("header_lines", 1))
     xlsx.parse_data()
     return xlsx.data
+
 
 
 def save(data, destination_path, **kwargs):
