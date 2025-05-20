@@ -71,7 +71,7 @@ def autoindex(path='.'):
 @webui.route('/downloads/public')
 @webui.route('/downloads/public/<path:path>')
 def public_autoindex(path='.'):
-    configuration_directory=app.config["JINJAMATOR_USER_DIRECTORY"] + os.path.sep + "downloads" + os.path.sep + "public"
+    configuration_directory=app.config["JINJAMATOR_USER_DIRECTORY"] + os.path.sep + "downloads" 
     if os.path.isdir(configuration_directory):
-        return download_index.render_autoindex(path, browse_root=configuration_directory)
-    abort(404, description="Public Downloads directory not found.")
+        return download_index.render_autoindex("public/" + path, browse_root=configuration_directory)
+    abort(404, description="Public downloads directory not found.")
