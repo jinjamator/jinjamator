@@ -17,7 +17,7 @@ from flask import send_from_directory, Blueprint
 import logging
 from jinjamator.daemon.aaa import aaa_providers
 
-webui = Blueprint("webui", __name__, url_prefix="/")
+webui = Blueprint("webui", __name__, url_prefix="/", template_folder=os.path.sep.join([os.path.dirname(__file__), "static","templates"]))
 log = logging.getLogger()
 
 from flask_autoindex import AutoIndex
@@ -27,8 +27,6 @@ from jinjamator.daemon.aaa import require_role
 
 
 download_index = AutoIndex(webui, browse_root="/dev/null", add_url_rules=False)
-
-
 
 @webui.route("/index.html", methods=["GET"])
 @webui.route("/", methods=["GET"])
@@ -64,7 +62,7 @@ def autoindex_authentication(endpoint, values):
 def autoindex(path='.'):
     configuration_directory=app.config["JINJAMATOR_USER_DIRECTORY"] + os.path.sep + "downloads"
     if os.path.isdir(configuration_directory):
-        return download_index.render_autoindex(path, browse_root=configuration_directory)
+        return download_index.render_autoindex(path, browse_root=configuration_directory,template="downloads.html")
     abort(404, description="Downloads directory not found.")
 
 
@@ -73,5 +71,5 @@ def autoindex(path='.'):
 def public_autoindex(path='.'):
     configuration_directory=app.config["JINJAMATOR_USER_DIRECTORY"] + os.path.sep + "downloads" 
     if os.path.isdir(configuration_directory):
-        return download_index.render_autoindex("public/" + path, browse_root=configuration_directory)
+        return download_index.render_autoindex("public/" + path, browse_root=configuration_directory,template="downloads.html")
     abort(404, description="Public downloads directory not found.")
