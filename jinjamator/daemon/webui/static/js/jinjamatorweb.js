@@ -1240,7 +1240,11 @@ function update_timeline(job_id, table) {
             if (last_timestamp_rendered) {
                 options["logs-newer-than"] = last_timestamp_rendered;
             }
+            if (localStorage.getItem("show_tasklet_results") == null){
+                localStorage.show_tasklet_results="false"
+            }
             options["show-tasklet-results"]=localStorage.getItem("show_tasklet_results");
+            
 
 
             client.jobs.read(job_id, {}, options).done(function (data) {
