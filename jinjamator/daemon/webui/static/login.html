@@ -84,6 +84,11 @@
     <!-- iCheck -->
     <script src="/static/js/icheck.min.js"></script>
     <script>
+        
+        var params = new URLSearchParams(window.location.search);
+        if (params.has("error_message")){
+            alert(params.get("error_message"))
+        }
         const serialize_form = form => JSON.stringify(
                 Array.from(new FormData(form).entries())
                 .reduce((m, [key, value]) => Object.assign(m, {
@@ -105,7 +110,13 @@
                         access_token = response.access_token.split(' ')[1]
                         sessionStorage.setItem('logged_in_username', $("input[name=username]").val());
                         sessionStorage.setItem('access_token', access_token);
-                        window.location.replace("/")
+                        
+                        if (params.has("redirect_to")){
+                            dest_url=params.get("redirect_to") + "/?access_token="+access_token
+                            window.location.replace(dest_url)
+                        }
+                        else
+                            window.location.replace("/")
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
                         if (xhr.status == 401) {

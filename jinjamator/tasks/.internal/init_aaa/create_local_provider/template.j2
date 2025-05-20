@@ -15,6 +15,7 @@ static_roles:
     - name: role_administration
     - name: user_administration
     - name: debugger
+    - name: downloads
 # static roles by environment
 {% set prefix= 'JINJAMATOR_AAA_' + provider_name.upper() + '_STATIC_ROLE_' %}
 {% for var in os.environ() %}

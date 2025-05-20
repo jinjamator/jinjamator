@@ -37,7 +37,7 @@ from .methods.local import LocalAuthProvider
 
 from datetime import datetime
 from calendar import timegm
-from flask import request
+from flask import request, redirect
 import json
 
 from jwt import InvalidSignatureError, ExpiredSignatureError
@@ -236,13 +236,17 @@ def require_role(role=None, permit_self=False):
                         f"Elevated privileges required, user neither has role {role} nor administrator",
                     )
                 else:
-                    abort(401, "Token invalid, please reauthenticate")
+                    return redirect(f"/login.html?error_message='Authentication invalid, please reauthenticate'&redirect_to={request.path}",code=302)
+            elif token_type==None:
+                
+                return redirect(f"/login.html?redirect_to={request.path}",code=302)
+
             else:
                 abort(400, "Invalid Authorization Header Token Type")
 
             abort(
                 403,
-                "Authorization required, no Authorization Data found (Header,POST,GET",
+                "Authorization required, no Authorization Data found (Header,POST,GET)",
             )
 
         return aaa_check_role
