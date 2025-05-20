@@ -41,7 +41,7 @@ def generate_debugger_pw(pw_len) :
     return OTP
 
 @celery.task(bind=True)
-def run_jinjamator_task(self, path, data, output_plugin, user_id, debugger_cfg={}):
+def run_jinjamator_task(self, path, data, output_plugin, user_id, username, debugger_cfg={}):
     """
     Jinjamator Celery Task runner.
     """
@@ -107,7 +107,7 @@ def run_jinjamator_task(self, path, data, output_plugin, user_id, debugger_cfg={
     task._configuration._data["jinjamator_job_id"] = self.request.id
     task._configuration._data["root_task_path"]=path
     task._configuration._data["created_by_user_id"]=user_id
-    
+    task._configuration._data["created_by_username"]=username
     
 
     task._scheduler = self

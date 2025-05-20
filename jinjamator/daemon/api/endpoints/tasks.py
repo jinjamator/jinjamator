@@ -360,6 +360,7 @@ def discover_tasks(app):
                                         data,
                                         data.get("output_plugin", "console"),
                                         user_id,
+                                        g._user["username"],
                                         {"enabled": True},
                                     ],
                                     task_id=job_id,
