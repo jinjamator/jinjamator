@@ -49,8 +49,8 @@ def login():
 
 
 
-@webui.route('/static/downloads')
-@webui.route('/static/downloads/<path:path>')
+@webui.route('/downloads')
+@webui.route('/downloads/<path:path>')
 def autoindex(path='.'):
     configuration_directory=app.config["JINJAMATOR_USER_DIRECTORY"] + os.path.sep + "downloads"
     if os.path.isdir(configuration_directory):
