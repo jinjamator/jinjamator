@@ -52,3 +52,4 @@ ansible-runner
 setuptools_git_versioning
 colorama
 str2bool3
+Flask-AutoIndex==0.6.6
