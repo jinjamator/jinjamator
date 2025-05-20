@@ -73,24 +73,42 @@
 <head>
   <meta charset="utf-8" />
   <title>Index of {{ curdir.path }}</title>
+
+    <link rel="stylesheet" href="/static/css/fonts.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="/static/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/static/css/AdminLTE.min.css">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="/static/css/iCheck/square/blue.css">
   {% block meta %}
     <link rel="stylesheet" type="text/css"
       href="{{ url_for('__autoindex__.static', filename='autoindex.css') }}" />
   {% endblock %}
 </head>
-<body>
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="/index.html"><b>Jinjamator</b>Web</a> 
+        </div>
+    </div>
   {% block header %}{% endblock %}
   {% block table %}
+    <div style="margin-left: 20px;margin-right: 20px;">
     <table>
       <thead>
         {{ thead() }}
-        {% if not curdir.is_root() %}
+        
           <tr>
             <td class="breadcrumb" colspan="4">
-              <h1>{{ breadcrumb(curdir) }}</h1>
+              <h1>{% if not curdir.is_root() %}{{ breadcrumb(curdir) }}{% endif %}<div style="float: right;"><a href="/index.html">Go to Jinjamator WebUI</a></div></h1>
             </td>
+            
           </tr>
-        {% endif %}
+        
       </thead>
       <tbody>
         {% for ent in entries %}
@@ -98,11 +116,15 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   {% endblock %}
   {% block footer %}
-    {% set env = request.environ %}
+  
+  {% set env = request.environ %}
     <address>
       Jinjamator at {{ env.HTTP_HOST }}
+    </address>
   {% endblock %}
+  
 </body>
 </html>
