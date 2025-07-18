@@ -37,7 +37,7 @@ from pprint import pformat
 from celery.schedules import crontab
 
 import os, sys
-
+import pytz
 
 import logging
 import importlib
@@ -229,6 +229,7 @@ def configure(flask_app, _configuration):
         with open(os.path.sep.join(tmp)) as fh:
             version = fh.read()
     flask_app.config["JINJAMATOR_VERSION"] = version
+    flask_app.config["JINJAMATOR_TIMEZONE"] = pytz.timezone(_configuration.get("celery_beat_timezone", "UTC"))
 
     log.info("Starting jinjamator version: " + flask_app.config["JINJAMATOR_VERSION"])
 

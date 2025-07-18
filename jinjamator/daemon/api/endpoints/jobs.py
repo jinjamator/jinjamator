@@ -34,6 +34,8 @@ import json
 from glob import glob
 from uuid import UUID
 
+import pytz
+
 log = logging.getLogger()
 
 ns = api.namespace("jobs", description="Operations related to jinjamator jobs")
@@ -56,7 +58,6 @@ class JobCollection(Resource):
         """
         response = []
         user_roles = [role["name"] for role in g._user["roles"]]
-
         try:
             rs = db.session.execute(
                 select(
@@ -75,7 +76,7 @@ class JobCollection(Resource):
         except exc.SQLAlchemyError as e:
             log.error(e)
             return response
-
+        utc=pytz.timezone("UTC")
         for job in rs.fetchall():
             user = User.query.filter(User.id == int(job.created_by_user_id)).first()
 
@@ -89,16 +90,21 @@ class JobCollection(Resource):
             for role in user_roles:
                 if f"task_{str(job.jinjamator_task)}".startswith(role):
                     allowed = True
+
+     
             if allowed:
+                
+
+
                 response.append(
                     {
                         "job": {
                             "number": str(job.id),
                             "id": str(job.task_id),
                             "state": str(job.status),
-                            "date_done": str(job.date_done),
-                            "date_start": str(job.date_start),
-                            "date_scheduled": str(job.date_scheduled),
+                            "date_done": str(utc.localize(job.date_done).astimezone(app.config["JINJAMATOR_TIMEZONE"])),
+                            "date_start": str(utc.localize(job.date_start).astimezone(app.config["JINJAMATOR_TIMEZONE"])),
+                            "date_scheduled": str(utc.localize(job.date_scheduled).astimezone(app.config["JINJAMATOR_TIMEZONE"])),
                             "task": str(job.jinjamator_task),
                             "created_by_user_id": int(job.created_by_user_id),
                             "created_by_user_name": username,
