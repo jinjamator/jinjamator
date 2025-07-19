@@ -79,6 +79,8 @@ class JobCollection(Resource):
         utc=pytz.timezone("UTC")
         for job in rs.fetchall():
             user = User.query.filter(User.id == int(job.created_by_user_id)).first()
+            
+            
 
             if user:
                 username = str(user.username)
@@ -94,7 +96,10 @@ class JobCollection(Resource):
      
             if allowed:
                 
-
+                job_log=db.session.query(JobLog).filter(JobLog.task_id == job.task_id).limit(1).first()            
+                ticket_number=""
+                if job_log:
+                    ticket_number=json.loads(job_log.configuration).get("ticket_number","")
 
                 response.append(
                     {
@@ -108,6 +113,7 @@ class JobCollection(Resource):
                             "task": str(job.jinjamator_task),
                             "created_by_user_id": int(job.created_by_user_id),
                             "created_by_user_name": username,
+                            "ticket_number": ticket_number,
                         }
                     }
                 )

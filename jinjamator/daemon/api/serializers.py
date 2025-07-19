@@ -92,6 +92,11 @@ job_brief = api.model(
                         required=True,
                         description="Username of User which created the job",
                     ),
+                    "ticket_number": fields.String(
+                        required=True,
+                        description="ticket_number if exists in job configuration",
+                    ),
+                    
                 },
             )
         )

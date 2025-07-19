@@ -1168,13 +1168,17 @@ function list_jobs() {
                     <th>Start</th>\
                     <th>End</th>\
                     <th>ID</th>\
+                    <th>Ticket#</th>\
                     <th>Task</th>\
                     <th width="1%">Status</th>\
                 </tr>\
                 </thead>'
         $.each(data, function (i, item) {
             $.each(data[i], function (j, obj) {
-
+                if (obj.ticket_number == "") {
+                    obj.ticket_number="<center>n/a</center>"
+                }
+    
                 badge_color = badge_color_from_state(obj.state);
                 table_data += '<tr><td width="1%">' + obj.number + '</td>\
                 <td width="10%">' + obj.created_by_user_name + '</td>\
@@ -1182,6 +1186,7 @@ function list_jobs() {
                 <td width="10%">' + obj.date_start.split('.')[0] + '</td>\
                 <td width="10%">' + obj.date_done.split('.')[0] + '</td>\
                 <td width="17%">' + obj.id + '</td>\
+                <td width="5%">' + obj.ticket_number + '</td>\
                 <td>' + obj.task + '</td>\
                 <td width="1%"><span class="badge ' + badge_color + '">' + obj.state + '</span></td></tr>'
             })
