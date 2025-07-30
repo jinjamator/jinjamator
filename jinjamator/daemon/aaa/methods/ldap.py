@@ -87,23 +87,35 @@ class LDAPAuthProvider(AuthProviderBase):
         for server_obj in self._configuration.get("servers", []):
             try:
                 self._server = ldap3.Server(
-                    server_obj.get("name", "<not configured>"),
+                    server_obj.get("name", "<name not configured>"),
                     get_info=ldap3.ALL,
                     port=server_obj.get("port", 636),
                     use_ssl=server_obj.get("ssl", True),
+                    
                 )
-                self._connection = ldap3.Connection(
-                    self._server,
-                    user=f"{self._configuration.get('domain','not_configured')}\\{username}",
-                    password=password,
-                    authentication="NTLM",
-                    auto_bind=True,
-                )
+                if server_obj.get("ssl", True):
+                    self._connection = ldap3.Connection(
+                        self._server,
+                        user=f"{self._configuration.get('domain','domain_not_configured')}\\{username}",
+                        password=password,
+                        authentication="NTLM",
+                        auto_bind=True,
+                        channel_binding=ldap3.TLS_CHANNEL_BINDING                        
+                    )
+                else:
+                    self._connection = ldap3.Connection(
+                        self._server,
+                        user=f"{self._configuration.get('domain','domain_not_configured')}\\{username}",
+                        password=password,
+                        authentication="NTLM",
+                        auto_bind=True,
+                    )                    
 
             except ldap3.core.exceptions.LDAPSocketOpenError as e:
                 log.error(
-                    f"Connection Error: {server_obj.get('name ','<not configured>')} not reachable"
+                    f"Connection Error: {server_obj.get('name ','<name not configured>')} not reachable"
                 )
+                log.debug(e)
                 continue
 
             except ldap3.core.exceptions.LDAPBindError as e:
