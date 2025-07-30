@@ -46,7 +46,7 @@ six
 pyvmomi < 8.0.3
 coloredlogs
 openai==1.55.1
-ldap3
+ldap3-dev
 testresources
 ansible-runner
 setuptools_git_versioning
