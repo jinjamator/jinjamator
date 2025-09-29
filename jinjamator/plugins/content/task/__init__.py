@@ -90,3 +90,6 @@ def run(path, task_data=False, **kwargs):
 
 def directory():
     return _jinjamator._configuration.get("taskdir", None)
+
+def dir():
+    return directory()
