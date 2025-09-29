@@ -15,6 +15,8 @@
 from jinjamator.tools.xlsx_tools import XLSXReader, XLSXWriter
 import os
 import logging
+import jinjamator.plugins.content.file.csv as csv
+
 
 log = logging.getLogger()
 
@@ -92,7 +94,9 @@ def to_csv(src_path, target_path=None, **kwargs):
     """
 
     data = [v for k, v in load(src_path, cache=False).items()]
-    file.csv.save(data, target_path)
+    # file.csv.save(data, target_path)
+    #Workaround because it does not work via file
+    csv.save(data, target_path)
     return True
 
 
@@ -141,7 +145,8 @@ def to_csv_ws(src_path, target_path=None, **kwargs):
             ]
             tfn = f"{file.strip_suffix(target_path)}{fn_ws_sep}{ws}.{file.get_suffix(target_path)}"
             log.debug(f"Saving csv to {tfn}")
-            file.csv.save(data, tfn)
+            #file.csv.save(data, tfn)
+            csv.save(data, tfn)
         else:
             log.error(f"Cant save CSV, worksheet {ws} does not exist")
 
