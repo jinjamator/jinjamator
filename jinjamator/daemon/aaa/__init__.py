@@ -142,6 +142,7 @@ def require_role(role=None, permit_self=False):
 
             if token_type == "Bearer":
                 token_data = User.verify_auth_token(auth_token)
+                
                 if token_data:
                     now = timegm(datetime.utcnow().utctimetuple())
                     log.info(f'Access granted for user_id {token_data["id"]}')
@@ -236,7 +237,7 @@ def require_role(role=None, permit_self=False):
                         f"Elevated privileges required, user neither has role {role} nor administrator",
                     )
                 else:
-                    return redirect(f"/login.html?error_message='Authentication invalid, please reauthenticate'&redirect_to={request.path}",code=302)
+                    abort(401, f"/login.html?error_message='Authentication invalid, please reauthenticate'&redirect_to={request.path}")
             elif token_type==None:
                 
                 return redirect(f"/login.html?redirect_to={request.path}",code=302)
@@ -245,7 +246,7 @@ def require_role(role=None, permit_self=False):
                 abort(400, "Invalid Authorization Header Token Type")
 
             abort(
-                403,
+                401,
                 "Authorization required, no Authorization Data found (Header,POST,GET)",
             )
 
