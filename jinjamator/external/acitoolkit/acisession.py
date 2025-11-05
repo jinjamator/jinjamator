@@ -990,7 +990,7 @@ class Session(object):
         ):
             # Response is too big so we will need to get the response in pages
             # Get the first chunk of entries
-            log.error(
+            log.debug(
                 "Response too big. Need to collect it in pages. Starting collection..."
             )
             page_number = 0
