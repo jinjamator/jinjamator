@@ -811,7 +811,7 @@ def cleanup_url(query_url_or_dn):
 
     if query_url_or_dn.startswith("/uni/"):
         # so we are a dn lets make us a url
-        query_url_or_dn = f"/api/node/mo/uni{query_url_or_dn}"
+        query_url_or_dn = f"/api/node/mo{query_url_or_dn}"
     query_url_or_dn = f"{query_url_or_dn}.json"
 
     if query_url_or_dn.startswith("/api/node/mo/uni/") and query_url_or_dn.endswith(
