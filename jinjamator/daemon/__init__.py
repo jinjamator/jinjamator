@@ -228,7 +228,7 @@ def configure(flask_app, _configuration):
         tmp = os.path.dirname(__file__).split(os.path.sep)[:-1] + ["VERSION"]
         with open(os.path.sep.join(tmp)) as fh:
             version = fh.read()
-    flask_app.config["JINJAMATOR_VERSION"] = version
+    flask_app.config["JINJAMATOR_VERSION"] = str(version)
     flask_app.config["JINJAMATOR_TIMEZONE"] = pytz.timezone(_configuration.get("celery_beat_timezone", "UTC"))
 
     log.info("Starting jinjamator version: " + flask_app.config["JINJAMATOR_VERSION"])
