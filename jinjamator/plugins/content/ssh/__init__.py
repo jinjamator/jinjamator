@@ -185,13 +185,13 @@ def run(
         auto_disconnect = True
 
     opts = {}
-    for var_name in ["host", "username", "password", "port", "device_type"]:
+    for var_name in ["ssh_host", "ssh_username", "ssh_password", "ssh_port", "ssh_device_type"]:
         try:
             del kwargs[var_name]
         except KeyError:
             pass
-    # for var_name in kwargs:
-    #     opts[var_name] = kwargs[var_name]
+    for var_name in kwargs:
+        opts[var_name] = kwargs[var_name]
     retval = connection.send_command_expect(
         command, read_timeout=kwargs.get("read_timeout", 300), **opts
     )
@@ -210,7 +210,7 @@ def run_mlt(
         auto_disconnect = True
 
     opts = {}
-    for var_name in ["host", "username", "password", "port", "device_type"]:
+    for var_name in ["ssh_host", "ssh_username", "ssh_password", "ssh_port", "ssh_device_type"]:
         try:
             del kwargs[var_name]
         except KeyError:
@@ -247,7 +247,7 @@ def configure(
         auto_disconnect = True
 
     opts = {}
-    for var_name in ["host", "username", "password", "port", "device_type"]:
+    for var_name in ["ssh_host", "ssh_username", "ssh_password", "ssh_port", "ssh_device_type"]:
         try:
             del kwargs[var_name]
         except KeyError:
