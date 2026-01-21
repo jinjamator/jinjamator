@@ -128,7 +128,7 @@ def send_config_set(
     return output
 
 
-CiscoBaseConnection.send_config_set = send_config_set
+#CiscoBaseConnection.send_config_set = send_config_set
 
 
 class ssh(outputPluginBase):
