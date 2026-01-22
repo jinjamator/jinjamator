@@ -12,7 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
+log = logging.getLogger()
+
+try:
+    import  netmiko_multihop
+except ImportError:
+    log.info("cannot load netmiko_multihop, multihop ssh capability disabled")
+    
+
 from netmiko import ConnectHandler, SCPConn
+
 from netmiko.exceptions import NetmikoAuthenticationException
 
 import textfsmplus
@@ -20,9 +31,7 @@ import os
 from jinjamator.plugins.content.fsm import process
 from jinjamator.plugins.content.file import is_file
 
-import logging
 
-log = logging.getLogger()
 from netmiko import log as netmiko_log
 
 
@@ -39,6 +48,28 @@ def _get_missing_ssh_connection_vars():
         log.error(e)
         pass
     return inject
+
+def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host", "username", "password", "port", "device_type", "verbose"]):
+    cfg = {}
+    opts = {}
+    for var_name in variables_to_parse:
+        cfg[var_name] = kwargs.get(f"{prefix}{var_name}",
+                        _jinjamator.configuration.get(f"{prefix}{var_name}", 
+                        defaults.get(var_name)
+                ),
+        )
+        try:
+            del kwargs[prefix + var_name]
+        except KeyError:
+            pass
+        # try:
+        #     del kwargs[var_name]
+        # except KeyError:
+        #     pass
+    # for var_name in kwargs:
+    #     opts[var_name] = kwargs[var_name]
+    return cfg,kwargs
+
 
 
 def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
@@ -113,63 +144,64 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
         "verbose": False,
     }
 
-    cfg = {}
-    opts = {}
-    for var_name in ["host", "username", "password", "port", "device_type", "verbose"]:
-        cfg[var_name] = kwargs.get(
-            f"ssh_{var_name}",
-            kwargs.get(
-                var_name,
-                _jinjamator.configuration.get(
-                    f"ssh_{var_name}", defaults.get(var_name)
-                ),
-            ),
-        )
+    jumphost_defaults = {
+            'device_type': 'linux',
+            'port': 22,
+        }
+ 
+    cfg,opts=process_ssh_opts(kwargs,defaults)
+
+    if cfg["verbose"]:
+        netmiko_log.setLevel(logging.DEBUG)
+    else:
+        netmiko_log.setLevel(logging.ERROR)
+
+
+    if "jumphost_host" in kwargs:
+        jumphost_cfg,opts = process_ssh_opts(opts,jumphost_defaults,"jumphost_")
+        for var_name in ["username","password"]:
+            if not jumphost_cfg[var_name]:
+                #try to inherit username and password from target host
+                jumphost_cfg[var_name]=cfg.get(var_name)
+            jumphost_cfg["ip"]=jumphost_cfg["host"]
+            del jumphost_cfg["host"]
+
+            connection = ConnectHandler(**jumphost_cfg)
+            
+            cfg["ip"]=cfg["host"]
+            del cfg["host"]
+            
+
+            connection.jump_to(**cfg)
+            return connection
+
+    else:
         try:
-            del kwargs["ssh_" + var_name]
-        except KeyError:
-            pass
-        try:
-            del kwargs[var_name]
-        except KeyError:
-            pass
-    for var_name in kwargs:
-        opts[var_name] = kwargs[var_name]
 
-    try:
-        if cfg["verbose"]:
-            netmiko_log.setLevel(logging.DEBUG)
-        else:
-            netmiko_log.setLevel(logging.ERROR)
+            connection = ConnectHandler(**cfg, **opts)
 
-        connection = ConnectHandler(**cfg, **opts)
-
-        return connection
-    except NetmikoAuthenticationException as e:
-        if _jinjamator.configuration["best_effort"]:
-            _jinjamator._log.error(
-                f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
-            )
-            return ""
-        else:
-            raise Exception(
-                f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
-            )
+            return connection
+        except NetmikoAuthenticationException as e:
+            if _jinjamator.configuration["best_effort"]:
+                _jinjamator._log.error(
+                    f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
+                )
+                return ""
+            else:
+                raise Exception(
+                    f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
+                )
 
 
 def query(
     command, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
 ):
-    device_type = (
-        kwargs.get("device_type")
-        or _jinjamator.configuration.get(f"ssh_device_type")
-        or _jinjamator.handle_undefined_var("ssh_device_type")
-    )
-    kwargs["device_type"] = device_type
 
     config = run(command, connection, **kwargs)
+    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
+    cfg, opts=process_ssh_opts(opts,{},"ssh_")
 
-    return process(device_type, command, config)
+    return process(cfg.get("device_type"), command, config)
 
 
 def disconnect(connection):
@@ -184,14 +216,9 @@ def run(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    opts = {}
-    for var_name in ["ssh_host", "ssh_username", "ssh_password", "ssh_port", "ssh_device_type"]:
-        try:
-            del kwargs[var_name]
-        except KeyError:
-            pass
-    for var_name in kwargs:
-        opts[var_name] = kwargs[var_name]
+    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
+    cfg, opts=process_ssh_opts(opts,{},"ssh_")
+    
     retval = connection.send_command_expect(
         command, read_timeout=kwargs.get("read_timeout", 300), **opts
     )
@@ -209,14 +236,17 @@ def run_mlt(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    opts = {}
-    for var_name in ["ssh_host", "ssh_username", "ssh_password", "ssh_port", "ssh_device_type"]:
-        try:
-            del kwargs[var_name]
-        except KeyError:
-            pass
-    for var_name in kwargs:
-        opts[var_name] = kwargs[var_name]
+    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
+    cfg, opts=process_ssh_opts(opts,{},"ssh_")
+
+    # opts = {}
+    # for var_name in ["ssh_host", "ssh_username", "ssh_password", "ssh_port", "ssh_device_type"]:
+    #     try:
+    #         del kwargs[var_name]
+    #     except KeyError:
+    #         pass
+    # for var_name in kwargs:
+    #     opts[var_name] = kwargs[var_name]
     retval = connection.send_multiline_timing(commands, **opts)
     if auto_disconnect:
         disconnect(connection)
@@ -246,14 +276,8 @@ def configure(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    opts = {}
-    for var_name in ["ssh_host", "ssh_username", "ssh_password", "ssh_port", "ssh_device_type"]:
-        try:
-            del kwargs[var_name]
-        except KeyError:
-            pass
-    for var_name in kwargs:
-        opts[var_name] = kwargs[var_name]
+    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
+    cfg, opts=process_ssh_opts(opts,{},"ssh_")
 
     retval = connection.send_config_set(commands, **opts)
 
@@ -271,14 +295,8 @@ def get_file(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    opts = {}
-    for var_name in ["host", "username", "password", "port", "device_type"]:
-        try:
-            del kwargs[var_name]
-        except KeyError:
-            pass
-    for var_name in kwargs:
-        opts[var_name] = kwargs[var_name]
+    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
+    cfg, opts=process_ssh_opts(opts,{},"ssh_")
 
     scp = SCPConn(connection)
     scp.scp_get_file(src, dst)
@@ -294,14 +312,8 @@ def put_file(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    opts = {}
-    for var_name in ["host", "username", "password", "port", "device_type"]:
-        try:
-            del kwargs[var_name]
-        except KeyError:
-            pass
-    for var_name in kwargs:
-        opts[var_name] = kwargs[var_name]
+    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
+    cfg, opts=process_ssh_opts(opts,{},"ssh_")
 
     scp = SCPConn(connection)
     scp.scp_put_file(src, dst)
