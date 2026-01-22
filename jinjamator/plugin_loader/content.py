@@ -98,10 +98,10 @@ class ContentPluginLoader(object):
             try:
                 module = import_code(code, "jinjamator.plugins.content" + class_path)
             except ImportError as e:
-                self._log.error(f"cannot load content plugin {file}. {e}")
+                self._log.error(f"cannot import content plugin {file}. {e}")
                 continue
             except Exception as e:
-                self._log.error(f"cannot load content plugin {file}. {e}")
+                self._log.error(f"Exception in content plugin {file}. {e}")
             for imported_mod_name in self._plugins_loaded:
                 m=getattr(module,imported_mod_name)
                 if hasattr(self._parent, "parent"):
