@@ -49,7 +49,7 @@ def _get_missing_ssh_connection_vars():
         pass
     return inject
 
-def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host", "username", "password", "port", "device_type", "verbose"]):
+def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host", "username", "password", "port", "device_type", "verbose", "secret"]):
     cfg = {}
     opts = {}
     for var_name in variables_to_parse:
@@ -97,6 +97,10 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
            Use Netmiko fast_cli mode, defaults to False
         * *verbose* (``bool``), ``optional`` --
            Set Netmiko to debug mode, defaults to False
+        * *ssh_secret* (``bool``), ``optional`` --
+           sets enable secret for auto enable
+
+        
 
     :Examples:
         If one of the following conditions are met,
