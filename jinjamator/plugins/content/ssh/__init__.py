@@ -62,10 +62,10 @@ def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host"
             del kwargs[prefix + var_name]
         except KeyError:
             pass
-        # try:
-        #     del kwargs[var_name]
-        # except KeyError:
-        #     pass
+        try:
+            del kwargs[var_name]
+        except KeyError:
+            pass
     # for var_name in kwargs:
     #     opts[var_name] = kwargs[var_name]
     return cfg,kwargs
@@ -149,7 +149,8 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
             'port': 22,
         }
  
-    cfg,opts=process_ssh_opts(kwargs,defaults)
+    jumphost_cfg,opts = process_ssh_opts(kwargs,jumphost_defaults,"jumphost_")
+    cfg,opts=process_ssh_opts(opts,defaults)
 
     if cfg["verbose"]:
         netmiko_log.setLevel(logging.DEBUG)
@@ -158,7 +159,6 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
 
 
     if "jumphost_host" in kwargs:
-        jumphost_cfg,opts = process_ssh_opts(opts,jumphost_defaults,"jumphost_")
         for var_name in ["username","password"]:
             if not jumphost_cfg[var_name]:
                 #try to inherit username and password from target host
@@ -177,8 +177,8 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
 
     else:
         try:
-
-            connection = ConnectHandler(**cfg, **opts)
+            cfg.update(opts)
+            connection = ConnectHandler(**cfg)
 
             return connection
         except NetmikoAuthenticationException as e:
@@ -218,7 +218,7 @@ def run(
 
     cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
     cfg, opts=process_ssh_opts(opts,{},"ssh_")
-    
+
     retval = connection.send_command_expect(
         command, read_timeout=kwargs.get("read_timeout", 300), **opts
     )
@@ -239,14 +239,7 @@ def run_mlt(
     cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
     cfg, opts=process_ssh_opts(opts,{},"ssh_")
 
-    # opts = {}
-    # for var_name in ["ssh_host", "ssh_username", "ssh_password", "ssh_port", "ssh_device_type"]:
-    #     try:
-    #         del kwargs[var_name]
-    #     except KeyError:
-    #         pass
-    # for var_name in kwargs:
-    #     opts[var_name] = kwargs[var_name]
+
     retval = connection.send_multiline_timing(commands, **opts)
     if auto_disconnect:
         disconnect(connection)
