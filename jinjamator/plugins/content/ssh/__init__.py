@@ -148,7 +148,12 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
             'device_type': 'linux',
             'port': 22,
         }
- 
+    
+    use_jumphost=False
+    
+    if "jumphost_host" in kwargs:
+        use_jumphost=True
+    
     jumphost_cfg,opts = process_ssh_opts(kwargs,jumphost_defaults,"jumphost_")
     cfg,opts=process_ssh_opts(opts,defaults)
 
@@ -158,7 +163,7 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
         netmiko_log.setLevel(logging.ERROR)
 
 
-    if "jumphost_host" in kwargs:
+    if use_jumphost:
         for var_name in ["username","password"]:
             if not jumphost_cfg[var_name]:
                 #try to inherit username and password from target host
@@ -171,7 +176,6 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
             cfg["ip"]=cfg["host"]
             del cfg["host"]
             
-
             connection.jump_to(**cfg)
             return connection
 
