@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import logging
+from copy import deepcopy
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 log = logging.getLogger()
 
@@ -37,6 +39,9 @@ from netmiko import log as netmiko_log
 
 def _get_missing_ssh_connection_vars():
     inject = []
+    if _jinjamator.configuration._data.get("ssh_credentials"):
+        # if we have ssh_credentials set we do not inject dependencies
+        return inject
     try:
         if not _jinjamator.configuration._data.get("ssh_username"):
             inject.append("ssh_username")
@@ -52,6 +57,17 @@ def _get_missing_ssh_connection_vars():
 def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host", "username", "password", "port", "device_type", "verbose", "secret"]):
     cfg = {}
     opts = {}
+    try:
+        del kwargs["ssh_credentials"]
+    except KeyError:
+        pass
+    try:
+        del kwargs["ssh_max_concurrency"]
+    except KeyError:
+        pass
+
+
+
     for var_name in variables_to_parse:
         cfg[var_name] = kwargs.get(f"{prefix}{var_name}",
                         _jinjamator.configuration.get(f"{prefix}{var_name}", 
@@ -72,7 +88,32 @@ def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host"
 
 
 
-def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
+def _mplexed_connect(*args,**kwargs):
+    try:
+        _con=_connect(*args,**kwargs)
+        return _con
+    except Exception as e:
+            log.info(e)
+            log.info(f"cannot connect using {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}, skipping this variant")
+    return None
+
+def connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
+    if "ssh_credentials" in kwargs:
+        
+        for cred in kwargs.get("ssh_credentials"):
+            _kwargs=deepcopy(kwargs)
+            _kwargs.update(cred)
+            del _kwargs["ssh_credentials"]
+            res=_mplexed_connect( *args,**_kwargs)
+            if res:
+                log.debug(f"sucessfully connected {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}")
+                return res
+
+        raise NetmikoAuthenticationException(f"all authentication attempts failed for {_kwargs.get('ssh_host')}")
+    else:
+        return _connect(*args,**kwargs)
+
+def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     """Run a command via SSH and return the text output.
 
     :param command: The command that should be run.
@@ -176,11 +217,12 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
             del jumphost_cfg["host"]
 
             connection = ConnectHandler(**jumphost_cfg)
-            
+            log.debug(f"successfully connected to jumphost {jumphost_cfg.get('ip')}")
             cfg["ip"]=cfg["host"]
             del cfg["host"]
             
             connection.jump_to(**cfg)
+            log.debug(f"successfully jumped to target {cfg.get('ip')}")
             return connection
 
     else:
@@ -204,12 +246,14 @@ def connect(*, _requires=_get_missing_ssh_connection_vars, **kwargs):
 def query(
     command, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
 ):
+    if not connection:
+        connection = connect(**kwargs)
+        auto_disconnect = True
 
     config = run(command, connection, **kwargs)
     cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
     cfg, opts=process_ssh_opts(opts,{},"ssh_")
-
-    return process(cfg.get("device_type"), command, config)
+    return process(connection.device_type, command, config)
 
 
 def disconnect(connection):
@@ -231,6 +275,11 @@ def run(
         command, read_timeout=kwargs.get("read_timeout", 300), **opts
     )
     if auto_disconnect:
+        try:
+            while connection.__jump_device_list:
+                connection.jump_back()
+        except:
+            pass
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
@@ -250,6 +299,11 @@ def run_mlt(
 
     retval = connection.send_multiline_timing(commands, **opts)
     if auto_disconnect:
+        try:
+            while connection.__jump_device_list:
+                connection.jump_back()
+        except:
+            pass
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
@@ -283,6 +337,11 @@ def configure(
     retval = connection.send_config_set(commands, **opts)
 
     if auto_disconnect:
+        try:
+            while connection.__jump_device_list:
+                connection.jump_back()
+        except:
+            pass
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
