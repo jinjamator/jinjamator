@@ -94,7 +94,7 @@ def _mplexed_connect(*args,**kwargs):
         return _con
     except Exception as e:
             log.info(e)
-            log.info(f"cannot connect using {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}, skipping this variant")
+            log.info(f'cannot connect using {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}, skipping this variant')
     return None
 
 def connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
@@ -106,7 +106,7 @@ def connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
             del _kwargs["ssh_credentials"]
             res=_mplexed_connect( *args,**_kwargs)
             if res:
-                log.debug(f"sucessfully connected {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}")
+                log.debug(f'sucessfully connected {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}')
                 return res
 
         raise NetmikoAuthenticationException(f"all authentication attempts failed for {_kwargs.get('ssh_host')}")
