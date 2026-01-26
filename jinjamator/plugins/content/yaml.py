@@ -22,3 +22,45 @@ def dumps(data):
 
 def loads(data):
     return pyyaml.load(data, Loader=pyyaml.FullLoader)
+
+def dump(data,filepath):
+    """
+    Write structured yaml_dump-able data directly to a file
+
+    :param data: structured yaml_dumps()-able data
+    :type data: list,dict
+    :param filepath: path to target-file
+    :type filpath: string
+    :returns: Returns True on success, False on Failure
+    :rtype: bool
+    """
+    return file.save(dumps(data),filepath)
+
+
+def load (filepath):
+    """
+    Load yaml-data directly from a file
+
+    :param filepath: path to source-file
+    :type filpath: string
+    :returns: structured data
+    :rtype: list,dict
+    """
+    if file.exists(filepath):
+        return loads(file.load(filepath))
+    else:
+        return False
+
+def save (data,filepath):
+    """
+    Write structured yaml_dump-able data directly to a file
+    Alias for yaml.dump() to be consistent with other plugins
+
+    :param data: structured yaml_dumps()-able data
+    :type data: list,dict
+    :param filepath: path to target-file
+    :type filpath: string
+    :returns: Returns True on success, False on Failure
+    :rtype: bool
+    """
+    return dump(data,filepath)
