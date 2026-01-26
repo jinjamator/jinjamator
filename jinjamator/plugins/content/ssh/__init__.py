@@ -19,10 +19,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 log = logging.getLogger()
 
 try:
-    import  netmiko_multihop
+    import netmiko_multihop
 except ImportError:
     log.info("cannot load netmiko_multihop, multihop ssh capability disabled")
-    
+
 
 from netmiko import ConnectHandler, SCPConn
 
@@ -54,7 +54,21 @@ def _get_missing_ssh_connection_vars():
         pass
     return inject
 
-def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host", "username", "password", "port", "device_type", "verbose", "secret"]):
+
+def process_ssh_opts(
+    kwargs,
+    defaults,
+    prefix="ssh_",
+    variables_to_parse=[
+        "host",
+        "username",
+        "password",
+        "port",
+        "device_type",
+        "verbose",
+        "secret",
+    ],
+):
     cfg = {}
     opts = {}
     try:
@@ -66,13 +80,12 @@ def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host"
     except KeyError:
         pass
 
-
-
     for var_name in variables_to_parse:
-        cfg[var_name] = kwargs.get(f"{prefix}{var_name}",
-                        _jinjamator.configuration.get(f"{prefix}{var_name}", 
-                        defaults.get(var_name)
-                ),
+        cfg[var_name] = kwargs.get(
+            f"{prefix}{var_name}",
+            _jinjamator.configuration.get(
+                f"{prefix}{var_name}", defaults.get(var_name)
+            ),
         )
         try:
             del kwargs[prefix + var_name]
@@ -84,34 +97,41 @@ def process_ssh_opts(kwargs, defaults, prefix="ssh_", variables_to_parse=["host"
             pass
     # for var_name in kwargs:
     #     opts[var_name] = kwargs[var_name]
-    return cfg,kwargs
+    return cfg, kwargs
 
 
-
-def _mplexed_connect(*args,**kwargs):
+def _mplexed_connect(*args, **kwargs):
     try:
-        _con=_connect(*args,**kwargs)
+        _con = _connect(*args, **kwargs)
         return _con
     except Exception as e:
-            log.info(e)
-            #log.info(f'cannot connect using {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}, skipping this variant')
+        log.info(e)
+        log.info(
+            f'cannot connect using {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}, skipping this variant'
+        )
     return None
+
 
 def connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     if "ssh_credentials" in kwargs:
-        
+
         for cred in kwargs.get("ssh_credentials"):
-            _kwargs=deepcopy(kwargs)
+            _kwargs = deepcopy(kwargs)
             _kwargs.update(cred)
             del _kwargs["ssh_credentials"]
-            res=_mplexed_connect( *args,**_kwargs)
+            res = _mplexed_connect(*args, **_kwargs)
             if res:
-                #log.debug(f'sucessfully connected {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}')
+                log.debug(
+                    f'sucessfully connected {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}'
+                )
                 return res
 
-        raise NetmikoAuthenticationException(f"all authentication attempts failed for {_kwargs.get('ssh_host')}")
+        raise NetmikoAuthenticationException(
+            f"all authentication attempts failed for {_kwargs.get('ssh_host')}"
+        )
     else:
-        return _connect(*args,**kwargs)
+        return _connect(*args, **kwargs)
+
 
 def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     """Run a command via SSH and return the text output.
@@ -141,7 +161,7 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
         * *ssh_secret* (``bool``), ``optional`` --
            sets enable secret for auto enable
 
-        
+
 
     :Examples:
         If one of the following conditions are met,
@@ -190,37 +210,36 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     }
 
     jumphost_defaults = {
-            'device_type': 'linux',
-            'port': 22,
-        }
-    
-    use_jumphost=False
-    
+        "device_type": "linux",
+        "port": 22,
+    }
+
+    use_jumphost = False
+
     if "jumphost_host" in kwargs:
-        use_jumphost=True
-    
-    jumphost_cfg,opts = process_ssh_opts(kwargs,jumphost_defaults,"jumphost_")
-    cfg,opts=process_ssh_opts(opts,defaults)
+        use_jumphost = True
+
+    jumphost_cfg, opts = process_ssh_opts(kwargs, jumphost_defaults, "jumphost_")
+    cfg, opts = process_ssh_opts(opts, defaults)
 
     if cfg["verbose"]:
         netmiko_log.setLevel(logging.DEBUG)
     else:
         netmiko_log.setLevel(logging.ERROR)
 
-
     if use_jumphost:
-        for var_name in ["username","password"]:
+        for var_name in ["username", "password"]:
             if not jumphost_cfg[var_name]:
-                #try to inherit username and password from target host
-                jumphost_cfg[var_name]=cfg.get(var_name)
-            jumphost_cfg["ip"]=jumphost_cfg["host"]
+                # try to inherit username and password from target host
+                jumphost_cfg[var_name] = cfg.get(var_name)
+            jumphost_cfg["ip"] = jumphost_cfg["host"]
             del jumphost_cfg["host"]
 
             connection = ConnectHandler(**jumphost_cfg)
             log.debug(f"successfully connected to jumphost {jumphost_cfg.get('ip')}")
-            cfg["ip"]=cfg["host"]
+            cfg["ip"] = cfg["host"]
             del cfg["host"]
-            
+
             connection.jump_to(**cfg)
             log.debug(f"successfully jumped to target {cfg.get('ip')}")
             return connection
@@ -251,8 +270,8 @@ def query(
         auto_disconnect = True
 
     config = run(command, connection, **kwargs)
-    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
-    cfg, opts=process_ssh_opts(opts,{},"ssh_")
+    cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
+    cfg, opts = process_ssh_opts(opts, {}, "ssh_")
     return process(connection.device_type, command, config)
 
 
@@ -268,8 +287,8 @@ def run(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
-    cfg, opts=process_ssh_opts(opts,{},"ssh_")
+    cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
+    cfg, opts = process_ssh_opts(opts, {}, "ssh_")
 
     retval = connection.send_command_expect(
         command, read_timeout=kwargs.get("read_timeout", 300), **opts
@@ -293,9 +312,8 @@ def run_mlt(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
-    cfg, opts=process_ssh_opts(opts,{},"ssh_")
-
+    cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
+    cfg, opts = process_ssh_opts(opts, {}, "ssh_")
 
     retval = connection.send_multiline_timing(commands, **opts)
     if auto_disconnect:
@@ -331,8 +349,8 @@ def configure(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
-    cfg, opts=process_ssh_opts(opts,{},"ssh_")
+    cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
+    cfg, opts = process_ssh_opts(opts, {}, "ssh_")
 
     retval = connection.send_config_set(commands, **opts)
 
@@ -355,8 +373,8 @@ def get_file(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
-    cfg, opts=process_ssh_opts(opts,{},"ssh_")
+    cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
+    cfg, opts = process_ssh_opts(opts, {}, "ssh_")
 
     scp = SCPConn(connection)
     scp.scp_get_file(src, dst)
@@ -372,8 +390,8 @@ def put_file(
         connection = connect(**kwargs)
         auto_disconnect = True
 
-    cfg, opts=process_ssh_opts(kwargs,{},"jumphost_")
-    cfg, opts=process_ssh_opts(opts,{},"ssh_")
+    cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
+    cfg, opts = process_ssh_opts(opts, {}, "ssh_")
 
     scp = SCPConn(connection)
     scp.scp_put_file(src, dst)
