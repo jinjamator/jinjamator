@@ -741,6 +741,9 @@ function list_tasks() {
         $(".all-content").html('<section class="content">' + data + '</section>');
     });
 
+    wizard_overlay.reset();
+    wizard_overlay.fadeIn();
+
     client.tasks.read().done(function (data) {
         table_data = '<div class="box-body"><table id="task_list" class="table table-bordered table-hover">\
          <thead><tr><th>Task</th><th width="60%">Description</th><th width="1%">Actions</th></tr></thead>'
@@ -787,7 +790,7 @@ function list_tasks() {
         });
 
         $('.main-section').removeClass('hidden');
-
+        wizard_overlay.fadeOut();
     });
 }
 
@@ -796,9 +799,14 @@ function create_job(job_path, pre_defined_vars) {
         list_tasks();
         return true;
     }
-    wizard_overlay.reset();
+    
     if (!pre_defined_vars) {
         pre_defined_vars = {}
+    }
+
+    if(!("__clone__" in pre_defined_vars)) {
+        wizard_overlay.reset();
+        wizard_overlay.fadeIn();
     }
 
     if (("undo" in pre_defined_vars) && (pre_defined_vars.undo == true)){
@@ -826,11 +834,6 @@ function create_job(job_path, pre_defined_vars) {
             $.get("static/templates/main_content_section.html", function (data) {
                 $(".all-content").html('<section class="content">' + data + '</section>');
                 $(".main-content-box").replaceWith(`
-                <div id="overlay">
-                    <div class="cv-spinner">
-                        <span class="spinner"></span>
-                    </div>
-                </div>
                 <div id="form" class="jinjamator-task-wizard">
                 </div><script type="text/x-handlebars-template" id="ationbar">
                 {{#if options.hideActionBar}}
@@ -1012,6 +1015,7 @@ function create_job(job_path, pre_defined_vars) {
         
         
                     data['postRender'] = function (control) {
+                        
                         form_data = control.getValue();
         
         
@@ -1075,6 +1079,7 @@ function create_job(job_path, pre_defined_vars) {
         
                     $('.main-content-box-title').remove();
                     $('.main-section').removeClass('hidden');
+                    wizard_overlay.fadeOut();
                 });
         
         
@@ -1120,7 +1125,6 @@ function clone_job(job_id, undo) {
         configuration["__clone__"]=true;
         configuration["__old_job_id__"]= job_id;
         create_job(data['jinjamator_task'], configuration);
-        wizard_overlay.fadeOut()
     });
 
 
@@ -1156,6 +1160,8 @@ function list_jobs() {
     $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
     });
+    wizard_overlay.reset()
+    wizard_overlay.fadeIn()
 
     client.jobs.read().done(function (data) {
         table_data = '<div class="box-body">\
@@ -1216,6 +1222,7 @@ function list_jobs() {
         });
 
         $('.main-section').removeClass('hidden');
+        wizard_overlay.fadeOut();
     });
 
 }
