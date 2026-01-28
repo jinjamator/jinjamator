@@ -67,6 +67,7 @@ def process_ssh_opts(
         "device_type",
         "verbose",
         "secret",
+        "timeout",
     ],
 ):
     cfg = {}
@@ -276,8 +277,14 @@ def query(
 
 
 def disconnect(connection):
+    try:
+        for _con in connection.__jump_device_list:
+            log.debug(f"try to jump back {id(connection)} {_con} ")
+            connection.jump_back()
+    except:
+        pass
     connection.cleanup()
-
+    log.debug(f"closed ssh connection {id(connection)} to {connection.username}@{connection.host}")
 
 def run(
     command, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
@@ -294,11 +301,6 @@ def run(
         command, read_timeout=kwargs.get("read_timeout", 300), **opts
     )
     if auto_disconnect:
-        try:
-            while connection.__jump_device_list:
-                connection.jump_back()
-        except:
-            pass
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
@@ -317,11 +319,6 @@ def run_mlt(
 
     retval = connection.send_multiline_timing(commands, **opts)
     if auto_disconnect:
-        try:
-            while connection.__jump_device_list:
-                connection.jump_back()
-        except:
-            pass
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
@@ -353,13 +350,10 @@ def configure(
     cfg, opts = process_ssh_opts(opts, {}, "ssh_")
 
     retval = connection.send_config_set(commands, **opts)
+    if kwargs.get("autosave",True):
+        connection.save_config()
 
     if auto_disconnect:
-        try:
-            while connection.__jump_device_list:
-                connection.jump_back()
-        except:
-            pass
         disconnect(connection)
     # netmiko_log.setLevel(backup_log_level)
     return retval
