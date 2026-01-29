@@ -398,8 +398,10 @@ class Program(object):
         # msg_format = "%(asctime)s - %(process)d - %(threadName)s - [%(pathname)s:%(lineno)s] - %(funcName)s - %(levelname)s - %(message)s"
         msg_format = "%(asctime)s - [%(pathname)s:%(lineno)s] - %(levelname)s - %(message)s"
         stdout = logging.StreamHandler(sys.stdout)
+        
         formatter = ColoredFormatter(msg_format)
         stdout.setFormatter(formatter)
+
         self._log = logging.getLogger()
         self._log.addHandler(stdout)
 
@@ -542,8 +544,10 @@ USAGE
         else:
             # legacy cli task
             from jinjamator.task import JinjamatorTask
+            import uuid
 
             task = JinjamatorTask("interactive")
+            task._configuration["jinjamator_job_id"]=uuid.uuid4().hex
 
 
             # if self._configuration["global_defaults"]:
