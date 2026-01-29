@@ -11,10 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import logging
 from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from io import BytesIO
+import xxhash
+import copy
 
 log = logging.getLogger()
 
@@ -68,6 +70,7 @@ def process_ssh_opts(
         "verbose",
         "secret",
         "timeout",
+        "session_log",
     ],
 ):
     cfg = {}
@@ -110,13 +113,63 @@ def _mplexed_connect(*args, **kwargs):
         log.info(
             f'cannot connect using {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}, skipping this variant'
         )
+    try:
+        disconnect(_con)
+    except:
+        pass
+
     return None
 
 
+def _get_cache_id(ip,cred):
+    relevant_vars = ["device_type","username","password","secret"]
+    str_to_hash=ip.strip().lower()
+    #derive hash seed from jinjamator app secret key.
+    seed=int.from_bytes(_jinjamator._configuration["secret-key"].encode(), 'little')
+
+    for var in relevant_vars:
+        str_to_hash+=str(cred.get(var))
+
+    return xxhash.xxh64('xxhash', seed=seed).hexdigest()
+
+def _get_cache_dir():
+    return  _jinjamator._configuration["jinjamator_user_directory"] + os.path.sep + "cache" + os.path.sep + "ssh_credentials"
+
+
+def _save_as_last_working_cred_hash(ip,cred):
+    cache_entry_id=_get_cache_id(ip,cred)
+    cache_entry_path=_get_cache_dir() + os.path.sep + str(ip).strip().lower() 
+    with open(cache_entry_path,"w") as fh:
+        fh.write(cache_entry_id)
+
+def _get_last_working_cred_hash(ip):
+    cache_entry_path=_get_cache_dir() + os.path.sep + str(ip).strip().lower() 
+    try:
+        with open(cache_entry_path,"r") as fh:
+            data=fh.read()
+    except Exception:
+        return "no entry found"
+    return data
+
+
+
+def ssh_credential_sort(_kwargs, var_prefix="ssh_"):
+    cache_base_dir = _jinjamator._configuration["jinjamator_user_directory"] + os.path.sep + "cache" + os.path.sep + "ssh_credentials"
+    os.makedirs(cache_base_dir, exist_ok=True)
+    retval=[]
+    ip=_kwargs.get("ssh_host").strip().lower()
+    look_for=_get_last_working_cred_hash(ip)
+    for cred in _kwargs.get("ssh_credentials"):
+        _cred, opts = process_ssh_opts(copy.deepcopy(cred), {}, "ssh_")
+        if _get_cache_id(ip, _cred) == look_for:
+            retval.insert(0,cred)
+        else:
+            retval.append(cred)
+    return retval
+
 def connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     if "ssh_credentials" in kwargs:
-
-        for cred in kwargs.get("ssh_credentials"):
+        for cred in ssh_credential_sort(kwargs):
             _kwargs = deepcopy(kwargs)
             _kwargs.update(cred)
             del _kwargs["ssh_credentials"]
@@ -220,9 +273,17 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     if "jumphost_host" in kwargs:
         use_jumphost = True
 
+
     jumphost_cfg, opts = process_ssh_opts(kwargs, jumphost_defaults, "jumphost_")
     cfg, opts = process_ssh_opts(opts, defaults)
 
+  
+
+    if not cfg.get("session_log"):
+        session_buffer = cfg["session_log"] = BytesIO()
+    else:
+        session_buffer = cfg.get("session_log")
+        
     if cfg["verbose"]:
         netmiko_log.setLevel(logging.DEBUG)
     else:
@@ -236,30 +297,49 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
             jumphost_cfg["ip"] = jumphost_cfg["host"]
             del jumphost_cfg["host"]
 
-            connection = ConnectHandler(**jumphost_cfg)
-            log.debug(f"successfully connected to jumphost {jumphost_cfg.get('ip')}")
+            try: 
+                jumphost_cfg["session_log"]=session_buffer
+                connection = ConnectHandler(**jumphost_cfg)
+                log.debug(f"ssh {id(connection)}: successfully connected to jumphost {jumphost_cfg.get('ip')}")
+                _save_as_last_working_cred_hash(jumphost_cfg.get('ip'),jumphost_cfg)
+            except Exception as e:
+                log.error(e)
+                session_buffer.seek(0)
+                log.error( f"ssh {id(connection)} session log:" + session_buffer.read().decode("utf-8", errors="ignore"))
+                return None
             cfg["ip"] = cfg["host"]
             del cfg["host"]
-
-            connection.jump_to(**cfg)
-            log.debug(f"successfully jumped to target {cfg.get('ip')}")
+            try:
+                log.debug(f"ssh {id(connection)}: tying to jump to {cfg['username']}@{cfg['ip']}")
+                connection.jump_to(**cfg)
+            except:
+                log.debug(f"ssh {id(connection)}: failed to jump to {cfg['username']}@{cfg['ip']}")
+                session_buffer.seek(0)
+                log.error( f"ssh {id(connection)}: session log:" + session_buffer.read().decode("utf-8", errors="ignore"))
+                disconnect(connection)
+                return ""
+            log.debug(f"ssh {id(connection)}: successfully jumped to target to {cfg['username']}@{cfg['ip']}")
+            _save_as_last_working_cred_hash(cfg.get('ip'),cfg)
             return connection
 
     else:
         try:
             cfg.update(opts)
-            connection = ConnectHandler(**cfg)
 
+            connection = ConnectHandler(**cfg)
+            _save_as_last_working_cred_hash(cfg.get('host'),cfg)
             return connection
         except NetmikoAuthenticationException as e:
+            session_buffer.seek(0)
+            log.error( session_buffer.read().decode("utf-8", errors="ignore"))
             if _jinjamator.configuration["best_effort"]:
                 _jinjamator._log.error(
-                    f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
+                    f'ssh {id(connection)}: ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
                 )
                 return ""
             else:
                 raise Exception(
-                    f'ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
+                    f'ssh {id(connection)}: ssh {cfg["username"]}@{cfg["host"]}:{cfg["port"]}, login failed. Please check your credentials.'
                 )
 
 
@@ -269,22 +349,28 @@ def query(
     if not connection:
         connection = connect(**kwargs)
         auto_disconnect = True
-
-    config = run(command, connection, **kwargs)
+    
     cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
     cfg, opts = process_ssh_opts(opts, {}, "ssh_")
+
+    config = run(command, connection, **kwargs)
+
     return process(connection.device_type, command, config)
 
 
 def disconnect(connection):
     try:
-        for _con in connection.__jump_device_list:
-            log.debug(f"try to jump back {id(connection)} {_con} ")
-            connection.jump_back()
-    except:
-        pass
-    connection.cleanup()
-    log.debug(f"closed ssh connection {id(connection)} to {connection.username}@{connection.host}")
+        if hasattr(connection,"__jump_device_list"):
+            for _con in connection.__jump_device_list:
+                log.debug(f"try to jump back {id(connection)}")
+                connection.jump_back()
+    except Exception as e:
+        log.error(e)
+    if connection:
+        connection.cleanup()
+    if connection:
+        connection.paramiko_cleanup()
+    log.debug(f"closed ssh connection {id(connection)}")
 
 def run(
     command, connection=None, *, _requires=_get_missing_ssh_connection_vars, **kwargs
@@ -293,15 +379,19 @@ def run(
     if not connection:
         connection = connect(**kwargs)
         auto_disconnect = True
+    
+    log.debug(f"ssh {id(connection)}: running command {command}")
 
     cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
     cfg, opts = process_ssh_opts(opts, {}, "ssh_")
+
 
     retval = connection.send_command_expect(
         command, read_timeout=kwargs.get("read_timeout", 300), **opts
     )
     if auto_disconnect:
         disconnect(connection)
+    log.debug(f"ssh {id(connection)}: result of command {retval}")
     # netmiko_log.setLevel(backup_log_level)
     return retval
 
@@ -316,6 +406,7 @@ def run_mlt(
 
     cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
     cfg, opts = process_ssh_opts(opts, {}, "ssh_")
+    log.debug(f"ssh {id(connection)}: running command {commands}")
 
     retval = connection.send_multiline_timing(commands, **opts)
     if auto_disconnect:
@@ -333,11 +424,13 @@ def configure(
 ):
     auto_disconnect = False
     commands = commands_or_path
+
     if os.path.isfile(commands_or_path):
         log.debug(f"loaded configuration from file {commands_or_path}")
         commands = [
             line.replace("\r", "") for line in file.load(commands_or_path).split("\n")
         ]
+
     elif isinstance(commands_or_path, str):
         log.debug(f"splitting configuration string into list {commands_or_path}")
         commands = [line.replace("\r", "") for line in commands_or_path.split("\n")]
