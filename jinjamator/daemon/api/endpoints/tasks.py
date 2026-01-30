@@ -136,7 +136,7 @@ def discover_tasks(app):
                     available_tasks_by_path[dir_name] = task_info
                     try:
                         task = JinjamatorTask(run_mode="discover")
-                        log.debug(app.config["JINJAMATOR_FULL_CONFIGURATION"])
+                        #log.debug(app.config["JINJAMATOR_FULL_CONFIGURATION"])
                         task._configuration.merge_dict(
                             app.config["JINJAMATOR_FULL_CONFIGURATION"]
                         )
