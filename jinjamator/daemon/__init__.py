@@ -129,6 +129,7 @@ def init_celery(_configuration):
                         cfg.get("configuration", {}),
                         cfg.get("output_plugin", "console"),
                         cfg.get("run_as_userid", 1),
+                        cfg.get("run_as_userid", "root"),
                     ),
                 }
 
@@ -142,11 +143,11 @@ def init_celery(_configuration):
     _sched_cfg["__DB__MAINTENANCE__"] = {
         "task": "jinjamator.task.celery.run_jinjamator_task",
         "schedule": crontab(*_configuration["run_db_maintenance_at"].split(" ")),
-        "args": (".internal/db_maintenance", {}, "console", 1),
+        "args": (".internal/db_maintenance", {}, "console", 1, "root"),
     }
+
     celery.conf.beat_schedule = _sched_cfg
     return celery
-
 
 def configure(flask_app, _configuration):
     """
