@@ -130,7 +130,7 @@ def _get_cache_id(ip,cred):
     for var in relevant_vars:
         str_to_hash+=str(cred.get(var))
 
-    return xxhash.xxh64('xxhash', seed=seed).hexdigest()
+    return xxhash.xxh64(str_to_hash, seed=seed).hexdigest()
 
 def _get_cache_dir():
     return  _jinjamator._configuration["jinjamator_user_directory"] + os.path.sep + "cache" + os.path.sep + "ssh_credentials"
@@ -154,6 +154,8 @@ def _get_last_working_cred_hash(ip):
 
 
 def ssh_credential_sort(_kwargs, var_prefix="ssh_"):
+
+
     cache_base_dir = _jinjamator._configuration["jinjamator_user_directory"] + os.path.sep + "cache" + os.path.sep + "ssh_credentials"
     os.makedirs(cache_base_dir, exist_ok=True)
     retval=[]
