@@ -35,6 +35,7 @@ from glob import glob
 from uuid import UUID
 
 import pytz
+from datetime import datetime
 
 log = logging.getLogger()
 
@@ -215,15 +216,20 @@ class Job(Resource):
             log.error(e)
             abort(404, f"Job ID {job_id} not found")
 
-        log_level_filter = JobLog.level.is_("CONSOLE")
+        log_levels_to_show=[ "CONSOLE" ]
+        
+        #query.filter(Log.level.in_(log_levels_to_show))
+        
+        #log_level_filter = JobLog.level.is_("CONSOLE")
 
         if log_level == "TASK_SUMMARY":
-            log_level_filter = JobLog.level.is_("TASK_SUMMARY")
+            log_levels_to_show=[ "TASK_SUMMARY" ]
+            #log_level_filter = JobLog.level.is_("TASK_SUMMARY")
             response = self.merge_query_to_response(
                 response,
                 [
                     db.session.query(JobLog)
-                    .filter(and_(JobLog.task_id == job_id, log_level_filter))
+                    .filter(and_(JobLog.task_id == job_id, JobLog.level.in_(log_levels_to_show)))
                     .order_by(JobLog.timestamp.desc())
                     .first()
                 ],
@@ -231,22 +237,29 @@ class Job(Resource):
 
             return response
 
-        log_level_filter = or_(log_level_filter, JobLog.level.is_("TASK_SUMMARY"))
+        log_levels_to_show.append("TASK_SUMMARY")
+        #log_level_filter = or_(log_level_filter, JobLog.level.is_("TASK_SUMMARY"))
 
         if show_tasklet_result.lower() == "true":
-            log_level_filter = or_(log_level_filter, JobLog.level.is_("TASKLET_RESULT"))
+            #log_level_filter = or_(log_level_filter, JobLog.level.is_("TASKLET_RESULT"))
+            log_levels_to_show.append("TASKLET_RESULT")
 
         if log_level in ["INFO", "WARNING", "ERROR", "DEBUG"]:
-            log_level_filter = or_(log_level_filter, JobLog.level.is_("ERROR"))
+            #log_level_filter = or_(log_level_filter, JobLog.level.is_("ERROR"))
+            log_levels_to_show.append("ERROR")
         if log_level in ["INFO", "WARNING", "DEBUG"]:
-            log_level_filter = or_(log_level_filter, JobLog.level.is_("WARNING"))
+            log_levels_to_show.append("WARNING")
+            #log_level_filter = or_(log_level_filter, JobLog.level.is_("WARNING"))
         if log_level in ["INFO", "DEBUG"]:
-            log_level_filter = or_(log_level_filter, JobLog.level.is_("INFO"))
+            #log_level_filter = or_(log_level_filter, JobLog.level.is_("INFO"))
+            log_levels_to_show.append("INFO")
+
         if log_level in ["DEBUG"]:
-            log_level_filter = or_(log_level_filter, JobLog.level.is_("DEBUG"))
+            log_levels_to_show.append("DEBUG")
+            #log_level_filter = or_(log_level_filter, JobLog.level.is_("DEBUG"))
 
         if newer_than:
-            log_level_filter = and_(log_level_filter, JobLog.timestamp > newer_than)
+            log_level_filter = and_(JobLog.level.in_(log_levels_to_show), JobLog.timestamp > newer_than )
 
         response = self.merge_query_to_response(
             response,
