@@ -937,6 +937,11 @@ function create_job(job_path, pre_defined_vars) {
                                                 $('#modal-submit').modal('hide');
                                                 wizard_overlay.fadeIn();
                                                 setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
+                                            }).fail(function (data){
+                                                $('#modal-submit').modal('hide');
+                                                wizard_overlay.fadeOut();
+                                                log.console(data);
+                                                alert("Failed to create job, please retry later.")
                                             });
                                         })
                                     }
@@ -944,6 +949,10 @@ function create_job(job_path, pre_defined_vars) {
                                         wizard_overlay.fadeIn();
                                         client.tasks.create(job_path, data, url_data).done(function (data) {
                                             setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
+                                        }).fail(function (data){
+                                                wizard_overlay.fadeOut();
+                                                log.console(data);
+                                                alert("Failed to create job, please retry later.")
                                         });
         
                                     }
