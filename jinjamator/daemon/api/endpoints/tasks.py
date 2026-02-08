@@ -218,7 +218,7 @@ def discover_tasks(app):
                                 relative_task_path = request.endpoint.replace(
                                     "api.", ""
                                 )
-                                inner_task = JinjamatorTask()
+                                inner_task = JinjamatorTask(run_mode="get_schema")
 
                                 inner_task._configuration.merge_dict(
                                     app.config["JINJAMATOR_FULL_CONFIGURATION"]
