@@ -48,10 +48,13 @@ def run(path, task_data=False, **kwargs):
     task._parent_tasklet = _jinjamator._current_tasklet
 
     if parent_private_data.get("task_run_mode") == "background":
-        backup = task._log.handlers[1].formatter._task
-        task._parent_tasklet = backup._current_tasklet
-        task._parent_task_id = id(backup)
-        task._log.handlers[1].formatter._task = task
+        try:
+            backup = task._log.handlers[1].formatter._task
+            task._parent_tasklet = backup._current_tasklet
+            task._parent_task_id = id(backup)
+            task._log.handlers[1].formatter._task = task
+        except:
+            pass
     if task_data:
         task.configuration.merge_dict(
             task_data,
@@ -82,8 +85,11 @@ def run(path, task_data=False, **kwargs):
         raise e
 
     if parent_private_data.get("task_run_mode") == "background":
-        task._log.handlers[1].formatter._task = backup
-        task._parent_tasklet = backup._parent_tasklet
+        try:
+            task._log.handlers[1].formatter._task = backup
+            task._parent_tasklet = backup._parent_tasklet
+        except:
+            pass
     del task
     return retval
 
