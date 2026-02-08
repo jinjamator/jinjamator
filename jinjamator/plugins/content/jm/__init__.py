@@ -14,3 +14,6 @@ def run_output_plugin(data):
         self._log.error("Output Plugin failed: " + error_text)
         return False
     return True
+
+def task_run_mode():
+    return _jinjamator._configuration["task_run_mode"]

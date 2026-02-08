@@ -385,7 +385,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         
         if self._configuration["task_run_mode"] == "discover":
             return ""
-        elif self._configuration["task_run_mode"] == "background":
+        elif self._configuration["task_run_mode"] in ["background", "get_schema"]:
             raise KeyError(
                 "undefined variable found {0} and running in background -> cannot proceed".format(
                     var_name
@@ -770,7 +770,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         
     def run(self):
         if len(self._undefined_vars) > 0:
-            if self._configuration["task_run_mode"] == "background":
+            if self._configuration["task_run_mode"] in  ["background", "get_schema"]:
                 self._log.error(
                     f"cannot run task because of undefined variables: {self._undefined_vars}"
                 )
