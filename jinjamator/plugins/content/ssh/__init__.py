@@ -109,7 +109,7 @@ def _mplexed_connect(*args, **kwargs):
         _con = _connect(*args, **kwargs)
         return _con
     except Exception as e:
-        log.info(e)
+        log.info(str(e))
         log.info(
             f'cannot connect using {kwargs.get("ssh_device_type")} {kwargs.get("ssh_username")}@{kwargs.get("ssh_host")}, skipping this variant'
         )
@@ -171,8 +171,12 @@ def ssh_credential_sort(_kwargs, var_prefix="ssh_"):
 
 def connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     if "ssh_credentials" in kwargs:
-        for cred in ssh_credential_sort(kwargs):
+        for attempt, cred in enumerate(ssh_credential_sort(kwargs),1):
             _kwargs = deepcopy(kwargs)
+            if "ssh_session_log" in kwargs:
+                del _kwargs["ssh_session_log"]
+                _kwargs["ssh_session_log"]=kwargs["ssh_session_log"]
+                _kwargs["ssh_session_log"].write(f"\n---- attempt {attempt}----\n".encode("utf-8"))
             _kwargs.update(cred)
             del _kwargs["ssh_credentials"]
             res = _mplexed_connect(*args, **_kwargs)
@@ -279,13 +283,12 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     jumphost_cfg, opts = process_ssh_opts(kwargs, jumphost_defaults, "jumphost_")
     cfg, opts = process_ssh_opts(opts, defaults)
 
-  
-
-    if not cfg.get("session_log"):
-        session_buffer = cfg["session_log"] = BytesIO()
+ 
+    if cfg.get("session_log"):
+        session_buffer = cfg["session_log"]
     else:
-        session_buffer = cfg.get("session_log")
-        
+        session_buffer = cfg["session_log"] = BytesIO()
+
     if cfg["verbose"]:
         netmiko_log.setLevel(logging.DEBUG)
     else:
@@ -307,6 +310,8 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
             except Exception as e:
                 log.error(e)
                 session_buffer.seek(0)
+                session_log=session_buffer.read().decode("utf-8", errors="ignore")
+
                 log.error( f"ssh {id(connection)} session log:" + session_buffer.read().decode("utf-8", errors="ignore"))
                 return None
             cfg["ip"] = cfg["host"]
@@ -426,7 +431,6 @@ def configure(
 ):
     auto_disconnect = False
     commands = commands_or_path
-
     if os.path.isfile(commands_or_path):
         log.debug(f"loaded configuration from file {commands_or_path}")
         commands = [
@@ -440,6 +444,8 @@ def configure(
     if not connection:
         connection = connect(**kwargs)
         auto_disconnect = True
+
+
 
     cfg, opts = process_ssh_opts(kwargs, {}, "jumphost_")
     cfg, opts = process_ssh_opts(opts, {}, "ssh_")
