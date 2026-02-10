@@ -40,6 +40,14 @@ __updated__ = datetime.date.fromtimestamp(os. path.getmtime(Path(__file__).paren
 __date__ = "22.07.2019"
 __author__ = "Wilhelm Putz"
 
+class ExcludeLevelFilter(logging.Filter):
+    def __init__(self, level):
+        super().__init__()
+        self.level = level
+
+    def filter(self, record):
+        return record.levelno != self.level
+
 
 class Program(object):
     def __init__(self, argv=None):
@@ -56,9 +64,9 @@ class Program(object):
         self._program_author = __author__
         self._configuration = {}
         self.configuration = {}
-        self._configuration["jinjamator_user_directory"] = os.path.sep.join(
+        self._configuration["jinjamator_user_directory"] = os.path.realpath(os.path.sep.join(
             [os.path.expanduser("~"), ".jinjamator"]
-        )
+        ))
         self._configuration["jinjamator_base_directory"] = os.path.dirname(
             os.path.realpath(__file__)
         )
@@ -401,6 +409,9 @@ class Program(object):
         
         formatter = ColoredFormatter(msg_format)
         stdout.setFormatter(formatter)
+        stdout.addFilter(ExcludeLevelFilter(88))
+        stdout.addFilter(ExcludeLevelFilter(90))
+        
 
         self._log = logging.getLogger()
         self._log.addHandler(stdout)
