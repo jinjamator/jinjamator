@@ -686,7 +686,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         return schema
 
     def handle_uploaded_files(self, file_upload_var_name):
-        if self._configuration["task_run_mode"] != "background":
+        if self._configuration["task_run_mode"] not in ["background","get_schema"]:
             return None
 
         target_dir = os.path.join(
@@ -705,6 +705,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             possible_clone_file_path = os.path.join(self._configuration.get("jinjamator_user_directory"),"logs" , dirname , "files" , filename)
             
             is_clone=False
+            
             if dirname == self._configuration["uploads_folder"]:
                 pass
             elif os.path.realpath(possible_clone_file_path) == possible_clone_file_path:
@@ -937,7 +938,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
 
 
             to_process.pop(0)
-            if self._configuration["task_run_mode"] == "background":
+            if self._configuration["task_run_mode"] in  ["background", "get_schema"]:
                 self._log.tasklet_result(
                     "{0}".format(retval)
                 )  # this submits the result via celery
