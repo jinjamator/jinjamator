@@ -195,20 +195,22 @@ $(function () {
     $('#control-sidebar-home-tab').after($tabPane)
 
     setup()
-
+    list_tasks();
     $('[data-toggle="tooltip"]').tooltip()
 
     $('.render_username').each(function () { this.innerHTML = sessionStorage.getItem('logged_in_username'); })
     var client = new $.RestClient('/api/');
     client.add('environments');
     let cur_env = get('jinjamator_environment');
+    let selected=false;
     client.environments.read().done(function (data) {
         $.each(data.environments, function (key, environment) {
             $.each(environment.sites, function (key, site) {
                 let env_name = environment.name + '/' + site.name;
                 let select = false;
-                if (cur_env == env_name) {
+                if ((cur_env == env_name || cur_env === null) && !selected) {
                     select = true;
+                    selected = true;
                 }
                 $('#jinjamator_environment').append(new Option(env_name, env_name, select, select))
             });
@@ -240,7 +242,7 @@ class SmoothOverlay {
         }
     }
     reset() {
-        this.fadeOut();
+        this.fadeOut(0);
         this.usage_count = 0
         
     }
@@ -732,17 +734,20 @@ function list_users() {
 
 
 function list_tasks() {
-
+    $('.main-section').addClass('hidden');
+    wizard_overlay.reset();
+    wizard_overlay.fadeIn(10);
     // $(".treeview-item").removeClass("active")
     // parent.parents('li').addClass('active');
     update_breadcrumb('Tasks', 'List');
+    $('.main-section').addClass('hidden');
 
     $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
-    });
+    }).done(
 
-    wizard_overlay.reset();
-    wizard_overlay.fadeIn();
+        function(){
+
 
     client.tasks.read().done(function (data) {
         table_data = '<div class="box-body"><table id="task_list" class="table table-bordered table-hover">\
@@ -764,13 +769,13 @@ function list_tasks() {
         $(".main-content-box-title").replaceWith('<h3 class="box-title">Available Jinjamator tasks</h3>');
         $(".main-content-box").replaceWith(table_data);
 
-
         if ($.fn.dataTable.isDataTable('#task_list')) {
             $('#task_list').DataTable().destroy();
         }
 
         $.fn.dataTable.ext.search.pop() // dirty but is the only thing that works at the moment
         delete $.fn.DataTable.ext.order["alpaca"]
+
         table = $('#task_list').DataTable({
             autoWidth: false,
             "lengthMenu": [
@@ -779,19 +784,25 @@ function list_tasks() {
             ]
 
         })
-        //table.on( 'dblclick', function () {
 
 
-
-        table.on('dblclick', 'tbody tr', function () {
+        table.on('click', 'tbody tr', function () {
+            $('.main-section').addClass('hidden');
+            wizard_overlay.reset();
             create_job(table.row(this).data()[0]);
             table.destroy();
 
         });
-
         $('.main-section').removeClass('hidden');
-        wizard_overlay.fadeOut();
+        wizard_overlay.fadeOut(100);
+        
     });
+
+
+        }
+    );
+
+
 }
 
 function create_job(job_path, pre_defined_vars) {
