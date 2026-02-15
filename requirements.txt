@@ -23,7 +23,8 @@ pyyaml
 jsonschema
 requests
 websocket-client
-flask
+pytz
+Flask==2.2.5
 Flask-SQLAlchemy==2.5.1
 SQLAlchemy==1.4.54
 SQLAlchemy-serializer==1.4.1
