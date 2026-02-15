@@ -54,7 +54,7 @@ from jinjamator.daemon.aaa.models import (
     Oauth2UpstreamToken,
     JinjamatorToken,
     JinjamatorRole,
-    UserRoleLink,
+    #UserRoleLink,
 )
 
 
@@ -244,7 +244,7 @@ def initialize(flask_app, cfg):
     init_celery(cfg)
     db.init_app(flask_app)
     with flask_app.app_context():
-        db.create_all(bind=["aaa"])
+        db.metadata.create_all(bind=db.engines["aaa"])
     init_aaa(aaa_providers, cfg)
 
     api_blueprint = Blueprint(

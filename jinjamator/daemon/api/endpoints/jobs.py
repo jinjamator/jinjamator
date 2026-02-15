@@ -62,7 +62,6 @@ class JobCollection(Resource):
         try:
             rs = db.session.execute(
                 select(
-                    [
                         DB_Job.id,
                         DB_Job.task_id,
                         DB_Job.status,
@@ -71,7 +70,6 @@ class JobCollection(Resource):
                         DB_Job.date_scheduled,
                         DB_Job.jinjamator_task,
                         DB_Job.created_by_user_id,
-                    ]
                 ).order_by(DB_Job.id.desc())
             )
         except exc.SQLAlchemyError as e:

@@ -28,6 +28,37 @@ from sqlalchemy_serializer import SerializerMixin
 
 logging.getLogger("serializer").setLevel(logging.ERROR)
 
+class JinjamatorRole(db.Model, SerializerMixin):
+    __tablename__ = "roles"
+    __bind_key__ = "aaa"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(4096), unique=True)
+
+    role_links = db.relationship(
+        "UserRoleLink",
+        back_populates="role",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
+    
+class UserRoleLink(db.Model, SerializerMixin):
+    __tablename__ = "user_role_link"
+    __bind_key__ = "aaa"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"))
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id", ondelete="CASCADE"))
+
+    user = db.relationship("User", back_populates="role_links")
+    role = db.relationship("JinjamatorRole", back_populates="role_links")
+
 
 class User(db.Model, SerializerMixin):
     __tablename__ = "users"
@@ -38,8 +69,38 @@ class User(db.Model, SerializerMixin):
     name = db.Column(db.String(128))
     password_hash = db.Column(db.String(128))
     aaa_provider = db.Column(db.String(128))
-    roles = relationship("JinjamatorRole", secondary="user_role_link")
-    serialize_rules = ("-password_hash",)
+    #roles = relationship("JinjamatorRole", secondary="user_role_link")
+    role_links = db.relationship(
+        "UserRoleLink",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # optionaler „Shortcut“ zu den Rollen (read-only)
+    roles = db.relationship(
+        "JinjamatorRole",
+        secondary=lambda: UserRoleLink.__table__,
+        viewonly=True,
+        lazy="selectin",
+    )
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "name": self.name,
+            "aaa_provider": self.aaa_provider,
+            "roles": [
+                {
+                    "id": link.role.id,
+                    "name": link.role.name,
+                }
+                for link in self.role_links
+            ],
+        }
+
+    serialize_rules = ("-password_hash", "-role_links.user",         # Vermeide rekursive Serialisierung
+        "-roles.role_links")
 
     @staticmethod
     def hash_password(password):
@@ -117,19 +178,3 @@ class JinjamatorToken(db.Model, SerializerMixin):
     expires_in = db.Column(db.Integer)
     access_token = db.Column(db.String(4096))
 
-
-class JinjamatorRole(db.Model, SerializerMixin):
-    __tablename__ = "roles"
-    __bind_key__ = "aaa"
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(4096), unique=True)
-
-
-class UserRoleLink(db.Model, SerializerMixin):
-    __tablename__ = "user_role_link"
-    __bind_key__ = "aaa"
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))
