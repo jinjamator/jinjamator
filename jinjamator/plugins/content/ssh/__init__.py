@@ -159,7 +159,7 @@ def ssh_credential_sort(_kwargs, var_prefix="ssh_"):
     cache_base_dir = _jinjamator._configuration["jinjamator_user_directory"] + os.path.sep + "cache" + os.path.sep + "ssh_credentials"
     os.makedirs(cache_base_dir, exist_ok=True)
     retval=[]
-    ip=_kwargs.get("ssh_host").strip().lower()
+    ip=_kwargs.get("ssh_host",_jinjamator.configuration._data.get("ssh_host","ssh_host_not_set")).strip().lower()
     look_for=_get_last_working_cred_hash(ip)
     for cred in _kwargs.get("ssh_credentials"):
         _cred, opts = process_ssh_opts(copy.deepcopy(cred), {}, "ssh_")
@@ -282,7 +282,7 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
 
     jumphost_cfg, opts = process_ssh_opts(kwargs, jumphost_defaults, "jumphost_")
     cfg, opts = process_ssh_opts(opts, defaults)
-
+    connection=None
  
     if cfg.get("session_log"):
         session_buffer = cfg["session_log"]
