@@ -15,7 +15,7 @@
 from json import dumps as json_dumps, loads as json_loads
 
 
-def dumps(data, color=False):
+def dumps(data, color=False, **kwargs):
     """
     Convert structured json_dump-able data into a json-string
 
@@ -29,9 +29,9 @@ def dumps(data, color=False):
     retval="{}"
     
     try:
-        retval=json_dumps(data, sort_keys=True, indent=2)
+        retval=json_dumps(data, sort_keys=kwargs.get("sort_keys",True), indent=kwargs.get("indent",2))
     except  TypeError:
-        retval=json_dumps(data, sort_keys=False, indent=2)
+        retval=json_dumps(data, sort_keys=kwargs.get("sort_keys",False), indent=kwargs.get("indent",2))
     if color:
         try:
             from pygments import highlight, lexers, formatters
