@@ -24272,6 +24272,9 @@ this["HandlebarsPrecompiled"]["bootstrap-edit"]["message"] = Handlebars.template
                     {
                         $(this).off().click(function(e) {
                             e.preventDefault();
+                            if (typeof(action.click) == "string") {
+                               action.click=Function("self", "actionKey", "action",action.click)
+                            }
                             action.click.call(self, actionKey, action);
                         });
                     }
