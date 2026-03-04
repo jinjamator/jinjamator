@@ -155,7 +155,6 @@ def _get_last_working_cred_hash(ip):
 
 def ssh_credential_sort(_kwargs, var_prefix="ssh_"):
 
-
     cache_base_dir = _jinjamator._configuration["jinjamator_user_directory"] + os.path.sep + "cache" + os.path.sep + "ssh_credentials"
     os.makedirs(cache_base_dir, exist_ok=True)
     retval=[]
@@ -334,7 +333,7 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
             cfg.update(opts)
 
             connection = ConnectHandler(**cfg)
-            _save_as_last_working_cred_hash(cfg.get('host'),cfg)
+            _save_as_last_working_cred_hash(cfg.get('host',"host_not_defined"),cfg)
             return connection
         except NetmikoAuthenticationException as e:
             session_buffer.seek(0)
