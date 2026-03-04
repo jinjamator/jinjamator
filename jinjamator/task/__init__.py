@@ -84,7 +84,7 @@ def import_code(code, name, add_to_sys_modules=False):
     return module
 
 
-class JinjamatorTaskRunException(BaseException):
+class JinjamatorTaskRunException(Exception):
     pass
 
 
