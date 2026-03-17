@@ -88,7 +88,7 @@ pydantic==2.12.5
 pydantic_core==2.41.5
 pyflakes==3.4.0
 Pygments==2.19.2
-PyJWT==2.11.0
+PyJWT==2.12.0
 PyNaCl==1.6.2
 pyOpenSSL==26.0.0
 pyserial==3.5
