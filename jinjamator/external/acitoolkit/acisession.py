@@ -56,7 +56,10 @@ from websocket import create_connection, WebSocketException
 from requests.exceptions import ConnectionError
 
 try:
-    from OpenSSL.crypto import FILETYPE_PEM, load_privatekey, sign
+    from OpenSSL.crypto import FILETYPE_PEM
+    from cryptography.hazmat.primitives.serialization import load_pem_private_key
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import padding
 
     NO_OPENSSL = False
 except ImportError:
@@ -558,10 +561,11 @@ class Session(object):
                     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
                 except (AttributeError, NameError):
                     pass
-            with open(self.key, "r") as f:
+            with open(self.key, "rb") as f:
                 key_text = f.read()
             try:
-                self._x509Key = load_privatekey(FILETYPE_PEM, key_text)
+                #self._x509Key = load_privatekey(FILETYPE_PEM, key_text)
+                self._x509Key = load_pem_private_key(key_text, password=None)
             except Exception:
                 raise TypeError(
                     "Could not load private key file %s\
@@ -645,7 +649,11 @@ class Session(object):
             payload += data
 
         signature = base64.b64encode(
-            sign(self._x509Key, payload.encode("ascii"), "sha256")
+            self._x509Key.sign(
+                payload.encode("ascii"),
+                padding.PKCS1v15(),
+                hashes.SHA256()
+            )
         )
         cookie = {
             "APIC-Request-Signature": signature.decode("ascii"),
