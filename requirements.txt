@@ -129,6 +129,6 @@ wcwidth==0.6.0
 websocket-client==1.9.0
 Werkzeug==3.1.6
 wrapt==2.1.1
-XML2Dict==0.2.3
+XML2Dict==0.2.2
 xmltodict==1.0.3
 xxhash==3.6.0
