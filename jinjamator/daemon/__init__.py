@@ -221,8 +221,7 @@ def configure(flask_app, _configuration):
     version = "not detected"
     try:
         from setuptools_git_versioning import version_from_git
-
-        version = version_from_git()
+        version = str(version_from_git())
         if version == "0.0.1":
             raise Exception("no git version detected")
     except:
