@@ -81,7 +81,7 @@ pika==1.3.2
 prompt_toolkit==3.0.52
 ptyprocess==0.7.0
 py-zabbix==1.1.7
-pyasn1==0.6.2
+pyasn1==0.6.3
 pycparser==3.0
 pycryptodomex==3.23.0
 pydantic==2.12.5
