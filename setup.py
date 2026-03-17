@@ -5,9 +5,6 @@ root_path = Path(__file__).parent
 version_file = f"{root_path}/jinjamator/VERSION"
 
 
-
-
-
 with open("README.rst", "r") as fh:
     long_description = fh.read()
 
@@ -47,7 +44,8 @@ setuptools.setup(
 
 )
 
+
 from setuptools_git_versioning import version_from_git
-  
+
 with open(version_file,"w") as fh:
-    fh.write(version_from_git())
+    fh.write(str(version_from_git()))
