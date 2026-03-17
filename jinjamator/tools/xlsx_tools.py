@@ -31,56 +31,132 @@ from natsort import natsorted
 from collections import OrderedDict
 from copy import deepcopy
 
-__version__ = "0.3"
+__version__ = "0.4"
 __author__ = "Wilhelm Putz"
+
+import openpyxl
+import logging
+import json
+import os
+import datetime
+import xxhash
+from openpyxl import load_workbook
 
 
 class XLSXReader(object):
-    """
-    returns a dict from an xlsx sheet. Respects ranges.
-    """
 
     def __init__(self, path, worksheet_name, cache=True):
         self.should_cache = cache
         self._log = logging.getLogger("")
         self._path = path
         self._cache = None
+
+        # --------------------------------------------------
+        # CACHE
+        # --------------------------------------------------
         if cache:
             self.calcCacheFileName(path, worksheet_name)
             try:
-                staleCacheFiles = glob.glob(
-                    "{0}_{1}_*.xlsxcache".format(path, worksheet_name)
-                )
-                staleCacheFiles.remove(self._cacheFilePath)
-                for staleCacheFile in staleCacheFiles:
-                    os.remove(staleCacheFile)
-                    self._log.info(
-                        "removed stale cache file {0}".format(staleCacheFile)
-                    )
-            except BaseException:
-                pass
-
-            try:
-                with open(self._cacheFilePath, "r+b") as fh:
+                with open(self._cacheFilePath, "r") as fh:
                     self.data = json.loads(fh.read())
-                    self._log.info("cache for {0} loaded".format(path))
+                    self._log.info("cache loaded")
                     self._cache = True
-
-            except BaseException:
+                    return
+            except Exception:
                 self._cache = None
-                self._log.info("no cache for {0} found".format(path))
-        if not self._cache:
-            self.wb = openpyxl.load_workbook(path, data_only=True)
-            try:
-                self.ws = self.wb[worksheet_name]
-            except KeyError:
-                self._log.warn(
-                    "sheet {0} not found, using {1}".format(
-                        worksheet_name, self.wb.sheetnames[0]
-                    )
-                )
-                self.ws = self.wb[self.wb.sheetnames[0]]
-            self.lastRow = self.get_maximum_rows()
+
+        self.wb = load_workbook(path, data_only=True, read_only=True)
+
+        try:
+            self.ws = self.wb[worksheet_name]
+        except KeyError:
+            self.ws = self.wb[self.wb.sheetnames[0]]
+
+        wb_meta = load_workbook(path, data_only=True, read_only=False)
+        self.ws_meta = wb_meta[self.ws.title]
+
+        self._build_merged_map()
+
+    def _build_merged_map(self):
+        self.merged_map = {}
+
+        for merged_range in self.ws_meta.merged_cells.ranges:
+            min_col, min_row, max_col, max_row = merged_range.bounds
+            value = self.ws_meta.cell(min_row, min_col).value
+
+            for r in range(min_row, max_row + 1):
+                for c in range(min_col, max_col + 1):
+                    self.merged_map[(r, c)] = value
+
+    def get_value(self, cell, row, col):
+        key = (row, col)
+
+        if key in self.merged_map:
+            return self.merged_map[key] or ""
+
+        value = getattr(cell, "value", None)
+        return value or ""
+
+    def parse_header(self, header_lines=1):
+        if self._cache:
+            return
+
+        self._dataOffset = header_lines
+        self.header = []
+
+        for row in self.ws.iter_rows(min_row=1, max_row=header_lines):
+            for col_index, cell in enumerate(row):
+                val = str(self.get_value(cell, row=1, col=col_index + 1))
+
+                if len(self.header) <= col_index:
+                    self.header.append(val)
+                else:
+                    self.header[col_index] += " " + val
+
+        self.header = [h.strip() for h in self.header]
+
+    def get_header_for_col(self, col):
+        return self.header[col - 1]
+
+    def _iter_data_rows(self,max_empty_streak=50,hard_limit=1_000_000):
+        empty_streak = 0
+        
+        for row_index, row in enumerate(
+            self.ws.iter_rows(min_row=1 + self._dataOffset),
+            start=1 + self._dataOffset
+        ):
+            if row_index > hard_limit:
+                break
+
+            # fast empty check
+            if not any(getattr(cell, "value", None) is not None for cell in row):
+                empty_streak += 1
+                if empty_streak >= max_empty_streak:
+                    break
+                continue
+
+            empty_streak = 0
+            yield row_index, row
+
+    def parse_data(self):
+        if self._cache:
+            return
+
+        self._log.info(f"parsing {self._path}")
+        self.data = {}
+
+        for row_index, row in self._iter_data_rows():
+            assoc = {}
+
+            for col_index, cell in enumerate(row, start=1):
+                assoc[self.get_header_for_col(col_index)] = \
+                    self.get_value(cell, row_index, col_index)
+
+            self.data[row_index] = assoc
+
+        if self.should_cache:
+            with open(self._cacheFilePath, "w") as fh:
+                fh.write(json.dumps(self.data, default=self.datetime_handler))
 
     def datetime_handler(self, x):
         if isinstance(x, datetime.datetime):
@@ -88,104 +164,13 @@ class XLSXReader(object):
         raise TypeError("Unknown type")
 
     def calcCacheFileName(self, path, worksheet_name):
-        with open(path, "r+b") as fh:
+        with open(path, "rb") as fh:
             digest = xxhash.xxh64(fh.read()).hexdigest()
-        self._log.debug("got digest:{0}".format(digest))
-        self._cacheFilePath = "{0}_{1}_{2}.xlsxcache".format(
-            path, worksheet_name, digest
-        )
-        self._log.debug("got cache filename:{0}".format(digest))
 
-    def parse_header(self, header_lines=1):
-        if self._cache:
-            return None
-        self.header_fields = []
-        if header_lines > 0:
-            self._dataOffset = header_lines
-        else:
-            self._dataOffset = 0
-        self._log.debug("detected data offset: {0}".format(self._dataOffset))
-
-        self.merged_cells = {}
-        for _range in self.ws.merged_cell_ranges:
-            self.merged_cells[str(_range)] = list(
-                openpyxl.utils.rows_from_range(str(_range))
-            )
-        self._log.debug(
-            "created merged cell ranges lookup table: {0}".format(self._dataOffset)
-        )
-
-        for row_index in range(1, header_lines + 1):
-            for cell in self.ws[row_index]:
-                try:
-                    self.header_fields[cell.column - 1].append(
-                        str(self.get_value_with_merge_lookup(cell))
-                    )
-                except IndexError:
-                    self.header_fields.append([])
-                    self.header_fields[cell.column - 1].append(
-                        str(self.get_value_with_merge_lookup(cell))
-                    )
-        self.header = [" ".join(f).strip() for f in self.header_fields]
-        self._log.debug("finished parsing of header")
-
-    def get_maximum_rows(self):
-        rows = 0
-        for max_row, row in enumerate(self.ws, 1):
-            if not all(col.value is None for col in row):
-                rows += 1
-        self._log.debug("detected lastRowIn: {0}".format(rows))
-        return rows
-
-    # def get_last_row_in_col(self, col="A"):
-    #     lastRow = self.ws.max_row
-    #     ws.max_column
-    #     while self.ws.cell(column=1, row=lastRow).value is None and lastRow > 0:
-    #         lastRow -= 1
-    #     self._log.debug("detected lastRowIn: {0}".format(lastRow))
-        
-    #     return lastRow
-
-    def get_header_for_col(self, col):
-        return self.header[col - 1]
-
-    def parse_data(self):
-        if self._cache:
-            return None
-        self._log.info("parsing file: {0}".format(self._path))
-        self.data = {}
-
-        for row_index in range(1 + self._dataOffset, self.lastRow + 1):
-            self._log.debug("processing row {0}".format(row_index))
-            assocRow = {}
-            for cell in self.ws[row_index]:
-                assocRow[
-                    self.get_header_for_col(cell.column)
-                ] = self.get_value_with_merge_lookup(cell)
-            self.data[row_index] = assocRow
-        self._log.info("finished parsing file: {0}".format(self._path))
-        self._log.debug(pformat(self.data))
-        if self.should_cache:
-            self._log.info(
-                "saving cachefile to speedup next run: {0}".format(self._cacheFilePath)
-            )
-            with open(self._cacheFilePath, "w") as fh:
-                fh.write(json.dumps(self.data, default=self.datetime_handler))
-
-    def get_value_with_merge_lookup(self, cell):
-        for _range, merged_cells in self.merged_cells.items():
-            for row in merged_cells:
-                if cell.coordinate in row:
-                    if not self.ws[merged_cells[0][0]].value:
-                        return ""
-                    return self.ws[merged_cells[0][0]].value
-        if not cell.value:
-            return ""
-        return cell.value
+        self._cacheFilePath = f"{path}_{worksheet_name}_{digest}.xlsxcache"
 
     def get_worksheets(self):
         return self.wb.sheetnames
-
 
 class XLSXWriter(object):
     def __init__(self, path, **kwargs):
