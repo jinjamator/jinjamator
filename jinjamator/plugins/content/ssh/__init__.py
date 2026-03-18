@@ -169,6 +169,8 @@ def ssh_credential_sort(_kwargs, var_prefix="ssh_"):
     return retval
 
 def connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
+    if "read_timeout" in kwargs:
+        del kwargs["read_timeout"]
     if "ssh_credentials" in kwargs:
         for attempt, cred in enumerate(ssh_credential_sort(kwargs),1):
             _kwargs = deepcopy(kwargs)
