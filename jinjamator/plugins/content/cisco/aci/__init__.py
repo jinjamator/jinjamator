@@ -20,8 +20,15 @@ import re
 import logging
 import getpass
 
+import jinjamator.plugins.content.ssh as ssh
+
 # from jinjamator.tools.aciwatcherthread import ACIWatcherThread
 from pprint import pprint
+
+#Fix for 4.2
+import requests
+import urllib3
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'ALL:@SECLEVEL=1'
 
 log = logging.getLogger()
 
@@ -795,6 +802,28 @@ def get_tenants():
 
     return ret
 
+def get_vrfs (tenant):
+    ret = []
+    for vrfs in query(f"/api/node/mo/uni/tn-{tenant}.json?query-target=children&target-subtree-class=fvCtx&order-by=fvCtx.name|asc")["imdata"]:
+        ret.append(vrfs["fvCtx"]["attributes"]["name"])
+
+    return ret
+
+def get_routing_table (tenant,vrf):
+    ret = []
+    rgx = re.compile(r"topology/pod-(\d+)/node-(\d+)/sys/uribv4/dom-.*/db-rt\/rt-\[([0-9a-fA-F\.:\/]+)\]\/nh-*")
+    for rtbl in query(f'/api/node/class/uribv4Nexthop.json?query-target-filter=wcard(uribv4Nexthop.dn,"sys/uribv4/dom\-{tenant}:{vrf}/db\-rt")')["imdata"]:
+        entry = rtbl["uribv4Nexthop"]["attributes"]
+        entry['next-hop'] = entry['addr']
+
+        result = rgx.match(entry['dn'])
+        if result:
+            entry['pod'] = result.group(1)
+            entry['node'] = result.group(2)
+            entry['prefix'] = result.group(3)
+        ret.append(entry)
+
+    return ret
 
 def cleanup_url(query_url_or_dn):
     tmp = query_url_or_dn.split("?")
@@ -897,3 +926,130 @@ def get_interface_info(node_id,nxos_interface_name,pod_id = None, _requires=_get
                 info['t_dn']=vpc_item['vpcIf']['attributes']['fabricPathDn']
                 info['is_mlag']=True
     return info
+
+def connect_apic_cli(*, _requires=_get_missing_apic_connection_vars):
+    if not _jinjamator.configuration["apic_key"]:
+        del _jinjamator.configuration["apic_key"]
+    if not _jinjamator.configuration["apic_cert_name"]:
+        del _jinjamator.configuration["apic_cert_name"]
+    
+    #Parse APIC IP/hostname from url
+    if not "apic_ssh_host" in _jinjamator.configuration.keys():
+        rgx = re.compile(r".*\/\/([0-9a-zA-Z\.-]+)")
+        result = rgx.match(_jinjamator.configuration["apic_url"])
+        if result:
+            _jinjamator.configuration["apic_ssh_host"] = result.group(1)
+        else:
+            log.error(f"Cannot parse ssh_host from {_jinjamator.configuration['apic_url']}")
+        
+
+    ssh_conf = {
+        "host": _jinjamator.configuration["apic_ssh_host"],
+        "username": _jinjamator.configuration["apic_username"],
+        "port": 22,
+        "device_type": "linux"
+    }
+
+    if "apic_password" in _jinjamator.configuration.keys() and _jinjamator.configuration["apic_password"]:
+        ssh_conf["password"] = _jinjamator.configuration["apic_password"]
+    
+    if "apic_key" in _jinjamator.configuration.keys():
+        ssh_conf['use_keys'] = True
+        ssh_conf['key_file'] = _jinjamator.configuration["apic_key"]
+    
+    #print(f"Creating connection")
+    #print(ssh_conf)
+    connection = ssh.connect(**ssh_conf)
+    apic_run("term len 0",connection=connection,return_result=False)
+
+    return connection
+
+def apic_run (cmd,connection=False,return_result=True, *, _requires=_get_missing_apic_connection_vars):
+    #Save some CPU cycles to not process the response if it is not needed
+    if return_result == False:
+        ssh.run(cmd,connection=connection)
+        return False
+    
+    #Do this if we want to have the result
+    ret = ssh.run(cmd,connection=connection)
+    
+    #Below this we need to workaround the fact, that somewhere in the ssh-stack a % with control chars is appended after each run()
+    #there might also be additional new-lines that need stripping
+    #we assume by experiance that going through the last 7 lines shoiuld be sufficient
+    lines = ret.splitlines()
+    
+    #Set max lines to reverse
+    if len(lines) < 7: max_rev = len(lines)
+    else: max_rev = 7
+    
+    to_strip = []
+    
+    #Go through the last max_rev lines and check them for strip eligability
+    for i in range(len(lines)-2,len(lines)-max_rev,-1):
+        if lines[i].strip() == '': to_strip.append(i)
+        elif lines[i].strip() == '%':
+            to_strip.append(i)
+            break
+    
+    #Strip all the lines that were eligable tio strip
+    if len(to_strip) > 0:
+        for s in to_strip:
+            del lines[s]
+    
+    #if "%\r\n" in ret: print("found trailling char")
+    return "\n".join(lines)
+
+
+def split_fabric_by_nodes (fabric_output):
+    out = {}
+    buffer = []
+    current_node = 0
+    possibly_header = False
+    skip_next = False
+
+    rgx = re.compile(r"^\sNode (\d{3,4}) \([0-9a-zA-Z\.-]+\)$")
+
+    for line in fabric_output.splitlines():
+        continue_parse = True
+
+        #Skip this line
+        if skip_next: 
+            skip_next = False
+            continue
+
+        #Separation line. Prepare for possible header
+        if line.startswith("-------------------------------"):
+            possibly_header = True
+            continue
+        
+        #If this line could be a header, process it
+        if possibly_header == True:
+            result = rgx.match(line)
+            if result:
+                #found output for a new node
+                #Ending old one
+                if current_node > 0:
+                    out[current_node] = "\n".join(buffer)
+                    buffer = []
+                    current_node = 0
+
+                #Set new current node
+                current_node = int(result.group(1))
+                
+                #Next line will be -------, so we skip it
+                skip_next = True
+                continue_parse = False
+
+            else:
+                continue_parse = True
+            
+            possibly_header = False
+        
+        #Do the parsing/whatever
+        if continue_parse == True:
+            buffer.append(line.rstrip())
+    
+    #We reached the end, write back into out
+    out[current_node] = "\n".join(buffer)
+
+    return out
