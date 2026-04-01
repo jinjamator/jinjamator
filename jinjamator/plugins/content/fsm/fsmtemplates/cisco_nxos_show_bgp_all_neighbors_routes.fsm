@@ -1,0 +1,20 @@
+Value Filldown AF (.+) 
+Value Filldown NEIGHBOR (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
+Value STATUS1 (.)
+Value STATUS2 (.)
+Value PATH_TYPE (\S)
+Value Required NETWORK (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2})
+Value NEXT_HOP (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
+Value METRIC (\d+)
+Value LOCPREF (\d+)
+Value WEIGHT (\d+)
+Value PATH (.+)
+
+Start
+  ^Peer ${NEIGHBOR} routes for address family ${AF}:
+  ^${STATUS1}${STATUS2}${PATH_TYPE}${NETWORK}\s+${NEXT_HOP}    \s+${METRIC}    \s+${LOCPREF}    \s+${WEIGHT}\s${PATH} -> Record
+  ^${STATUS1}${STATUS2}${PATH_TYPE}${NETWORK}\s+${NEXT_HOP}               \s+${LOCPREF}    \s+${WEIGHT}\s${PATH} -> Record
+  ^${STATUS1}${STATUS2}${PATH_TYPE}${NETWORK}\s+${NEXT_HOP}    \s+${METRIC}          \s+${WEIGHT}\s${PATH} -> Record
+  ^${STATUS1}${STATUS2}${PATH_TYPE}${NETWORK}\s+${NEXT_HOP}                           \s+${WEIGHT}\s${PATH} -> Record
+
+EOF

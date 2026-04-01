@@ -1,18 +1,33 @@
-Value NEIGHBOR (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
+Value Filldown VRF (\S+)
+Value Required NEIGHBOR (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
+Value BGP_TYPE (\S+)
+Value PEER_INDEX (\S+)
 Value DESCRIPTION (.*)
-Value ASN (\d+)
+Value REMOTE_AS (\d+)
+Value BGP_VERSION (\S+)
+Value REMOTE_ROUTER_ID (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
+Value EBGP_MAX_HOPS (\d+)
+Value MD5_AUTH (\S+)
 Value BGP_STATE ([\w\s\(\)]+)
 Value UPTIME (\w+)
 Value SOURCE_IFACE (\w+[\/\d+]+)
+Value MSG_RCVD (\d+)
+Value MSG_SENT (\d+)
 Value CONN_ESTAB (\w+)
 Value CONN_DROPPED (\w+)
 Value LAST_RESET (\w+)
 Value LAST_RESET_REASON (.*)
 Value LAST_PEER_RESET (\w+)
 Value LAST_PEER_RESET_REASON (.*)
-Value List ADDR_FAMILY ([\w\s]+)
-Value List TABLE_VERSION (\d+)
-Value List NEI_TABLE_VERSION (\d+)
+Value CAP_DYN (.*)
+Value CAP_DYN_OLD (.*)
+Value CAP_RR_NEW (.*)
+Value CAP_RR_OLD (.*)
+Value CAP_AFV4_UNICAST (.*)
+Value CAP_GRACEFUL_RESTART (.*)
+Value ADDR_FAMILY ([\w\s]+)
+Value TABLE_VERSION (\d+)
+Value NEI_TABLE_VERSION (\d+)
 Value ADDR_FAM_ADV ([\s\w]+$)
 Value ADDR_FAM_RCV ([\s\w]+)
 Value LOCALHOST_IP (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
@@ -22,9 +37,11 @@ Value REMOTE_PORT (\d+)
 Value ACCEPTED_PATHS (\d+)
 Value SENT_PATHS (\d+)
 Value CONSUMED_MEM (\d+)
-Value RR_OLD_CAP ([\w\s]+)
-Value RR_NEW_CAP ([\w\s]+)
-Value GRACEFUL_CAP ([\w\s]+)
+Value NEXTHOP_LOCAL_ADDRESS (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
+Value MAX_PREFIX_ALLOWED (\d+)
+Value MAX_PREFIX_ACTION (\S+)
+Value ROUTEMAP_OUT (\S+)
+Value ROUTEMAP_IN (\S+)
 Value FOURBYTE_CAP ([\w\s]+)
 Value EXT_NH_CAP ([\w\s]+)
 Value RESTART_TIME_ADV (\d+)
@@ -50,20 +67,31 @@ Value TOTAL_BYTES_SEND_QUEUE (\d+)
 Value TOTAL_BYTES_RCVD_QUEUE (\d+)
 
 Start
-  ^BGP neighbor is ${NEIGHBOR},\s+remote AS\s+${ASN},.*
+  ^VRF ${VRF}
+  ^BGP neighbor is ${NEIGHBOR},\s+remote AS\s+${REMOTE_AS}, ${BGP_TYPE} link,  Peer index ${PEER_INDEX}
   ^\s+Description:\s+${DESCRIPTION}
+  ^\s+BGP version ${BGP_VERSION}, remote router ID ${REMOTE_ROUTER_ID}
   ^\s+BGP state = ${BGP_STATE}, \w+ for ${UPTIME}
   ^\s+Using ${SOURCE_IFACE} as [\w\s]+
+  ^\s+External BGP peer might be upto to ${EBGP_MAX_HOPS} hops away
+  ^\s+TCP MD5 authentication is ${MD5_AUTH}
+#  ^\s+Last read 0.000000, hold time = 90, keepalive interval is 30 seconds
+#  ^\s+Last written 0.000000 , keepalive timer expiry due 00:00:14
+  ^\s+Received ${MSG_RCVD} messages
+  ^\s+Sent ${MSG_SENT} messages
   ^\s+[\w\s]+, interface ${SOURCE_IFACE}
   ^\s+Connections established ${CONN_ESTAB}, dropped ${CONN_DROPPED}
   ^\s+Last reset by us ${LAST_RESET}, due to ${LAST_RESET_REASON}
   ^\s+Last reset by peer ${LAST_PEER_RESET}, due to ${LAST_PEER_RESET_REASON}
-  ^\s+Route refresh capability \(new\):\s+${RR_NEW_CAP}
-  ^\s+Route refresh capability \(old\):\s+${RR_OLD_CAP}
+  ^\s+Dynamic capability:${CAP_DYN}
+  ^\s+Dynamic capability \(old\): ${CAP_DYN_OLD}
+  ^\s+Route refresh capability \(new\):\s+${CAP_RR_NEW}
+  ^\s+Route refresh capability \(old\):\s+${CAP_RR_OLD}
+  ^\s+Address family IPv4 Unicast: ${CAP_AFV4_UNICAST} 
+  ^\s+Graceful Restart capability: ${CAP_GRACEFUL_RESTART}  
   ^\s+4-Byte AS capability:\s+${FOURBYTE_CAP}
-  ^\s+Graceful Restart capability:\s+${GRACEFUL_CAP}
-  ^\s+Address families advertised to peer: -> AddrFamCap
-  ^\s+Address families received from peer: -> AddrFamCap
+#  ^\s+Address families advertised to peer: -> AddrFamCap
+#  ^\s+Address families received from peer: -> AddrFamCap
   ^\s+Restart time advertised to peer:\s+${RESTART_TIME_ADV} seconds
   ^\s+Stale time for routes advertised by peer:\s+${STALE_TIME} seconds
   ^\s+Restart time advertised by peer:\s+${RESTART_TIME_RCV} seconds
@@ -76,18 +104,30 @@ Start
   ^\s+Capability:\s+${CAPABILITY_COUNT_SENT}\s+${CAPABILITY_COUNT_RCVD}
   ^\s+Total:\s+${TOTAL_MESS_COUNT_SENT}\s+${TOTAL_MESS_COUNT_RCVD}
   ^\s+Total bytes:\s+${TOTAL_BYTES_COUNT_SENT}\s+${TOTAL_BYTES_COUNT_RCVD}
-  ^\s+Bytes in queue:\s+${TOTAL_BYTES_SEND_QUEUE}\s+${TOTAL_BYTES_RCVD_QUEUE} -> AddrFamState
-
-AddrFamCap
-  ^\s+${ADDR_FAM_ADV} -> Start
-
-AddrFamState
+#  ^\s+Bytes in queue:\s+${TOTAL_BYTES_SEND_QUEUE}\s+${TOTAL_BYTES_RCVD_QUEUE} -> AddrFamState
+  ^\s+Bytes in queue:\s+${TOTAL_BYTES_SEND_QUEUE}\s+${TOTAL_BYTES_RCVD_QUEUE}
   ^\s+For address family:\s+${ADDR_FAMILY}
   ^\s+BGP table version ${TABLE_VERSION}, neighbor version ${NEI_TABLE_VERSION}
   ^\s+${ACCEPTED_PATHS} accepted paths consume ${CONSUMED_MEM} bytes of memory
   ^\s+${SENT_PATHS} sent paths
-  ^\s+Last End-of-RIB received [\d:]+ after session start -> AddrFamState
+  ^\s+Nexthop always set to local peering address, ${NEXTHOP_LOCAL_ADDRESS}
+  ^\s+Maximum prefixes allowed ${MAX_PREFIX_ALLOWED} (action is ${MAX_PREFIX_ACTION})
+  ^\s+Outbound route-map configured is ${ROUTEMAP_OUT}, handle obtained
+  ^\s+Inbound route-map configured is ${ROUTEMAP_IN}, handle obtained
+#  ^\s+Last End-of-RIB received [\d:]+ after session start -> AddrFamState
   ^\s+Local host:\s+${LOCALHOST_IP}, Local port:\s+${LOCALHOST_PORT}
   ^\s+Foreign host:\s+${REMOTE_IP}, Foreign port:\s+${REMOTE_PORT} -> Record Start
+
+#AddrFamCap
+#  ^\s+${ADDR_FAM_ADV} -> Start
+#
+#AddrFamState
+#  ^\s+For address family:\s+${ADDR_FAMILY}
+#  ^\s+BGP table version ${TABLE_VERSION}, neighbor version ${NEI_TABLE_VERSION}
+#  ^\s+${ACCEPTED_PATHS} accepted paths consume ${CONSUMED_MEM} bytes of memory
+#  ^\s+${SENT_PATHS} sent paths
+#  ^\s+Last End-of-RIB received [\d:]+ after session start -> AddrFamState
+#  ^\s+Local host:\s+${LOCALHOST_IP}, Local port:\s+${LOCALHOST_PORT}
+#  ^\s+Foreign host:\s+${REMOTE_IP}, Foreign port:\s+${REMOTE_PORT} -> Record Start
 
 EOF

@@ -187,6 +187,7 @@ cisco_ios_dir.fsm,  .*, cisco_ios, dir
 cisco_ios_show_run_interface.fsm, .*, cisco_ios, sh[[ow]] run[[ning-config]] int[[erface]]
 cisco_ios_show_run_port-profile.fsm, .*, cisco_ios, sh[[ow]] run[[ning-config]] port-pr[[ofile]]
 
+cisco_nxos_show_bgp_all_neighbors_routes.fsm, .*, cisco_nxos, sh[[ow]] b[[gp]] a[[ll]] neig[[hbors]] (\S+) ro[[utes]]( vrf)?( \S+)?
 cisco_nxos_show_l2rib_internal_permanently-frozen-list.fsm, .*, cisco_nxos, sh[[ow]] l2ri[[b]] i[[nternal]] pe[[rmanently-frozen-list]]
 cisco_nxos_show_configuration_session_summary.fsm, .*, cisco_nxos, sh[[ow]] configu[[ration]] s[[ession]] su[[mmary]]
 cisco_nxos_show_interface_transceiver_details.fsm, .*, cisco_nxos, sh[[ow]] int[[erface]] tra[[nsceiver]] de[[tails]]
