@@ -12,12 +12,16 @@ Value TAG (\d+( \(\w+\))?)
 Value SEGID (\d+)
 Value TUNNELID (0x[a-f\d]+)
 Value ENCAP (\w+)
+Value RW_VNID (\S+)
 Value Filldown VRF (\S+)
+Value Filldown MBEST (\d+)
+Value Filldown UBEST (\d+)
+Value Filldown PREFIX_OPTIONS (.*)
 
 Start
   ^IP Route Table for VRF "${VRF}"
   # Match the Network/Prefix Line
-  ^\s*${NETWORK}\/${MASK}, ubest/mbest:
+  ^\s*${NETWORK}\/${MASK}, ubest/mbest: ${MBEST}\/${UBEST}(, ${PREFIX_OPTIONS})?
   #
   # Match VXLAN Route Entry
   ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, \[${DISTANCE}/${METRIC}\], ${UPTIME}, ${PROTOCOL}, ${TYPE}, tag ${TAG}\s+segid: ${SEGID}\s+tunnelid: ${TUNNELID}\s+encap: ${ENCAP} -> Record
@@ -26,19 +30,19 @@ Start
   ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, ${NEXTHOP_IF}, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL}, tag ${TAG} -> Record
   #
   # Match standard dynamic route line (with or without tag)
-  ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, ${NEXTHOP_IF}, \[${DISTANCE}/${METRIC}\], ${UPTIME}, ${PROTOCOL}, ${TYPE}(, tag ${TAG})? -> Record
+  ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, ${NEXTHOP_IF}, \[${DISTANCE}/${METRIC}\], ${UPTIME}, ${PROTOCOL}, ${TYPE}(, tag ${TAG})?(, rwVnid: ${RW_VNID})? -> Record
   #
   # Match route without a type (e.g. direct, local)
   ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, ${NEXTHOP_IF}, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL} -> Record
   #
   # Match route without an outgoing interface (e.g. some statics) (with tag)
-  ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL}, tag ${TAG} -> Record
+  ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL}, tag ${TAG}(, rwVnid: ${RW_VNID})? -> Record
   #
   # Match route without outgoing interface with/out tag for dynamic routing proto
-  ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL}, ${TYPE}(, tag ${TAG})?(, )? -> Record
+  ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL}, ${TYPE}(, tag ${TAG})?(, rwVnid: ${RW_VNID})?(, )? -> Record
   #
   # Match route without an outgoing interface (e.g. some statics) (without tag)
-  ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL} -> Record
+  ^\s+\*+via ${NEXTHOP_IP}(%${NEXTHOP_VRF})?, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL}(, rwVnid: ${RW_VNID})? -> Record
   #
   # Match route without a nexthop IP, only nexthop interface (e.g. null routes)
   ^\s+\*+via ${NEXTHOP_IF}, \[${DISTANCE}\/${METRIC}\], ${UPTIME}, ${PROTOCOL} -> Record
