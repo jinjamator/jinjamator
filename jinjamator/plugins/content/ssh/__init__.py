@@ -71,6 +71,8 @@ def process_ssh_opts(
         "secret",
         "timeout",
         "session_log",
+        "use_keys", #For key auth
+        "key_file" #For key auth
     ],
 ):
     cfg = {}
@@ -268,6 +270,8 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
         "device_type": "cisco_nxos",
         "fast_cli": False,
         "verbose": False,
+        "use_keys": False, #For key auth
+        "key_file": "" #For key auth
     }
 
     jumphost_defaults = {
