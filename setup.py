@@ -32,8 +32,8 @@ setuptools.setup(
     license="ASL V2",
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.12",
         "Topic :: System :: Installation/Setup",
         "Topic :: System :: Systems Administration",
         "Topic :: Utilities",
@@ -43,7 +43,6 @@ setuptools.setup(
     },
     python_requires=">=3.7",
     zip_safe=False,
-    setup_requires=["setuptools-git-versioning<2"],
     setuptools_git_versioning={
         "enabled": True,
     },
