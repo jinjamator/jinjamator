@@ -243,7 +243,7 @@ def initialize(flask_app, cfg):
     init_celery(cfg)
     db.init_app(flask_app)
     with flask_app.app_context():
-        db.metadata.create_all(bind=db.engines["aaa"])
+        db.create_all(bind_key="aaa")
     init_aaa(aaa_providers, cfg)
 
     api_blueprint = Blueprint(
