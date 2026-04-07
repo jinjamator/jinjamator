@@ -187,27 +187,21 @@ class LDAPAuthProvider(AuthProviderBase):
                     # check_group_mapping
                     if self._configuration.get("map_groups"):
                         user.roles = []
-                    for ad_group, mappings in self._configuration.get(
-                        "map_groups", []
-                    ).items():
+                    final_roles=[]
 
+                    for ad_group, mappings in self._configuration.get("map_groups", []).items():
+                        
                         for jm_group in mappings:
                             if ad_group in resolved_user_groups:
-
-                                role = (
-                                    db.session.query(JinjamatorRole)
-                                    .filter_by(name=jm_group)
-                                    .first()
-                                )
-                                if role and role not in user.roles:
-                                    user.roles.append(role)
-                                else:
-                                    log.error(f"role {jm_group} not found")
+                                final_roles.append(jm_group)
 
                     db.session.add(user)
                     db.session.commit()
-                    user = User.query.filter_by(username=username).first()
-
+                    db.session.refresh(user)
+                    self._user=user
+                    self.set_roles(final_roles)
+                    db.session.refresh(user)
+                    
                     token = {}
                     token["access_token"] = (
                         "Bearer " + user.generate_auth_token().access_token

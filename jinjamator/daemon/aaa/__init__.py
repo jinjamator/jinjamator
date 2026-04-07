@@ -171,6 +171,7 @@ def require_role(role=None, permit_self=False):
                         ).first()
                         if user:
                             if user.id == token_data["id"]:
+                                g._user = user.to_dict()
                                 log.debug(
                                     f"permit self set -> permitting access for user_id {user.id} user_name {user.name} on own record"
                                 )
