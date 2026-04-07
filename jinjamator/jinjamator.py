@@ -40,6 +40,8 @@ __updated__ = datetime.date.fromtimestamp(os. path.getmtime(Path(__file__).paren
 __date__ = "22.07.2019"
 __author__ = "Wilhelm Putz"
 
+print(Path(__file__).parent.joinpath("VERSION"))
+
 class ExcludeLevelFilter(logging.Filter):
     def __init__(self, level):
         super().__init__()
