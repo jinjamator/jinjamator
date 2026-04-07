@@ -395,7 +395,7 @@ class UserRolesDetail(Resource):
                 name=request.json.get("role")
             ).first()
             if db_role:
-                user.roles.append(db_role)
+                user.role_links.append(db_role)
                 db.session.commit()
                 db.session.refresh(user)
 
