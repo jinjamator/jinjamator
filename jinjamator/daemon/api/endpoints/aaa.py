@@ -29,7 +29,12 @@ from jinjamator.daemon.api.serializers import (
     aaa_edit_user,
     environments,
 )
-from jinjamator.daemon.aaa.models import User, JinjamatorRole, JinjamatorRole as r
+from jinjamator.daemon.aaa.models import (
+    User,
+    JinjamatorRole,
+    JinjamatorRole as r,
+    UserRoleLink,
+)
 from jinjamator.daemon.database import db
 
 from flask import current_app as app
@@ -224,10 +229,6 @@ class Users(Resource):
                 aaa_provider=request.json.get("aaa_provider", "local"),
                 roles=[],
             )
-            if request.json.get("roles") or request.json.get("roles") == []:
-                for role in request.json.get("roles", []):
-                    db_role = JinjamatorRole.query.filter_by(name=role).first()
-                    new_user.roles.append(db_role)
 
         except KeyError:
             abort(400, "Parameters missing, or not properly encoded")
@@ -235,6 +236,20 @@ class Users(Resource):
         try:
             db.session.commit()
             db.session.refresh(new_user)
+
+            if "roles" in data:
+                for role in data.get("roles", []):
+                    db_role = (
+                        db.session.query(JinjamatorRole).filter_by(name=role).first()
+                    )
+                    if db_role:
+                        db.session.add(
+                            UserRoleLink(user_id=new_user.id, role_id=db_role.id)
+                        )
+
+            db.session.commit()
+            db.session.refresh(new_user)
+
             return new_user.to_dict()
         except:
             abort(400, "User exists")
@@ -301,14 +316,22 @@ class UserDetail(Resource):
             "user_administration" in current_user_roles
             or "administrator" in current_user_roles
         ):
-            if request.json.get("roles") or request.json.get("roles") == []:
-                user.roles = []
-                for role in request.json.get("roles", []):
-                    db_role = JinjamatorRole.query.filter_by(name=role).first()
-                    user.roles.append(db_role)
 
-        db.session.add(user)
-        db.session.commit()
+            data = request.get_json(silent=True) or {}
+
+            if "roles" in data:
+                db.session.query(UserRoleLink).filter_by(user_id=user.id).delete()
+                for role in data.get("roles", []):
+                    db_role = (
+                        db.session.query(JinjamatorRole).filter_by(name=role).first()
+                    )
+                    if db_role:
+                        db.session.add(
+                            UserRoleLink(user_id=user.id, role_id=db_role.id)
+                        )
+
+            db.session.commit()
+
         return {"message": f"updated user"}
 
     @require_role(role="user_administration", permit_self=True)
