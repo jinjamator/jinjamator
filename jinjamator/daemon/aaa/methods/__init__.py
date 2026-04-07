@@ -8,6 +8,7 @@ from jinjamator.daemon.aaa.models import (
     Oauth2UpstreamToken,
     JinjamatorToken,
     JinjamatorRole,
+    UserRoleLink,
 )
 
 
@@ -47,6 +48,19 @@ class AuthProviderBase(object):
         log.debug(f"generating new token for user_id: {self._user.id}")
         return self._user.generate_auth_token().access_token
 
+    
+    def set_roles(self,roles):
+
+        if roles:
+            self._user.role_links.clear()
+            for role in roles:
+                db_role = db.session.query(JinjamatorRole).filter_by(name=role).first()
+                if db_role:
+                    self._user.role_links.append(UserRoleLink(role=db_role))
+
+        db.session.commit()
+
+
     def create_static_users(self):
         with app.app_context():
             for static_user in self.static_users:
@@ -77,19 +91,14 @@ class AuthProviderBase(object):
                 except IndexError as e:
                     self._log.error(f"Cannot create static user {e}")
                     return False
-
-                # delete all existing roles for
-                new_user.roles = []
-
-                for static_user_role in static_user.get("roles", []):
-                    role = (
-                        db.session.query(JinjamatorRole)
-                        .filter_by(name=static_user_role)
-                        .first()
-                    )
-                    new_user.roles.append(role)
-
                 db.session.add(new_user)
+                db.session.commit()
+                db.session.refresh(new_user)
+                self._user=new_user
+                
+                self.set_roles(static_user.get("roles", []))
+
+                
                 try:
                     db.session.commit()
                 except Exception as e:
