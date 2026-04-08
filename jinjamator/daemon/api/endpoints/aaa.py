@@ -279,18 +279,28 @@ class UserDetail(Resource):
     @require_role(role="user_administration")
     def delete(self, user_id_or_name):
         """
-        Delete an user.
+        Delete a user.
         """
-        # try:
-        log.debug(f"user_id_or_name {user_id_or_name}")
+
         user = User.query.filter(
-            or_(User.id == user_id_or_name, User.username == str(user_id_or_name))
+            or_(User.id == user_id_or_name,
+                User.username == str(user_id_or_name))
+        ).first()
+
+        if not user:
+            abort(404, "User not found")
+
+        UserRoleLink.query.filter(
+            UserRoleLink.user_id == user.id
         ).delete()
-        db.session.add(user)
+
+
+        db.session.delete(user)
+
         db.session.commit()
-        return {"message": f"deleted user"}
-        # except Exception:
-        #     abort(404, "User ID not found")
+
+        return {"message": "deleted user"}
+
 
     @api.expect(aaa_edit_user)
     @require_role(role="user_administration", permit_self=True)
@@ -330,26 +340,6 @@ class UserDetail(Resource):
             db.session.commit()
 
         return {"message": f"updated user"}
-
-    @require_role(role="user_administration", permit_self=True)
-    def delete(self, user_id_or_name):
-        """
-        Delete an user.
-        """
-        
-        try:
-            if (
-                User.query.filter(
-                    or_(User.id == user_id_or_name, User.username == user_id_or_name)
-                ).delete()
-                == 1
-            ):
-                db.session.commit()
-                return {"message": f"deleted user {user_id_or_name}"}
-
-        except Exception as e:
-            abort(500, f"Error, cannot remove user {user_id_or_name} : {e}")
-        return {"message": f"user {user_id_or_name} not found"}, 404
 
 
 @ns.route("/users/<user_id_or_name>/roles")
