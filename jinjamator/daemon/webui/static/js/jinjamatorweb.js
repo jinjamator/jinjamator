@@ -202,7 +202,7 @@ $(function () {
     var client = new $.RestClient('/api/');
     client.add('environments');
     let cur_env = get('jinjamator_environment');
-    let selected=false;
+    let selected = false;
     client.environments.read().done(function (data) {
         $.each(data.environments, function (key, environment) {
             $.each(environment.sites, function (key, site) {
@@ -244,7 +244,7 @@ class SmoothOverlay {
     reset() {
         this.fadeOut(0);
         this.usage_count = 0
-        
+
     }
 }
 
@@ -375,14 +375,14 @@ function list_roles() {
         $(".all-content").html('<section class="content">' + data + '</section>');
     }).done(
 
-        function(){
+        function () {
 
-        client.aaa.roles.read().done(function (data) {
-            table_data = '<div class="box-body"><table id="roles_list" class="table table-bordered table-hover">\
+            client.aaa.roles.read().done(function (data) {
+                table_data = '<div class="box-body"><table id="roles_list" class="table table-bordered table-hover">\
             <thead><tr><th>ID</th><th width="99%">Role Name</th><th width="1%">Actions</th></tr></thead>'
 
-            data.forEach(function (value, index, array) {
-                table_data += '<tr><td>' + value.id + '</td><td width="99%">' + value.name + '</td>\
+                data.forEach(function (value, index, array) {
+                    table_data += '<tr><td>' + value.id + '</td><td width="99%">' + value.name + '</td>\
                 <td align="center" width="1%" style="white-space:nowrap;">\
                 <div class="icon">\
                 <a href="#" class="fa fa-remove delete-role-href" onclick="delete_role(\'' + value.id + '\')">\
@@ -390,43 +390,43 @@ function list_roles() {
                 <a href="#" class="fa fa-info-circle"></a>-->\
                 </a></div> \
                 </td></tr > '
-            });
+                });
 
-            table_data += '</table></div>';
-            $(".main-content-box-title").replaceWith('<h3 class="box-title">Roles</h3>');
-            $(".main-content-box").replaceWith(table_data);
+                table_data += '</table></div>';
+                $(".main-content-box-title").replaceWith('<h3 class="box-title">Roles</h3>');
+                $(".main-content-box").replaceWith(table_data);
 
 
-            if ($.fn.dataTable.isDataTable('#task_list')) {
-                $('#roles_list').DataTable().destroy();
-            }
+                if ($.fn.dataTable.isDataTable('#task_list')) {
+                    $('#roles_list').DataTable().destroy();
+                }
 
-            table = $('#roles_list').DataTable({
-                dom: 'Bfrtip',
-                autoWidth: false,
-                buttons: [
-                    {
-                        text: 'Create Role',
-                        action: function (e, dt, node, config) {
-                            create_role();
+                table = $('#roles_list').DataTable({
+                    dom: 'Bfrtip',
+                    autoWidth: false,
+                    buttons: [
+                        {
+                            text: 'Create Role',
+                            action: function (e, dt, node, config) {
+                                create_role();
+                            }
                         }
-                    }
-                ],
-                "lengthMenu": [
-                    [15, 30, 100, -1],
-                    [15, 30, 100, "All"]
-                ]
+                    ],
+                    "lengthMenu": [
+                        [15, 30, 100, -1],
+                        [15, 30, 100, "All"]
+                    ]
 
-            })
-            //table.on( 'dblclick', function () {
-            // table.on('dblclick', 'tbody tr', function() {
-            //     edit_user(table.row(this).data()[0]);
-            // });
+                })
+                //table.on( 'dblclick', function () {
+                // table.on('dblclick', 'tbody tr', function() {
+                //     edit_user(table.row(this).data()[0]);
+                // });
 
-            $('.main-section').removeClass('hidden');
+                $('.main-section').removeClass('hidden');
 
+            });
         });
-    });
 }
 
 
@@ -568,7 +568,7 @@ function edit_user(username) {
                 }
                 user_data.roles = new_role_data;
                 console.dir(user_data)
-                client.aaa.users.update(username, user_data).done(function(e){list_users();});
+                client.aaa.users.update(username, user_data).done(function (e) { list_users(); });
             })
         });
     });
@@ -665,9 +665,10 @@ function create_user() {
             }
             user_data.roles = new_role_data;
 
-            client.aaa.users.create(user_data).done(function(e){
-                list_users();});
-            
+            client.aaa.users.create(user_data).done(function (e) {
+                list_users();
+            });
+
         })
     });
 
@@ -685,59 +686,59 @@ function list_users() {
         $(".all-content").html('<section class="content">' + data + '</section>');
     }).done(
 
-        function(){
+        function () {
 
             client.aaa.users.read().done(function (data) {
-            
-            table_data = '<div class="box-body"><table id="users_list" class="table table-bordered table-hover">\
+
+                table_data = '<div class="box-body"><table id="users_list" class="table table-bordered table-hover">\
             <thead><tr><th>ID</th><th>Username</th><th width="60%">Full Name</th><th>AAA Provider</th><th width="1%">Actions</th></tr></thead>'
 
-            data.forEach(function (value, index, array) {
-                table_data += '<tr><td>' + value.id + '</td><td>' + value.username + '</td><td width="60%">' + value.name + '</td> <td> ' + value.aaa_provider + ' </td>\
+                data.forEach(function (value, index, array) {
+                    table_data += '<tr><td>' + value.id + '</td><td>' + value.username + '</td><td width="60%">' + value.name + '</td> <td> ' + value.aaa_provider + ' </td>\
                 <td align="center" width="1%" style="white-space:nowrap;">\
                 <div class="icon">\
                 <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' + value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
                 <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' + value.id + '\')">\
                 </a></div> \
                 </td></tr > '
-            });
+                });
 
-            table_data += '</table></div>';
+                table_data += '</table></div>';
 
-            $(".main-content-box-title").replaceWith('<h3 class="box-title">Users</h3>');
-            $(".main-content-box").replaceWith(table_data);
+                $(".main-content-box-title").replaceWith('<h3 class="box-title">Users</h3>');
+                $(".main-content-box").replaceWith(table_data);
 
 
-            if ($.fn.dataTable.isDataTable('#users_list')) {
-                $('#users_list').DataTable().destroy();
-            }
+                if ($.fn.dataTable.isDataTable('#users_list')) {
+                    $('#users_list').DataTable().destroy();
+                }
 
-            table = $('#users_list').DataTable({
-                dom: 'Bfrtip',
-                autoWidth: false,
-                buttons: [
-                    {
-                        text: 'Create User',
-                        action: function (e, dt, node, config) {
-                            create_user();
+                table = $('#users_list').DataTable({
+                    dom: 'Bfrtip',
+                    autoWidth: false,
+                    buttons: [
+                        {
+                            text: 'Create User',
+                            action: function (e, dt, node, config) {
+                                create_user();
+                            }
                         }
-                    }
-                ],
-                "lengthMenu": [
-                    [15, 30, 100, -1],
-                    [15, 30, 100, "All"]
-                ]
+                    ],
+                    "lengthMenu": [
+                        [15, 30, 100, -1],
+                        [15, 30, 100, "All"]
+                    ]
 
-            })
+                })
 
-            table.on('dblclick', 'tbody tr', function () {
-                edit_user(table.row(this).data()[1]);
+                table.on('dblclick', 'tbody tr', function () {
+                    edit_user(table.row(this).data()[1]);
+                });
+
+                $('.main-section').removeClass('hidden');
+
             });
-
-            $('.main-section').removeClass('hidden');
-
         });
-    });
 
 
 }
@@ -756,15 +757,15 @@ function list_tasks() {
         $(".all-content").html('<section class="content">' + data + '</section>');
     }).done(
 
-        function(){
+        function () {
 
 
-    client.tasks.read().done(function (data) {
-        table_data = '<div class="box-body"><table id="task_list" class="table table-bordered table-hover">\
+            client.tasks.read().done(function (data) {
+                table_data = '<div class="box-body"><table id="task_list" class="table table-bordered table-hover">\
          <thead><tr><th>Task</th><th width="60%">Description</th><th width="1%">Actions</th></tr></thead>'
-        data.tasks.forEach(function (value, index, array) {
-            if (value.gui) {
-                table_data += '<tr><td>' + value.path + '</td><td width="60%">' + value.description + '</td>\
+                data.tasks.forEach(function (value, index, array) {
+                    if (value.gui) {
+                        table_data += '<tr><td>' + value.path + '</td><td width="60%">' + value.description + '</td>\
                 <td align="center" width="1%" style="white-space:nowrap;">\
                 <div class="icon">\
                 <a href="#" class="fa fa-calendar schedule-href" onclick="create_job(\'' + value.path + '\')">\
@@ -772,41 +773,41 @@ function list_tasks() {
                 <a href="#" class="fa fa-info-circle"></a>-->\
                 </a></div> \
                 </td></tr > '
-            }
-        });
+                    }
+                });
 
-        table_data += '</table></div>';
-        $(".main-content-box-title").replaceWith('<h3 class="box-title">Available Jinjamator tasks</h3>');
-        $(".main-content-box").replaceWith(table_data);
+                table_data += '</table></div>';
+                $(".main-content-box-title").replaceWith('<h3 class="box-title">Available Jinjamator tasks</h3>');
+                $(".main-content-box").replaceWith(table_data);
 
-        if ($.fn.dataTable.isDataTable('#task_list')) {
-            $('#task_list').DataTable().destroy();
-        }
+                if ($.fn.dataTable.isDataTable('#task_list')) {
+                    $('#task_list').DataTable().destroy();
+                }
 
-        $.fn.dataTable.ext.search.pop() // dirty but is the only thing that works at the moment
-        delete $.fn.DataTable.ext.order["alpaca"]
+                $.fn.dataTable.ext.search.pop() // dirty but is the only thing that works at the moment
+                delete $.fn.DataTable.ext.order["alpaca"]
 
-        table = $('#task_list').DataTable({
-            autoWidth: false,
-            "lengthMenu": [
-                [15, 30, 100, -1],
-                [15, 30, 100, "All"]
-            ]
+                table = $('#task_list').DataTable({
+                    autoWidth: false,
+                    "lengthMenu": [
+                        [15, 30, 100, -1],
+                        [15, 30, 100, "All"]
+                    ]
 
-        })
+                })
 
 
-        table.on('click', 'tbody tr', function () {
-            $('.main-section').addClass('hidden');
-            wizard_overlay.reset();
-            create_job(table.row(this).data()[0]);
-            table.destroy();
+                table.on('click', 'tbody tr', function () {
+                    $('.main-section').addClass('hidden');
+                    wizard_overlay.reset();
+                    create_job(table.row(this).data()[0]);
+                    table.destroy();
 
-        });
-        $('.main-section').removeClass('hidden');
-        wizard_overlay.fadeOut(100);
-        
-    });
+                });
+                $('.main-section').removeClass('hidden');
+                wizard_overlay.fadeOut(100);
+
+            });
 
 
         }
@@ -820,28 +821,28 @@ function create_job(job_path, pre_defined_vars) {
         list_tasks();
         return true;
     }
-    
+
     if (!pre_defined_vars) {
         pre_defined_vars = {}
     }
 
-    if(!("__clone__" in pre_defined_vars)) {
+    if (!("__clone__" in pre_defined_vars)) {
         wizard_overlay.reset();
         wizard_overlay.fadeIn();
     }
 
-    if (("undo" in pre_defined_vars) && (pre_defined_vars.undo == true)){
+    if (("undo" in pre_defined_vars) && (pre_defined_vars.undo == true)) {
         update_breadcrumb('Jobs', 'Undo ' + pre_defined_vars.__old_job_id__);
     }
-    else if(("__clone__" in pre_defined_vars)) {
-        update_breadcrumb('Jobs', 'Clone ' + pre_defined_vars.__old_job_id__ );
+    else if (("__clone__" in pre_defined_vars)) {
+        update_breadcrumb('Jobs', 'Clone ' + pre_defined_vars.__old_job_id__);
     }
-    else{
+    else {
         update_breadcrumb('Jobs', 'Create');
     }
 
-    sessionStorage.setItem("job_path",job_path)
-    $.get("/api/tasks/" + job_path + "/resources/html/form.html", function (data){
+    sessionStorage.setItem("job_path", job_path)
+    $.get("/api/tasks/" + job_path + "/resources/html/form.html", function (data) {
         update_breadcrumb('Jobs', 'Create:  <b>' + job_path + '</b>');
         $(".all-content").html('<section class="content">' + data + '</section>');
         $.ajax({
@@ -851,7 +852,7 @@ function create_job(job_path, pre_defined_vars) {
         });
 
     }).fail(
-        function(){
+        function () {
             $.get("static/templates/main_content_section.html", function (data) {
                 $(".all-content").html('<section class="content">' + data + '</section>');
                 $(".main-content-box").replaceWith(`
@@ -869,25 +870,25 @@ function create_job(job_path, pre_defined_vars) {
                 </div>
                 {{/if}}
               </script>`);
-        
+
                 $.ajax({
                     url: "/api/tasks/" + job_path + "/resources/js/form.js",
                     dataType: "script",
                     error: function () { }
                 });
-        
-        
+
+
                 client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(pre_defined_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }).done(function (data) {
-        
+
                     $.extend(data['view']['wizard'], {
                         "buttons": {
                             "next": {
                                 "click": function (e) {
                                     control = $('#form').alpaca('get');
-        
+
                                     if ($('li.active[data-alpaca-wizard-step-index]')[0].getAttribute('data-alpaca-wizard-step-index') == 0) {
                                         defaults_step = $('[data-alpaca-wizard-role="step"]')[1];
-        
+
                                         required_vars = {}
                                         $.each(data['view']['wizard']['bindings'], function (key, value) {
                                             if (value == 1) {
@@ -895,28 +896,28 @@ function create_job(job_path, pre_defined_vars) {
                                             }
                                         });
                                         client.tasks.read(job_path, {}, { 'preload-data': JSON.stringify(required_vars), 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() },).done(function (data) {
-        
-        
+
+
                                             $.each(data['view']['wizard']['bindings'], function (key, value) {
                                                 if (value == 2) {
                                                     form_item = control.getControlByPath("/" + key);
                                                     if (form_item === undefined) {
-        
+
                                                         control.createItem(key, data['schema']['properties'][key], data['options']['fields'][key], data['data'][key], 0, function (item) {
                                                             control.registerChild(item, 1);
                                                             defaults_step.append(item.containerItemEl[0]);
-        
-        
+
+
                                                         });
-        
+
                                                     } else {
-                                                        if(!(key in required_vars)){
+                                                        if (!(key in required_vars)) {
                                                             form_item.setValue(data['data'][key]);
                                                             form_item.refresh();
                                                         }
-        
+
                                                     }
-        
+
                                                 }
                                             });
                                         });
@@ -925,18 +926,18 @@ function create_job(job_path, pre_defined_vars) {
                             },
                             "submit": {
                                 "click": function () {
-        
+
                                     client.opts['stringifyData'] = true;
                                     url_data = { 'preload-defaults-from-site': $('#jinjamator_environment option:selected').val() }
                                     var data = this.getValue();
-        
+
                                     var task = job_path;
                                     delete data['task'];
-        
+
                                     for (property in data['output_plugin_parameters']) {
                                         data[property] = data['output_plugin_parameters'][property];
                                     }
-        
+
                                     for (property in data) {
                                         if (property.startsWith('__no_vars_')) {
                                             delete data[property];
@@ -945,12 +946,12 @@ function create_job(job_path, pre_defined_vars) {
                                             delete data[property];
                                         }
                                     }
-        
+
                                     delete data['output_plugin_parameters'];
-        
-        
+
+
                                     if (('wizard_ask_before_submit' in data) && data['wizard_ask_before_submit'] === true) {
-        
+
                                         $('#modal-submit').modal('show')
                                         $('#modal-submit ').find('.btn-ok').unbind('click')
                                         $('#modal-submit ').find('.btn-ok').on('click', function () {
@@ -958,7 +959,7 @@ function create_job(job_path, pre_defined_vars) {
                                                 $('#modal-submit').modal('hide');
                                                 wizard_overlay.fadeIn();
                                                 setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
-                                            }).fail(function (data){
+                                            }).fail(function (data) {
                                                 $('#modal-submit').modal('hide');
                                                 wizard_overlay.fadeOut();
                                                 console.dir(data);
@@ -970,30 +971,30 @@ function create_job(job_path, pre_defined_vars) {
                                         wizard_overlay.fadeIn();
                                         client.tasks.create(job_path, data, url_data).done(function (data) {
                                             setTimeout(function () { show_job(data['job_id']); }, 1000); //this is ugly replace by subsequent api calls to check if job is queued
-                                        }).fail(function (data){
-                                                wizard_overlay.fadeOut();
-                                                console.dir(data);
-                                                alert("Failed to create job, please retry later.")
+                                        }).fail(function (data) {
+                                            wizard_overlay.fadeOut();
+                                            console.dir(data);
+                                            alert("Failed to create job, please retry later.")
                                         });
-        
+
                                     }
-        
-        
-        
+
+
+
                                 }
                             }
                         }
                     });
                     data['options']['fields']['output_plugin']['onFieldChange'] = function (e) {
-        
-        
+
+
                         console.log("event,check", e)
                         if (e.hasOwnProperty('originalEvent')) {
                             return true;
                         }
                         var control = $("#form").alpaca("get");
                         form_data = control.getValue();
-        
+
                         output_plugin_parameters = control.getControlByPath("/output_plugin_parameters");
                         // console.log(output_plugin_parameters)
                         console.log(output_plugin_parameters)
@@ -1004,23 +1005,23 @@ function create_job(job_path, pre_defined_vars) {
                                 output_plugin_parameters.removeItem(output_plugin_parameters.children[0].propertyId, function () { });
                             }
                         });
-        
-        
-        
+
+
+
                         client.plugins.output.read(this.getValue(e), {}, form_data).done(function (data) {
                             // console.log(data)
                             options = data['schema']['options'];
                             schema = data['schema']['schema'];
-        
-        
+
+
                             order = {}
                             $.each(options.fields, function (key, value) {
                                 order[value.order] = key;
                             });
-        
+
                             $.each(order, function (index, var_name) {
-        
-        
+
+
                                 // data.properties[var_name] = data['schema']['properties'][var_name];
                                 // if (typeof(options) !== 'undefined') {
                                 //     if (typeof(options.fields.validator) !== 'undefined') {
@@ -1029,53 +1030,53 @@ function create_job(job_path, pre_defined_vars) {
                                 //         }
                                 //     }
                                 // };
-        
+
                                 // console.log(output_plugin_parameters.children)
                                 output_plugin_parameters.addItem(var_name, schema.properties[var_name], options.fields[var_name], '', function (item) { });
                             });
                             console.log(output_plugin_parameters)
                         });
-        
-        
-        
-        
-        
+
+
+
+
+
                     }
                     data.options['allowNull'] = true;
-        
-        
+
+
                     data['postRender'] = function (control) {
-                        
+
                         form_data = control.getValue();
-        
-        
+
+
                         if ('output_plugin' in form_data) {
                             var output_plugin_name = form_data['output_plugin'];
                         } else {
                             console.log('output_plugin undefined defaulting to console');
                             var output_plugin_name = 'console';
-        
+
                         }
-        
-        
+
+
                         client.plugins.output.read(output_plugin_name, {}, form_data).done(function (data) {
                             var itemId = "output_plugin_parameters";
                             var itemSchema = data['schema']['schema']
                             var itemOptions = data['schema']['options']
-        
+
                             var insertAfterId = "output_plugin";
                             output_plugin = $('[data-alpaca-field-name="output_plugin"]')[0];
                             // console.dir(output_plugin)
-        
+
                             control.createItem(itemId, itemSchema, itemOptions, {}, '', function (item) {
                                 control.registerChild(item, 3);
                                 output_plugin.parentNode.append(item.containerItemEl[0]);
-        
+
                             });
-        
+
                         });
-        
-        
+
+
                         if ('post_render' in data) {
                             // console.log(data['post_render'])
                             window[data['post_render']](control)
@@ -1095,27 +1096,27 @@ function create_job(job_path, pre_defined_vars) {
                                 'readonly': true
                             }
                             data['view']['wizard']['bindings']['__no_vars_' + step] = step
-        
+
                         }
                     });
-        
-        
-        
+
+
+
                     $("#form").alpaca(data);
-        
-        
-        
-        
-        
+
+
+
+
+
                     $('.main-content-box-title').remove();
                     $('.main-section').removeClass('hidden');
                     wizard_overlay.fadeOut();
                 });
-        
-        
-        
-        
-        
+
+
+
+
+
             });
         }
     )
@@ -1126,34 +1127,34 @@ function create_job(job_path, pre_defined_vars) {
 
 function clone_job(job_id, undo) {
     wizard_overlay.fadeIn()
-    
+
     client.jobs.read(job_id).done(function (data) {
         var timestamp = Object.keys(data['log'][0])[0];
         var configuration = data['log'][0][timestamp]['configuration'];
-        
+
 
         if (undo) {
             configuration["undo"] = true;
         }
         if (configuration.jinjamator_job_id !== undefined) {
-            
+
             delete configuration.jinjamator_job_id;
         }
         if (data.files.length > 0) {
             data['files'].forEach(function (value, index, array) {
-                if (configuration["filenames"]){
-                configuration["filenames"].forEach(function (form_data, form_index, form_array) {
-                    if (form_data.name == value) {
-                        configuration["filenames"][form_index].filesystem_path = data.id + '/' + value
-                    }
-                
-                });
-            }
+                if (configuration["filenames"]) {
+                    configuration["filenames"].forEach(function (form_data, form_index, form_array) {
+                        if (form_data.name == value) {
+                            configuration["filenames"][form_index].filesystem_path = data.id + '/' + value
+                        }
+
+                    });
+                }
 
             });
         }
-        configuration["__clone__"]=true;
-        configuration["__old_job_id__"]= job_id;
+        configuration["__clone__"] = true;
+        configuration["__old_job_id__"] = job_id;
         create_job(data['jinjamator_task'], configuration);
     });
 
@@ -1212,9 +1213,9 @@ function list_jobs() {
         $.each(data, function (i, item) {
             $.each(data[i], function (j, obj) {
                 if (obj.ticket_number == "") {
-                    obj.ticket_number="<center>n/a</center>"
+                    obj.ticket_number = "<center>n/a</center>"
                 }
-    
+
                 badge_color = badge_color_from_state(obj.state);
                 table_data += '<tr><td width="1%">' + obj.number + '</td>\
                 <td width="10%">' + obj.created_by_user_name + '</td>\
@@ -1265,14 +1266,14 @@ function set_timeline_loglevel() {
 }
 
 function toggle_timeline_show_tasklet_results() {
-    localStorage.setItem("show_tasklet_results",String($("#show_tasklet_results")[0].checked))
+    localStorage.setItem("show_tasklet_results", String($("#show_tasklet_results")[0].checked))
     set_timeline_loglevel();
 }
 
 function update_timeline(job_id, table) {
     // client.jobs.read(job_id).done(function (data) {
     var state = $('#job_status').html()
-    
+
     if ($('#job_id').length > 0) {
         if (state != "FAILURE" && state != "SUCCESS") {
             var current_serverity = $('#log_severity')[0].value
@@ -1282,11 +1283,11 @@ function update_timeline(job_id, table) {
             if (last_timestamp_rendered) {
                 options["logs-newer-than"] = last_timestamp_rendered;
             }
-            if (localStorage.getItem("show_tasklet_results") == null){
-                localStorage.show_tasklet_results="false"
+            if (localStorage.getItem("show_tasklet_results") == null) {
+                localStorage.show_tasklet_results = "false"
             }
-            options["show-tasklet-results"]=localStorage.getItem("show_tasklet_results");
-            
+            options["show-tasklet-results"] = localStorage.getItem("show_tasklet_results");
+
 
 
             client.jobs.read(job_id, {}, options).done(function (data) {
@@ -1356,8 +1357,8 @@ function render_logs(data) {
             $('<br>').appendTo('#job_files');
         });
     }
-    
-    update_summary_text=false;
+
+    update_summary_text = false;
     $.each(data['log'], function (index, log_item) {
         var timestamp = Object.keys(log_item)[0];
         var message = log_item[timestamp]['message']
@@ -1367,15 +1368,15 @@ function render_logs(data) {
         var tasklet = log_item[timestamp]['current_tasklet']
         var serverity = log_item[timestamp]['level']
 
-        
-        if (serverity == "TASK_SUMMARY"){
-            update_summary_text=message
+
+        if (serverity == "TASK_SUMMARY") {
+            update_summary_text = message
         }
-        else{
-            $('#log_table').DataTable().row.add([timestamp, tasklet, serverity, log_item[timestamp]['configuration'],message]);
+        else {
+            $('#log_table').DataTable().row.add([timestamp, tasklet, serverity, log_item[timestamp]['configuration'], message]);
 
         }
-        
+
         // row_html = '<tr><td nowrap width="1%">' + timestamp +
         //     '</td><td nowrap width="1%" class="jinjamator_log_tasklet"><span class="tasklet_path_block">' + tasklet_short +
         //     '</span><span class="tasklet_path_none">' + tasklet +
@@ -1392,13 +1393,13 @@ function render_logs(data) {
 
 
     })
-    
-    if (update_summary_text){
-                $('#jm_result_summary')[0].innerHTML=update_summary_text
-                if ($('#jm_result_summary_script').length == 1){
-                    window.eval($('#jm_result_summary_script')[0].innerText);
-                }
-                
+
+    if (update_summary_text) {
+        $('#jm_result_summary')[0].innerHTML = update_summary_text
+        if ($('#jm_result_summary_script').length == 1) {
+            window.eval($('#jm_result_summary_script')[0].innerText);
+        }
+
     }
 
     $('#log_table').DataTable().draw(false);
@@ -1412,11 +1413,11 @@ function render_logs(data) {
     // }).draw();
 
     $('#log_table').on('click', '.jinjamator_log_message', function () {
-        if ($(this).hasClass('jinjamator_log_message_raw')){
-            $(this)[0].innerHTML=$(this)[0].innerHTML.replaceAll("\n","<BR>").replaceAll("\r","<BR>")
+        if ($(this).hasClass('jinjamator_log_message_raw')) {
+            $(this)[0].innerHTML = $(this)[0].innerHTML.replaceAll("\n", "<BR>").replaceAll("\r", "<BR>")
             $(this).removeClass('jinjamator_log_message_raw');
         }
-        
+
 
         $(this).toggleClass('jinjamator_log_message_collapsed jinjamator_log_message_full');
 
@@ -1454,20 +1455,20 @@ function show_job(job_id, filter_serverity) {
             }
 
             var current_serverity = $('#log_severity')[0].value;
-            
-            var options =  { "log-level": current_serverity,"show-tasklet-results":"false" }
-            
+
+            var options = { "log-level": current_serverity, "show-tasklet-results": "false" }
+
             var show_tasklet_results = localStorage.getItem("show_tasklet_results");
-            
-            if (show_tasklet_results === "true"){
-                $("#show_tasklet_results")[0].checked=true;
-                options["show-tasklet-results"]="true"
+
+            if (show_tasklet_results === "true") {
+                $("#show_tasklet_results")[0].checked = true;
+                options["show-tasklet-results"] = "true"
             }
-                
-            
-            
-            
-            client.jobs.read(job_id,options).done(function (data) {
+
+
+
+
+            client.jobs.read(job_id, options).done(function (data) {
 
 
                 $("#user_name").html(data['created_by_user_name']);
@@ -1506,17 +1507,17 @@ function show_job(job_id, filter_serverity) {
                             className: "jinjamator_log_nowap_small jinjamator_log_tasklet",
                             width: '1%',
                             render: function (data, type, row) {
-                                
+
                                 var tasklet = data
                                 var tasklet_short = tasklet
-                                
+
                                 if (tasklet.length > 15)
                                     var tasklet_short = "..." + tasklet.substring(tasklet.length - 12)
 
                                 return '<span class="tasklet_path_block">' + tasklet_short + '</span><span class="tasklet_path_none">' + tasklet + '</span>'
                             }
-                            
-        
+
+
                         },
                         {
                             title: 'Level',
@@ -1543,8 +1544,8 @@ function show_job(job_id, filter_serverity) {
                                     case 'TASK_SUMMARY':
                                         serverity_classes = 'badge bg-green';
                                         break;
-    
-                                        
+
+
                                     case 'CONSOLE':
                                         serverity_classes = 'badge bg-black';
                                         break;
@@ -1556,162 +1557,162 @@ function show_job(job_id, filter_serverity) {
                             title: 'Configuration',
                             className: 'jinjamator_log_nowap_small',
                             render: function (data, type, row, meta) {
-                                
+
                                 const formatter = new JSONFormatter(data, 0);
                                 var div = document.createElement("div")
                                 var icon = document.createElement("i")
-                                icon.classList=["fa fa-fw fa-expand right jm_icon"]
-                                
-                                
-                                var copy_raw=document.createElement("a")
-                                copy_raw.setAttribute("href","#");
-                                copy_raw.setAttribute("data-tooltip","Copied!")
-                                
+                                icon.classList = ["fa fa-fw fa-expand right jm_icon"]
+
+
+                                var copy_raw = document.createElement("a")
+                                copy_raw.setAttribute("href", "#");
+                                copy_raw.setAttribute("data-tooltip", "Copied!")
+
 
 
                                 var copy_raw_icon = document.createElement("i")
-                                copy_raw_icon.classList=["fa fa-fw fa-copy right jm_icon"]
+                                copy_raw_icon.classList = ["fa fa-fw fa-copy right jm_icon"]
                                 copy_raw.appendChild(copy_raw_icon)
-                                
-                                
-                                copy_raw.onclick = function(){
-                                    navigator.clipboard.writeText(JSON.stringify(data,null, 2));
+
+
+                                copy_raw.onclick = function () {
+                                    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
                                     $(this).toggleClass("show_tooltip")
-                                      
-                                    window.setTimeout(function(){$(this).toggleClass("show_tooltip")},2);
+
+                                    window.setTimeout(function () { $(this).toggleClass("show_tooltip") }, 2);
                                 }
                                 div.appendChild(copy_raw)
                                 div.appendChild(icon)
-                                icon.onclick = function() {
-                                    if (formatter.open){
-                                        formatter.openAtDepth(0);    
+                                icon.onclick = function () {
+                                    if (formatter.open) {
+                                        formatter.openAtDepth(0);
                                     }
-                                    else{
+                                    else {
                                         formatter.openAtDepth(1000);
                                     }
-                                    
+
                                     icon.classList.toggle("fa-compress");
                                     icon.classList.toggle("fa-expand");
                                 }
 
                                 div.append(formatter.render())
-                                return div                                            
-                      
-                      
+                                return div
+
+
                             }
                         },
                         {
                             title: 'Message',
                             render: function (data, type, row) {
-                                var trimmed=data.trim()
-                                if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("{") && trimmed.endsWith("}"))){
+                                var trimmed = data.trim()
+                                if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("{") && trimmed.endsWith("}"))) {
                                     try {
-                                        var js_data=JSON.parse(trimmed)
+                                        var js_data = JSON.parse(trimmed)
                                         const formatter = new JSONFormatter(js_data, 0);
                                         formatter.openAtDepth(0);
-                                        
+
                                         var div = document.createElement("div")
-                                        
+
                                         var icon = document.createElement("i")
-                                        icon.classList=["fa fa-fw fa-expand right jm_icon"]
-                                
+                                        icon.classList = ["fa fa-fw fa-expand right jm_icon"]
+
                                         var copy_raw = document.createElement("i")
-                                        copy_raw.classList=["fa fa-fw fa-copy right jm_icon"]
-                                        copy_raw.onclick = function(){
-                                            try{
-                                                navigator.clipboard.writeText(JSON.stringify(JSON.parse(data),null, 2));
+                                        copy_raw.classList = ["fa fa-fw fa-copy right jm_icon"]
+                                        copy_raw.onclick = function () {
+                                            try {
+                                                navigator.clipboard.writeText(JSON.stringify(JSON.parse(data), null, 2));
                                             }
-                                            catch(e){
-                                                navigator.clipboard.writeText(data)  
+                                            catch (e) {
+                                                navigator.clipboard.writeText(data)
                                             }
                                         }
-                                        icon.onclick = function() {
-                                            if (formatter.open){
-                                                formatter.openAtDepth(0);    
+                                        icon.onclick = function () {
+                                            if (formatter.open) {
+                                                formatter.openAtDepth(0);
                                             }
-                                            else{
+                                            else {
                                                 formatter.openAtDepth(1000);
                                             }
-                                            
+
                                             icon.classList.toggle("fa-compress");
                                             icon.classList.toggle("fa-expand");
                                         }
-                                        
+
                                         div.append(copy_raw)
                                         div.append(formatter.render())
                                         return div
                                     }
-                                    catch(e){ 
+                                    catch (e) {
                                         try {
                                             // try to convert python datastructure to json -> this is a minimalistic poc, but works most of the time so it's good enough for now
-                                            trimmed=trimmed.replaceAll("'","----'----")
-                                            trimmed=trimmed.replaceAll('"',"'")
-                                            trimmed=trimmed.replaceAll("----'----",'"')
-                                            trimmed=trimmed.replaceAll(": None",': null')
-                                            trimmed=trimmed.replaceAll(": True",': true')
-                                            trimmed=trimmed.replaceAll(": False",': false')
-                                            var js_data=JSON.parse(trimmed)
+                                            trimmed = trimmed.replaceAll("'", "----'----")
+                                            trimmed = trimmed.replaceAll('"', "'")
+                                            trimmed = trimmed.replaceAll("----'----", '"')
+                                            trimmed = trimmed.replaceAll(": None", ': null')
+                                            trimmed = trimmed.replaceAll(": True", ': true')
+                                            trimmed = trimmed.replaceAll(": False", ': false')
+                                            var js_data = JSON.parse(trimmed)
                                             const formatter = new JSONFormatter(js_data, 0);
                                             var div = document.createElement("div")
                                             var icon = document.createElement("i")
-                                            icon.classList=["fa fa-fw fa-expand right jm_icon"]
-                                
+                                            icon.classList = ["fa fa-fw fa-expand right jm_icon"]
+
                                             var copy_raw = document.createElement("i")
-                                            copy_raw.classList=["fa fa-fw fa-copy right jm_icon"]
-                                            copy_raw.onclick = function(){
-                                                try{
-                                                    navigator.clipboard.writeText(JSON.stringify(JSON.parse(data),null, 2));
+                                            copy_raw.classList = ["fa fa-fw fa-copy right jm_icon"]
+                                            copy_raw.onclick = function () {
+                                                try {
+                                                    navigator.clipboard.writeText(JSON.stringify(JSON.parse(data), null, 2));
                                                 }
-                                                catch(e){
-                                                    navigator.clipboard.writeText(data)  
+                                                catch (e) {
+                                                    navigator.clipboard.writeText(data)
                                                 }
                                             }
                                             div.appendChild(icon)
-                                            
-                                            icon.onclick = function() {
-                                                if (formatter.open){
-                                                    formatter.openAtDepth(0);    
+
+                                            icon.onclick = function () {
+                                                if (formatter.open) {
+                                                    formatter.openAtDepth(0);
                                                 }
-                                                else{
+                                                else {
                                                     formatter.openAtDepth(1000);
                                                 }
-                                                
+
                                                 icon.classList.toggle("fa-compress");
                                                 icon.classList.toggle("fa-expand");
                                             }
-                                            
+
                                             div.append(formatter.render())
-                                            return div                                            
-                                  
-                                            }
-                                        catch(e){ 
+                                            return div
+
                                         }
-    
+                                        catch (e) {
+                                        }
+
                                     }
                                 }
                                 var top_div = document.createElement("div")
-                                top_div.style="display: inline-flex;box-sizing: border-box;min-width:100%;"
+                                top_div.style = "display: inline-flex;box-sizing: border-box;min-width:100%;"
                                 var l_div = document.createElement("div")
-                                l_div.style="display: inline-block;min-width:100%;margin-right: -19px;"
+                                l_div.style = "display: inline-block;min-width:100%;margin-right: -19px;"
                                 var r_div = document.createElement("div")
-                                r_div.style="float: right;box-sizing: border-box;"
+                                r_div.style = "float: right;box-sizing: border-box;"
                                 var span = document.createElement("span")
-                                span.classList=["jinjamator_log_message jinjamator_log_message_collapsed jinjamator_log_message_raw"]
-                                
+                                span.classList = ["jinjamator_log_message jinjamator_log_message_collapsed jinjamator_log_message_raw"]
+
                                 var copy_raw = document.createElement("i")
-                                copy_raw.classList=["fa fa-fw fa-copy right jm_icon"]
-                                copy_raw.onclick = function(){
+                                copy_raw.classList = ["fa fa-fw fa-copy right jm_icon"]
+                                copy_raw.onclick = function () {
                                     navigator.clipboard.writeText(data);
                                 }
-                                span.innerText=trimmed   
+                                span.innerText = trimmed
                                 l_div.appendChild(span)
                                 r_div.appendChild(copy_raw)
                                 top_div.appendChild(l_div)
                                 top_div.appendChild(r_div)
-                                
+
                                 return top_div
                             }
-                            
+
                         },
 
                     ],
