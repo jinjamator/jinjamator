@@ -812,7 +812,7 @@ def get_vrfs (tenant):
 def get_routing_table (tenant,vrf):
     ret = []
     rgx = re.compile(r"topology/pod-(\d+)/node-(\d+)/sys/uribv4/dom-.*/db-rt\/rt-\[([0-9a-fA-F\.:\/]+)\]\/nh-*")
-    for rtbl in query(f'/api/node/class/uribv4Nexthop.json?query-target-filter=wcard(uribv4Nexthop.dn,"sys/uribv4/dom\-{tenant}:{vrf}/db\-rt")')["imdata"]:
+    for rtbl in query(rf'/api/node/class/uribv4Nexthop.json?query-target-filter=wcard(uribv4Nexthop.dn,"sys/uribv4/dom\-{tenant}:{vrf}/db\-rt")')["imdata"]:
         entry = rtbl["uribv4Nexthop"]["attributes"]
         entry['next-hop'] = entry['addr']
 
