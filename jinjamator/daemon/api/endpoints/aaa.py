@@ -236,23 +236,20 @@ class Users(Resource):
         try:
             db.session.commit()
             db.session.refresh(new_user)
-
-            if "roles" in data:
-                for role in data.get("roles", []):
-                    db_role = (
-                        db.session.query(JinjamatorRole).filter_by(name=role).first()
-                    )
-                    if db_role:
-                        db.session.add(
-                            UserRoleLink(user_id=new_user.id, role_id=db_role.id)
-                        )
-
-            db.session.commit()
-            db.session.refresh(new_user)
-
-            return new_user.to_dict()
         except:
             abort(400, "User exists")
+
+            
+        
+        for role in request.json.get("roles", []):
+            db_role = ( db.session.query(JinjamatorRole).filter_by(name=role).first())
+            if db_role:
+                db.session.add(UserRoleLink(user_id=new_user.id, role_id=db_role.id))
+
+        db.session.commit()
+        db.session.refresh(new_user)
+        logging.info(new_user)
+        return new_user.to_dict()
 
 
 @ns.route("/users/<user_id_or_name>")
@@ -339,6 +336,7 @@ class UserDetail(Resource):
         """
         Delete an user.
         """
+        
         try:
             if (
                 User.query.filter(
