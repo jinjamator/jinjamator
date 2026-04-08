@@ -373,56 +373,59 @@ function list_roles() {
 
     $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
-    });
+    }).done(
 
-    client.aaa.roles.read().done(function (data) {
-        table_data = '<div class="box-body"><table id="roles_list" class="table table-bordered table-hover">\
-         <thead><tr><th>ID</th><th width="99%">Role Name</th><th width="1%">Actions</th></tr></thead>'
+        function(){
 
-        data.forEach(function (value, index, array) {
-            table_data += '<tr><td>' + value.id + '</td><td width="99%">' + value.name + '</td>\
-            <td align="center" width="1%" style="white-space:nowrap;">\
-            <div class="icon">\
-            <a href="#" class="fa fa-remove delete-role-href" onclick="delete_role(\'' + value.id + '\')">\
-            <!-- <a href="#" class="fa fa-delete">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
-            <a href="#" class="fa fa-info-circle"></a>-->\
-            </a></div> \
-            </td></tr > '
-        });
+        client.aaa.roles.read().done(function (data) {
+            table_data = '<div class="box-body"><table id="roles_list" class="table table-bordered table-hover">\
+            <thead><tr><th>ID</th><th width="99%">Role Name</th><th width="1%">Actions</th></tr></thead>'
 
-        table_data += '</table></div>';
-        $(".main-content-box-title").replaceWith('<h3 class="box-title">Roles</h3>');
-        $(".main-content-box").replaceWith(table_data);
+            data.forEach(function (value, index, array) {
+                table_data += '<tr><td>' + value.id + '</td><td width="99%">' + value.name + '</td>\
+                <td align="center" width="1%" style="white-space:nowrap;">\
+                <div class="icon">\
+                <a href="#" class="fa fa-remove delete-role-href" onclick="delete_role(\'' + value.id + '\')">\
+                <!-- <a href="#" class="fa fa-delete">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+                <a href="#" class="fa fa-info-circle"></a>-->\
+                </a></div> \
+                </td></tr > '
+            });
+
+            table_data += '</table></div>';
+            $(".main-content-box-title").replaceWith('<h3 class="box-title">Roles</h3>');
+            $(".main-content-box").replaceWith(table_data);
 
 
-        if ($.fn.dataTable.isDataTable('#task_list')) {
-            $('#roles_list').DataTable().destroy();
-        }
+            if ($.fn.dataTable.isDataTable('#task_list')) {
+                $('#roles_list').DataTable().destroy();
+            }
 
-        table = $('#roles_list').DataTable({
-            dom: 'Bfrtip',
-            autoWidth: false,
-            buttons: [
-                {
-                    text: 'Create Role',
-                    action: function (e, dt, node, config) {
-                        create_role();
+            table = $('#roles_list').DataTable({
+                dom: 'Bfrtip',
+                autoWidth: false,
+                buttons: [
+                    {
+                        text: 'Create Role',
+                        action: function (e, dt, node, config) {
+                            create_role();
+                        }
                     }
-                }
-            ],
-            "lengthMenu": [
-                [15, 30, 100, -1],
-                [15, 30, 100, "All"]
-            ]
+                ],
+                "lengthMenu": [
+                    [15, 30, 100, -1],
+                    [15, 30, 100, "All"]
+                ]
 
-        })
-        //table.on( 'dblclick', function () {
-        // table.on('dblclick', 'tbody tr', function() {
-        //     edit_user(table.row(this).data()[0]);
-        // });
+            })
+            //table.on( 'dblclick', function () {
+            // table.on('dblclick', 'tbody tr', function() {
+            //     edit_user(table.row(this).data()[0]);
+            // });
 
-        $('.main-section').removeClass('hidden');
+            $('.main-section').removeClass('hidden');
 
+        });
     });
 }
 
@@ -565,9 +568,8 @@ function edit_user(username) {
                 }
                 user_data.roles = new_role_data;
                 console.dir(user_data)
-                client.aaa.users.update(username, user_data);
-                list_users();
-            });
+                client.aaa.users.update(username, user_data).done(function(e){list_users();});
+            })
         });
     });
 
@@ -663,9 +665,10 @@ function create_user() {
             }
             user_data.roles = new_role_data;
 
-            client.aaa.users.create(user_data);
-            list_users();
-        });
+            client.aaa.users.create(user_data).done(function(e){
+                list_users();});
+            
+        })
     });
 
 
@@ -680,56 +683,63 @@ function list_users() {
 
     $.get("static/templates/main_content_section.html", function (data) {
         $(".all-content").html('<section class="content">' + data + '</section>');
-    });
+    }).done(
 
-    client.aaa.users.read().done(function (data) {
-        table_data = '<div class="box-body"><table id="users_list" class="table table-bordered table-hover">\
-         <thead><tr><th>ID</th><th>Username</th><th width="60%">Full Name</th><th>AAA Provider</th><th width="1%">Actions</th></tr></thead>'
+        function(){
 
-        data.forEach(function (value, index, array) {
-            table_data += '<tr><td>' + value.id + '</td><td>' + value.username + '</td><td width="60%">' + value.name + '</td> <td> ' + value.aaa_provider + ' </td>\
-            <td align="center" width="1%" style="white-space:nowrap;">\
-            <div class="icon">\
-            <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' + value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
-            <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' + value.id + '\')">\
-            </a></div> \
-            </td></tr > '
-        });
+            client.aaa.users.read().done(function (data) {
+            
+            table_data = '<div class="box-body"><table id="users_list" class="table table-bordered table-hover">\
+            <thead><tr><th>ID</th><th>Username</th><th width="60%">Full Name</th><th>AAA Provider</th><th width="1%">Actions</th></tr></thead>'
 
-        table_data += '</table></div>';
-        $(".main-content-box-title").replaceWith('<h3 class="box-title">Users</h3>');
-        $(".main-content-box").replaceWith(table_data);
+            data.forEach(function (value, index, array) {
+                table_data += '<tr><td>' + value.id + '</td><td>' + value.username + '</td><td width="60%">' + value.name + '</td> <td> ' + value.aaa_provider + ' </td>\
+                <td align="center" width="1%" style="white-space:nowrap;">\
+                <div class="icon">\
+                <a href="#" class="fa fa-edit edit-user-href" onclick="edit_user(\'' + value.id + '\')">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+                <a href="#" class="fa fa-remove delete-user-href" onclick="delete_user(\'' + value.id + '\')">\
+                </a></div> \
+                </td></tr > '
+            });
+
+            table_data += '</table></div>';
+
+            $(".main-content-box-title").replaceWith('<h3 class="box-title">Users</h3>');
+            $(".main-content-box").replaceWith(table_data);
 
 
-        if ($.fn.dataTable.isDataTable('#users_list')) {
-            $('#users_list').DataTable().destroy();
-        }
+            if ($.fn.dataTable.isDataTable('#users_list')) {
+                $('#users_list').DataTable().destroy();
+            }
 
-        table = $('#users_list').DataTable({
-            dom: 'Bfrtip',
-            autoWidth: false,
-            buttons: [
-                {
-                    text: 'Create User',
-                    action: function (e, dt, node, config) {
-                        create_user();
+            table = $('#users_list').DataTable({
+                dom: 'Bfrtip',
+                autoWidth: false,
+                buttons: [
+                    {
+                        text: 'Create User',
+                        action: function (e, dt, node, config) {
+                            create_user();
+                        }
                     }
-                }
-            ],
-            "lengthMenu": [
-                [15, 30, 100, -1],
-                [15, 30, 100, "All"]
-            ]
+                ],
+                "lengthMenu": [
+                    [15, 30, 100, -1],
+                    [15, 30, 100, "All"]
+                ]
 
-        })
+            })
 
-        table.on('dblclick', 'tbody tr', function () {
-            edit_user(table.row(this).data()[1]);
+            table.on('dblclick', 'tbody tr', function () {
+                edit_user(table.row(this).data()[1]);
+            });
+
+            $('.main-section').removeClass('hidden');
+
         });
-
-        $('.main-section').removeClass('hidden');
-
     });
+
+
 }
 
 
