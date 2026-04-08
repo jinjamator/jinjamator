@@ -35,12 +35,15 @@ from jinjamator.plugin_loader.output import load_output_plugin
 from pathlib import Path
 import datetime
 
-__version__ = Path(__file__).parent.joinpath("VERSION").read_text()
+try:
+    __version__ = Path(__file__).parent.joinpath("VERSION").read_text()
+except:
+    __version__ = "1.0"
 __updated__ = datetime.date.fromtimestamp(os. path.getmtime(Path(__file__).parent.joinpath("VERSION")))
 __date__ = "22.07.2019"
 __author__ = "Wilhelm Putz"
 
-print(Path(__file__).parent.joinpath("VERSION"))
+'print(Path(__file__).parent.joinpath("VERSION"))
 
 class ExcludeLevelFilter(logging.Filter):
     def __init__(self, level):
