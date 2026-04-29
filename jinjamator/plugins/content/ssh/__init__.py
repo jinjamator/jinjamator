@@ -79,7 +79,8 @@ def process_ssh_opts(
         "session_log",
         "use_keys", #For key auth
         "key_file", #For key auth
-        "otp_secret" # secret shown by google-authenticator at setup, warning netmiko_2fa_google_authenticator generates TOTPs autonomous.
+        "otp_secret", # secret shown by google-authenticator at setup, warning netmiko_2fa_google_authenticator generates TOTPs autonomous.
+        "conn_timeout"
     ],
 ):
     cfg = {}
@@ -278,7 +279,8 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
         "fast_cli": False,
         "verbose": False,
         "use_keys": False, #For key auth
-        "key_file": "" #For key auth
+        "key_file": "", #For key auth,
+        "conn_timeout": 10
     }
 
     jumphost_defaults = {
@@ -328,8 +330,10 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
                 return None
             cfg["ip"] = cfg["host"]
             del cfg["host"]
+            cfg["optional_parameters"]=f"-o ConnectTimeout={cfg.get('conn_timeout')}"
             try:
                 log.debug(f"ssh {id(connection)}: tying to jump to {cfg['username']}@{cfg['ip']}")
+
                 connection.jump_to(**cfg)
             except:
                 log.debug(f"ssh {id(connection)}: failed to jump to {cfg['username']}@{cfg['ip']}")
