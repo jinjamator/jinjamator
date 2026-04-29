@@ -330,7 +330,8 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
                 return None
             cfg["ip"] = cfg["host"]
             del cfg["host"]
-            cfg["optional_parameters"]=f"-o ConnectTimeout={cfg.get('conn_timeout')}"
+            if "telnet" not in cfg.get("device_type"):
+                cfg["optional_parameters"]=f"-o ConnectTimeout={cfg.get('conn_timeout')}"
             try:
                 log.debug(f"ssh {id(connection)}: tying to jump to {cfg['username']}@{cfg['ip']}")
 
