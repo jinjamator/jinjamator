@@ -29,6 +29,8 @@ from copy import deepcopy
 import hashlib
 import math
 import random
+from coloredlogs import ColoredFormatter
+
 
 from jinjamator.task import JinjamatorTaskRunException
 
@@ -109,6 +111,9 @@ def run_jinjamator_task(self, path, data, output_plugin, user_id, username, debu
     task._configuration._data["created_by_user_id"]=user_id
     task._configuration._data["created_by_username"]=username
     
+    msg_format = f"%(asctime)s - [{path} {self.request.id}] - %(levelname)s - %(message)s"
+    formatter = ColoredFormatter(msg_format)
+    logging.root.handlers[0].setFormatter(formatter)
 
     task._scheduler = self
     log_handler.formatter.set_jinjamator_task(task)
@@ -139,6 +144,7 @@ def run_jinjamator_task(self, path, data, output_plugin, user_id, username, debu
         )
 
     task.load(path)
+
     
 
     
