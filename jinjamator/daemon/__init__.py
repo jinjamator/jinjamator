@@ -80,6 +80,7 @@ def init_celery(_configuration):
     """
     Configure Celery
     """
+    celery.conf.worker_hijack_root_logger = False
     celery.conf.timezone = _configuration.get("celery_beat_timezone", "UTC")
     log.info(f"celery will use timezone {celery.conf.timezone}")
     celery.conf.broker_url = _configuration.get("celery_broker")
