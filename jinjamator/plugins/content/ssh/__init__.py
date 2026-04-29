@@ -21,6 +21,12 @@ import copy
 log = logging.getLogger()
 
 try:
+    import netmiko_2fa_google_authenticator
+except ImportError:
+    log.info("cannot load netmiko_2fa_google_authenticator, ssh MFA capability disabled")
+
+
+try:
     import netmiko_multihop
 except ImportError:
     log.info("cannot load netmiko_multihop, multihop ssh capability disabled")
@@ -72,7 +78,8 @@ def process_ssh_opts(
         "timeout",
         "session_log",
         "use_keys", #For key auth
-        "key_file" #For key auth
+        "key_file", #For key auth
+        "otp_secret" # secret shown by google-authenticator at setup, warning netmiko_2fa_google_authenticator generates TOTPs autonomous.
     ],
 ):
     cfg = {}
@@ -101,8 +108,8 @@ def process_ssh_opts(
             del kwargs[var_name]
         except KeyError:
             pass
-    # for var_name in kwargs:
-    #     opts[var_name] = kwargs[var_name]
+    if cfg["otp_secret"] == None:
+        del cfg["otp_secret"]
     return cfg, kwargs
 
 
@@ -284,11 +291,11 @@ def _connect(*args, _requires=_get_missing_ssh_connection_vars, **kwargs):
     if "jumphost_host" in kwargs:
         use_jumphost = True
 
-
     jumphost_cfg, opts = process_ssh_opts(kwargs, jumphost_defaults, "jumphost_")
+  
     cfg, opts = process_ssh_opts(opts, defaults)
     connection=None
- 
+
     if cfg.get("session_log"):
         session_buffer = cfg["session_log"]
     else:
