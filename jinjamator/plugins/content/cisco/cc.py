@@ -14,6 +14,7 @@
 
 import os
 import logging
+import httpx
 
 log = logging.getLogger()
 
@@ -69,7 +70,7 @@ def connect(*, _requires=_get_missing_cc_connection_vars, **kwargs):
 
     cc = CiscoCatalystCenterClient(cc_url, **kwargs)
     try:
-        cc.login(cc_username, cc_password)
+        cc.login(cc_username, cc_password, timeout=kwargs.get("timeout",10))
     except Exception as e:
         log.error(e)
         return None
@@ -78,3 +79,6 @@ def connect(*, _requires=_get_missing_cc_connection_vars, **kwargs):
 
 def disconnect(connection):
     pass
+
+def timeout(default=10.0,**kwargs):
+    return httpx.Timeout(default, **kwargs)
