@@ -94,3 +94,51 @@ def save (data,filepath):
     :rtype: bool
     """
     return dump(data,filepath)
+
+#### For big files
+def save_data(data,filepath):
+    """
+    Write structured json_dump-able data directly to a file
+    just write the data, dont format or sort to save resources
+    Differs by a factor of 5:
+    save_data(): 2GB Memory and 8.44 s to write
+    save(): 10GB Memory and 37.99 s to write
+
+    :param data: structured json_dumps()-able data
+    :type data: list,dict
+    :param filepath: path to target-file
+    :type filpath: string
+    :returns: Returns True on success, False on Failure
+    :rtype: bool
+    """
+    return dump_data(data,filepath)
+
+def dumps_data(data):
+    """
+    Convert structured json_dump-able data into a json-string
+
+    :param data: json_dumps()-able data
+    :type data: list,dict
+    :param color: Use pygments to highlight json data
+    :type color: boolean
+    :returns: json-string
+    :rtype: string
+    """
+    retval="{}"
+    
+    retval=json_dumps(data)
+
+    return retval
+
+def dump_data(data,filepath):
+    """
+    Write structured json_dump-able data directly to a file
+
+    :param data: structured json_dumps()-able data
+    :type data: list,dict
+    :param filepath: path to target-file
+    :type filpath: string
+    :returns: Returns True on success, False on Failure
+    :rtype: bool
+    """
+    return file.save(dumps_data(data),filepath)
