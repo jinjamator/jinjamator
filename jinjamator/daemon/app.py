@@ -1,6 +1,6 @@
 from flask import Flask
 
-app = Flask(__name__, static_folder="./webui/static")
+app = Flask(__name__, static_folder=None)
 
 
 @app.after_request
