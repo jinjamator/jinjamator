@@ -17,7 +17,7 @@ from flask import send_from_directory, Blueprint
 import logging
 from jinjamator.daemon.aaa import aaa_providers
 
-webui = Blueprint("webui", __name__, url_prefix="/", template_folder=os.path.sep.join([os.path.dirname(__file__), "static","templates"]))
+webui = Blueprint("webui", __name__, url_prefix="/", static_folder=os.path.join(os.path.dirname(__file__), "static"), static_url_path="/static", template_folder=os.path.sep.join([os.path.dirname(__file__), "static","templates"]))
 log = logging.getLogger()
 
 from flask_autoindex import AutoIndex
