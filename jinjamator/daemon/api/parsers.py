@@ -28,7 +28,7 @@ task_arguments.add_argument(
     type=str,
     required=False,
     default="full",
-    choices=["schema", "options", "view", "data", "full"],
+    choices=["schema", "options", "view", "data", "full", "surveyjs"],
     help="Select which subpart of the schema should be returned",
 )
 
