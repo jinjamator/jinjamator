@@ -256,19 +256,22 @@ def discover_tasks(app):
                                             403,
                                             f"User neither has no role environment_{env_name}|site_{site_name} nor environments_all nor administrator. Access denied.",
                                         )
+                                
+                                if schema_type in ["surveyjs"]:
+                                    response=jsonify(inner_task.get_surveyjs_schema())
+                                else:
+                                    full_schema = inner_task.get_jsonform_schema()
 
-                                full_schema = inner_task.get_jsonform_schema()
-
-                                if schema_type in ["", "full"]:
-                                    response = jsonify(full_schema)
-                                elif schema_type in ["schema"]:
-                                    response = jsonify(full_schema.get("schema", {}))
-                                elif schema_type in ["data"]:
-                                    response = jsonify(full_schema.get("data", {}))
-                                elif schema_type in ["options"]:
-                                    response = jsonify(full_schema.get("options", {}))
-                                elif schema_type in ["view"]:
-                                    response = jsonify(full_schema.get("view", {}))
+                                    if schema_type in ["", "full"]:
+                                        response = jsonify(full_schema)
+                                    elif schema_type in ["schema"]:
+                                        response = jsonify(full_schema.get("schema", {}))
+                                    elif schema_type in ["data"]:
+                                        response = jsonify(full_schema.get("data", {}))
+                                    elif schema_type in ["options"]:
+                                        response = jsonify(full_schema.get("options", {}))
+                                    elif schema_type in ["view"]:
+                                        response = jsonify(full_schema.get("view", {}))
                                 del inner_task
                                 return response
 

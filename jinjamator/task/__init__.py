@@ -685,6 +685,16 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         # self._log.debug(pformat(schema))
         return schema
 
+
+    def get_surveyjs_schema(self):
+        try:
+            with open(self.task_base_dir + "/surveyjs.json") as fh:
+                return json.loads(fh.read())
+        except IOError:
+            pass
+        return {}
+
+
     def handle_uploaded_files(self, file_upload_var_name):
         if self._configuration["task_run_mode"] not in ["background","get_schema"]:
             return None
@@ -740,6 +750,7 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
             else:
                 self._log.error(f"cannot find uploaded file {filename} -> skipping")
         self.configuration[file_upload_var_name] = filelist
+    
     def parse_exception(self,e,tasklet):
         task_code = self.get_py_tasklet_code(tasklet)
         _, _, tb = sys.exc_info()
