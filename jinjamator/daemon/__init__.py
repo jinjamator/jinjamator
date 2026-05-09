@@ -278,6 +278,8 @@ def initialize(flask_app, cfg):
             flask_app.config["JINJAMATOR_WEB_UI_CLASS"]
         )
         flask_app.register_blueprint(webui_blueprint.webui)
+        if hasattr(webui_blueprint, 'sock'):
+            webui_blueprint.sock.init_app(flask_app)
 
 
 def run(cfg):
