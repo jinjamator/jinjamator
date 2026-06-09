@@ -43,6 +43,9 @@ def save(data, target_path, **kwargs):
         * *overwrite* (``bool``) --
           Should a existing file be overwritten?, defaults to True
     """
+    create_dirs = kwargs.get("create_dirs", False)
+    if create_dirs: file.mkdir_p(file.parent(target_path))
+
     mode = kwargs.get("mode", "w")
     target_path=resolve_path(target_path)
     if (not os.path.exists(target_path)) or (
@@ -210,6 +213,17 @@ def resolve(fn=__file__):
 
     return source_dir
 
+def parent(filename):
+    """
+    Return the parent directory of the file
+
+    :param filename: The filename
+    :type filename: ``str``
+    :return: Parent directory of the file
+    :rtype: ``str``
+    """
+    filename=resolve_path(filename)
+    return str(pathlib.Path(filename).parent)
 
 def mkdir(filename, mode=0o777, parents=False, exist_ok=False):
     """
