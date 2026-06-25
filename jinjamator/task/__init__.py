@@ -26,6 +26,7 @@ from pyflakes.api import check as pyflakes_check
 from pyflakes.reporter import Reporter as pyflakes_reporter
 import pyflakes.messages
 import re
+import ast
 from io import StringIO
 from getpass import getpass
 import importlib
@@ -307,9 +308,17 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         retval=obj.__kwdefaults__.get("_requires", [])
         if isinstance(retval, types.FunctionType):
             retval=retval()
+        dict_keys = getattr(self, "_current_tasklet_dict_keys", {})
         for option in options.split(","):
-            if "=" in option: 
-                var_name = option.strip().split("=")[0].strip()
+            option = option.strip()
+            if option.startswith("**"):
+                # a dict was splatted into the call (e.g. connect(**conargs)):
+                # treat every statically known key of that dict as provided.
+                for key in dict_keys.get(option[2:].strip(), set()):
+                    if key in retval:
+                        retval.remove(key)
+            elif "=" in option:
+                var_name = option.split("=")[0].strip()
                 if var_name in retval:
                     retval.remove(var_name)
         return retval
@@ -330,7 +339,35 @@ class jinjaTask(PythonTask):\n  def __run__(self):\n    task_init_pluginloader(s
         except AttributeError:
             pass
 
+    def collect_tasklet_dict_keys(self, tasklet):
+        """Map ``name -> {constant string keys}`` for dict literals in a tasklet.
+
+        Used so the dependency analyzer can see through ``**some_dict`` when a
+        plugin function is called with splatted keyword arguments
+        (e.g. ``winrm.connect(**conargs)``). Only literal dicts with constant
+        string keys are resolved; anything dynamic is silently ignored.
+        """
+        keys_map = {}
+        try:
+            with open(tasklet) as fh:
+                tree = ast.parse(fh.read())
+        except (SyntaxError, OSError):
+            return keys_map
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
+                continue
+            keys = {
+                k.value
+                for k in node.value.keys
+                if isinstance(k, ast.Constant) and isinstance(k.value, str)
+            }
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    keys_map.setdefault(target.id, set()).update(keys)
+        return keys_map
+
     def analyze_py_tasklet(self, tasklet):
+        self._current_tasklet_dict_keys = self.collect_tasklet_dict_keys(tasklet)
         tasklet_code = self.get_py_tasklet_code(tasklet)
         errors = StringIO()
         warnings = StringIO()
